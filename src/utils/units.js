@@ -5,5 +5,5 @@ export function getUnit(categoryId) {
     (c) => c.id === categoryId
   );
 
-  return category ? category.unit : "";
+  return category?.unit || "";
 }

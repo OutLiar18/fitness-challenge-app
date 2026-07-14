@@ -15,8 +15,8 @@ import {
 } from "firebase/firestore";
 
 import { getUnit } from "../utils/units";
-import { CATEGORIES } from "../constants/categories";
-
+import { getCategory } from "../utils/categoryHelpers";
+import CategoryGrid from "../components/categories/CategoryGrid";
 import WelcomeCard from "../components/dashboard/WelcomeCard";
 import StatsCard from "../components/dashboard/StatsCard";
 import EntryForm from "../components/entries/EntryForm";
@@ -29,7 +29,7 @@ export default function Dashboard() {
   const [entries, setEntries] = useState([]);
 
   const [type, setType] = useState("water");
-  const [value, setValue] = useState("");
+  const [formData, setFormData] = useState({});
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -39,26 +39,18 @@ export default function Dashboard() {
   const saveEntry = async () => {
     if (!user) return;
 
-    if (value.trim() === "") {
-      alert("🤨 You forgot to enter a value.");
-      return;
-    }
-
-    if (isNaN(value)) {
-      alert("😂 Unfortunately that is not a decimal value known to mankind.");
-      return;
-    }
-
     try {
       await addDoc(collection(db, "challengeEntries"), {
         userId: user.uid,
+
         category: type,
-        value: Number(value),
-        unit: getUnit(type),
+
+        ...formData,
+
         createdAt: serverTimestamp(),
       });
 
-      setValue("");
+      setFormData({});
     } catch (err) {
       console.error(err);
       alert(err.message);
@@ -74,16 +66,14 @@ export default function Dashboard() {
 
     const q = query(
       collection(db, "challengeEntries"),
-      where("userId", "==", user.uid)
+      where("userId", "==", user.uid),
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map((doc) => {
         const d = doc.data();
 
-        const category = CATEGORIES.find(
-          (c) => c.id === d.category
-        );
+        const category = getCategory(d.category);
 
         return {
           id: doc.id,
@@ -96,10 +86,7 @@ export default function Dashboard() {
       data.sort((a, b) => {
         if (!a.createdAt || !b.createdAt) return 0;
 
-        return (
-          b.createdAt.toMillis() -
-          a.createdAt.toMillis()
-        );
+        return b.createdAt.toMillis() - a.createdAt.toMillis();
       });
 
       setEntries(data);
@@ -119,11 +106,12 @@ export default function Dashboard() {
 
       <StatsCard totalEntries={entries.length} />
 
+      <CategoryGrid selected={type} onSelect={setType} />
+
       <EntryForm
         type={type}
-        setType={setType}
-        value={value}
-        setValue={setValue}
+        formData={formData}
+        setFormData={setFormData}
         onSave={saveEntry}
       />
 
@@ -135,19 +123,13 @@ export default function Dashboard() {
         <p>No entries yet.</p>
       ) : (
         entries.map((entry) => (
-          <EntryCard
-            key={entry.id}
-            entry={entry}
-            onDelete={deleteEntry}
-          />
+          <EntryCard key={entry.id} entry={entry} onDelete={deleteEntry} />
         ))
       )}
 
       <hr />
 
-      <button onClick={handleLogout}>
-        Logout
-      </button>
+      <button onClick={handleLogout}>Logout</button>
     </div>
   );
 }
