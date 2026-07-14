@@ -3,12 +3,12 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyA1WVPLAzv-67KFconKDu7GmiTXKe_eoNY",
-  authDomain: "fitnesschallengeapp-9e87f.firebaseapp.com",
-  projectId: "fitnesschallengeapp-9e87f",
-  storageBucket: "fitnesschallengeapp-9e87f.firebasestorage.app",
-  messagingSenderId: "411518488508",
-  appId: "1:411518488508:web:2efef487f241d4a2dfe5b9"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
 const app = initializeApp(firebaseConfig);

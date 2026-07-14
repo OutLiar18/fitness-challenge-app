@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
 export default function Signup() {
@@ -12,8 +13,35 @@ export default function Signup() {
     e.preventDefault();
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      alert("Account created!");
+      // Create Authentication account
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+
+      const user = userCredential.user;
+
+      // Create Firestore profile
+      await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        email: user.email,
+
+        displayName: "",
+
+        role: "user",
+
+        team: "",
+
+        totalPoints: 0,
+
+        currentStreak: 0,
+
+        joinedAt: serverTimestamp(),
+      });
+
+      alert("🎉 Welcome to the Challenge!");
+
       navigate("/dashboard");
     } catch (err) {
       alert(err.message);

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { auth, db } from "../firebase";
 import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+
 import {
   addDoc,
   collection,
@@ -10,163 +11,230 @@ import {
   onSnapshot,
   deleteDoc,
   doc,
+  serverTimestamp,
+  orderBy,
 } from "firebase/firestore";
 
 export default function Dashboard() {
-  const [entries, setEntries] = useState([]);
-
-  const [type, setType] = useState("water");
-  const [value, setValue] = useState("");
-
   const navigate = useNavigate();
   const user = auth.currentUser;
 
-  // -------------------------
-  // AUTO UNIT SYSTEM
-  // -------------------------
-  const getUnitByType = (type) => {
-    const map = {
-      water: "ml",
-      fruit: "servings",
-      upper_body: "reps",
-      lower_body: "reps",
-      core: "reps",
-      running: "km",
-      steps: "steps",
-      cardio: "mins",
-      reading: "mins",
-      skill: "mins",
-    };
+  const [entries, setEntries] = useState([]);
 
-    return map[type] || "units";
+  const [category, setCategory] = useState("water");
+  const [value, setValue] = useState("");
+
+  // -----------------------
+  // Automatic units
+  // -----------------------
+  const getUnit = (category) => {
+    switch (category) {
+      case "water":
+        return "ml";
+
+      case "fruit":
+        return "fruit";
+
+      case "upper_body":
+      case "lower_body":
+      case "core":
+        return "reps";
+
+      case "running":
+        return "km";
+
+      case "steps":
+        return "steps";
+
+      case "reading":
+      case "cardio":
+      case "skill":
+        return "minutes";
+
+      default:
+        return "";
+    }
   };
 
-  // -------------------------
-  // LOGOUT
-  // -------------------------
+  // -----------------------
+  // Logout
+  // -----------------------
   const handleLogout = async () => {
     await signOut(auth);
     navigate("/");
   };
 
-  // -------------------------
-  // SAVE ENTRY
-  // -------------------------
+  // -----------------------
+  // Save Entry
+  // -----------------------
   const saveEntry = async () => {
-    if (!value) return;
+    if (!user) {
+      alert("Please log in.");
+      return;
+    }
 
-    await addDoc(collection(db, "entries"), {
-      type,
-      value: Number(value),
-      unit: getUnitByType(type),
-      userId: user.uid,
-      createdAt: new Date().toISOString(),
-    });
+    if (value.trim() === "") {
+      alert("🤨 You forgot to enter a value.");
+      return;
+    }
 
-    setValue("");
+    if (isNaN(value)) {
+      alert(
+        "😂 Unfortunately that is not a decimal value known to mankind."
+      );
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, "challengeEntries"), {
+        userId: user.uid,
+
+        category,
+
+        value: Number(value),
+
+        unit: getUnit(category),
+
+        createdAt: serverTimestamp(),
+      });
+
+      setValue("");
+
+      alert("✅ Entry saved!");
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    }
   };
 
-  // -------------------------
-  // DELETE ENTRY
-  // -------------------------
+  // -----------------------
+  // Delete Entry
+  // -----------------------
   const deleteEntry = async (id) => {
-    await deleteDoc(doc(db, "entries", id));
+    try {
+      await deleteDoc(doc(db, "challengeEntries", id));
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  // -------------------------
-  // LOAD DATA (REAL-TIME)
-  // -------------------------
+  // -----------------------
+  // Load Entries
+  // -----------------------
   useEffect(() => {
     if (!user) return;
 
     const q = query(
-      collection(db, "entries"),
-      where("userId", "==", user.uid)
+      collection(db, "challengeEntries"),
+      where("userId", "==", user.uid),
+      orderBy("createdAt", "desc")
     );
 
-    const unsub = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map((d) => ({
-        id: d.id,
-        ...d.data(),
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
       }));
 
       setEntries(data);
     });
 
-    return () => unsub();
+    return () => unsubscribe();
   }, [user]);
 
   return (
-    <div style={{ padding: "20px", maxWidth: "600px", margin: "0 auto" }}>
-      <h1>Challenge Dashboard</h1>
-      <p>Logged in as: {user?.email}</p>
+    <div
+      style={{
+        maxWidth: "700px",
+        margin: "40px auto",
+        padding: "20px",
+      }}
+    >
+      <h1>🏆 Champions Legacy Challenge</h1>
+
+      <p>
+        Logged in as <strong>{user?.email}</strong>
+      </p>
 
       <hr />
 
-      {/* -------------------------
-          INPUT SECTION
-      ------------------------- */}
-      <h2>➕ Log Entry</h2>
+      <h2>➕ Log Challenge Entry</h2>
 
       <select
-        value={type}
-        onChange={(e) => setType(e.target.value)}
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
       >
-        <option value="water">Water</option>
-        <option value="fruit">Fruits</option>
-        <option value="upper_body">Upper Body Workout</option>
-        <option value="lower_body">Lower Body Workout</option>
-        <option value="core">Middle/Core Workout</option>
-        <option value="cardio">Cardio</option>
-        <option value="running">Running</option>
-        <option value="reading">Reading</option>
-        <option value="skill">Skill</option>
-        <option value="steps">Steps</option>
+        <option value="water">💧 Water</option>
+
+        <option value="fruit">🍎 Fruit</option>
+
+        <option value="upper_body">💪 Upper Body Workout</option>
+
+        <option value="lower_body">🦵 Lower Body Workout</option>
+
+        <option value="core">🔥 Core Workout</option>
+
+        <option value="cardio">🚴 Cardio</option>
+
+        <option value="running">🏃 Running</option>
+
+        <option value="reading">📚 Reading</option>
+
+        <option value="skill">🎯 Skill</option>
+
+        <option value="steps">👣 Steps</option>
       </select>
 
-      <br /><br />
+      <br />
+      <br />
 
       <input
+        type="text"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder="Enter value (e.g. 500, 20, 3)"
+        placeholder={`Enter ${getUnit(category)}`}
       />
 
-      <br /><br />
+      <br />
+      <br />
 
       <button onClick={saveEntry}>Save Entry</button>
 
       <hr />
 
-      {/* -------------------------
-          LIST SECTION
-      ------------------------- */}
-      <h2>📋 Your Entries</h2>
+      <h2>Your Entries</h2>
 
       {entries.length === 0 ? (
-        <p>No entries yet</p>
+        <p>No entries yet.</p>
       ) : (
-        entries.map((e) => (
+        entries.map((entry) => (
           <div
-            key={e.id}
+            key={entry.id}
             style={{
               border: "1px solid #ddd",
-              padding: "10px",
-              marginBottom: "10px",
               borderRadius: "8px",
+              padding: "12px",
+              marginBottom: "12px",
             }}
           >
+            <strong>{entry.category}</strong>
+
             <p>
-              <strong>{e.type}</strong> — {e.value} {e.unit}
+              {entry.value} {entry.unit}
             </p>
 
             <small>
-              {new Date(e.createdAt).toLocaleString()}
+              {entry.createdAt?.toDate
+                ? entry.createdAt.toDate().toLocaleString()
+                : ""}
             </small>
 
-            <br /><br />
+            <br />
+            <br />
 
-            <button onClick={() => deleteEntry(e.id)}>
+            <button
+              onClick={() => deleteEntry(entry.id)}
+            >
               Delete
             </button>
           </div>
@@ -175,7 +243,9 @@ export default function Dashboard() {
 
       <hr />
 
-      <button onClick={handleLogout}>Logout</button>
+      <button onClick={handleLogout}>
+        Logout
+      </button>
     </div>
   );
 }
