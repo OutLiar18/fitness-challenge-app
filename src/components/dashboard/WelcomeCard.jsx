@@ -10,17 +10,11 @@ export default function WelcomeCard({ profile, user }) {
     >
       <h1>🏆 Champions Legacy Challenge</h1>
 
-      <p>
-        Welcome back,
-      </p>
+      <p>Welcome back,</p>
 
-      <h2 style={{ marginTop: 0 }}>
-        {profile?.fullName || user?.email}
-      </h2>
+      <h2 style={{ marginTop: 0 }}>{profile?.displayName || user?.email}</h2>
 
-      <p>
-        Role: {profile?.role || "User"}
-      </p>
+      <p>Role: {profile?.role || "User"}</p>
     </div>
   );
 }
