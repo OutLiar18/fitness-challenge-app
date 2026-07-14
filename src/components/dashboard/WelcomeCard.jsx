@@ -1,8 +1,4 @@
-import { auth } from "../../firebase";
-
-export default function WelcomeCard() {
-  const user = auth.currentUser;
-
+export default function WelcomeCard({ profile, user }) {
   return (
     <div
       style={{
@@ -16,7 +12,14 @@ export default function WelcomeCard() {
 
       <p>
         Welcome back,
-        <strong> {user?.email}</strong>
+      </p>
+
+      <h2 style={{ marginTop: 0 }}>
+        {profile?.fullName || user?.email}
+      </h2>
+
+      <p>
+        Role: {profile?.role || "User"}
       </p>
     </div>
   );

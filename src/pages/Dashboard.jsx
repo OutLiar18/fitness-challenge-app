@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 import {
   addDoc,
+  getDoc,
   collection,
   query,
   where,
@@ -14,8 +15,8 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 
-import { getUnit } from "../utils/units";
 import { getCategory } from "../utils/categoryHelpers";
+
 import CategoryGrid from "../components/categories/CategoryGrid";
 import WelcomeCard from "../components/dashboard/WelcomeCard";
 import StatsCard from "../components/dashboard/StatsCard";
@@ -26,15 +27,24 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const user = auth.currentUser;
 
+  const [profile, setProfile] = useState(null);
   const [entries, setEntries] = useState([]);
 
   const [type, setType] = useState("water");
   const [formData, setFormData] = useState({});
 
+  // -----------------------
+  // Logout
+  // -----------------------
+
   const handleLogout = async () => {
     await signOut(auth);
     navigate("/");
   };
+
+  // -----------------------
+  // Save Entry
+  // -----------------------
 
   const saveEntry = async () => {
     if (!user) return;
@@ -42,11 +52,8 @@ export default function Dashboard() {
     try {
       await addDoc(collection(db, "challengeEntries"), {
         userId: user.uid,
-
         category: type,
-
         ...formData,
-
         createdAt: serverTimestamp(),
       });
 
@@ -57,26 +64,52 @@ export default function Dashboard() {
     }
   };
 
+  // -----------------------
+  // Delete Entry
+  // -----------------------
+
   const deleteEntry = async (id) => {
-    await deleteDoc(doc(db, "challengeEntries", id));
+    try {
+      await deleteDoc(doc(db, "challengeEntries", id));
+    } catch (err) {
+      console.error(err);
+    }
   };
+
+  // -----------------------
+  // Load Profile + Entries
+  // -----------------------
 
   useEffect(() => {
     if (!user) return;
 
+    const loadProfile = async () => {
+      try {
+        const snap = await getDoc(doc(db, "users", user.uid));
+
+        if (snap.exists()) {
+          setProfile(snap.data());
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    loadProfile();
+
     const q = query(
       collection(db, "challengeEntries"),
-      where("userId", "==", user.uid),
+      where("userId", "==", user.uid)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map((doc) => {
-        const d = doc.data();
+      const data = snapshot.docs.map((docSnap) => {
+        const d = docSnap.data();
 
         const category = getCategory(d.category);
 
         return {
-          id: doc.id,
+          id: docSnap.id,
           ...d,
           name: category?.name || d.category,
           emoji: category?.emoji || "🏆",
@@ -85,7 +118,6 @@ export default function Dashboard() {
 
       data.sort((a, b) => {
         if (!a.createdAt || !b.createdAt) return 0;
-
         return b.createdAt.toMillis() - a.createdAt.toMillis();
       });
 
@@ -102,11 +134,14 @@ export default function Dashboard() {
         margin: "40px auto",
       }}
     >
-      <WelcomeCard />
+      <WelcomeCard profile={profile} user={user} />
 
       <StatsCard totalEntries={entries.length} />
 
-      <CategoryGrid selected={type} onSelect={setType} />
+      <CategoryGrid
+        selected={type}
+        onSelect={setType}
+      />
 
       <EntryForm
         type={type}
@@ -123,13 +158,19 @@ export default function Dashboard() {
         <p>No entries yet.</p>
       ) : (
         entries.map((entry) => (
-          <EntryCard key={entry.id} entry={entry} onDelete={deleteEntry} />
+          <EntryCard
+            key={entry.id}
+            entry={entry}
+            onDelete={deleteEntry}
+          />
         ))
       )}
 
       <hr />
 
-      <button onClick={handleLogout}>Logout</button>
+      <button onClick={handleLogout}>
+        Logout
+      </button>
     </div>
   );
 }

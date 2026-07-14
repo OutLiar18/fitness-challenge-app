@@ -5,6 +5,8 @@ import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
 export default function Signup() {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -13,7 +15,6 @@ export default function Signup() {
     e.preventDefault();
 
     try {
-      // Create Authentication account
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -22,6 +23,23 @@ export default function Signup() {
 
       const user = userCredential.user;
 
+      await setDoc(doc(db, "users", user.uid), {
+        firstName,
+
+        lastName,
+
+        fullName: `${firstName} ${lastName}`,
+
+        email,
+
+        role: "user",
+
+        totalPoints: 0,
+
+        bonusPoints: 0,
+
+        createdAt: serverTimestamp(),
+      });
       // Create Firestore profile
       await setDoc(doc(db, "users", user.uid), {
         uid: user.uid,
@@ -51,6 +69,18 @@ export default function Signup() {
   return (
     <form onSubmit={handleSignup}>
       <h1>Signup</h1>
+      
+      <input
+        placeholder="First Name"
+        value={firstName}
+        onChange={(e) => setFirstName(e.target.value)}
+      />
+
+      <input
+        placeholder="Last Name"
+        value={lastName}
+        onChange={(e) => setLastName(e.target.value)}
+      />
 
       <input
         placeholder="Email"
