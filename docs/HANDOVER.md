@@ -1,90 +1,85 @@
 # 🏆 Champions Legacy Challenge
+
 # Project Handover
-Version: 0.2.0
+
+Version: 0.3
+
+Last Updated: July 2026
+
+---
+
+# Project Summary
+
+Champions Legacy Challenge is a mobile-first personal development application built with React, Vite and Firebase.
+
+Unlike a traditional fitness tracker, the application encourages users to develop multiple healthy habits through daily challenges, progress tracking and gamification.
+
+Current challenge categories include:
+
+- 💧 Water
+- 🍎 Fruit
+- 📚 Reading
+- 🏃 Running
+- 💪 Upper Body
+- 🦵 Lower Body
+- 🔥 Core
+- 🚴 Cardio
+- 🎯 Skill Development
+- 👣 Steps
+
+The application is designed to be scalable, configurable and enjoyable to use.
 
 ---
 
 # Current Status
 
-The project is fully functional.
+Current Version
 
-Users can:
+v0.3
 
-- Create an account
-- Log in
-- Log out
-- Save challenge entries
-- View their entries
-- Delete their own entries
+Current Sprint
 
-The application is deployed on Netlify and connected to Firebase.
+Core Challenge System
+
+Status
+
+🟢 Stable
+
+Authentication, dashboard, dynamic forms and statistics architecture are complete.
+
+The current focus is improving the user experience rather than adding major infrastructure.
 
 ---
 
-# Current Tech Stack
+# Current Technology
 
 Frontend
+
 - React
 - Vite
 
 Backend
+
 - Firebase Authentication
 - Cloud Firestore
-- (Future) Firebase Storage
 
 Hosting
+
 - Netlify
 
 Repository
+
 - GitHub
 
 ---
 
-# Current Database
-
-Collections
-
-users
-
-challengeEntries
-
----
-
-users fields
-
-uid
-
-email
-
-displayName
-
-role
-
-team
-
-joinedAt
-
-currentStreak
-
-totalPoints
-
----
-
-challengeEntries fields
-
-userId
-
-category
-
-(created dynamically)
-
-createdAt
-
----
-
-Current Architecture
+# Current Architecture
 
 Authentication
+
+↓
+
+User Profile
 
 ↓
 
@@ -92,234 +87,283 @@ Dashboard
 
 ↓
 
-Category Selection
+Category Configuration
 
 ↓
 
-Dynamic Form
+Dynamic Form Engine
 
 ↓
 
-Challenge Entry
+Validation Service
+
+↓
+
+Entry Service
 
 ↓
 
 Firestore
 
----
+↓
 
-Current Progress
+Statistics Service
 
-Completed
+↓
 
-✅ Authentication
-
-✅ User Profiles
-
-✅ Dashboard
-
-✅ Dynamic Category System
-
-✅ Dynamic Entry Forms
-
-✅ Save Entries
-
-✅ Delete Entries
-
-✅ Firestore Integration
-
-✅ GitHub
-
-✅ Netlify
+Future Features
 
 ---
 
-Current Priority
+# Folder Structure
 
-Build the complete proof upload system using Firebase Storage.
+src/
 
-This system is required before the Admin Dashboard can be completed.
+components/
 
----
+pages/
 
-Next Planned Features
+services/
 
-1. Image Uploads
+constants/
 
-2. Display Name support (replace email throughout the app)
+utils/
 
-3. Admin Role System
+styles/
 
-4. Admin Dashboard
+assets/
 
-5. Points Engine
-
-6. Analytics
-
-7. Leaderboards
-
-8. Achievements
+docs/
 
 ---
 
-Challenge Philosophy
+# Completed Features
 
-Champions Legacy Challenge is not only a fitness tracker.
+Authentication
 
-It encourages
+- Login
+- Signup
+- Logout
+- Protected Routes
 
-- Discipline
-- Accountability
-- Reading
-- Skill Development
-- Healthy Living
-- Integrity
-- Consistency
+Users
 
-Every future feature should reinforce these principles.
+- User profiles
+- Firestore profile creation
 
----
+Dashboard
 
-Important Rules
+- Welcome card
+- Statistics card
+- Category grid
+- Entry history
 
-Water
+Entries
 
-Optional photo.
+- Dynamic categories
+- Dynamic forms
+- Save entries
+- Delete entries
+- Real-time updates
 
-Bonus points awarded for proof.
+Forms
 
-Fruit
+- SmartSelect searchable dropdown
+- Custom values
+- Dynamic validation
+- Funny validation messages
 
-Uses the culinary definition.
+Architecture
 
-Tomatoes do not count.
+- Configuration-driven categories
+- Categories are the single source of truth
+- Statistics service
+- Validation service
+- Entry service
 
-Optional proof.
+Deployment
 
-Maximum bonus equivalent to three fruits per day.
-
-Running
-
-Mandatory screenshot.
-
-Requires admin approval.
-
-Steps
-
-Mandatory screenshot.
-
-Workout Categories
-
-No proof required.
-
-Many exercise sub-types.
-
-Need to prevent ambiguity such as one-sided exercises.
-
-Reading
-
-Reflection field required.
-
-Skill
-
-No description required.
-
-Optional proof.
+- GitHub
+- Netlify
+- Firebase
 
 ---
 
-Future Admin Features
+# Current Configuration System
 
-Admins should be able to
+Categories define:
 
-Approve submissions
+- Name
+- Emoji
+- Fields
+- Units
+- Daily Goal
+- Goal Type
+- Score Field
 
-Reject submissions
+This configuration drives the rest of the application.
 
-Award bonus points
-
-Correct mistakes
-
-Edit scores
-
-Manage users
-
-Review evidence
-
-Search participants
-
-View analytics
+Adding a new category should require little or no modification elsewhere.
 
 ---
 
-Development Preferences
+# Current Daily Goals
 
-The project owner prefers:
-
-• Very small steps.
-
-• Copy-paste instructions.
-
-• Minimal theory.
-
-• Every assistant response should end with a practical task.
-
-• Build scalable systems rather than quick fixes.
-
-• Record future ideas instead of interrupting the current task.
-
----
-
-Important Future Ideas
-
-Funny validation messages.
-
-Hidden easter eggs.
-
-Extensive analytics.
-
-Dynamic points engine.
-
-Configurable categories.
-
-Configurable scoring.
-
-Exercise library.
-
-Fruit library.
-
-Season support.
-
-Achievements.
-
-Badges.
-
-Dark mode.
-
-Push notifications.
-
-AI coaching (future possibility).
+| Category | Goal |
+|----------|------|
+| Water | 2000 ml |
+| Fruit | 3 |
+| Reading | 30 min |
+| Running | 5 km |
+| Upper Body | 50 reps |
+| Lower Body | 50 reps |
+| Core | 50 reps |
+| Cardio | 30 min |
+| Skill | 30 min |
+| Steps | 10,000 |
 
 ---
 
-Known Issues
+# Development Philosophy
 
-Display name is not yet used throughout the application.
+Always prefer:
 
-Image uploads have not yet been implemented.
+- Mobile-first design
+- Configuration over hardcoding
+- Reusable components
+- Small services
+- Clean architecture
+- Readable code
 
-Admin portal does not yet exist.
-
-Points engine not yet implemented.
-
-Some validation still needs improvement.
+Future ideas should be documented instead of interrupting development.
 
 ---
 
-Current Goal
+# Current Priorities
 
-Build Version 0.3.
+Highest Priority
 
-Primary objective:
+✅ Today's Challenge Card
 
-Implement Firebase Storage image uploads as the foundation for proof submission and admin review.
+After that
+
+- Progress bars
+- Daily completion
+- Goal percentages
+- Better dashboard
+
+---
+
+# Upcoming Milestones
+
+Version 0.3
+
+- Today's Challenge
+- Progress tracking
+- Better statistics
+
+Version 0.4
+
+- Streak system
+- XP
+- Achievements
+
+Version 0.5
+
+- Analytics
+- Charts
+- Insights
+
+---
+
+# Removed Features
+
+The following ideas have intentionally been removed from the current version.
+
+Image uploads
+
+Reason:
+
+The project is intended to remain fully usable using Firebase's free tier.
+
+Future versions may optionally reintroduce evidence uploads.
+
+---
+
+# Important Decisions
+
+Categories are the single source of truth.
+
+Statistics are calculated rather than stored.
+
+Points will always be calculated.
+
+Components should contain minimal business logic.
+
+Services should contain business logic.
+
+The application is mobile-first.
+
+Every major feature should be reusable.
+
+---
+
+# Known Improvements
+
+Display names are not yet shown throughout the application.
+
+Today's Challenge card has not yet been implemented.
+
+Streak tracking does not yet exist.
+
+Achievements are not yet implemented.
+
+Leaderboards do not yet exist.
+
+Admin Portal has not yet been started.
+
+---
+
+# Future ChatGPT Instructions
+
+When continuing this project:
+
+Read:
+
+1. PROJECT_BIBLE.md
+
+2. HANDOVER.md
+
+3. ROADMAP.md
+
+4. FUTURE_IDEAS.md
+
+Follow the project's architecture.
+
+Prefer scalable solutions.
+
+Avoid introducing duplicate code.
+
+Keep the application mobile-first.
+
+Whenever a good idea arises that is outside the current sprint, record it in FUTURE_IDEAS.md instead of changing priorities.
+
+---
+
+# Next Recommended Task
+
+Continue building the dashboard by implementing the **Today's Challenge** card.
+
+This should display:
+
+- Daily progress
+- Progress bars
+- Goal completion
+- Live updates
+- Motivational feedback
+
+This feature will become the centrepiece of the dashboard.
+
+---
+
+# End of Document

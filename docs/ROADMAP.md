@@ -2,127 +2,425 @@
 
 # Development Roadmap
 
+Version: 2.0
+
 ---
 
-# ✅ Phase 1 — Foundation (Completed)
+# Purpose
 
-- [x] Create React project
-- [x] Connect Firebase
-- [x] Configure Firestore
-- [x] Configure Authentication
+This roadmap defines the planned development of Champions Legacy Challenge.
+
+Unlike the Future Ideas document, everything listed here represents features that are expected to be implemented.
+
+Priorities may change as the project evolves.
+
+---
+
+# Current Status
+
+Current Version
+
+**v0.3**
+
+Current Focus
+
+✅ Stable foundation
+
+✅ Configuration-driven architecture
+
+✅ Mobile-first development
+
+🚧 Daily Challenge experience
+
+---
+
+# Phase 1 — Foundation ✅ Complete
+
+## Project Setup
+
+- [x] React + Vite
 - [x] GitHub Repository
 - [x] Netlify Deployment
+
+## Firebase
+
+- [x] Firebase Authentication
+- [x] Firestore Database
+- [x] Security Rules
+
+## Authentication
+
 - [x] Login
 - [x] Signup
 - [x] Protected Routes
-- [x] Dashboard
-- [x] Save Entries
-- [x] View Entries
-- [x] Delete Entries
-- [x] Dynamic Category System
-- [x] Dynamic Entry Forms
 - [x] User Profiles
 
----
+## Dashboard
 
-# 🚧 Phase 2 — Core Challenge System (Current)
+- [x] Dashboard Layout
+- [x] Welcome Card
+- [x] Statistics Card
+- [x] Category Grid
 
-## Dynamic Entry Forms
+## Entry System
 
-- [ ] Fruit form
-- [ ] Water form
-- [ ] Reading form
-- [ ] Running form
-- [ ] Cardio form
-- [ ] Skill form
-- [ ] Workout forms
-- [ ] Steps form
-
-## Entry Validation
-
-- [ ] Funny validation messages
-- [ ] Required field checking
-- [ ] Numeric validation
-- [ ] Duplicate prevention
-
-## Evidence System
-
-- [ ] Image upload
-- [ ] Proof required logic
-- [ ] Proof optional logic
-- [ ] Preview uploaded image
+- [x] Dynamic Categories
+- [x] Dynamic Entry Forms
+- [x] Save Entries
+- [x] Delete Entries
+- [x] Real-time Updates
 
 ---
 
-# 📊 Phase 3 — Statistics
+# Phase 2 — Core Challenge System 🚧
 
-- [ ] Personal Dashboard
-- [ ] Daily Statistics
-- [ ] Weekly Statistics
-- [ ] Monthly Statistics
-- [ ] Favourite Fruit
-- [ ] Favourite Exercise
-- [ ] Reading Statistics
-- [ ] Running Statistics
-- [ ] Streak Tracking
-- [ ] Progress Charts
+## Configuration System
+
+- [x] Categories as single source of truth
+- [x] Daily goals inside categories
+- [x] Score fields
+- [x] Goal types
 
 ---
 
-# 👑 Phase 4 — Admin Portal
+## Smart Forms
 
-- [ ] Admin Login
-- [ ] Admin Dashboard
-- [ ] Review Queue
-- [ ] Approve Entries
-- [ ] Reject Entries
-- [ ] Edit Points
-- [ ] Award Bonus Points
-- [ ] Manage Users
-- [ ] Search Users
-- [ ] View User Profiles
-- [ ] Audit Log
+- [x] SmartSelect component
+- [x] Searchable dropdowns
+- [x] Custom values
+- [x] Dynamic validation
 
 ---
 
-# 🏅 Phase 5 — Leaderboards
+## Workout Tracking
 
-- [ ] Global Leaderboard
-- [ ] Team Leaderboard
-- [ ] Weekly Leaderboard
-- [ ] Monthly Leaderboard
-- [ ] Longest Streak
-- [ ] Most Water
-- [ ] Most Reading
-- [ ] Most Running
+- [x] Upper Body
+- [x] Lower Body
+- [x] Core
+- [x] Cardio
+- [ ] Exercise library expansion
+- [ ] Workout presets
 
 ---
 
-# 🎖 Phase 6 — Achievements
+## Statistics Engine
 
-- [ ] Badges
-- [ ] Milestones
-- [ ] Daily Challenges
-- [ ] Weekly Challenges
-- [ ] Seasonal Challenges
-- [ ] Personal Records
+- [x] Statistics service
+- [x] Category totals
+- [x] Today's totals
 
----
+Next:
 
-# 📱 Phase 7 — Polish
-
-- [ ] Mobile Optimisation
-- [ ] Dark Mode
-- [ ] Better Animations
-- [ ] Better UI
-- [ ] Loading Screens
-- [ ] Error Pages
-- [ ] Accessibility Improvements
+- [ ] Today's Challenge card
+- [ ] Progress bars
+- [ ] Daily completion
+- [ ] Goal percentages
 
 ---
 
-# 🚀 Version 1.0 Release
+# Phase 3 — Progress Tracking
 
-Goal:
+Daily challenge overview
 
-A polished production-ready application capable of managing the full Champions Legacy Challenge with participants, administrators, evidence review, statistics, leaderboards and achievements.
+Daily completion tracking
+
+Current streak
+
+Longest streak
+
+Weekly progress
+
+Monthly progress
+
+Personal bests
+
+Habit consistency
+
+Calendar view
+
+---
+
+# Phase 4 — Gamification
+
+XP
+
+Levels
+
+Achievements
+
+Milestones
+
+Titles
+
+Badges
+
+Daily challenges
+
+Weekly challenges
+
+Monthly challenges
+
+Seasonal challenges
+
+Mystery achievements
+
+Hidden easter eggs
+
+---
+
+# Phase 5 — Analytics
+
+Personal dashboard
+
+Water analytics
+
+Reading analytics
+
+Workout analytics
+
+Running analytics
+
+Skill analytics
+
+Favourite exercise
+
+Favourite fruit
+
+Most productive weekday
+
+Heatmaps
+
+Charts
+
+Year in Review
+
+---
+
+# Phase 6 — Leaderboards
+
+Overall leaderboard
+
+Weekly leaderboard
+
+Monthly leaderboard
+
+Category leaderboards
+
+Team leaderboard
+
+Season leaderboard
+
+Personal ranking history
+
+---
+
+# Phase 7 — Admin Portal
+
+Admin authentication
+
+Admin dashboard
+
+User management
+
+Category management
+
+Challenge settings
+
+Season management
+
+Leaderboard management
+
+Analytics dashboard
+
+Audit log
+
+Bulk actions
+
+---
+
+# Phase 8 — User Profiles
+
+Display names
+
+Profile customisation
+
+Personal statistics
+
+Achievement showcase
+
+Level display
+
+Profile sharing
+
+Public profiles (optional)
+
+---
+
+# Phase 9 — Polish
+
+Dark Mode
+
+Animations
+
+Micro-interactions
+
+Sound effects
+
+Loading screens
+
+Improved validation
+
+Accessibility improvements
+
+Performance optimisation
+
+Tablet layout
+
+Desktop layout
+
+---
+
+# Phase 10 — Release Preparation
+
+Testing
+
+Bug fixing
+
+Performance profiling
+
+Documentation review
+
+Accessibility review
+
+Security review
+
+Data validation review
+
+Deployment checklist
+
+---
+
+# Version Milestones
+
+## Version 0.3
+
+Configuration-driven architecture
+
+Statistics engine
+
+Daily challenge
+
+Improved dashboard
+
+---
+
+## Version 0.4
+
+Streak engine
+
+Achievements
+
+XP
+
+Levels
+
+---
+
+## Version 0.5
+
+Analytics
+
+Charts
+
+Leaderboards
+
+---
+
+## Version 0.6
+
+Admin Portal
+
+Challenge management
+
+Season management
+
+---
+
+## Version 0.7
+
+User profiles
+
+Advanced statistics
+
+Community features
+
+---
+
+## Version 0.8
+
+Animations
+
+Sounds
+
+Accessibility
+
+Dark mode
+
+---
+
+## Version 0.9
+
+Testing
+
+Optimisation
+
+Polish
+
+---
+
+## Version 1.0
+
+Production-ready Champions Legacy Challenge
+
+Feature complete
+
+Stable
+
+Well documented
+
+Portfolio ready
+
+---
+
+# Development Rules
+
+Every completed feature should:
+
+✅ Be reusable
+
+✅ Be mobile-first
+
+✅ Avoid duplicated code
+
+✅ Follow the Project Bible
+
+✅ Update the documentation
+
+✅ Be tested manually before moving on
+
+---
+
+# Success Criteria
+
+Champions Legacy Version 1.0 should be capable of:
+
+- Supporting hundreds of users
+- Tracking multiple habit categories
+- Providing meaningful statistics
+- Encouraging long-term consistency
+- Requiring minimal administrator effort
+- Serving as a professional software engineering portfolio project
+
+---
+
+# End of Document
