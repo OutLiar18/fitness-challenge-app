@@ -1,5 +1,7 @@
 # 🏆 Champions Legacy Challenge
+
 ## Project Bible
+
 Version: 1.0
 
 ---

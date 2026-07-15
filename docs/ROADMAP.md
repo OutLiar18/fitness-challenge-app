@@ -1,4 +1,5 @@
 # 🏆 Champions Legacy Challenge
+
 # Development Roadmap
 
 ---
@@ -27,6 +28,7 @@
 # 🚧 Phase 2 — Core Challenge System (Current)
 
 ## Dynamic Entry Forms
+
 - [ ] Fruit form
 - [ ] Water form
 - [ ] Reading form
@@ -37,12 +39,14 @@
 - [ ] Steps form
 
 ## Entry Validation
+
 - [ ] Funny validation messages
 - [ ] Required field checking
 - [ ] Numeric validation
 - [ ] Duplicate prevention
 
 ## Evidence System
+
 - [ ] Image upload
 - [ ] Proof required logic
 - [ ] Proof optional logic
