@@ -4,19 +4,13 @@ export const CATEGORIES = [
     name: "Water",
     emoji: "💧",
     unit: "ml",
-    proof: "optional",
     fields: [
       {
         id: "amount",
         label: "Amount",
         type: "number",
         placeholder: "500",
-      },
-      {
-        id: "photo",
-        label: "Photo",
-        type: "image",
-        required: false,
+        required: true,
       },
     ],
   },
@@ -26,23 +20,19 @@ export const CATEGORIES = [
     name: "Fruit",
     emoji: "🍎",
     unit: "fruit",
-    proof: "optional",
     fields: [
       {
         id: "fruitType",
         label: "Fruit",
         type: "select",
+        required: true,
       },
       {
         id: "quantity",
         label: "Quantity",
         type: "number",
-      },
-      {
-        id: "photo",
-        label: "Photo",
-        type: "image",
-        required: false,
+        placeholder: "1",
+        required: true,
       },
     ],
   },
@@ -52,22 +42,26 @@ export const CATEGORIES = [
     name: "Reading",
     emoji: "📚",
     unit: "minutes",
-    proof: "none",
     fields: [
       {
         id: "book",
         label: "Book Title",
         type: "text",
+        placeholder: "Atomic Habits",
+        required: true,
       },
       {
         id: "minutes",
         label: "Minutes",
         type: "number",
+        placeholder: "30",
+        required: true,
       },
       {
         id: "reflection",
         label: "Reflection",
         type: "textarea",
+        required: true,
       },
     ],
   },
@@ -77,22 +71,19 @@ export const CATEGORIES = [
     name: "Running",
     emoji: "🏃",
     unit: "km",
-    proof: "required",
     fields: [
       {
         id: "distance",
         label: "Distance (km)",
         type: "number",
+        placeholder: "5",
+        required: true,
       },
       {
         id: "time",
         label: "Time (minutes)",
         type: "number",
-      },
-      {
-        id: "proof",
-        label: "Run Screenshot",
-        type: "image",
+        placeholder: "30",
         required: true,
       },
     ],
@@ -103,8 +94,21 @@ export const CATEGORIES = [
     name: "Upper Body",
     emoji: "💪",
     unit: "reps",
-    proof: "none",
-    fields: [],
+    fields: [
+      {
+        id: "exercise",
+        label: "Exercise",
+        type: "select",
+        required: true,
+      },
+      {
+        id: "reps",
+        label: "Repetitions",
+        type: "number",
+        placeholder: "20",
+        required: true,
+      },
+    ],
   },
 
   {
@@ -112,8 +116,21 @@ export const CATEGORIES = [
     name: "Lower Body",
     emoji: "🦵",
     unit: "reps",
-    proof: "none",
-    fields: [],
+    fields: [
+      {
+        id: "exercise",
+        label: "Exercise",
+        type: "select",
+        required: true,
+      },
+      {
+        id: "reps",
+        label: "Repetitions",
+        type: "number",
+        placeholder: "20",
+        required: true,
+      },
+    ],
   },
 
   {
@@ -121,8 +138,21 @@ export const CATEGORIES = [
     name: "Core",
     emoji: "🔥",
     unit: "reps",
-    proof: "none",
-    fields: [],
+    fields: [
+      {
+        id: "exercise",
+        label: "Exercise",
+        type: "select",
+        required: true,
+      },
+      {
+        id: "reps",
+        label: "Repetitions",
+        type: "number",
+        placeholder: "20",
+        required: true,
+      },
+    ],
   },
 
   {
@@ -130,8 +160,21 @@ export const CATEGORIES = [
     name: "Cardio",
     emoji: "🚴",
     unit: "minutes",
-    proof: "optional",
-    fields: [],
+    fields: [
+      {
+        id: "activity",
+        label: "Activity",
+        type: "select",
+        required: true,
+      },
+      {
+        id: "minutes",
+        label: "Minutes",
+        type: "number",
+        placeholder: "30",
+        required: true,
+      },
+    ],
   },
 
   {
@@ -139,8 +182,22 @@ export const CATEGORIES = [
     name: "Skill",
     emoji: "🎯",
     unit: "minutes",
-    proof: "optional",
-    fields: [],
+    fields: [
+      {
+        id: "skill",
+        label: "Skill",
+        type: "select",
+        placeholder: "Guitar",
+        required: true,
+      },
+      {
+        id: "minutes",
+        label: "Minutes",
+        type: "number",
+        placeholder: "60",
+        required: true,
+      },
+    ],
   },
 
   {
@@ -148,7 +205,14 @@ export const CATEGORIES = [
     name: "Steps",
     emoji: "👣",
     unit: "steps",
-    proof: "required",
-    fields: [],
+    fields: [
+      {
+        id: "steps",
+        label: "Steps",
+        type: "number",
+        placeholder: "10000",
+        required: true,
+      },
+    ],
   },
 ];

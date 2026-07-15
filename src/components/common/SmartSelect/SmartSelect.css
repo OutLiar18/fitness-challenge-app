@@ -1,0 +1,58 @@
+.smart-select {
+  position: relative;
+  width: 100%;
+}
+
+.smart-select__control {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  cursor: pointer;
+  background: white;
+  text-align: left;
+}
+
+.smart-select__menu {
+  position: absolute;
+  width: 100%;
+  margin-top: 4px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.smart-select__search {
+  width: calc(100% - 20px);
+  margin: 10px;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.smart-select__option {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.smart-select__option:hover {
+  background: #eef5ff;
+}
+
+.smart-select__divider {
+  height: 1px;
+  background: #ddd;
+  margin: 6px 0;
+}
+
+.smart-select__add {
+  padding: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  color: royalblue;
+}
+
+.smart-select__add:hover {
+  background: #eef5ff;
+}

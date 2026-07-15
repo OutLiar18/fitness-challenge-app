@@ -1,5 +1,4 @@
 export const OPTIONS = {
-
   fruitType: [
     "Apple",
     "Banana",
@@ -8,39 +7,49 @@ export const OPTIONS = {
     "Grapes",
     "Pineapple",
     "Mango",
-    "Other"
-  ],
-
-  cardioType: [
-    "Cycling",
-    "Swimming",
-    "Skipping",
-    "Rowing",
-    "Hiking",
-    "Other"
-  ],
-
-  skillType: [
-    "Language",
-    "Coding",
-    "Instrument",
-    "Drawing",
-    "Chess",
-    "Cooking",
-    "Other"
+    "Other",
   ],
 
   exercise: [
     "Push-ups",
     "Pull-ups",
     "Dips",
+    "Bench Press",
+    "Shoulder Press",
+    "Bicep Curls",
+    "Tricep Extensions",
     "Squats",
     "Lunges",
+    "Calf Raises",
     "Sit-ups",
     "Crunches",
     "Plank",
+    "Russian Twists",
+    "Leg Raises",
     "Burpees",
-    "Other"
-  ]
+    "Other",
+  ],
 
+  activity: [
+    "Walking",
+    "Cycling",
+    "Swimming",
+    "Skipping",
+    "Rowing",
+    "Hiking",
+    "Elliptical",
+    "Other",
+  ],
+
+  skill: [
+    "Coding",
+    "Language Learning",
+    "Drawing",
+    "Writing",
+    "Cooking",
+    "Chess",
+    "Instrument",
+    "Public Speaking",
+    "Other",
+  ],
 };

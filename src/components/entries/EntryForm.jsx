@@ -1,7 +1,12 @@
 import { getCategory } from "../../utils/categoryHelpers";
 import { OPTIONS } from "../../constants/options";
-
-export default function EntryForm({ type, formData, setFormData, onSave }) {
+import SmartSelect from "../common/SmartSelect/SmartSelect";
+export default function EntryForm({
+  type,
+  formData,
+  setFormData,
+  onSave,
+}) {
   const category = getCategory(type);
 
   return (
@@ -18,7 +23,10 @@ export default function EntryForm({ type, formData, setFormData, onSave }) {
       </h2>
 
       {category.fields.map((field) => (
-        <div key={field.id} style={{ marginBottom: "15px" }}>
+        <div
+          key={field.id}
+          style={{ marginBottom: "15px" }}
+        >
           <label>
             <strong>{field.label}</strong>
           </label>
@@ -29,13 +37,13 @@ export default function EntryForm({ type, formData, setFormData, onSave }) {
             <input
               type="number"
               value={formData[field.id] || ""}
+              placeholder={field.placeholder || ""}
               onChange={(e) =>
                 setFormData({
                   ...formData,
                   [field.id]: Number(e.target.value),
                 })
               }
-              placeholder={field.placeholder || ""}
             />
           )}
 
@@ -43,13 +51,13 @@ export default function EntryForm({ type, formData, setFormData, onSave }) {
             <input
               type="text"
               value={formData[field.id] || ""}
+              placeholder={field.placeholder || field.label}
               onChange={(e) =>
                 setFormData({
                   ...formData,
                   [field.id]: e.target.value,
                 })
               }
-              placeholder={field.label}
             />
           )}
 
@@ -67,30 +75,32 @@ export default function EntryForm({ type, formData, setFormData, onSave }) {
           )}
 
           {field.type === "select" && (
-            <select
+            <SmartSelect
+              label={field.label}
               value={formData[field.id] || ""}
-              onChange={(e) =>
+              options={OPTIONS[field.id] || []}
+              onChange={(value) =>
                 setFormData({
                   ...formData,
-                  [field.id]: e.target.value,
+                  [field.id]: value,
                 })
               }
-            >
-              <option value="">Select...</option>
-
-              {(OPTIONS[field.id] || []).map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
+            />
           )}
-
-          {field.type === "image" && <input type="file" />}
         </div>
       ))}
 
-      <button onClick={onSave}>Save Entry</button>
+      <button
+        type="button"
+        onClick={onSave}
+        style={{
+          marginTop: "10px",
+          padding: "10px 20px",
+          cursor: "pointer",
+        }}
+      >
+        Save Entry
+      </button>
     </div>
   );
 }

@@ -9,6 +9,7 @@ export default function Signup() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const navigate = useNavigate();
 
   const handleSignup = async (e) => {
@@ -18,47 +19,27 @@ export default function Signup() {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
-        password,
+        password
       );
 
       const user = userCredential.user;
 
       await setDoc(doc(db, "users", user.uid), {
-        firstName,
-
-        lastName,
-
-        fullName: `${firstName} ${lastName}`,
-
-        email,
-
-        role: "user",
-
-        totalPoints: 0,
-
-        bonusPoints: 0,
-
-        createdAt: serverTimestamp(),
-      });
-      // Create Firestore profile
-      await setDoc(doc(db, "users", user.uid), {
         uid: user.uid,
+        firstName,
+        lastName,
+        fullName: `${firstName} ${lastName}`,
+        displayName: `${firstName} ${lastName}`,
         email: user.email,
-
-        displayName: "",
-
         role: "user",
-
         team: "",
-
         totalPoints: 0,
-
+        bonusPoints: 0,
         currentStreak: 0,
-
         joinedAt: serverTimestamp(),
       });
 
-      alert("🎉 Welcome to the Challenge!");
+      alert("🎉 Welcome to Champions Legacy Challenge!");
 
       navigate("/dashboard");
     } catch (err) {
@@ -69,7 +50,7 @@ export default function Signup() {
   return (
     <form onSubmit={handleSignup}>
       <h1>Signup</h1>
-      
+
       <input
         placeholder="First Name"
         value={firstName}
@@ -89,8 +70,8 @@ export default function Signup() {
       />
 
       <input
-        placeholder="Password"
         type="password"
+        placeholder="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />

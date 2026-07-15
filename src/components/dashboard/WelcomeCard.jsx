@@ -1,4 +1,9 @@
 export default function WelcomeCard({ profile, user }) {
+  const name =
+    profile?.displayName ||
+    profile?.fullName ||
+    user?.email;
+
   return (
     <div
       style={{
@@ -12,7 +17,7 @@ export default function WelcomeCard({ profile, user }) {
 
       <p>Welcome back,</p>
 
-      <h2 style={{ marginTop: 0 }}>{profile?.displayName || user?.email}</h2>
+      <h2 style={{ marginTop: 0 }}>{name}</h2>
 
       <p>Role: {profile?.role || "User"}</p>
     </div>

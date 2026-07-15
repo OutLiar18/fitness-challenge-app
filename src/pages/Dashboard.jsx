@@ -4,7 +4,6 @@ import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 
 import {
-  addDoc,
   getDoc,
   collection,
   query,
@@ -12,10 +11,11 @@ import {
   onSnapshot,
   deleteDoc,
   doc,
-  serverTimestamp,
 } from "firebase/firestore";
 
 import { getCategory } from "../utils/categoryHelpers";
+import { createEntry } from "../services/entryService";
+import { validateEntry } from "../services/validationService";
 
 import CategoryGrid from "../components/categories/CategoryGrid";
 import WelcomeCard from "../components/dashboard/WelcomeCard";
@@ -27,11 +27,14 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const user = auth.currentUser;
 
+  if (!user) return null;
+
   const [profile, setProfile] = useState(null);
   const [entries, setEntries] = useState([]);
 
   const [type, setType] = useState("water");
   const [formData, setFormData] = useState({});
+  const [saving, setSaving] = useState(false);
 
   // -----------------------
   // Logout
@@ -47,20 +50,34 @@ export default function Dashboard() {
   // -----------------------
 
   const saveEntry = async () => {
-    if (!user) return;
+    if (!user || saving) return;
+
+    const category = getCategory(type);
+
+    const errors = validateEntry(category, formData);
+
+    if (errors.length > 0) {
+      alert(errors.join("\n"));
+      return;
+    }
+
+    setSaving(true);
 
     try {
-      await addDoc(collection(db, "challengeEntries"), {
-        userId: user.uid,
-        category: type,
-        ...formData,
-        createdAt: serverTimestamp(),
-      });
+      await createEntry(
+        user.uid,
+        type,
+        formData
+      );
 
       setFormData({});
+
+      alert("✅ Entry saved successfully!");
     } catch (err) {
       console.error(err);
       alert(err.message);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -73,6 +90,7 @@ export default function Dashboard() {
       await deleteDoc(doc(db, "challengeEntries", id));
     } catch (err) {
       console.error(err);
+      alert(err.message);
     }
   };
 
@@ -81,8 +99,6 @@ export default function Dashboard() {
   // -----------------------
 
   useEffect(() => {
-    if (!user) return;
-
     const loadProfile = async () => {
       try {
         const snap = await getDoc(doc(db, "users", user.uid));
@@ -118,7 +134,11 @@ export default function Dashboard() {
 
       data.sort((a, b) => {
         if (!a.createdAt || !b.createdAt) return 0;
-        return b.createdAt.toMillis() - a.createdAt.toMillis();
+
+        return (
+          b.createdAt.toMillis() -
+          a.createdAt.toMillis()
+        );
       });
 
       setEntries(data);
