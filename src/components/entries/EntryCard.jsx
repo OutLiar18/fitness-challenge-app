@@ -1,21 +1,12 @@
 import { getCategory } from "../../utils/categoryHelpers";
+import { getUnit } from "../../utils/units";
+import { calculateEntryPoints } from "../../services/pointsService";
 
 export default function EntryCard({ entry, onDelete }) {
   const category = getCategory(entry.category);
+  const points = calculateEntryPoints(entry);
 
-  const getValue = (field) => {
-    const value = entry.data?.[field.id];
-
-    if (value === undefined || value === null || value === "") {
-      return "";
-    }
-
-    if (field.type === "number" && category?.unit) {
-      return `${value} ${category.unit}`;
-    }
-
-    return value;
-  };
+  if (!category) return null;
 
   return (
     <div
@@ -27,18 +18,31 @@ export default function EntryCard({ entry, onDelete }) {
       }}
     >
       <h3>
-        {entry.emoji} {entry.name}
+        {category.emoji} {category.name}
       </h3>
 
-      {category?.fields.map((field) => (
-        <p key={field.id}>
-          <strong>{field.label}:</strong> {getValue(field)}
-        </p>
-      ))}
+      {category.fields.map((field) => {
+        const value = entry.data?.[field.id];
 
-      <button onClick={() => onDelete(entry.id)}>
-        Delete
-      </button>
+        if (value === undefined || value === null || value === "") {
+          return null;
+        }
+
+        const unit = getUnit(field.id);
+
+        return (
+          <p key={field.id}>
+            <strong>{field.label}:</strong> {value}
+            {unit ? ` ${unit}` : ""}
+          </p>
+        );
+      })}
+      <hr />
+
+      <p>
+        <strong>⭐ Points:</strong> {points}
+      </p>
+      <button onClick={() => onDelete(entry.id)}>Delete</button>
     </div>
   );
 }

@@ -56,3 +56,7 @@
 .smart-select__add:hover {
   background: #eef5ff;
 }
+
+.smart-select__option--active {
+  background: #eef5ff;
+}

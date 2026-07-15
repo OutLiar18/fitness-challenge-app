@@ -4,6 +4,7 @@ export function validateEntry(category, data) {
   for (const field of category.fields) {
     const value = data[field.id];
 
+    // Required validation
     if (field.required) {
       if (
         value === undefined ||
@@ -15,6 +16,16 @@ export function validateEntry(category, data) {
       }
     }
 
+    // Skip optional empty fields
+    if (
+      value === undefined ||
+      value === null ||
+      value === ""
+    ) {
+      continue;
+    }
+
+    // Number validation
     if (field.type === "number") {
       if (Number(value) <= 0) {
         errors.push(`${field.label} must be greater than 0.`);

@@ -1,18 +1,18 @@
-export default function StatsCard({ totalEntries }) {
+import "./StatsCard.css";
+import StatItem from "./StatItem";
+import { DASHBOARD_STATS } from "../../constants/dashboardStats";
+
+export default function StatsCard({ stats }) {
   return (
-    <div
-      style={{
-        border: "1px solid #ddd",
-        borderRadius: "10px",
-        padding: "20px",
-        marginBottom: "20px",
-      }}
-    >
-      <h2>📊 Your Progress</h2>
-
-      <p>Total Entries Logged</p>
-
-      <h1>{totalEntries}</h1>
+    <div className="stats-grid">
+      {DASHBOARD_STATS.map((stat) => (
+        <StatItem
+          key={stat.id}
+          emoji={stat.emoji}
+          label={stat.label}
+          value={`${stats[stat.id] ?? 0}${stat.unit ? ` ${stat.unit}` : ""}`}
+        />
+      ))}
     </div>
   );
 }

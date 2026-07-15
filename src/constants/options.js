@@ -7,7 +7,6 @@ export const OPTIONS = {
     "Grapes",
     "Pineapple",
     "Mango",
-    "Other",
   ],
 
   exercise: [
@@ -27,7 +26,6 @@ export const OPTIONS = {
     "Russian Twists",
     "Leg Raises",
     "Burpees",
-    "Other",
   ],
 
   activity: [
@@ -38,7 +36,6 @@ export const OPTIONS = {
     "Rowing",
     "Hiking",
     "Elliptical",
-    "Other",
   ],
 
   skill: [
@@ -50,6 +47,5 @@ export const OPTIONS = {
     "Chess",
     "Instrument",
     "Public Speaking",
-    "Other",
   ],
 };

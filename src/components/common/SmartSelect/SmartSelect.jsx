@@ -9,8 +9,10 @@ export default function SmartSelect({
 }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [highlighted, setHighlighted] = useState(0);
 
   const wrapperRef = useRef(null);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -22,10 +24,7 @@ export default function SmartSelect({
       }
     }
 
-    document.addEventListener(
-      "mousedown",
-      handleClickOutside
-    );
+    document.addEventListener("mousedown", handleClickOutside);
 
     return () =>
       document.removeEventListener(
@@ -34,28 +33,71 @@ export default function SmartSelect({
       );
   }, []);
 
+  useEffect(() => {
+    if (open) {
+      setTimeout(() => inputRef.current?.focus(), 0);
+    }
+  }, [open]);
+
   const filteredOptions = useMemo(() => {
     return options.filter((option) =>
-      option
-        .toLowerCase()
-        .includes(search.toLowerCase())
+      option.toLowerCase().includes(search.toLowerCase())
     );
   }, [options, search]);
+
+  const exactMatch = options.some(
+    (option) =>
+      option.toLowerCase() === search.trim().toLowerCase()
+  );
+
+  const showAddOption =
+    search.trim() !== "" && !exactMatch;
+
+  const totalItems =
+    filteredOptions.length + (showAddOption ? 1 : 0);
 
   function selectOption(option) {
     onChange(option);
     setSearch("");
     setOpen(false);
+    setHighlighted(0);
   }
 
-  const exactMatch = options.some(
-    (option) =>
-      option.toLowerCase() ===
-      search.trim().toLowerCase()
-  );
+  function handleKeyDown(e) {
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        setHighlighted((h) =>
+          Math.min(h + 1, totalItems - 1)
+        );
+        break;
 
-  const showAddOption =
-    search.trim() !== "" && !exactMatch;
+      case "ArrowUp":
+        e.preventDefault();
+        setHighlighted((h) =>
+          Math.max(h - 1, 0)
+        );
+        break;
+
+      case "Enter":
+        e.preventDefault();
+
+        if (highlighted < filteredOptions.length) {
+          selectOption(filteredOptions[highlighted]);
+        } else if (showAddOption) {
+          selectOption(search.trim());
+        }
+
+        break;
+
+      case "Escape":
+        setOpen(false);
+        break;
+
+      default:
+        break;
+    }
+  }
 
   return (
     <div
@@ -64,7 +106,7 @@ export default function SmartSelect({
     >
       <div
         className="smart-select__control"
-        onClick={() => setOpen(!open)}
+        onClick={() => setOpen(true)}
       >
         {value || `Select ${label}...`}
       </div>
@@ -72,22 +114,26 @@ export default function SmartSelect({
       {open && (
         <div className="smart-select__menu">
           <input
-            autoFocus
+            ref={inputRef}
             className="smart-select__search"
             placeholder={`Search ${label}...`}
             value={search}
-            onChange={(e) =>
-              setSearch(e.target.value)
-            }
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setHighlighted(0);
+            }}
+            onKeyDown={handleKeyDown}
           />
 
-          {filteredOptions.map((option) => (
+          {filteredOptions.map((option, index) => (
             <div
               key={option}
-              className="smart-select__option"
-              onClick={() =>
-                selectOption(option)
-              }
+              className={`smart-select__option ${
+                highlighted === index
+                  ? "smart-select__option--active"
+                  : ""
+              }`}
+              onClick={() => selectOption(option)}
             >
               {option}
             </div>
@@ -98,7 +144,11 @@ export default function SmartSelect({
               <div className="smart-select__divider" />
 
               <div
-                className="smart-select__add"
+                className={`smart-select__add ${
+                  highlighted === filteredOptions.length
+                    ? "smart-select__option--active"
+                    : ""
+                }`}
                 onClick={() =>
                   selectOption(search.trim())
                 }

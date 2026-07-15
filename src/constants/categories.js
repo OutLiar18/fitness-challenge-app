@@ -3,6 +3,7 @@ export const CATEGORIES = [
     id: "water",
     name: "Water",
     emoji: "💧",
+    scoreField: "amount",
     unit: "ml",
     fields: [
       {
@@ -19,6 +20,7 @@ export const CATEGORIES = [
     id: "fruit",
     name: "Fruit",
     emoji: "🍎",
+    scoreField: "quantity",
     unit: "fruit",
     fields: [
       {
@@ -41,6 +43,7 @@ export const CATEGORIES = [
     id: "reading",
     name: "Reading",
     emoji: "📚",
+    scoreField: "minutes",
     unit: "minutes",
     fields: [
       {
@@ -70,6 +73,7 @@ export const CATEGORIES = [
     id: "running",
     name: "Running",
     emoji: "🏃",
+    scoreField: "distance",
     unit: "km",
     fields: [
       {
@@ -93,20 +97,46 @@ export const CATEGORIES = [
     id: "upper_body",
     name: "Upper Body",
     emoji: "💪",
+    scoreField: "null",
     unit: "reps",
+    proof: "none",
     fields: [
       {
         id: "exercise",
         label: "Exercise",
         type: "select",
         required: true,
+        allowCustomValues: true,
+      },
+      {
+        id: "sets",
+        label: "Sets",
+        type: "number",
+        required: true,
       },
       {
         id: "reps",
-        label: "Repetitions",
+        label: "Reps",
         type: "number",
-        placeholder: "20",
         required: true,
+      },
+      {
+        id: "weight",
+        label: "Weight (kg) (Optional)",
+        type: "number",
+        required: false,
+      },
+      {
+        id: "duration",
+        label: "Duration (minutes) (Optional)",
+        type: "number",
+        required: false,
+      },
+      {
+        id: "notes",
+        label: "Notes (Optional)",
+        type: "textarea",
+        required: false,
       },
     ],
   },
@@ -115,20 +145,46 @@ export const CATEGORIES = [
     id: "lower_body",
     name: "Lower Body",
     emoji: "🦵",
+    scoreField: "null",
     unit: "reps",
+    proof: "none",
     fields: [
       {
         id: "exercise",
         label: "Exercise",
         type: "select",
         required: true,
+        allowCustomValues: true,
+      },
+      {
+        id: "sets",
+        label: "Sets",
+        type: "number",
+        required: true,
       },
       {
         id: "reps",
-        label: "Repetitions",
+        label: "Reps",
         type: "number",
-        placeholder: "20",
         required: true,
+      },
+      {
+        id: "weight",
+        label: "Weight (kg) (Optional)",
+        type: "number",
+        required: false,
+      },
+      {
+        id: "duration",
+        label: "Duration (minutes) (Optional)",
+        type: "number",
+        required: false,
+      },
+      {
+        id: "notes",
+        label: "Notes (Optional)",
+        type: "textarea",
+        required: false,
       },
     ],
   },
@@ -137,20 +193,46 @@ export const CATEGORIES = [
     id: "core",
     name: "Core",
     emoji: "🔥",
+    scoreField: "null",
     unit: "reps",
+    proof: "none",
     fields: [
       {
         id: "exercise",
         label: "Exercise",
         type: "select",
         required: true,
+        allowCustomValues: true,
+      },
+      {
+        id: "sets",
+        label: "Sets",
+        type: "number",
+        required: true,
       },
       {
         id: "reps",
-        label: "Repetitions",
+        label: "Reps",
         type: "number",
-        placeholder: "20",
         required: true,
+      },
+      {
+        id: "weight",
+        label: "Weight (kg) (Optional)",
+        type: "number",
+        required: false,
+      },
+      {
+        id: "duration",
+        label: "Duration (minutes) (Optional)",
+        type: "number",
+        required: false,
+      },
+      {
+        id: "notes",
+        label: "Notes (Optional)",
+        type: "textarea",
+        required: false,
       },
     ],
   },
@@ -159,6 +241,7 @@ export const CATEGORIES = [
     id: "cardio",
     name: "Cardio",
     emoji: "🚴",
+    scoreField: "duration",
     unit: "minutes",
     fields: [
       {
@@ -181,6 +264,7 @@ export const CATEGORIES = [
     id: "skill",
     name: "Skill",
     emoji: "🎯",
+    scoreField: "duration",
     unit: "minutes",
     fields: [
       {
@@ -204,6 +288,7 @@ export const CATEGORIES = [
     id: "steps",
     name: "Steps",
     emoji: "👣",
+    scoreField: "steps",
     unit: "steps",
     fields: [
       {

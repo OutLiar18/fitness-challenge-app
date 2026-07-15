@@ -13,9 +13,18 @@ import {
   doc,
 } from "firebase/firestore";
 
+import {
+  getTotalEntries,
+  getTotalPoints,
+  getTotalWater,
+  getTotalReading,
+  getTotalRunning,
+} from "../services/statisticsService";
+
 import { getCategory } from "../utils/categoryHelpers";
 import { createEntry } from "../services/entryService";
 import { validateEntry } from "../services/validationService";
+import { getValidationMessage } from "../services/messageService";
 
 import CategoryGrid from "../components/categories/CategoryGrid";
 import WelcomeCard from "../components/dashboard/WelcomeCard";
@@ -25,16 +34,14 @@ import EntryCard from "../components/entries/EntryCard";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const user = auth.currentUser;
-
-  if (!user) return null;
 
   const [profile, setProfile] = useState(null);
   const [entries, setEntries] = useState([]);
-
   const [type, setType] = useState("water");
   const [formData, setFormData] = useState({});
   const [saving, setSaving] = useState(false);
+
+  const user = auth.currentUser;
 
   // -----------------------
   // Logout
@@ -57,18 +64,20 @@ export default function Dashboard() {
     const errors = validateEntry(category, formData);
 
     if (errors.length > 0) {
-      alert(errors.join("\n"));
+      alert(
+        `${getValidationMessage(type)}
+
+Please fix the following:
+
+• ${errors.join("\n• ")}`,
+      );
       return;
     }
 
     setSaving(true);
 
     try {
-      await createEntry(
-        user.uid,
-        type,
-        formData
-      );
+      await createEntry(user.uid, type, formData);
 
       setFormData({});
 
@@ -99,6 +108,8 @@ export default function Dashboard() {
   // -----------------------
 
   useEffect(() => {
+    if (!user) return;
+
     const loadProfile = async () => {
       try {
         const snap = await getDoc(doc(db, "users", user.uid));
@@ -115,7 +126,7 @@ export default function Dashboard() {
 
     const q = query(
       collection(db, "challengeEntries"),
-      where("userId", "==", user.uid)
+      where("userId", "==", user.uid),
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -135,10 +146,7 @@ export default function Dashboard() {
       data.sort((a, b) => {
         if (!a.createdAt || !b.createdAt) return 0;
 
-        return (
-          b.createdAt.toMillis() -
-          a.createdAt.toMillis()
-        );
+        return b.createdAt.toMillis() - a.createdAt.toMillis();
       });
 
       setEntries(data);
@@ -146,6 +154,10 @@ export default function Dashboard() {
 
     return () => unsubscribe();
   }, [user]);
+
+  if (!user) {
+    return <p>Loading...</p>;
+  }
 
   return (
     <div
@@ -156,18 +168,24 @@ export default function Dashboard() {
     >
       <WelcomeCard profile={profile} user={user} />
 
-      <StatsCard totalEntries={entries.length} />
-
-      <CategoryGrid
-        selected={type}
-        onSelect={setType}
+      <StatsCard
+        stats={{
+          points: getTotalPoints(entries),
+          entries: getTotalEntries(entries),
+          water: getTotalWater(entries),
+          reading: getTotalReading(entries),
+          running: getTotalRunning(entries),
+        }}
       />
+
+      <CategoryGrid selected={type} onSelect={setType} />
 
       <EntryForm
         type={type}
         formData={formData}
         setFormData={setFormData}
         onSave={saveEntry}
+        saving={saving}
       />
 
       <hr />
@@ -178,19 +196,13 @@ export default function Dashboard() {
         <p>No entries yet.</p>
       ) : (
         entries.map((entry) => (
-          <EntryCard
-            key={entry.id}
-            entry={entry}
-            onDelete={deleteEntry}
-          />
+          <EntryCard key={entry.id} entry={entry} onDelete={deleteEntry} />
         ))
       )}
 
       <hr />
 
-      <button onClick={handleLogout}>
-        Logout
-      </button>
+      <button onClick={handleLogout}>Logout</button>
     </div>
   );
 }
