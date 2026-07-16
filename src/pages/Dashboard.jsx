@@ -30,7 +30,7 @@ import CategoryGrid from "../components/categories/CategoryGrid";
 import WelcomeCard from "../components/dashboard/WelcomeCard";
 import StatsCard from "../components/dashboard/StatsCard";
 import EntryForm from "../components/entries/EntryForm";
-import EntryCard from "../components/entries/EntryCard";
+import Journal from "../components/journal/Journal";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -43,18 +43,10 @@ export default function Dashboard() {
 
   const user = auth.currentUser;
 
-  // -----------------------
-  // Logout
-  // -----------------------
-
   const handleLogout = async () => {
     await signOut(auth);
     navigate("/");
   };
-
-  // -----------------------
-  // Save Entry
-  // -----------------------
 
   const saveEntry = async () => {
     if (!user || saving) return;
@@ -69,7 +61,7 @@ export default function Dashboard() {
 
 Please fix the following:
 
-• ${errors.join("\n• ")}`,
+• ${errors.join("\n• ")}`
       );
       return;
     }
@@ -90,10 +82,6 @@ Please fix the following:
     }
   };
 
-  // -----------------------
-  // Delete Entry
-  // -----------------------
-
   const deleteEntry = async (id) => {
     try {
       await deleteDoc(doc(db, "challengeEntries", id));
@@ -102,10 +90,6 @@ Please fix the following:
       alert(err.message);
     }
   };
-
-  // -----------------------
-  // Load Profile + Entries
-  // -----------------------
 
   useEffect(() => {
     if (!user) return;
@@ -126,7 +110,7 @@ Please fix the following:
 
     const q = query(
       collection(db, "challengeEntries"),
-      where("userId", "==", user.uid),
+      where("userId", "==", user.uid)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -178,7 +162,10 @@ Please fix the following:
         }}
       />
 
-      <CategoryGrid selected={type} onSelect={setType} />
+      <CategoryGrid
+        selected={type}
+        onSelect={setType}
+      />
 
       <EntryForm
         type={type}
@@ -188,21 +175,16 @@ Please fix the following:
         saving={saving}
       />
 
-      <hr />
-
-      <h2>Your Entries</h2>
-
-      {entries.length === 0 ? (
-        <p>No entries yet.</p>
-      ) : (
-        entries.map((entry) => (
-          <EntryCard key={entry.id} entry={entry} onDelete={deleteEntry} />
-        ))
-      )}
+      <Journal
+        entries={entries}
+        onDelete={deleteEntry}
+      />
 
       <hr />
 
-      <button onClick={handleLogout}>Logout</button>
+      <button onClick={handleLogout}>
+        Logout
+      </button>
     </div>
   );
 }

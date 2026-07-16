@@ -97,7 +97,6 @@ export const CATEGORIES = [
     id: "upper_body",
     name: "Upper Body",
     emoji: "💪",
-    scoreField: "null",
     unit: "reps",
     proof: "none",
     fields: [
@@ -145,7 +144,6 @@ export const CATEGORIES = [
     id: "lower_body",
     name: "Lower Body",
     emoji: "🦵",
-    scoreField: "null",
     unit: "reps",
     proof: "none",
     fields: [
@@ -193,7 +191,6 @@ export const CATEGORIES = [
     id: "core",
     name: "Core",
     emoji: "🔥",
-    scoreField: "null",
     unit: "reps",
     proof: "none",
     fields: [
@@ -241,7 +238,7 @@ export const CATEGORIES = [
     id: "cardio",
     name: "Cardio",
     emoji: "🚴",
-    scoreField: "duration",
+    scoreField: "minutes",
     unit: "minutes",
     fields: [
       {
@@ -264,7 +261,7 @@ export const CATEGORIES = [
     id: "skill",
     name: "Skill",
     emoji: "🎯",
-    scoreField: "duration",
+    scoreField: "minutes",
     unit: "minutes",
     fields: [
       {

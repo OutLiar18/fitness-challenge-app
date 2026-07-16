@@ -1,4 +1,5 @@
 import { CATEGORIES } from "../constants/categories";
+import { calculateEntryPoints } from "./pointsService";
 
 export function getTotalEntries(entries) {
   return entries.length;
@@ -12,7 +13,7 @@ export function getCategoryEntries(entries, categoryId) {
 
 export function getTotalPoints(entries) {
   return entries.reduce(
-    (total, entry) => total + (entry.points || 0),
+    (total, entry) => total + calculateEntryPoints(entry),
     0
   );
 }
