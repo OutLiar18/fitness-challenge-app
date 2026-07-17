@@ -2,29 +2,21 @@ export const DASHBOARD_STATS = [
   {
     id: "points",
     emoji: "🏆",
-    label: "Points",
+    label: "Total Points",
+  },
+  {
+    id: "todayPoints",
+    emoji: "⭐",
+    label: "Today's Points",
   },
   {
     id: "entries",
     emoji: "📝",
-    label: "Entries",
+    label: "Total Entries",
   },
   {
-    id: "water",
-    emoji: "💧",
-    label: "Water",
-    unit: "ml",
-  },
-  {
-    id: "reading",
-    emoji: "📚",
-    label: "Reading",
-    unit: "min",
-  },
-  {
-    id: "running",
-    emoji: "🏃",
-    label: "Running",
-    unit: "km",
+    id: "todayEntries",
+    emoji: "📅",
+    label: "Today's Entries",
   },
 ];

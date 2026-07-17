@@ -1,3 +1,58 @@
-.journal-title {
+.journal {
+  margin-top: 30px;
+}
+
+.journal-header {
   margin-bottom: 20px;
+}
+
+.journal-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.journal-navigation button {
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 10px;
+  background: royalblue;
+  color: white;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.journal-navigation button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.journal-date {
+  flex: 1;
+  text-align: center;
+  font-weight: 600;
+}
+
+.journal-date-picker {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 15px;
+}
+
+.today-button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  background: royalblue;
+  color: white;
+  cursor: pointer;
+}
+
+.today-button:hover {
+  opacity: 0.9;
 }

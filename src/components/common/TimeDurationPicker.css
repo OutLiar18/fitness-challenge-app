@@ -1,0 +1,30 @@
+.time-picker {
+  margin: 20px 0;
+}
+
+.time-picker label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.time-picker-row {
+  display: flex;
+  gap: 15px;
+}
+
+.time-picker-row div {
+  flex: 1;
+}
+
+.time-picker-row span {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+  color: #777;
+}
+
+.time-picker input {
+  width: 100%;
+  padding: 10px;
+}

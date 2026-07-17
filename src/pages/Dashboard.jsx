@@ -15,18 +15,25 @@ import {
 
 import {
   getTotalEntries,
+  getTodayEntryCount,
   getTotalPoints,
-  getTotalWater,
-  getTotalReading,
-  getTotalRunning,
+  getTodayPoints,
+  getEntriesForDate,
+  getDailyGoals,
+  getTopCategories,
 } from "../services/statisticsService";
 
+import { isEditableDate } from "../services/dateService";
+import { getNextCategory } from "../services/challengeService";
 import { getCategory } from "../utils/categoryHelpers";
 import { createEntry } from "../services/entryService";
 import { validateEntry } from "../services/validationService";
 import { getValidationMessage } from "../services/messageService";
 
 import CategoryGrid from "../components/categories/CategoryGrid";
+import TopCategories from "../components/dashboard/TopCategories";
+import DailyGoals from "../components/dashboard/DailyGoals";
+import DailyProgress from "../components/dashboard/DailyProgress";
 import WelcomeCard from "../components/dashboard/WelcomeCard";
 import StatsCard from "../components/dashboard/StatsCard";
 import EntryForm from "../components/entries/EntryForm";
@@ -37,19 +44,24 @@ export default function Dashboard() {
 
   const [profile, setProfile] = useState(null);
   const [entries, setEntries] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [type, setType] = useState("water");
   const [formData, setFormData] = useState({});
   const [saving, setSaving] = useState(false);
 
   const user = auth.currentUser;
 
+  const readOnly = !isEditableDate(selectedDate);
+
   const handleLogout = async () => {
     await signOut(auth);
     navigate("/");
   };
 
+  const dailyGoals = getDailyGoals(entries);
+
   const saveEntry = async () => {
-    if (!user || saving) return;
+    if (!user || saving || readOnly) return;
 
     const category = getCategory(type);
 
@@ -61,7 +73,7 @@ export default function Dashboard() {
 
 Please fix the following:
 
-• ${errors.join("\n• ")}`
+• ${errors.join("\n• ")}`,
       );
       return;
     }
@@ -69,7 +81,28 @@ Please fix the following:
     setSaving(true);
 
     try {
-      await createEntry(user.uid, type, formData);
+      await createEntry(user.uid, type, formData, selectedDate);
+
+      // Build a temporary updated list so we don't have to wait
+      // for Firestore to refresh before choosing the next goal.
+      const updatedEntries = [
+        ...entries,
+        {
+          category: type,
+          data: formData,
+          challengeDate: {
+            toDate: () => selectedDate,
+          },
+        },
+      ];
+
+      if (selectedDate.toDateString() === new Date().toDateString()) {
+        const nextCategory = getNextCategory(updatedEntries);
+
+        if (nextCategory) {
+          setType(nextCategory);
+        }
+      }
 
       setFormData({});
 
@@ -83,6 +116,8 @@ Please fix the following:
   };
 
   const deleteEntry = async (id) => {
+    if (readOnly) return;
+
     try {
       await deleteDoc(doc(db, "challengeEntries", id));
     } catch (err) {
@@ -110,7 +145,7 @@ Please fix the following:
 
     const q = query(
       collection(db, "challengeEntries"),
-      where("userId", "==", user.uid)
+      where("userId", "==", user.uid),
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -155,17 +190,20 @@ Please fix the following:
       <StatsCard
         stats={{
           points: getTotalPoints(entries),
+          todayPoints: getTodayPoints(entries),
+
           entries: getTotalEntries(entries),
-          water: getTotalWater(entries),
-          reading: getTotalReading(entries),
-          running: getTotalRunning(entries),
+          todayEntries: getTodayEntryCount(entries),
         }}
       />
 
-      <CategoryGrid
-        selected={type}
-        onSelect={setType}
-      />
+      <DailyProgress goals={dailyGoals} />
+
+      <DailyGoals goals={dailyGoals} onSelect={setType} />
+
+      <TopCategories categories={getTopCategories(entries)} />
+
+      <CategoryGrid selected={type} onSelect={setType} />
 
       <EntryForm
         type={type}
@@ -173,18 +211,20 @@ Please fix the following:
         setFormData={setFormData}
         onSave={saveEntry}
         saving={saving}
+        readOnly={readOnly}
       />
 
       <Journal
-        entries={entries}
+        entries={getEntriesForDate(entries, selectedDate)}
+        selectedDate={selectedDate}
+        setSelectedDate={setSelectedDate}
         onDelete={deleteEntry}
+        readOnly={readOnly}
       />
 
       <hr />
 
-      <button onClick={handleLogout}>
-        Logout
-      </button>
+      <button onClick={handleLogout}>Logout</button>
     </div>
   );
 }

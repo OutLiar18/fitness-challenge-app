@@ -2,7 +2,11 @@ import { getCategory } from "../../utils/categoryHelpers";
 import { getUnit } from "../../utils/units";
 import { calculateEntryPoints } from "../../services/pointsService";
 
-export default function EntryCard({ entry, onDelete }) {
+export default function EntryCard({
+  entry,
+  onDelete,
+  readOnly = false,
+}) {
   const category = getCategory(entry.category);
   const points = calculateEntryPoints(entry);
 
@@ -24,7 +28,11 @@ export default function EntryCard({ entry, onDelete }) {
       {category.fields.map((field) => {
         const value = entry.data?.[field.id];
 
-        if (value === undefined || value === null || value === "") {
+        if (
+          value === undefined ||
+          value === null ||
+          value === ""
+        ) {
           return null;
         }
 
@@ -37,12 +45,18 @@ export default function EntryCard({ entry, onDelete }) {
           </p>
         );
       })}
+
       <hr />
 
       <p>
         <strong>⭐ Points:</strong> {points}
       </p>
-      <button onClick={() => onDelete(entry.id)}>Delete</button>
+
+      {!readOnly && (
+        <button onClick={() => onDelete(entry.id)}>
+          Delete
+        </button>
+      )}
     </div>
   );
 }

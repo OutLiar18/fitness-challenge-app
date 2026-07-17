@@ -1,0 +1,45 @@
+.daily-progress {
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.daily-progress h2 {
+  margin: 0 0 10px;
+}
+
+.daily-progress h3 {
+  margin: 12px 0 6px;
+}
+
+.daily-progress p {
+  margin: 6px 0;
+  color: #666;
+}
+
+.progress-big-bar {
+  width: 100%;
+  height: 18px;
+  background: #e5e5e5;
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 18px 0;
+}
+
+.progress-big-fill {
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    #4caf50,
+    #8bc34a
+  );
+  transition: width 0.4s ease;
+}
+
+.daily-progress hr {
+  border: none;
+  border-top: 1px solid #eee;
+  margin: 18px 0;
+}
