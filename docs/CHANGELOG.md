@@ -19,6 +19,8 @@ The project follows a simplified version of the Keep a Changelog format.
 - Daily goal configuration
 - Goal type configuration
 - Score field configuration
+- Centralized Points Engine
+- Journal architecture
 
 ### Components
 
@@ -28,12 +30,14 @@ The project follows a simplified version of the Keep a Changelog format.
 - Category Grid
 - Dynamic Entry Form
 - Dynamic Entry Cards
+- Journal component
 
 ### Services
 
 - Entry Service
 - Validation Service
 - Statistics Service
+- Points Service
 
 ### Validation
 
@@ -46,14 +50,25 @@ The project follows a simplified version of the Keep a Changelog format.
 ### Dashboard
 
 - Real-time Firestore updates
-- Entry history
+- Dynamic statistics
 - Dynamic category rendering
+- Journal extracted from Dashboard
 
 ### Forms
 
 - Searchable dropdowns
+- Keyboard navigation for SmartSelect
 - Custom values
 - Dynamic field rendering
+
+### Data
+
+Expanded SmartSelect datasets including:
+
+- Fruit
+- Exercises
+- Cardio Activities
+- Skills
 
 ### Documentation
 
@@ -69,9 +84,12 @@ The project follows a simplified version of the Keep a Changelog format.
 - Mobile-first development philosophy adopted.
 - Categories now define daily goals.
 - Categories now define score fields.
-- Statistics now use category configuration.
-- Business logic moved into reusable services.
-- Dashboard architecture simplified.
+- Statistics now calculate points through the Points Service.
+- Dashboard no longer renders entries directly.
+- Entry history moved into the Journal component.
+- Removed unnecessary `scoreField` values from workout categories.
+- Fixed Cardio and Skill category configuration.
+- Business logic further separated from presentation.
 - Improved project documentation.
 - Improved project structure.
 
@@ -84,10 +102,11 @@ The project follows a simplified version of the Keep a Changelog format.
 - Photo proof fields.
 - Proof upload workflow.
 - Separate `dailyGoals.js` configuration.
+- Dependency on stored entry points.
 
 Reason:
 
-The project now targets Firebase's free tier while maintaining a scalable architecture.
+The application now calculates all points from entry facts, making the Points Engine the single source of truth while remaining compatible with Firebase's free tier.
 
 ---
 
@@ -126,7 +145,10 @@ The project now targets Firebase's free tier while maintaining a scalable archit
 
 Planned for Version 0.4
 
-- Today's Challenge card
+- Journal date navigation
+- Calendar picker
+- Locked history
+- Today's Challenge
 - Progress bars
 - Daily completion tracking
 - Streak system

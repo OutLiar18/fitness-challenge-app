@@ -2,7 +2,7 @@
 
 # Project Handover
 
-Version: 0.3
+Version: 0.4
 
 Last Updated: July 2026
 
@@ -10,9 +10,9 @@ Last Updated: July 2026
 
 # Project Summary
 
-Champions Legacy Challenge is a mobile-first personal development application built with React, Vite and Firebase.
+Champions Legacy Challenge is a mobile-first personal development platform built with React, Vite and Firebase.
 
-Unlike a traditional fitness tracker, the application encourages users to develop multiple healthy habits through daily challenges, progress tracking and gamification.
+Unlike a traditional fitness tracker, the application encourages users to build discipline through daily habits, progress tracking, consistency and gamification.
 
 Current challenge categories include:
 
@@ -27,47 +27,47 @@ Current challenge categories include:
 - 🎯 Skill Development
 - 👣 Steps
 
-The application is designed to be scalable, configurable and enjoyable to use.
+The project emphasizes scalable architecture, reusable systems and configuration-driven development.
 
 ---
 
 # Current Status
 
-Current Version
+## Current Version
 
-v0.3
+v0.4 (Development)
 
-Current Sprint
+## Current Sprint
 
-Core Challenge System
+Journal System
 
-Status
+## Status
 
 🟢 Stable
 
-Authentication, dashboard, dynamic forms and statistics architecture are complete.
+Authentication, dynamic forms, SmartSelect, Points Engine, Statistics Service and Journal V1 are complete.
 
-The current focus is improving the user experience rather than adding major infrastructure.
+Current work is focused on improving the journal experience before adding higher-level gamification features.
 
 ---
 
 # Current Technology
 
-Frontend
+## Frontend
 
 - React
 - Vite
 
-Backend
+## Backend
 
 - Firebase Authentication
 - Cloud Firestore
 
-Hosting
+## Hosting
 
 - Netlify
 
-Repository
+## Repository
 
 - GitHub
 
@@ -107,7 +107,15 @@ Firestore
 
 ↓
 
+Points Service
+
+↓
+
 Statistics Service
+
+↓
+
+Journal
 
 ↓
 
@@ -117,48 +125,43 @@ Future Features
 
 # Folder Structure
 
+```
 src/
-
-components/
-
-pages/
-
-services/
-
-constants/
-
-utils/
-
-styles/
-
-assets/
-
-docs/
+│
+├── components/
+├── pages/
+├── services/
+├── constants/
+├── utils/
+├── styles/
+├── assets/
+└── docs/
+```
 
 ---
 
 # Completed Features
 
-Authentication
+## Authentication
 
 - Login
 - Signup
 - Logout
 - Protected Routes
 
-Users
+## Users
 
 - User profiles
 - Firestore profile creation
 
-Dashboard
+## Dashboard
 
-- Welcome card
-- Statistics card
-- Category grid
-- Entry history
+- Welcome Card
+- Statistics Card
+- Category Grid
+- Journal component
 
-Entries
+## Entries
 
 - Dynamic categories
 - Dynamic forms
@@ -166,22 +169,30 @@ Entries
 - Delete entries
 - Real-time updates
 
-Forms
+## Forms
 
-- SmartSelect searchable dropdown
+- SmartSelect search
+- Keyboard navigation
 - Custom values
+- Expanded option datasets
 - Dynamic validation
 - Funny validation messages
 
-Architecture
+## Business Logic
+
+- Entry Service
+- Validation Service
+- Statistics Service
+- Points Service
+
+## Architecture
 
 - Configuration-driven categories
 - Categories are the single source of truth
-- Statistics service
-- Validation service
-- Entry service
+- Points calculated from facts
+- Statistics consume the Points Service
 
-Deployment
+## Deployment
 
 - GitHub
 - Netlify
@@ -199,28 +210,16 @@ Categories define:
 - Units
 - Daily Goal
 - Goal Type
-- Score Field
+- Score Field (when applicable)
 
-This configuration drives the rest of the application.
+Business logic calculates:
 
-Adding a new category should require little or no modification elsewhere.
+- Points
+- Statistics
+- Progress
+- Future achievements
 
----
-
-# Current Daily Goals
-
-| Category | Goal |
-|----------|------|
-| Water | 2000 ml |
-| Fruit | 3 |
-| Reading | 30 min |
-| Running | 5 km |
-| Upper Body | 50 reps |
-| Lower Body | 50 reps |
-| Core | 50 reps |
-| Cardio | 30 min |
-| Skill | 30 min |
-| Steps | 10,000 |
+Derived values are intentionally not stored.
 
 ---
 
@@ -234,93 +233,110 @@ Always prefer:
 - Small services
 - Clean architecture
 - Readable code
+- Business logic separated from UI
 
-Future ideas should be documented instead of interrupting development.
+Future ideas belong in FUTURE_IDEAS.md instead of interrupting development.
 
 ---
 
 # Current Priorities
 
-Highest Priority
+## Highest Priority
 
-✅ Today's Challenge Card
+🚧 Journal V2
 
-After that
+Implement:
 
+- Previous / Next day navigation
+- Date selection
+- Foundation for calendar browsing
+
+## After Journal
+
+- Calendar picker
+- Locked history
+- Today's Challenge
 - Progress bars
 - Daily completion
-- Goal percentages
-- Better dashboard
 
 ---
 
 # Upcoming Milestones
 
-Version 0.3
+## Version 0.4
 
+- Journal navigation
+- Calendar view
+- Locked history
 - Today's Challenge
-- Progress tracking
-- Better statistics
 
-Version 0.4
+## Version 0.5
 
 - Streak system
 - XP
 - Achievements
+- Leaderboards
 
-Version 0.5
+## Version 0.6
 
 - Analytics
 - Charts
 - Insights
+- Admin Portal
 
 ---
 
 # Removed Features
 
-The following ideas have intentionally been removed from the current version.
+The following features have intentionally been removed from Version 1.
 
-Image uploads
+- Image uploads
+- Firebase Storage
+- Proof uploads
 
 Reason:
 
-The project is intended to remain fully usable using Firebase's free tier.
+The application is designed to remain fully functional within Firebase's free tier.
 
-Future versions may optionally reintroduce evidence uploads.
+Evidence uploads may return in a future premium version.
 
 ---
 
-# Important Decisions
+# Important Architectural Decisions
 
-Categories are the single source of truth.
-
-Statistics are calculated rather than stored.
-
-Points will always be calculated.
-
-Components should contain minimal business logic.
-
-Services should contain business logic.
-
-The application is mobile-first.
-
-Every major feature should be reusable.
+- Categories are the single source of truth.
+- Entries store facts.
+- Points are always calculated.
+- Statistics consume the Points Service.
+- Components should contain minimal business logic.
+- Services own business logic.
+- Dashboard orchestrates features rather than implementing them.
+- Journal owns entry presentation.
 
 ---
 
 # Known Improvements
 
-Display names are not yet shown throughout the application.
+- Journal currently displays today's entries only.
+- Date navigation not yet implemented.
+- Calendar picker not implemented.
+- Today's Challenge not implemented.
+- Streak tracking not implemented.
+- Achievements not implemented.
+- Leaderboards not implemented.
+- Admin Portal not started.
 
-Today's Challenge card has not yet been implemented.
+---
 
-Streak tracking does not yet exist.
+# Next Recommended Task
 
-Achievements are not yet implemented.
+Continue building the Journal by implementing:
 
-Leaderboards do not yet exist.
+- Previous Day
+- Next Day
+- Date selection
 
-Admin Portal has not yet been started.
+This will eliminate endless scrolling and provide the foundation for calendar browsing, history locking and future streak calculations.
 
 ---
 
@@ -331,38 +347,17 @@ When continuing this project:
 Read:
 
 1. PROJECT_BIBLE.md
-
 2. HANDOVER.md
-
 3. ROADMAP.md
-
 4. FUTURE_IDEAS.md
 
-Follow the project's architecture.
+Always:
 
-Prefer scalable solutions.
-
-Avoid introducing duplicate code.
-
-Keep the application mobile-first.
-
-Whenever a good idea arises that is outside the current sprint, record it in FUTURE_IDEAS.md instead of changing priorities.
-
----
-
-# Next Recommended Task
-
-Continue building the dashboard by implementing the **Today's Challenge** card.
-
-This should display:
-
-- Daily progress
-- Progress bars
-- Goal completion
-- Live updates
-- Motivational feedback
-
-This feature will become the centrepiece of the dashboard.
+- Protect the architecture.
+- Prefer reusable systems.
+- Avoid duplicate logic.
+- Keep the application mobile-first.
+- Build business logic before UI whenever practical.
 
 ---
 
