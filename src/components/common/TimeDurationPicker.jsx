@@ -1,34 +1,34 @@
 import "./TimeDurationPicker.css";
 
 export default function TimeDurationPicker({
-  value,
+  value = {},
   onChange,
   label = "Duration",
 }) {
-  const hours = value?.hours ?? 0;
-  const minutes = value?.minutes ?? 0;
-  const seconds = value?.seconds ?? 0;
+  const updateField = (field, fieldValue) => {
+    const number = Math.max(0, Number(fieldValue) || 0);
 
-  const update = (field, fieldValue) => {
     onChange({
       ...value,
-      [field]: Number(fieldValue),
+      [field]: number,
     });
   };
 
   return (
-    <div className="time-picker">
+    <div className="time-duration-picker">
       <label>{label}</label>
 
-      <div className="time-picker-row">
+      <div className="time-duration-grid">
         <div>
           <span>Hours</span>
 
           <input
             type="number"
             min="0"
-            value={hours}
-            onChange={(e) => update("hours", e.target.value)}
+            value={value.hours ?? 0}
+            onChange={(e) =>
+              updateField("hours", e.target.value)
+            }
           />
         </div>
 
@@ -39,8 +39,10 @@ export default function TimeDurationPicker({
             type="number"
             min="0"
             max="59"
-            value={minutes}
-            onChange={(e) => update("minutes", e.target.value)}
+            value={value.minutes ?? 0}
+            onChange={(e) =>
+              updateField("minutes", e.target.value)
+            }
           />
         </div>
 
@@ -51,8 +53,10 @@ export default function TimeDurationPicker({
             type="number"
             min="0"
             max="59"
-            value={seconds}
-            onChange={(e) => update("seconds", e.target.value)}
+            value={value.seconds ?? 0}
+            onChange={(e) =>
+              updateField("seconds", e.target.value)
+            }
           />
         </div>
       </div>

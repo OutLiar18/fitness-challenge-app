@@ -1,59 +1,83 @@
 import { POINTS } from "../constants/points";
+import { WORKOUT_POINTS } from "../constants/workoutPoints";
+import { CATEGORY_SCORING } from "../constants/categoryScoring";
+import {
+  getExercise,
+  isStaticExercise,
+} from "../services/exerciseLibraryService";
+
+function getScoreFromTable(value, table) {
+  let score = 0;
+
+  for (const bracket of table) {
+    if (value >= bracket.min) {
+      score = bracket.points;
+    } else {
+      break;
+    }
+  }
+
+  return score;
+}
+
+function calculateEffectiveReps(exercises = []) {
+  let total = 0;
+
+  for (const exercise of exercises) {
+    const metadata = getExercise(exercise.exercise);
+
+    if (!metadata) continue;
+
+    let reps = Number(exercise.reps || 0);
+
+    if (isStaticExercise(exercise.exercise)) {
+      const seconds = Number(exercise.seconds || 0);
+      reps = Math.floor(seconds / metadata.secondsPerRep);
+    }
+
+    total += reps * metadata.difficulty.multiplier;
+  }
+
+  return Math.round(total);
+}
+
+function getWorkoutScore(effectiveReps) {
+  return getScoreFromTable(effectiveReps, WORKOUT_POINTS);
+}
+
+function calculateCategoryScore(category, data) {
+  const config = CATEGORY_SCORING[category];
+
+  if (!config) return null;
+
+  const value = Number(data[config.field] || 0);
+
+  if (category === "fruit") {
+    return Math.min(value, 3);
+  }
+
+  return getScoreFromTable(value, config.table);
+}
 
 export function calculateEntryPoints(entry) {
-  const rules = POINTS[entry.category];
-
-  if (!rules) return 0;
-
   const data = entry.data || {};
 
   switch (entry.category) {
     case "water":
-      return (
-        Math.floor((Number(data.amount) || 0) / rules.unitSize) *
-        rules.pointsPerUnit
-      );
-
     case "fruit":
-      return (
-        Math.floor((Number(data.quantity) || 0) / rules.unitSize) *
-        rules.pointsPerUnit
-      );
-
     case "reading":
-      return (
-        Math.floor((Number(data.minutes) || 0) / rules.unitSize) *
-        rules.pointsPerUnit
-      );
-
     case "running":
-      return (
-        Math.floor((Number(data.distance) || 0) / rules.unitSize) *
-        rules.pointsPerUnit
-      );
-
     case "cardio":
-      return (
-        Math.floor((Number(data.minutes) || 0) / rules.unitSize) *
-        rules.pointsPerUnit
-      );
-
     case "skill":
-      return (
-        Math.floor((Number(data.minutes) || 0) / rules.unitSize) *
-        rules.pointsPerUnit
-      );
-
     case "steps":
-      return (
-        Math.floor((Number(data.steps) || 0) / rules.unitSize) *
-        rules.pointsPerUnit
-      );
+      return calculateCategoryScore(entry.category, data);
 
-    case "upper_body":
-    case "lower_body":
-    case "core":
-      return rules.pointsPerUnit;
+    case "upperBody":
+    case "lowerBody":
+    case "core": {
+      const effectiveReps = calculateEffectiveReps(data.exercises || []);
+      return getWorkoutScore(effectiveReps);
+    }
 
     default:
       return 0;

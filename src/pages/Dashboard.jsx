@@ -30,6 +30,8 @@ import { createEntry } from "../services/entryService";
 import { validateEntry } from "../services/validationService";
 import { getValidationMessage } from "../services/messageService";
 
+import Toast from "../components/common/Toast/Toast";
+
 import CategoryGrid from "../components/categories/CategoryGrid";
 import TopCategories from "../components/dashboard/TopCategories";
 import DailyGoals from "../components/dashboard/DailyGoals";
@@ -48,10 +50,19 @@ export default function Dashboard() {
   const [type, setType] = useState("water");
   const [formData, setFormData] = useState({});
   const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState(null);
 
   const user = auth.currentUser;
 
   const readOnly = !isEditableDate(selectedDate);
+
+  const showToast = (message, type = "success") => {
+    setToast({ message, type });
+
+    setTimeout(() => {
+      setToast(null);
+    }, 3000);
+  };
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -83,8 +94,6 @@ Please fix the following:
     try {
       await createEntry(user.uid, type, formData, selectedDate);
 
-      // Build a temporary updated list so we don't have to wait
-      // for Firestore to refresh before choosing the next goal.
       const updatedEntries = [
         ...entries,
         {
@@ -106,10 +115,11 @@ Please fix the following:
 
       setFormData({});
 
-      alert("✅ Entry saved successfully!");
+      showToast("Entry saved successfully!");
     } catch (err) {
       console.error(err);
-      alert(err.message);
+
+      showToast(err.message, "error");
     } finally {
       setSaving(false);
     }
@@ -120,9 +130,12 @@ Please fix the following:
 
     try {
       await deleteDoc(doc(db, "challengeEntries", id));
+
+      showToast("Entry deleted successfully.");
     } catch (err) {
       console.error(err);
-      alert(err.message);
+
+      showToast(err.message, "error");
     }
   };
 
@@ -191,7 +204,6 @@ Please fix the following:
         stats={{
           points: getTotalPoints(entries),
           todayPoints: getTodayPoints(entries),
-
           entries: getTotalEntries(entries),
           todayEntries: getTodayEntryCount(entries),
         }}
@@ -221,6 +233,8 @@ Please fix the following:
         onDelete={deleteEntry}
         readOnly={readOnly}
       />
+
+      <Toast message={toast?.message} type={toast?.type} />
 
       <hr />
 

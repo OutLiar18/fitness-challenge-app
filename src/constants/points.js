@@ -1,51 +1,89 @@
 export const POINTS = {
-  water: {
-    pointsPerUnit: 1,
-    unitSize: 250,
-  },
+  fruit: [0, 1, 2, 3],
 
-  fruit: {
-    pointsPerUnit: 5,
-    unitSize: 1,
-  },
+  water: [
+    { min: 500, points: 1 },
+    { min: 1000, points: 2 },
+    { min: 1500, points: 3 },
+    { min: 2000, points: 5 },
+    { min: 2500, points: 6 },
+    { min: 3000, points: 7 },
+    { min: 4000, points: 8 },
+    { min: 5000, points: 9 },
+    { min: 7000, points: 10 },
+    { min: 10000, points: 12 },
+  ],
 
-  reading: {
-    pointsPerUnit: 1,
-    unitSize: 10,
-  },
+  reading: [
+    { min: 10, points: 1 },
+    { min: 15, points: 2 },
+    { min: 20, points: 3 },
+    { min: 30, points: 6 },
+    { min: 45, points: 8 },
+    { min: 60, points: 10 },
+    { min: 90, points: 12 },
+    { min: 120, points: 15 },
+    { min: 180, points: 18 },
+    { min: 240, points: 22 },
+    { min: 360, points: 25 },
+  ],
 
-  running: {
-    pointsPerUnit: 5,
-    unitSize: 1,
-  },
+  skill: [
+    { min: 10, points: 1 },
+    { min: 15, points: 2 },
+    { min: 20, points: 3 },
+    { min: 30, points: 6 },
+    { min: 45, points: 8 },
+    { min: 60, points: 10 },
+    { min: 90, points: 12 },
+    { min: 120, points: 15 },
+    { min: 180, points: 18 },
+    { min: 240, points: 22 },
+    { min: 360, points: 25 },
+  ],
 
-  upper_body: {
-    pointsPerUnit: 20,
-    unitSize: 1,
-  },
+  running: [
+    { min: 3, points: 8 },
+    { min: 5, points: 18 },
+    { min: 8, points: 22 },
+    { min: 10, points: 26 },
+    { min: 12, points: 30 },
+    { min: 15, points: 34 },
+    { min: 18, points: 38 },
+    { min: 21, points: 42 },
+    { min: 25, points: 46 },
+    { min: 30, points: 50 },
+    { min: 40, points: 55 },
+    { min: 50, points: 60 },
+    { min: 60, points: 65 },
+  ],
 
-  lower_body: {
-    pointsPerUnit: 20,
-    unitSize: 1,
-  },
+  cardio: [
+    { min: 15, points: 2 },
+    { min: 30, points: 6 },
+    { min: 45, points: 8 },
+    { min: 60, points: 10 },
+    { min: 90, points: 12 },
+    { min: 120, points: 15 },
+    { min: 180, points: 18 },
+    { min: 240, points: 22 },
+    { min: 360, points: 25 },
+  ],
 
-  core: {
-    pointsPerUnit: 15,
-    unitSize: 1,
-  },
-
-  cardio: {
-    pointsPerUnit: 1,
-    unitSize: 10,
-  },
-
-  skill: {
-    pointsPerUnit: 1,
-    unitSize: 10,
-  },
-
-  steps: {
-    pointsPerUnit: 1,
-    unitSize: 1000,
-  },
+  steps: [
+    { min: 3000, points: 1 },
+    { min: 5000, points: 2 },
+    { min: 8000, points: 3 },
+    { min: 10000, points: 5 },
+    { min: 12000, points: 6 },
+    { min: 15000, points: 7 },
+    { min: 18000, points: 8 },
+    { min: 20000, points: 9 },
+    { min: 25000, points: 10 },
+    { min: 30000, points: 12 },
+    { min: 40000, points: 14 },
+    { min: 50000, points: 16 },
+    { min: 60000, points: 18 },
+    { min: 70000, points: 20 },
+  ],
 };

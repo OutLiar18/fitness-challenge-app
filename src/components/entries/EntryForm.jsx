@@ -1,6 +1,13 @@
 import { getCategory } from "../../utils/categoryHelpers";
-import { OPTIONS } from "../../constants/options";
-import SmartSelect from "../common/SmartSelect/SmartSelect";
+
+import WorkoutForm from "../forms/WorkoutForm";
+import RunningForm from "../forms/RunningForm";
+import CardioForm from "../forms/CardioForm";
+import ReadingForm from "../forms/ReadingForm";
+import SkillForm from "../forms/SkillForm";
+import WaterForm from "../forms/WaterForm";
+import FruitForm from "../forms/FruitForm";
+import StepsForm from "../forms/StepsForm";
 
 export default function EntryForm({
   type,
@@ -26,94 +33,73 @@ export default function EntryForm({
       </h2>
 
       {readOnly && (
-        <p>
-          🔒 This day is locked. Older entries cannot be modified.
-        </p>
+        <p>🔒 This day is locked. Older entries cannot be modified.</p>
       )}
 
-      {category.fields.map((field) => (
-        <div
-          key={field.id}
-          style={{ marginBottom: "15px" }}
-        >
-          <label>
-            <strong>{field.label}</strong>
-          </label>
-
-          <br />
-
-          {field.type === "number" && (
-            <input
-              type="number"
-              disabled={readOnly}
-              value={formData[field.id] || ""}
-              placeholder={field.placeholder || ""}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  [field.id]: Number(e.target.value),
-                })
-              }
-            />
-          )}
-
-          {field.type === "text" && (
-            <input
-              type="text"
-              disabled={readOnly}
-              value={formData[field.id] || ""}
-              placeholder={field.placeholder || field.label}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  [field.id]: e.target.value,
-                })
-              }
-            />
-          )}
-
-          {field.type === "textarea" && (
-            <textarea
-              rows={4}
-              disabled={readOnly}
-              value={formData[field.id] || ""}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  [field.id]: e.target.value,
-                })
-              }
-            />
-          )}
-
-          {field.type === "select" && (
-            <div
-              style={{
-                pointerEvents: readOnly ? "none" : "auto",
-              }}
-            >
-              <SmartSelect
-                label={field.label}
-                value={formData[field.id] || ""}
-                options={OPTIONS[field.id] || []}
-                onChange={(value) =>
-                  setFormData({
-                    ...formData,
-                    [field.id]: value,
-                  })
-                }
-              />
-            </div>
-          )}
-        </div>
-      ))}
+      {[
+        "upperBody",
+        "lowerBody",
+        "core",
+        "fullBody",
+      ].includes(type) ? (
+        <WorkoutForm
+          category={category}
+          formData={formData}
+          setFormData={setFormData}
+          readOnly={readOnly}
+        />
+      ) : type === "running" ? (
+        <RunningForm
+          formData={formData}
+          setFormData={setFormData}
+          readOnly={readOnly}
+        />
+      ) : type === "cardio" ? (
+        <CardioForm
+          formData={formData}
+          setFormData={setFormData}
+          readOnly={readOnly}
+        />
+      ) : type === "reading" ? (
+        <ReadingForm
+          formData={formData}
+          setFormData={setFormData}
+          readOnly={readOnly}
+        />
+      ) : type === "skill" ? (
+        <SkillForm
+          formData={formData}
+          setFormData={setFormData}
+          readOnly={readOnly}
+        />
+      ) : type === "water" ? (
+        <WaterForm
+          formData={formData}
+          setFormData={setFormData}
+          readOnly={readOnly}
+        />
+      ) : type === "fruit" ? (
+        <FruitForm
+          formData={formData}
+          setFormData={setFormData}
+          readOnly={readOnly}
+        />
+      ) : type === "steps" ? (
+        <StepsForm
+          formData={formData}
+          setFormData={setFormData}
+          readOnly={readOnly}
+        />
+      ) : (
+        <p>No form exists for this category.</p>
+      )}
 
       <button
         type="button"
         disabled={readOnly}
         onClick={onSave}
         style={{
-          marginTop: "10px",
+          marginTop: "20px",
           padding: "10px 20px",
           cursor: readOnly ? "not-allowed" : "pointer",
         }}
