@@ -1,96 +1,77 @@
 # Champions Legacy Challenge
 
-## Version
+# CURRENT STATE
 
-Current Version: **0.4 (Development)**
+This document describes the current implementation status of the Champions Legacy Challenge application.
+
+It should always reflect the actual state of the software.
 
 ---
 
-# Completed
+# Version
 
-## Core Architecture
+Current Version:
+
+**v0.5 (Development)**
+
+Status:
+
+🚧 Active Development
+
+---
+
+# Project Overview
+
+Champions Legacy Challenge is a personal development platform focused on rewarding:
+
+- Discipline
+- Consistency
+- Balanced Growth
+- Accountability
+
+The application is configuration-driven and built around reusable services and components.
+
+---
+
+# Core Architecture
+
+## Completed
 
 ✅ Configuration-driven category system
 
 ✅ Dynamic category configuration
 
-✅ Reusable services architecture
+✅ Service-oriented architecture
 
-✅ Mobile-first dashboard architecture
+✅ Reusable component architecture
+
+✅ Mobile-first dashboard structure
+
+✅ Firestore factual data model
+
+✅ Dynamic point calculation architecture
 
 ---
 
-## Authentication
+# Authentication
+
+## Completed
 
 ✅ Firebase Authentication
 
-✅ User profiles
+✅ User registration
+
+✅ User login
 
 ✅ Protected routes
 
----
-
-## Entries
-
-✅ Dynamic Entry Forms
-
-✅ Dynamic validation
-
-✅ Entry Service
-
-✅ Firestore persistence
-
-✅ Entry deletion
-
-✅ Real-time updates
+✅ User profiles
 
 ---
 
-## SmartSelect
+# Dashboard
 
-✅ Search
-
-✅ Keyboard navigation
-
-✅ Custom value support
-
-✅ Reusable component
-
-✅ Expanded option datasets
-
----
-
-## Statistics
-
-✅ Statistics Service
-
-✅ Category statistics
-
-✅ Dashboard statistics
-
-✅ Total entries
-
-✅ Water totals
-
-✅ Reading totals
-
-✅ Running totals
-
----
-
-## Points Engine
-
-✅ Centralized Points Service
-
-✅ Configuration-driven scoring
-
-✅ Statistics consume the Points Service
-
-✅ Points calculated from entry facts
-
----
-
-## Dashboard
+## Completed
 
 ✅ Welcome Card
 
@@ -98,59 +79,321 @@ Current Version: **0.4 (Development)**
 
 ✅ Category Grid
 
+✅ Daily Progress
+
+✅ Daily Goals
+
+✅ Top Categories
+
 ✅ Dynamic Entry Form
 
-✅ Journal component
+✅ Journal integration
 
 ---
 
-## Current Sprint
+# Entries
 
-🚧 Journal V2
+## Completed
 
-Current objective:
+✅ Dynamic Entry Forms
 
-- Date navigation
-- Daily journal browsing
-- Foundation for calendar view
+✅ Entry creation
 
----
+✅ Entry deletion
 
-## Next Milestones
+✅ Firestore persistence
 
-- Previous / Next day navigation
-- Calendar picker
-- Locked history
-- Today's Challenge
-- Progress bars
-- Streak system
-- XP
-- Achievements
-- Leaderboards
+✅ Real-time updates
+
+✅ Date locking foundation
 
 ---
 
-## Known Issues
+# Forms
 
-- Entry cards still need visual polishing.
-- Dashboard styling needs refinement.
-- Journal currently only displays today's entries.
-- Calendar navigation not yet implemented.
-- Admin dashboard not started.
+## Completed
+
+✅ Water Form
+
+✅ Fruit Form
+
+✅ Reading Form
+
+✅ Running Form
+
+✅ Cardio Form
+
+✅ Skill Form
+
+✅ Workout Form
+
+✅ Steps Form
 
 ---
 
-## Last Modified Files
+# SmartSelect
 
-- Dashboard.jsx
-- Journal.jsx
-- Journal.css
-- EntryForm.jsx
-- SmartSelect.jsx
-- statisticsService.js
-- pointsService.js
-- options.js
-- categories.js
+## Completed
+
+✅ Search
+
+✅ Keyboard navigation
+
+✅ Mouse support
+
+✅ Custom values
+
+✅ Large datasets
+
+✅ Reusable component
+
+---
+
+# Statistics
+
+## Completed
+
+✅ Statistics Service
+
+✅ Dashboard statistics
+
+✅ Category statistics
+
+✅ Total entries
+
+✅ Daily entries
+
+✅ Total points
+
+✅ Daily points
+
+✅ Water totals
+
+✅ Reading totals
+
+✅ Running totals
+
+✅ Daily goal tracking
+
+---
+
+# Points Engine
+
+## Current Status
+
+🚧 Migration to Points Engine v2
+
+Completed
+
+✅ Centralized Points Service
+
+✅ Dynamic point calculation
+
+✅ Configuration-driven scoring
+
+✅ Statistics consume Points Service
+
+✅ Category score tables
+
+✅ Exercise Library integration started
+
+In Progress
+
+🚧 Difficulty multipliers
+
+🚧 Effective Rep calculations
+
+🚧 Workout scoring migration
+
+🚧 Cardio difficulty scoring
+
+Pending
+
+⬜ Manual bonus system
+
+⬜ Balance bonus
+
+⬜ Achievement rewards
+
+---
+
+# Exercise System
+
+## Current Status
+
+🚧 Migration in progress
+
+Completed
+
+✅ Exercise Library
+
+✅ Difficulty Library
+
+✅ ExerciseOptionService
+
+✅ WorkoutForm integration started
+
+Pending
+
+⬜ Full exercise database
+
+⬜ Static hold conversions
+
+⬜ Exercise analytics
+
+---
+
+# Journal
+
+## Current Status
+
+Partially Complete
+
+Completed
+
+✅ Daily journal
+
+✅ Entry display
+
+✅ Entry deletion
+
+Pending
+
+⬜ Previous / Next day navigation
+
+⬜ Calendar picker
+
+⬜ Locked history UX
+
+⬜ Calendar view
+
+---
+
+# Services
+
+Current services include
+
+✅ EntryService
+
+✅ ValidationService
+
+✅ StatisticsService
+
+✅ PointsService
+
+✅ ExerciseLibraryService
+
+✅ ExerciseOptionService
+
+✅ ChallengeService
+
+✅ DateService
+
+✅ MessageService
+
+✅ MigrationService
+
+---
+
+# Documentation
+
+Project documentation includes
+
+✅ PROJECT_BIBLE
+
+✅ ROADMAP
+
+✅ CURRENT_STATE
+
+✅ PROJECT_STATE
+
+✅ CHANGELOG
+
+✅ HANDOVER
+
+✅ ARCHITECTURE
+
+✅ ARCHITECTURE_DECISIONS
+
+✅ DESIGN_LANGUAGE
+
+✅ DEVELOPMENT_PLAYBOOK
+
+✅ POINTS_SYSTEM
+
+✅ CHALLENGE_RULES
+
+✅ FUTURE_IDEAS
+
+---
+
+# Current Sprint
+
+🚧 Stabilization Sprint
+
+Current objective
+
+- Complete Exercise Library migration
+- Complete Points Engine v2 migration
+- Restore Validation
+- Restore MessageService
+- Verify Statistics
+- Remove duplicate architectures
+- Remove dead code
+- Synchronize documentation
+
+---
+
+# Known Issues
+
+Current known issues
+
+- Validation is inconsistent after form migration.
+- Some forms still use legacy architecture.
+- Exercise migration is incomplete.
+- Old options system still exists alongside the new library architecture.
+- Journal navigation is unfinished.
+- Dashboard styling requires polishing.
+- Admin dashboard has not started.
+
+---
+
+# Upcoming Milestones
+
+After Stabilization Sprint
+
+1. Journal V2 completion
+
+2. Calendar navigation
+
+3. Today's Challenge
+
+4. Progress visualisations
+
+5. Streak System
+
+6. XP System
+
+7. Achievement System
+
+8. Leaderboards
+
+9. Admin Dashboard
+
+---
+
+# Last Major Changes
+
+Recently completed
+
+- Introduced Exercise Library
+- Introduced Difficulty Library
+- Introduced ExerciseOptionService
+- Began Workout migration
+- Began Points Engine v2 migration
+- Standardised category architecture
+- Expanded project documentation
+- Introduced PROJECT_STATE.md
 
 ---
 

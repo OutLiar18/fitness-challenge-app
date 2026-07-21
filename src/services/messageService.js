@@ -19,9 +19,9 @@ const categoryMessages = {
     "👟 Running in your imagination doesn't count.",
   ],
 
-  upper_body: ["💪 Your muscles know what happened."],
+  upperBody: ["💪 Your muscles know what happened."],
 
-  lower_body: ["🦵 Leg day skipped itself again?"],
+  lowerBody: ["🦵 Leg day skipped itself again?"],
 
   core: ["🔥 Your abs are waiting..."],
 

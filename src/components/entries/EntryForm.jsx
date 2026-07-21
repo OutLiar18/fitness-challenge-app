@@ -36,14 +36,9 @@ export default function EntryForm({
         <p>🔒 This day is locked. Older entries cannot be modified.</p>
       )}
 
-      {[
-        "upperBody",
-        "lowerBody",
-        "core",
-        "fullBody",
-      ].includes(type) ? (
+      {["upperBody", "lowerBody", "core", "fullBody"].includes(type) ? (
         <WorkoutForm
-          category={category}
+          category={type}
           formData={formData}
           setFormData={setFormData}
           readOnly={readOnly}

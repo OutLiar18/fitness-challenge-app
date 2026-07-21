@@ -1,5 +1,4 @@
-import DurationPicker from "../common/DurationPicker/DurationPicker";
-
+import DurationPicker from "../common/DurationPicker";
 import { OPTIONS } from "../../constants/options";
 import SmartSelect from "../common/SmartSelect/SmartSelect";
 

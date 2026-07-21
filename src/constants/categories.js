@@ -97,7 +97,7 @@ export const CATEGORIES = [
   },
 
   {
-    id: "upper_body",
+    id: "upperBody",
     name: "Upper Body",
     emoji: "💪",
 
@@ -130,7 +130,7 @@ export const CATEGORIES = [
   },
 
   {
-    id: "lower_body",
+    id: "lowerBody",
     name: "Lower Body",
     emoji: "🦵",
 

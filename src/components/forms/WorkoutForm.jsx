@@ -1,5 +1,5 @@
-import { OPTIONS } from "../../constants/options";
 import SmartSelect from "../common/SmartSelect/SmartSelect";
+import { getExercisesByCategory } from "../../services/exerciseOptionService";
 
 export default function WorkoutForm({
   category,
@@ -7,6 +7,8 @@ export default function WorkoutForm({
   setFormData,
   readOnly,
 }) {
+  const exercises = getExercisesByCategory(category);
+
   return (
     <>
       {/* Exercise */}
@@ -18,14 +20,14 @@ export default function WorkoutForm({
         <SmartSelect
           label="Exercise"
           value={formData.exercise || ""}
-          options={OPTIONS.exercise || []}
-          disabled={readOnly}
+          options={exercises}
           onChange={(value) =>
             setFormData({
               ...formData,
               exercise: value,
             })
           }
+          disabled={readOnly}
         />
       </div>
 
@@ -76,8 +78,8 @@ export default function WorkoutForm({
         <input
           type="number"
           disabled={readOnly}
-          value={formData.weight || ""}
           placeholder="kg"
+          value={formData.weight || ""}
           onChange={(e) =>
             setFormData({
               ...formData,

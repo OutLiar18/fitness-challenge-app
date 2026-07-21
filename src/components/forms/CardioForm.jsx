@@ -1,6 +1,6 @@
 import { OPTIONS } from "../../constants/options";
 import SmartSelect from "../common/SmartSelect/SmartSelect";
-import DurationPicker from "../common/DurationPicker/DurationPicker";
+import DurationPicker from "../common/DurationPicker";
 
 export default function CardioForm({
   formData,

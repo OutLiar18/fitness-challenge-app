@@ -1,30 +1,102 @@
 # 🏆 Champions Legacy Challenge
 
-# Changelog
+# CHANGELOG
 
 All notable changes to Champions Legacy Challenge are documented here.
 
-The project follows a simplified version of the Keep a Changelog format.
+This project loosely follows the **Keep a Changelog** format.
+
+Only completed work belongs in this document.
+
+Future plans belong in:
+
+- ROADMAP.md
+
+Current work belongs in:
+
+- PROJECT_STATE.md
+
+Current implementation belongs in:
+
+- CURRENT_STATE.md
 
 ---
 
-# Version 0.3.0 (Current Development)
+# Version 0.5.0 (Current Development)
+
+## Added
+
+### Documentation
+
+- PROJECT_STATE.md introduced as the project's living development context.
+- Expanded documentation workflow.
+- Standardised documentation update process.
+
+### Architecture
+
+- Introduced Exercise Library architecture.
+- Introduced Difficulty Library.
+- Introduced ExerciseOptionService.
+- Introduced migration architecture for exercise system.
+- Standardised category naming toward camelCase.
+
+### Points Engine
+
+- Began migration to Points Engine v2.
+- Introduced configurable point tables.
+- Introduced difficulty multiplier architecture.
+- Introduced Effective Rep calculation framework.
+- Added support for future manual bonuses.
+- Added support for future achievement rewards.
+
+### Forms
+
+- WorkoutForm now begins using ExerciseOptionService.
+- Exercise selection now driven by Exercise Library.
+
+---
+
+## Changed
+
+- Project focus shifted from feature development to architecture stabilisation.
+- Exercise system migrated away from the legacy options architecture.
+- Documentation expanded to support long-term maintenance.
+- Project workflow now treats documentation as part of implementation.
+
+---
+
+## Fixed
+
+- Category naming inconsistencies.
+- Workout architecture wiring.
+- Exercise selection architecture.
+- Multiple service integration issues discovered during migration.
+
+---
+
+## Removed
+
+- Continued removal of legacy options.js dependencies.
+- Continued removal of duplicated exercise definitions.
+
+---
+
+# Version 0.4.0
 
 ## Added
 
 ### Architecture
 
-- Configuration-driven category system
-- Categories as the single source of truth
-- Daily goal configuration
-- Goal type configuration
-- Score field configuration
-- Centralized Points Engine
-- Journal architecture
+- Configuration-driven category system.
+- Categories as the single source of truth.
+- Daily goal configuration.
+- Goal type configuration.
+- Centralised Points Service.
+- Journal architecture.
 
 ### Components
 
-- SmartSelect component
+- SmartSelect
 - Welcome Card
 - Statistics Card
 - Category Grid
@@ -34,18 +106,18 @@ The project follows a simplified version of the Keep a Changelog format.
 
 ### Services
 
-- Entry Service
-- Validation Service
-- Statistics Service
-- Points Service
+- EntryService
+- ValidationService
+- StatisticsService
+- PointsService
 
 ### Validation
 
 - Dynamic validation
 - Required field validation
 - Number validation
-- Funny validation messages
-- Random easter egg messages
+- Validation message service
+- Easter egg validation messages
 
 ### Dashboard
 
@@ -57,40 +129,37 @@ The project follows a simplified version of the Keep a Changelog format.
 ### Forms
 
 - Searchable dropdowns
-- Keyboard navigation for SmartSelect
+- Keyboard navigation
 - Custom values
-- Dynamic field rendering
+- Dynamic rendering
 
 ### Data
 
-Expanded SmartSelect datasets including:
+Expanded datasets for:
 
 - Fruit
 - Exercises
-- Cardio Activities
+- Cardio
 - Skills
 
 ### Documentation
 
-- Project Bible
-- Roadmap
-- Handover
-- Future Ideas
+- PROJECT_BIBLE
+- ROADMAP
+- HANDOVER
+- FUTURE_IDEAS
+- ARCHITECTURE
+- DESIGN_LANGUAGE
 
 ---
 
 ## Changed
 
-- Mobile-first development philosophy adopted.
-- Categories now define daily goals.
-- Categories now define score fields.
-- Statistics now calculate points through the Points Service.
-- Dashboard no longer renders entries directly.
-- Entry history moved into the Journal component.
-- Removed unnecessary `scoreField` values from workout categories.
-- Fixed Cardio and Skill category configuration.
-- Business logic further separated from presentation.
-- Improved project documentation.
+- Adopted mobile-first philosophy.
+- Categories now define goals.
+- Statistics consume PointsService.
+- Dashboard separated from Journal.
+- Business logic further separated from UI.
 - Improved project structure.
 
 ---
@@ -98,25 +167,24 @@ Expanded SmartSelect datasets including:
 ## Removed
 
 - Firebase Storage integration.
-- Image upload requirements.
-- Photo proof fields.
-- Proof upload workflow.
-- Separate `dailyGoals.js` configuration.
-- Dependency on stored entry points.
+- Image uploads.
+- Photo proof workflow.
+- Stored point values.
+- Separate dailyGoals configuration.
 
 Reason:
 
-The application now calculates all points from entry facts, making the Points Engine the single source of truth while remaining compatible with Firebase's free tier.
+The application now stores only factual user data while calculating points dynamically.
 
 ---
 
-# Version 0.2.0
+# Version 0.3.0
 
 ## Added
 
 - Dynamic category system
 - Dynamic form engine
-- User profile creation
+- User profiles
 - Entry saving
 - Entry deletion
 - Firestore integration
@@ -126,7 +194,7 @@ The application now calculates all points from entry facts, making the Points En
 
 ---
 
-# Version 0.1.0
+# Version 0.2.0
 
 ## Added
 
@@ -141,33 +209,24 @@ The application now calculates all points from entry facts, making the Points En
 
 ---
 
-# Upcoming
+# Documentation Policy
 
-Planned for Version 0.4
+This file records completed work only.
 
-- Journal date navigation
-- Calendar picker
-- Locked history
-- Today's Challenge
-- Progress bars
-- Daily completion tracking
-- Streak system
-- XP
-- Achievements
+Every development session should update this document.
 
----
+A development session is not complete until:
 
-# Notes
+- CHANGELOG.md has been updated.
+- CURRENT_STATE.md has been updated.
+- PROJECT_STATE.md has been updated.
 
-This changelog tracks completed work only.
+If architecture changes:
 
-Ideas that are not yet scheduled belong in:
+- ARCHITECTURE.md
+- ARCHITECTURE_DECISIONS.md
 
-- FUTURE_IDEAS.md
-
-Planned work belongs in:
-
-- ROADMAP.md
+must also be updated.
 
 ---
 

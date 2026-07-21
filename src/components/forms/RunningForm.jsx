@@ -1,4 +1,4 @@
-import DurationPicker from "../common/DurationPicker/DurationPicker";
+import DurationPicker from "../common/DurationPicker";
 
 export default function RunningForm({
   formData,

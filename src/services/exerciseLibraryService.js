@@ -1,17 +1,29 @@
 import { EXERCISE_LIBRARY } from "../constants/libraries/exerciseLibrary";
 
 export function getExercise(name) {
-  return EXERCISE_LIBRARY[name] ?? null;
+  return EXERCISE_LIBRARY[name] || null;
 }
 
-export function getDifficulty(name) {
-  return getExercise(name)?.difficulty ?? null;
+export function getExercises() {
+  return Object.values(EXERCISE_LIBRARY);
+}
+
+export function getExerciseNames() {
+  return Object.keys(EXERCISE_LIBRARY);
+}
+
+export function getExercisesByCategory(category) {
+  return Object.values(EXERCISE_LIBRARY).filter(
+    (exercise) => exercise.category === category,
+  );
+}
+
+export function getExerciseNamesByCategory(category) {
+  return getExercisesByCategory(category).map((exercise) => exercise.name);
 }
 
 export function isStaticExercise(name) {
-  return getExercise(name)?.type === "static";
-}
+  const exercise = getExercise(name);
 
-export function getSecondsPerRep(name) {
-  return getExercise(name)?.secondsPerRep ?? null;
+  return exercise?.type === "static";
 }
