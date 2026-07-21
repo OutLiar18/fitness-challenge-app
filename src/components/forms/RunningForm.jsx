@@ -3,26 +3,40 @@ import DurationPicker from "../common/DurationPicker";
 export default function RunningForm({
   formData,
   setFormData,
-  readOnly,
+  readOnly = false,
 }) {
+  const updateDistance = (value) => {
+    setFormData((currentData) => ({
+      ...currentData,
+      distance:
+        value === ""
+          ? ""
+          : Number(value),
+    }));
+  };
+
   return (
     <>
       <div style={{ marginBottom: "15px" }}>
-        <label>
+        <label htmlFor="running-distance">
           <strong>Distance (km) *</strong>
         </label>
 
         <input
+          id="running-distance"
+          name="distance"
           type="number"
           step="0.01"
-          min="0"
+          min="0.01"
+          inputMode="decimal"
           disabled={readOnly}
-          value={formData.distance || ""}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              distance: Number(e.target.value),
-            })
+          placeholder="5"
+          value={formData.distance ?? ""}
+          onChange={(event) =>
+            updateDistance(event.target.value)
+          }
+          onWheel={(event) =>
+            event.currentTarget.blur()
           }
         />
       </div>

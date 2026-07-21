@@ -22,8 +22,20 @@ export function getExerciseNamesByCategory(category) {
   return getExercisesByCategory(category).map((exercise) => exercise.name);
 }
 
-export function isStaticExercise(name) {
+export function isRepetitionExercise(name) {
   const exercise = getExercise(name);
 
-  return exercise?.type === "static";
+  return exercise?.exerciseType === "repetition";
+}
+
+export function isHoldExercise(name) {
+  const exercise = getExercise(name);
+
+  return exercise?.exerciseType === "hold";
+}
+
+export function getExerciseDifficulty(name) {
+  const exercise = getExercise(name);
+
+  return exercise?.difficulty || null;
 }

@@ -1,25 +1,29 @@
-export default function StepsForm({
-  formData,
-  setFormData,
-  readOnly,
-}) {
+export default function StepsForm({ formData, setFormData, readOnly = false }) {
+  const updateSteps = (value) => {
+    setFormData((currentData) => ({
+      ...currentData,
+      steps: value === "" ? "" : Number(value),
+    }));
+  };
+
   return (
     <div style={{ marginBottom: "15px" }}>
-      <label>
+      <label htmlFor="steps-amount">
         <strong>Steps *</strong>
       </label>
 
       <input
+        id="steps-amount"
+        name="steps"
         type="number"
-        min="0"
+        min="1"
+        step="1"
+        inputMode="numeric"
         disabled={readOnly}
-        value={formData.steps || ""}
-        onChange={(e) =>
-          setFormData({
-            ...formData,
-            steps: Number(e.target.value),
-          })
-        }
+        value={formData.steps ?? ""}
+        placeholder="10000"
+        onWheel={(event) => event.currentTarget.blur()}
+        onChange={(event) => updateSteps(event.target.value)}
       />
     </div>
   );

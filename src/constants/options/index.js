@@ -1,14 +1,9 @@
+import { CARDIO_OPTIONS } from "./cardioOptions";
 import { FRUIT_OPTIONS } from "./fruitOptions";
-import { READING_OPTIONS } from "./readingOptions";
-import { RUNNING_OPTIONS } from "./runningOptions";
-import { MINDFULNESS_OPTIONS } from "./mindfulnessOptions";
+import { SKILL_OPTIONS } from "./skillOptions";
 
 export const OPTIONS = {
+  cardio: CARDIO_OPTIONS,
   fruit: FRUIT_OPTIONS,
-
-  readingType: READING_OPTIONS,
-
-  runningType: RUNNING_OPTIONS,
-
-  mindfulnessType: MINDFULNESS_OPTIONS,
+  skill: SKILL_OPTIONS,
 };

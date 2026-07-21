@@ -3,7 +3,7 @@ import "./DailyProgress.css";
 import {
   getMissionProgress,
   getNextGoal,
-} from "../../services/statisticsService";
+} from "../../services/statistics";
 
 export default function DailyProgress({ goals }) {
   const mission = getMissionProgress(goals);

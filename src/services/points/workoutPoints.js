@@ -1,41 +1,72 @@
 import { WORKOUT_POINTS } from "../../constants/workoutPoints";
 import {
   getExercise,
-  isStaticExercise,
+  isHoldExercise,
 } from "../exerciseLibraryService";
 
 import { getScoreFromTable } from "./utils";
 
-function calculateEffectiveReps(exercises = []) {
+function calculateSetEffectiveReps(
+  exerciseName,
+  set,
+  metadata,
+) {
+  if (isHoldExercise(exerciseName)) {
+    const seconds = Number(set.seconds || 0);
+    const secondsPerRep = Number(
+      metadata.secondsPerRep || 10,
+    );
+
+    return Math.floor(
+      seconds / secondsPerRep,
+    );
+  }
+
+  return Number(set.reps || 0);
+}
+
+function calculateEffectiveReps(
+  exercises = [],
+) {
   let total = 0;
 
   for (const exercise of exercises) {
-    const metadata = getExercise(exercise.exercise);
+    const metadata = getExercise(
+      exercise.exercise,
+    );
 
-    if (!metadata) continue;
-
-    let reps = Number(exercise.reps || 0);
-
-    if (isStaticExercise(exercise.exercise)) {
-      const seconds = Number(exercise.seconds || 0);
-
-      reps = Math.floor(
-        seconds / metadata.secondsPerRep,
-      );
+    if (!metadata) {
+      continue;
     }
 
-    total +=
-      reps *
-      metadata.difficulty.multiplier;
+    const sets = Array.isArray(exercise.sets)
+      ? exercise.sets
+      : [];
+
+    for (const set of sets) {
+      const setEffectiveReps =
+        calculateSetEffectiveReps(
+          exercise.exercise,
+          set,
+          metadata,
+        );
+
+      total +=
+        setEffectiveReps *
+        metadata.difficulty.multiplier;
+    }
   }
 
   return Math.round(total);
 }
 
-export function calculateWorkoutPoints(data = {}) {
-  const effectiveReps = calculateEffectiveReps(
-    data.exercises || [],
-  );
+export function calculateWorkoutPoints(
+  data = {},
+) {
+  const effectiveReps =
+    calculateEffectiveReps(
+      data.exercises || [],
+    );
 
   return getScoreFromTable(
     effectiveReps,

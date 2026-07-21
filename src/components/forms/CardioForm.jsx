@@ -5,26 +5,24 @@ import DurationPicker from "../common/DurationPicker";
 export default function CardioForm({
   formData,
   setFormData,
-  readOnly,
+  readOnly = false,
 }) {
+  const updateActivity = (value) => {
+    setFormData((currentData) => ({
+      ...currentData,
+      activity: value,
+    }));
+  };
+
   return (
     <>
       <div style={{ marginBottom: "15px" }}>
-        <label>
-          <strong>Activity *</strong>
-        </label>
-
         <SmartSelect
-          label="Activity"
-          value={formData.activity || ""}
-          options={OPTIONS.activity || []}
+          label="Activity *"
+          value={formData.activity ?? ""}
+          options={OPTIONS.cardio ?? []}
           disabled={readOnly}
-          onChange={(value) =>
-            setFormData({
-              ...formData,
-              activity: value,
-            })
-          }
+          onChange={updateActivity}
         />
       </div>
 

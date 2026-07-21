@@ -1,9 +1,11 @@
-import { getDailyGoals } from "./statisticsService";
+import { getDailyGoals } from "./statistics";
 
-export function getNextCategory(entries) {
+export function getNextCategory(entries = []) {
   const goals = getDailyGoals(entries);
 
-  const next = goals.find((goal) => !goal.completed);
+  const nextGoal = goals.find(
+    (goal) => !goal.completed,
+  );
 
-  return next ? next.id : null;
+  return nextGoal?.id ?? null;
 }

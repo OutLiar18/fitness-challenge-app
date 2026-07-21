@@ -1,48 +1,48 @@
-import { useState, useEffect } from "react";
-import { auth, db } from "../firebase";
+import { useEffect, useState } from "react";
 import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 
 import {
-  getDoc,
   collection,
-  query,
-  where,
-  onSnapshot,
   deleteDoc,
   doc,
+  getDoc,
+  onSnapshot,
+  query,
+  where,
 } from "firebase/firestore";
 
+import { auth, db } from "../firebase";
+
 import {
-  getTotalEntries,
-  getTodayEntryCount,
-  getTotalPoints,
-  getTodayPoints,
-  getEntriesForDate,
   getDailyGoals,
+  getEntriesForDate,
+  getTodayEntryCount,
+  getTodayPoints,
   getTopCategories,
-} from "../services/statisticsService";
+  getTotalEntries,
+  getTotalPoints,
+} from "../services/statistics";
 
 import { isEditableDate } from "../services/dateService";
-import { getNextCategory } from "../services/challengeService";
-import { getCategory } from "../utils/categoryHelpers";
-import { createEntry } from "../services/entryService";
-import { validateEntry } from "../services/validation";
+import { saveChallengeEntry } from "../services/entries";
 import { getValidationMessage } from "../services/messageService";
 
-import Toast from "../components/common/Toast/Toast";
+import { getCategory } from "../utils/categoryHelpers";
 
 import CategoryGrid from "../components/categories/CategoryGrid";
-import TopCategories from "../components/dashboard/TopCategories";
+import Toast from "../components/common/Toast/Toast";
 import DailyGoals from "../components/dashboard/DailyGoals";
 import DailyProgress from "../components/dashboard/DailyProgress";
-import WelcomeCard from "../components/dashboard/WelcomeCard";
 import StatsCard from "../components/dashboard/StatsCard";
+import TopCategories from "../components/dashboard/TopCategories";
+import WelcomeCard from "../components/dashboard/WelcomeCard";
 import EntryForm from "../components/entries/EntryForm";
 import Journal from "../components/journal/Journal";
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const user = auth.currentUser;
 
   const [profile, setProfile] = useState(null);
   const [entries, setEntries] = useState([]);
@@ -52,137 +52,168 @@ export default function Dashboard() {
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState(null);
 
-  const user = auth.currentUser;
-
   const readOnly = !isEditableDate(selectedDate);
+  const dailyGoals = getDailyGoals(entries);
 
-  const showToast = (message, type = "success") => {
-    setToast({ message, type });
+  const showToast = (message, toastType = "success") => {
+    setToast({
+      message,
+      type: toastType,
+    });
 
-    setTimeout(() => {
+    window.setTimeout(() => {
       setToast(null);
     }, 3000);
   };
 
   const handleLogout = async () => {
-    await signOut(auth);
-    navigate("/");
+    try {
+      await signOut(auth);
+      navigate("/");
+    } catch (error) {
+      console.error(error);
+
+      showToast(error.message || "You could not be logged out.", "error");
+    }
   };
 
-  const dailyGoals = getDailyGoals(entries);
-
   const saveEntry = async () => {
-    if (!user || saving || readOnly) return;
+    if (!user || saving || readOnly) {
+      return;
+    }
 
     const category = getCategory(type);
 
-    const errors = validateEntry(category, formData);
+    if (!category) {
+      showToast("The selected category could not be found.", "error");
 
-    if (errors.length > 0) {
-      alert(
-        `${getValidationMessage(type)}
-
-Please fix the following:
-
-• ${errors.join("\n• ")}`,
-      );
       return;
     }
 
     setSaving(true);
 
     try {
-      await createEntry(user.uid, type, formData, selectedDate);
+      const result = await saveChallengeEntry({
+        userId: user.uid,
+        category: type,
+        categoryConfig: category,
+        data: formData,
+        selectedDate,
+        currentEntries: entries,
+      });
 
-      const updatedEntries = [
-        ...entries,
-        {
-          category: type,
-          data: formData,
-          challengeDate: {
-            toDate: () => selectedDate,
-          },
-        },
-      ];
+      if (!result.success) {
+        alert(
+          `${getValidationMessage(type)}
 
-      if (selectedDate.toDateString() === new Date().toDateString()) {
-        const nextCategory = getNextCategory(updatedEntries);
+Please fix the following:
 
-        if (nextCategory) {
-          setType(nextCategory);
-        }
+• ${result.errors.join("\n• ")}`,
+        );
+
+        return;
+      }
+
+      if (result.nextCategory) {
+        setType(result.nextCategory);
       }
 
       setFormData({});
-
       showToast("Entry saved successfully!");
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
 
-      showToast(err.message, "error");
+      showToast(error.message || "The entry could not be saved.", "error");
     } finally {
       setSaving(false);
     }
   };
 
   const deleteEntry = async (id) => {
-    if (readOnly) return;
+    if (readOnly || !id) {
+      return;
+    }
 
     try {
       await deleteDoc(doc(db, "challengeEntries", id));
 
       showToast("Entry deleted successfully.");
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
 
-      showToast(err.message, "error");
+      showToast(error.message || "The entry could not be deleted.", "error");
     }
   };
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      return undefined;
+    }
 
     const loadProfile = async () => {
       try {
-        const snap = await getDoc(doc(db, "users", user.uid));
+        const profileSnapshot = await getDoc(doc(db, "users", user.uid));
 
-        if (snap.exists()) {
-          setProfile(snap.data());
+        if (profileSnapshot.exists()) {
+          setProfile(profileSnapshot.data());
         }
-      } catch (err) {
-        console.error(err);
+      } catch (error) {
+        console.error(error);
+
+        showToast(error.message || "The profile could not be loaded.", "error");
       }
     };
 
     loadProfile();
 
-    const q = query(
+    const entriesQuery = query(
       collection(db, "challengeEntries"),
       where("userId", "==", user.uid),
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map((docSnap) => {
-        const d = docSnap.data();
+    const unsubscribe = onSnapshot(
+      entriesQuery,
+      (snapshot) => {
+        const loadedEntries = snapshot.docs.map((documentSnapshot) => {
+          const entry = documentSnapshot.data();
+          const category = getCategory(entry.category);
 
-        const category = getCategory(d.category);
+          return {
+            id: documentSnapshot.id,
+            ...entry,
+            name: category?.name || entry.category,
+            emoji: category?.emoji || "🏆",
+          };
+        });
 
-        return {
-          id: docSnap.id,
-          ...d,
-          name: category?.name || d.category,
-          emoji: category?.emoji || "🏆",
-        };
-      });
+        loadedEntries.sort((firstEntry, secondEntry) => {
+          const firstCreatedAt = firstEntry.createdAt;
 
-      data.sort((a, b) => {
-        if (!a.createdAt || !b.createdAt) return 0;
+          const secondCreatedAt = secondEntry.createdAt;
 
-        return b.createdAt.toMillis() - a.createdAt.toMillis();
-      });
+          if (!firstCreatedAt && !secondCreatedAt) {
+            return 0;
+          }
 
-      setEntries(data);
-    });
+          if (!firstCreatedAt) {
+            return 1;
+          }
+
+          if (!secondCreatedAt) {
+            return -1;
+          }
+
+          return secondCreatedAt.toMillis() - firstCreatedAt.toMillis();
+        });
+
+        setEntries(loadedEntries);
+      },
+      (error) => {
+        console.error(error);
+
+        showToast(error.message || "Entries could not be loaded.", "error");
+      },
+    );
 
     return () => unsubscribe();
   }, [user]);
@@ -238,7 +269,9 @@ Please fix the following:
 
       <hr />
 
-      <button onClick={handleLogout}>Logout</button>
+      <button type="button" onClick={handleLogout}>
+        Logout
+      </button>
     </div>
   );
 }

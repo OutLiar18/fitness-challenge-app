@@ -1,88 +1,103 @@
-export const CARDIO_OPTIONS = [
-  // Gym Equipment
-  { name: "Air Bike" },
-  { name: "Assault Bike" },
-  { name: "Elliptical" },
-  { name: "Exercise Bike" },
-  { name: "Rowing Machine" },
-  { name: "Ski Erg" },
-  { name: "Stair Climber" },
-  { name: "Versa Climber" },
+export const FRUIT_OPTIONS = [
+  { name: "Apple" },
+  { name: "Apricot" },
+  { name: "Atemoya" },
 
-  // Cycling
-  { name: "Cycling" },
-  { name: "Mountain Biking" },
-  { name: "Road Cycling" },
-  { name: "Spinning" },
+  { name: "Banana" },
+  { name: "Bilberry" },
+  { name: "Blackberry" },
+  { name: "Blackcurrant" },
+  { name: "Blueberry" },
+  { name: "Boysenberry" },
 
-  // Swimming
-  { name: "Swimming" },
-  { name: "Water Aerobics" },
+  { name: "Cantaloupe" },
+  { name: "Cape Gooseberry" },
+  { name: "Carambola (Star Fruit)" },
+  { name: "Cherimoya" },
+  { name: "Cherry" },
+  { name: "Clementine" },
+  { name: "Cloudberry" },
+  { name: "Coconut" },
+  { name: "Cranberry" },
+  { name: "Currant" },
 
-  // Jump Rope
-  { name: "Jump Rope" },
+  { name: "Damson" },
+  { name: "Date" },
+  { name: "Dragon Fruit" },
+  { name: "Durian" },
 
-  // Combat Sports
-  { name: "Boxing" },
-  { name: "Brazilian Jiu-Jitsu" },
-  { name: "Judo" },
-  { name: "Karate" },
-  { name: "Kickboxing" },
-  { name: "Mixed Martial Arts" },
-  { name: "Muay Thai" },
-  { name: "Taekwondo" },
+  { name: "Elderberry" },
 
-  // Dance
-  { name: "Aerobics" },
-  { name: "Ballet" },
-  { name: "Ballroom Dancing" },
-  { name: "Contemporary Dance" },
-  { name: "Hip Hop Dance" },
-  { name: "Jazz Dance" },
-  { name: "Latin Dance" },
-  { name: "Salsa" },
-  { name: "Zumba" },
+  { name: "Feijoa" },
+  { name: "Fig" },
 
-  // Racquet Sports
-  { name: "Badminton" },
-  { name: "Padel" },
-  { name: "Pickleball" },
-  { name: "Squash" },
-  { name: "Table Tennis" },
-  { name: "Tennis" },
+  { name: "Goji Berry" },
+  { name: "Gooseberry" },
+  { name: "Grape" },
+  { name: "Grapefruit" },
+  { name: "Guava" },
 
-  // Team Sports
-  { name: "Basketball" },
-  { name: "Cricket" },
-  { name: "Field Hockey" },
-  { name: "Football (Soccer)" },
-  { name: "Futsal" },
-  { name: "Handball" },
-  { name: "Indoor Soccer" },
-  { name: "Netball" },
-  { name: "Rugby" },
-  { name: "Softball" },
-  { name: "Volleyball" },
-  { name: "Water Polo" },
+  { name: "Honeydew Melon" },
 
-  // Outdoor Activities
-  { name: "Canoeing" },
-  { name: "Hiking" },
-  { name: "Kayaking" },
-  { name: "Paddle Boarding" },
-  { name: "Rock Climbing" },
-  { name: "Roller Skating" },
+  { name: "Jackfruit" },
+  { name: "Jabuticaba" },
+  { name: "Jujube" },
 
-  // Conditioning
-  { name: "Agility Ladder" },
-  { name: "Battle Ropes" },
-  { name: "Farmer Carry" },
-  { name: "Medicine Ball Slams" },
-  { name: "Shuttle Runs" },
-  { name: "Sled Drag" },
-  { name: "Sled Pull" },
-  { name: "Sled Push" },
+  { name: "Kiwi" },
+  { name: "Kumquat" },
 
-  // Miscellaneous
-  { name: "Obstacle Course" },
+  { name: "Lemon" },
+  { name: "Lime" },
+  { name: "Longan" },
+  { name: "Loquat" },
+  { name: "Lychee" },
+
+  { name: "Mandarin" },
+  { name: "Mango" },
+  { name: "Mangosteen" },
+  { name: "Mulberry" },
+
+  { name: "Nectarine" },
+
+  { name: "Orange" },
+
+  { name: "Papaya" },
+  { name: "Passion Fruit" },
+  { name: "Peach" },
+  { name: "Pear" },
+  { name: "Persimmon" },
+  { name: "Physalis" },
+  { name: "Pineapple" },
+  { name: "Plantain" },
+  { name: "Plum" },
+  { name: "Pluot" },
+  { name: "Pomegranate" },
+  { name: "Pomelo" },
+  { name: "Prickly Pear" },
+
+  { name: "Quince" },
+
+  { name: "Rambutan" },
+  { name: "Raspberry" },
+  { name: "Redcurrant" },
+
+  { name: "Satsuma" },
+  { name: "Soursop" },
+  { name: "Star Fruit" },
+  { name: "Strawberry" },
+
+  { name: "Tamarillo" },
+  { name: "Tamarind" },
+  { name: "Tangerine" },
+
+  { name: "Ugli Fruit" },
+
+  { name: "Watermelon" },
+  { name: "White Currant" },
+  { name: "White Peach" },
+
+  { name: "Yellow Passion Fruit" },
+  { name: "Yellow Watermelon" },
+
+  { name: "Young Coconut" },
 ];
