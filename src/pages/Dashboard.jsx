@@ -27,7 +27,7 @@ import { isEditableDate } from "../services/dateService";
 import { getNextCategory } from "../services/challengeService";
 import { getCategory } from "../utils/categoryHelpers";
 import { createEntry } from "../services/entryService";
-import { validateEntry } from "../services/validationService";
+import { validateEntry } from "../services/validation";
 import { getValidationMessage } from "../services/messageService";
 
 import Toast from "../components/common/Toast/Toast";

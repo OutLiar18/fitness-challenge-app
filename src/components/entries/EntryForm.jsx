@@ -9,6 +9,20 @@ import WaterForm from "../forms/WaterForm";
 import FruitForm from "../forms/FruitForm";
 import StepsForm from "../forms/StepsForm";
 
+const FORM_COMPONENTS = {
+  water: WaterForm,
+  fruit: FruitForm,
+  reading: ReadingForm,
+  running: RunningForm,
+  cardio: CardioForm,
+  skill: SkillForm,
+  steps: StepsForm,
+
+  upperBody: WorkoutForm,
+  lowerBody: WorkoutForm,
+  core: WorkoutForm,
+};
+
 export default function EntryForm({
   type,
   formData,
@@ -17,6 +31,8 @@ export default function EntryForm({
   readOnly = false,
 }) {
   const category = getCategory(type);
+
+  const FormComponent = FORM_COMPONENTS[type];
 
   return (
     <div
@@ -29,58 +45,16 @@ export default function EntryForm({
       }}
     >
       <h2>
-        {category.emoji} {category.name}
+        {category?.emoji} {category?.name}
       </h2>
 
       {readOnly && (
         <p>🔒 This day is locked. Older entries cannot be modified.</p>
       )}
 
-      {["upperBody", "lowerBody", "core", "fullBody"].includes(type) ? (
-        <WorkoutForm
+      {FormComponent ? (
+        <FormComponent
           category={type}
-          formData={formData}
-          setFormData={setFormData}
-          readOnly={readOnly}
-        />
-      ) : type === "running" ? (
-        <RunningForm
-          formData={formData}
-          setFormData={setFormData}
-          readOnly={readOnly}
-        />
-      ) : type === "cardio" ? (
-        <CardioForm
-          formData={formData}
-          setFormData={setFormData}
-          readOnly={readOnly}
-        />
-      ) : type === "reading" ? (
-        <ReadingForm
-          formData={formData}
-          setFormData={setFormData}
-          readOnly={readOnly}
-        />
-      ) : type === "skill" ? (
-        <SkillForm
-          formData={formData}
-          setFormData={setFormData}
-          readOnly={readOnly}
-        />
-      ) : type === "water" ? (
-        <WaterForm
-          formData={formData}
-          setFormData={setFormData}
-          readOnly={readOnly}
-        />
-      ) : type === "fruit" ? (
-        <FruitForm
-          formData={formData}
-          setFormData={setFormData}
-          readOnly={readOnly}
-        />
-      ) : type === "steps" ? (
-        <StepsForm
           formData={formData}
           setFormData={setFormData}
           readOnly={readOnly}

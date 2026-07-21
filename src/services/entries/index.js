@@ -1,0 +1,1 @@
+export { normalizeEntry } from "./normalizer";

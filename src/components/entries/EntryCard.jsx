@@ -1,6 +1,6 @@
 import { getCategory } from "../../utils/categoryHelpers";
 import { getUnit } from "../../utils/units";
-import { calculateEntryPoints } from "../../services/pointsService";
+import { calculateEntryPoints } from "../services/points";
 
 export default function EntryCard({
   entry,

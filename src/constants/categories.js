@@ -10,6 +10,7 @@ export const CATEGORIES = [
         label: "Amount",
         type: "number",
         placeholder: "Amount (ml)",
+        required: true,
       },
     ],
 
@@ -29,12 +30,14 @@ export const CATEGORIES = [
         id: "fruit",
         label: "Fruit",
         type: "select",
+        required: true,
       },
       {
         id: "quantity",
         label: "Quantity",
         type: "number",
         placeholder: "Number eaten",
+        required: true,
       },
     ],
 
@@ -55,12 +58,14 @@ export const CATEGORIES = [
         label: "Minutes",
         type: "number",
         placeholder: "Minutes read",
+        required: true,
       },
       {
         id: "book",
         label: "Book",
         type: "text",
         placeholder: "Book title",
+        required: true,
       },
     ],
 
@@ -81,12 +86,14 @@ export const CATEGORIES = [
         label: "Distance",
         type: "number",
         placeholder: "Distance (km)",
+        required: true,
       },
       {
         id: "time",
         label: "Time",
         type: "number",
         placeholder: "Time (minutes)",
+        required: true,
       },
     ],
 
@@ -101,29 +108,6 @@ export const CATEGORIES = [
     name: "Upper Body",
     emoji: "💪",
 
-    fields: [
-      {
-        id: "exercise",
-        label: "Exercise",
-        type: "select",
-      },
-      {
-        id: "sets",
-        label: "Sets",
-        type: "number",
-      },
-      {
-        id: "reps",
-        label: "Reps",
-        type: "number",
-      },
-      {
-        id: "weight",
-        label: "Weight",
-        type: "number",
-      },
-    ],
-
     unit: "workout",
     dailyGoal: 1,
     goalType: "higher",
@@ -134,29 +118,6 @@ export const CATEGORIES = [
     name: "Lower Body",
     emoji: "🦵",
 
-    fields: [
-      {
-        id: "exercise",
-        label: "Exercise",
-        type: "select",
-      },
-      {
-        id: "sets",
-        label: "Sets",
-        type: "number",
-      },
-      {
-        id: "reps",
-        label: "Reps",
-        type: "number",
-      },
-      {
-        id: "weight",
-        label: "Weight",
-        type: "number",
-      },
-    ],
-
     unit: "workout",
     dailyGoal: 1,
     goalType: "higher",
@@ -166,24 +127,6 @@ export const CATEGORIES = [
     id: "core",
     name: "Core",
     emoji: "🔥",
-
-    fields: [
-      {
-        id: "exercise",
-        label: "Exercise",
-        type: "select",
-      },
-      {
-        id: "sets",
-        label: "Sets",
-        type: "number",
-      },
-      {
-        id: "reps",
-        label: "Reps",
-        type: "number",
-      },
-    ],
 
     unit: "workout",
     dailyGoal: 1,
@@ -200,12 +143,14 @@ export const CATEGORIES = [
         id: "activity",
         label: "Activity",
         type: "select",
+        required: true,
       },
       {
         id: "duration",
         label: "Duration",
         type: "number",
         placeholder: "Minutes",
+        required: true,
       },
     ],
 
@@ -226,12 +171,14 @@ export const CATEGORIES = [
         label: "Skill",
         type: "text",
         placeholder: "What did you practice?",
+        required: true,
       },
       {
         id: "duration",
         label: "Duration",
         type: "number",
         placeholder: "Minutes",
+        required: true,
       },
     ],
 
@@ -252,6 +199,7 @@ export const CATEGORIES = [
         label: "Steps",
         type: "number",
         placeholder: "Number of steps",
+        required: true,
       },
     ],
 

@@ -1,5 +1,5 @@
 import { CATEGORIES } from "../constants/categories";
-import { calculateEntryPoints } from "./pointsService";
+import { calculateEntryPoints } from "../services/points";
 
 export function getEntriesForDate(entries, selectedDate) {
   return entries.filter((entry) => {

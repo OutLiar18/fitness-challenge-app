@@ -7,31 +7,44 @@ export default function WorkoutForm({
   setFormData,
   readOnly,
 }) {
-  const exercises = getExercisesByCategory(category);
+  const exerciseOptions = getExercisesByCategory(category);
+
+  const currentExercise = formData.exercises?.[0] || {
+    exercise: "",
+    sets: "",
+    reps: "",
+    weight: "",
+    seconds: 0,
+  };
+
+  const updateExercise = (field, value) => {
+    setFormData({
+      ...formData,
+      exercises: [
+        {
+          ...currentExercise,
+          [field]: value,
+        },
+      ],
+    });
+  };
 
   return (
     <>
-      {/* Exercise */}
       <div style={{ marginBottom: "15px" }}>
         <label>
-          <strong>Exercise</strong>
+          <strong>Exercise *</strong>
         </label>
 
         <SmartSelect
           label="Exercise"
-          value={formData.exercise || ""}
-          options={exercises}
-          onChange={(value) =>
-            setFormData({
-              ...formData,
-              exercise: value,
-            })
-          }
+          value={currentExercise.exercise || ""}
+          options={exerciseOptions}
           disabled={readOnly}
+          onChange={(value) => updateExercise("exercise", value)}
         />
       </div>
 
-      {/* Sets */}
       <div style={{ marginBottom: "15px" }}>
         <label>
           <strong>Sets *</strong>
@@ -39,18 +52,20 @@ export default function WorkoutForm({
 
         <input
           type="number"
+          min="1"
           disabled={readOnly}
-          value={formData.sets || ""}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              sets: Number(e.target.value),
-            })
+          value={currentExercise.sets ?? ""}
+          onChange={(event) =>
+            updateExercise(
+              "sets",
+              event.target.value === ""
+                ? ""
+                : Number(event.target.value),
+            )
           }
         />
       </div>
 
-      {/* Reps */}
       <div style={{ marginBottom: "15px" }}>
         <label>
           <strong>Reps *</strong>
@@ -58,18 +73,20 @@ export default function WorkoutForm({
 
         <input
           type="number"
+          min="1"
           disabled={readOnly}
-          value={formData.reps || ""}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              reps: Number(e.target.value),
-            })
+          value={currentExercise.reps ?? ""}
+          onChange={(event) =>
+            updateExercise(
+              "reps",
+              event.target.value === ""
+                ? ""
+                : Number(event.target.value),
+            )
           }
         />
       </div>
 
-      {/* Weight */}
       <div style={{ marginBottom: "15px" }}>
         <label>
           <strong>Weight (Optional)</strong>
@@ -77,14 +94,18 @@ export default function WorkoutForm({
 
         <input
           type="number"
+          min="0"
+          step="0.1"
           disabled={readOnly}
           placeholder="kg"
-          value={formData.weight || ""}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              weight: Number(e.target.value),
-            })
+          value={currentExercise.weight ?? ""}
+          onChange={(event) =>
+            updateExercise(
+              "weight",
+              event.target.value === ""
+                ? ""
+                : Number(event.target.value),
+            )
           }
         />
       </div>
