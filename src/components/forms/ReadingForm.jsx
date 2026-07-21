@@ -15,8 +15,6 @@ export default function ReadingForm({
   };
 
   function handleBookSelected(book) {
-    console.log("Book received:", book);
-
     setFormData((currentData) => ({
       ...currentData,
       title: book.title ?? "",
@@ -83,30 +81,18 @@ export default function ReadingForm({
 
       <div style={{ marginBottom: "15px" }}>
         <label htmlFor="reading-completed">
-          <strong>Completed? *</strong>
+          <strong>Completed?</strong>
         </label>
 
         <select
           id="reading-completed"
           disabled={readOnly}
-          value={
-            formData.completed === true
-              ? "yes"
-              : formData.completed === false
-                ? "no"
-                : ""
-          }
+          value={formData.completed === true ? "yes" : "no"}
           onChange={(event) =>
-            updateField(
-              "completed",
-              event.target.value === "" ? "" : event.target.value === "yes",
-            )
+            updateField("completed", event.target.value === "yes")
           }
         >
-          <option value="">Select...</option>
-
           <option value="no">No</option>
-
           <option value="yes">Yes</option>
         </select>
       </div>

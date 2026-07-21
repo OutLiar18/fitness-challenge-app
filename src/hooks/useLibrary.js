@@ -26,10 +26,6 @@ export default function useLibrary({ userId, itemType, searchText = "" }) {
 
   useEffect(() => {
     if (!userId || !itemType) {
-      console.log("❌ Missing userId or itemType", {
-        userId,
-        itemType,
-      });
 
       setItems([]);
       setLoading(false);
@@ -38,11 +34,6 @@ export default function useLibrary({ userId, itemType, searchText = "" }) {
       return undefined;
     }
 
-    console.log("✅ Starting library subscription", {
-      userId,
-      itemType,
-    });
-
     setLoading(true);
     setError("");
 
@@ -50,7 +41,6 @@ export default function useLibrary({ userId, itemType, searchText = "" }) {
       userId,
       itemType,
       (libraryItems) => {
-        console.log("📚 Library items received:", libraryItems);
 
         setItems(libraryItems);
         setLoading(false);

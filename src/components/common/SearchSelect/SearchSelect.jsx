@@ -90,7 +90,6 @@ export default function SearchSelect({
   }, [totalSelectableItems]);
 
   const handleSelectItem = (item) => {
-    console.log("Selected item:", item);
 
     onSelect(item);
 

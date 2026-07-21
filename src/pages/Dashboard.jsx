@@ -40,6 +40,16 @@ import WelcomeCard from "../components/dashboard/WelcomeCard";
 import EntryForm from "../components/entries/EntryForm";
 import Journal from "../components/journal/Journal";
 
+function getInitialFormData(categoryType) {
+  if (categoryType === "reading") {
+    return {
+      completed: false,
+    };
+  }
+
+  return {};
+}
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const user = auth.currentUser;
@@ -48,7 +58,7 @@ export default function Dashboard() {
   const [entries, setEntries] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [type, setType] = useState("water");
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState(() => getInitialFormData("water"));
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState(null);
 
@@ -64,6 +74,11 @@ export default function Dashboard() {
     window.setTimeout(() => {
       setToast(null);
     }, 3000);
+  };
+
+  const handleCategorySelect = (selectedType) => {
+    setType(selectedType);
+    setFormData(getInitialFormData(selectedType));
   };
 
   const handleLogout = async () => {
@@ -116,9 +131,11 @@ Please fix the following:
 
       if (result.nextCategory) {
         setType(result.nextCategory);
+        setFormData(getInitialFormData(result.nextCategory));
+      } else {
+        setFormData(getInitialFormData(type));
       }
 
-      setFormData({});
       showToast("Entry saved successfully!");
     } catch (error) {
       console.error(error);
@@ -188,7 +205,6 @@ Please fix the following:
 
         loadedEntries.sort((firstEntry, secondEntry) => {
           const firstCreatedAt = firstEntry.createdAt;
-
           const secondCreatedAt = secondEntry.createdAt;
 
           if (!firstCreatedAt && !secondCreatedAt) {
@@ -242,11 +258,11 @@ Please fix the following:
 
       <DailyProgress goals={dailyGoals} />
 
-      <DailyGoals goals={dailyGoals} onSelect={setType} />
+      <DailyGoals goals={dailyGoals} onSelect={handleCategorySelect} />
 
       <TopCategories categories={getTopCategories(entries)} />
 
-      <CategoryGrid selected={type} onSelect={setType} />
+      <CategoryGrid selected={type} onSelect={handleCategorySelect} />
 
       <EntryForm
         userId={user.uid}
