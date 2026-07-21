@@ -68,11 +68,18 @@ function normalizeReadingEntry(data = {}) {
   return {
     ...duration,
 
-    book: normalizeText(data.book),
+    title: normalizeText(data.title ?? data.book),
+
+    author: normalizeText(data.author),
+
+    totalPages:
+      data.totalPages === "" || data.totalPages === undefined
+        ? ""
+        : Number(data.totalPages),
 
     reflection: normalizeText(data.reflection),
 
-    completedBook: normalizeCompletedBook(data.completedBook),
+    completed: normalizeCompletedBook(data.completed ?? data.completedBook),
   };
 }
 

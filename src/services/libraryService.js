@@ -2,8 +2,11 @@ import {
   collection,
   doc,
   getDocs,
+  onSnapshot,
+  query,
   runTransaction,
   serverTimestamp,
+  where,
 } from "firebase/firestore";
 
 import { db } from "../firebase";
@@ -15,36 +18,28 @@ import {
 } from "../utils/libraryTextUtils";
 
 function getLibraryCollection(userId) {
-  return collection(
-    db,
-    "users",
-    userId,
-    "library",
-  );
+  return collection(db, "users", userId, "library");
+}
+
+function getLibraryQuery(userId, itemType) {
+  return query(getLibraryCollection(userId), where("itemType", "==", itemType));
 }
 
 function parsePositiveInteger(value) {
-  if (
-    value === "" ||
-    value === null ||
-    value === undefined
-  ) {
+  if (value === "" || value === null || value === undefined) {
     return null;
   }
 
-  const parsedValue = Number(value);
+  const parsed = Number(value);
 
-  if (
-    !Number.isInteger(parsedValue) ||
-    parsedValue <= 0
-  ) {
+  if (!Number.isInteger(parsed) || parsed <= 0) {
     return null;
   }
 
-  return parsedValue;
+  return parsed;
 }
 
-function normalizeBookData(data = {}) {
+function normalizeBook(data = {}) {
   const title = cleanLibraryText(data.title);
 
   return {
@@ -55,14 +50,8 @@ function normalizeBookData(data = {}) {
   };
 }
 
-function normalizeLibraryItem(itemType, data = {}) {
-  if (itemType === "books") {
-    return normalizeBookData(data);
-  }
-
-  const name = cleanLibraryText(
-    data.name ?? data.title ?? "",
-  );
+function normalizeGeneric(data = {}) {
+  const name = cleanLibraryText(data.name ?? data.title ?? "");
 
   return {
     name,
@@ -70,60 +59,68 @@ function normalizeLibraryItem(itemType, data = {}) {
   };
 }
 
-function getPrimaryText(itemType, itemData) {
-  if (itemType === "books") {
-    return itemData.title;
-  }
-
-  return itemData.name;
+function normalizeItem(itemType, data = {}) {
+  return itemType === "books" ? normalizeBook(data) : normalizeGeneric(data);
 }
 
-export async function getLibraryItems(
-  userId,
-  itemType,
-) {
+function getPrimaryValue(itemType, item) {
+  return itemType === "books" ? item.title : item.name;
+}
+
+function sortLibrary(items) {
+  return [...items].sort((a, b) => {
+    const usageDifference =
+      Number(b.usageCount ?? 0) - Number(a.usageCount ?? 0);
+
+    if (usageDifference !== 0) {
+      return usageDifference;
+    }
+
+    const aTime = a.lastUsedAt?.toMillis?.() ?? 0;
+
+    const bTime = b.lastUsedAt?.toMillis?.() ?? 0;
+
+    return bTime - aTime;
+  });
+}
+
+export async function getLibraryItems(userId, itemType) {
   if (!userId) {
-    throw new Error(
-      "A user ID is required to load library items.",
-    );
+    throw new Error("User ID is required.");
   }
 
   if (!itemType) {
-    throw new Error(
-      "A library item type is required.",
-    );
+    throw new Error("Item type is required.");
   }
 
-  const snapshot = await getDocs(
-    getLibraryCollection(userId),
+  const snapshot = await getDocs(getLibraryQuery(userId, itemType));
+
+  return sortLibrary(
+    snapshot.docs.map((docSnapshot) => ({
+      id: docSnapshot.id,
+      ...docSnapshot.data(),
+    })),
   );
+}
 
-  return snapshot.docs
-    .map((libraryDocument) => ({
-      id: libraryDocument.id,
-      ...libraryDocument.data(),
-    }))
-    .filter(
-      (libraryItem) =>
-        libraryItem.itemType === itemType,
-    )
-    .sort((firstItem, secondItem) => {
-      const usageDifference =
-        Number(secondItem.usageCount ?? 0) -
-        Number(firstItem.usageCount ?? 0);
+export function subscribeToLibraryItems(userId, itemType, onUpdate, onError) {
+  if (!userId || !itemType) {
+    onUpdate([]);
+    return () => {};
+  }
 
-      if (usageDifference !== 0) {
-        return usageDifference;
-      }
+  return onSnapshot(
+    getLibraryQuery(userId, itemType),
+    (snapshot) => {
+      const items = snapshot.docs.map((docSnapshot) => ({
+        id: docSnapshot.id,
+        ...docSnapshot.data(),
+      }));
 
-      const firstTime =
-        firstItem.lastUsedAt?.toMillis?.() ?? 0;
-
-      const secondTime =
-        secondItem.lastUsedAt?.toMillis?.() ?? 0;
-
-      return secondTime - firstTime;
-    });
+      onUpdate(sortLibrary(items));
+    },
+    onError,
+  );
 }
 
 export async function saveLibraryItem({
@@ -133,106 +130,67 @@ export async function saveLibraryItem({
   incrementUsage = true,
 }) {
   if (!userId) {
-    throw new Error(
-      "A user ID is required to save a library item.",
-    );
+    throw new Error("User ID is required.");
   }
 
   if (!itemType) {
-    throw new Error(
-      "A library item type is required.",
-    );
+    throw new Error("Item type is required.");
   }
 
-  const normalizedData = normalizeLibraryItem(
-    itemType,
-    data,
-  );
+  const normalizedItem = normalizeItem(itemType, data);
 
-  const primaryText = getPrimaryText(
-    itemType,
-    normalizedData,
-  );
+  const primaryValue = getPrimaryValue(itemType, normalizedItem);
 
-  if (!primaryText) {
-    throw new Error(
-      "A name or title is required.",
-    );
+  if (!primaryValue) {
+    throw new Error("A title or name is required.");
   }
 
-  const documentId = createLibraryItemId(
-    itemType,
-    primaryText,
-  );
+  const documentId = createLibraryItemId(itemType, primaryValue);
 
-  if (!documentId) {
-    throw new Error(
-      "A valid library item name is required.",
-    );
-  }
+  const reference = doc(db, "users", userId, "library", documentId);
 
-  const libraryReference = doc(
-    db,
-    "users",
-    userId,
-    "library",
-    documentId,
-  );
+  await runTransaction(db, async (transaction) => {
+    const snapshot = await transaction.get(reference);
 
-  await runTransaction(
-    db,
-    async (transaction) => {
-      const existingSnapshot =
-        await transaction.get(libraryReference);
+    if (snapshot.exists()) {
+      const existing = snapshot.data();
 
-      if (existingSnapshot.exists()) {
-        const existingData =
-          existingSnapshot.data();
+      transaction.update(reference, {
+        ...normalizedItem,
 
-        const currentUsageCount = Number(
-          existingData.usageCount ?? 0,
-        );
+        usageCount: incrementUsage
+          ? Number(existing.usageCount ?? 0) + 1
+          : Number(existing.usageCount ?? 0),
 
-        transaction.update(libraryReference, {
-          ...normalizedData,
-
-          usageCount: incrementUsage
-            ? currentUsageCount + 1
-            : currentUsageCount,
-
-          updatedAt: serverTimestamp(),
-
-          ...(incrementUsage
-            ? {
-                lastUsedAt: serverTimestamp(),
-              }
-            : {}),
-        });
-
-        return;
-      }
-
-      transaction.set(libraryReference, {
-        itemType,
-        ...normalizedData,
-
-        usageCount: incrementUsage ? 1 : 0,
-
-        createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
 
-        ...(incrementUsage
-          ? {
-              lastUsedAt: serverTimestamp(),
-            }
-          : {}),
+        ...(incrementUsage && {
+          lastUsedAt: serverTimestamp(),
+        }),
       });
-    },
-  );
+
+      return;
+    }
+
+    transaction.set(reference, {
+      itemType,
+
+      ...normalizedItem,
+
+      usageCount: incrementUsage ? 1 : 0,
+
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+
+      ...(incrementUsage && {
+        lastUsedAt: serverTimestamp(),
+      }),
+    });
+  });
 
   return {
     id: documentId,
     itemType,
-    ...normalizedData,
+    ...normalizedItem,
   };
 }

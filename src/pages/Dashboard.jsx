@@ -249,6 +249,7 @@ Please fix the following:
       <CategoryGrid selected={type} onSelect={setType} />
 
       <EntryForm
+        userId={user.uid}
         type={type}
         formData={formData}
         setFormData={setFormData}

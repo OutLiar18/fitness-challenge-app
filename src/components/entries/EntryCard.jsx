@@ -46,15 +46,28 @@ function formatPace(averagePaceSecondsPerKm) {
 }
 
 function ReadingDetails({ data = {} }) {
-  const book =
-    typeof data.book === "string" && data.book.trim()
-      ? data.book.trim()
-      : "Not recorded";
+  const title =
+    typeof data.title === "string" && data.title.trim()
+      ? data.title.trim()
+      : typeof data.book === "string" && data.book.trim()
+        ? data.book.trim()
+        : "Not recorded";
+
+  const author = typeof data.author === "string" ? data.author.trim() : "";
+
+  const totalPages = Number.isFinite(Number(data.totalPages))
+    ? Number(data.totalPages)
+    : null;
 
   const reflection =
     typeof data.reflection === "string" ? data.reflection.trim() : "";
 
-  const hasCompletionAnswer = typeof data.completedBook === "boolean";
+  const completed =
+    typeof data.completed === "boolean"
+      ? data.completed
+      : typeof data.completedBook === "boolean"
+        ? data.completedBook
+        : null;
 
   return (
     <>
@@ -63,16 +76,24 @@ function ReadingDetails({ data = {} }) {
       </p>
 
       <p>
-        <strong>Book:</strong> {book}
+        <strong>Book:</strong> {title}
       </p>
 
+      {author && (
+        <p>
+          <strong>Author:</strong> {author}
+        </p>
+      )}
+
+      {totalPages && (
+        <p>
+          <strong>Total Pages:</strong> {totalPages}
+        </p>
+      )}
+
       <p>
-        <strong>Book Completed:</strong>{" "}
-        {hasCompletionAnswer
-          ? data.completedBook
-            ? "Yes"
-            : "No"
-          : "Not recorded"}
+        <strong>Completed:</strong>{" "}
+        {completed === null ? "Not recorded" : completed ? "Yes" : "No"}
       </p>
 
       {reflection && (

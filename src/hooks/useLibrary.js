@@ -1,11 +1,6 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import { getLibraryItems } from "../services/libraryService";
+import { subscribeToLibraryItems } from "../services/libraryService";
 import { normalizeLibraryText } from "../utils/libraryTextUtils";
 
 function getItemPrimaryText(itemType, item) {
@@ -18,68 +13,68 @@ function getItemPrimaryText(itemType, item) {
 
 function getSearchableText(itemType, item) {
   if (itemType === "books") {
-    return [
-      item.title,
-      item.author,
-    ]
-      .filter(Boolean)
-      .join(" ");
+    return [item.title, item.author].filter(Boolean).join(" ");
   }
 
   return getItemPrimaryText(itemType, item);
 }
 
-export default function useLibrary({
-  userId,
-  itemType,
-  searchText = "",
-}) {
+export default function useLibrary({ userId, itemType, searchText = "" }) {
   const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(Boolean(userId && itemType));
   const [error, setError] = useState("");
 
-  const loadItems = useCallback(async () => {
+  useEffect(() => {
     if (!userId || !itemType) {
+      console.log("❌ Missing userId or itemType", {
+        userId,
+        itemType,
+      });
+
       setItems([]);
+      setLoading(false);
       setError("");
-      return;
+
+      return undefined;
     }
+
+    console.log("✅ Starting library subscription", {
+      userId,
+      itemType,
+    });
 
     setLoading(true);
     setError("");
 
-    try {
-      const libraryItems = await getLibraryItems(
-        userId,
-        itemType,
-      );
+    const unsubscribe = subscribeToLibraryItems(
+      userId,
+      itemType,
+      (libraryItems) => {
+        console.log("📚 Library items received:", libraryItems);
 
-      setItems(libraryItems);
-    } catch (loadError) {
-      console.error(
-        "Failed to load library items:",
-        loadError,
-      );
+        setItems(libraryItems);
+        setLoading(false);
+        setError("");
+      },
+      (subscriptionError) => {
+        console.error("❌ Library subscription error:", subscriptionError);
 
-      setItems([]);
+        setItems([]);
+        setLoading(false);
 
-      setError(
-        loadError instanceof Error
-          ? loadError.message
-          : "Unable to load your library.",
-      );
-    } finally {
-      setLoading(false);
-    }
+        setError(
+          subscriptionError instanceof Error
+            ? subscriptionError.message
+            : "Unable to load your library.",
+        );
+      },
+    );
+
+    return unsubscribe;
   }, [userId, itemType]);
 
-  useEffect(() => {
-    loadItems();
-  }, [loadItems]);
-
   const matchingItems = useMemo(() => {
-    const normalizedSearch =
-      normalizeLibraryText(searchText);
+    const normalizedSearch = normalizeLibraryText(searchText);
 
     if (!normalizedSearch) {
       return items.slice(0, 5);
@@ -87,42 +82,23 @@ export default function useLibrary({
 
     return items
       .map((item) => {
-        const primaryText = getItemPrimaryText(
-          itemType,
-          item,
+        const primaryText = getItemPrimaryText(itemType, item);
+
+        const normalizedPrimaryText = normalizeLibraryText(primaryText);
+
+        const normalizedSearchableText = normalizeLibraryText(
+          getSearchableText(itemType, item),
         );
-
-        const normalizedPrimaryText =
-          normalizeLibraryText(primaryText);
-
-        const normalizedSearchableText =
-          normalizeLibraryText(
-            getSearchableText(itemType, item),
-          );
 
         let matchScore = 0;
 
-        if (
-          normalizedPrimaryText === normalizedSearch
-        ) {
+        if (normalizedPrimaryText === normalizedSearch) {
           matchScore = 100;
-        } else if (
-          normalizedPrimaryText.startsWith(
-            normalizedSearch,
-          )
-        ) {
+        } else if (normalizedPrimaryText.startsWith(normalizedSearch)) {
           matchScore = 80;
-        } else if (
-          normalizedPrimaryText.includes(
-            normalizedSearch,
-          )
-        ) {
+        } else if (normalizedPrimaryText.includes(normalizedSearch)) {
           matchScore = 60;
-        } else if (
-          normalizedSearchableText.includes(
-            normalizedSearch,
-          )
-        ) {
+        } else if (normalizedSearchableText.includes(normalizedSearch)) {
           matchScore = 40;
         }
 
@@ -133,14 +109,8 @@ export default function useLibrary({
       })
       .filter(({ matchScore }) => matchScore > 0)
       .sort((firstMatch, secondMatch) => {
-        if (
-          secondMatch.matchScore !==
-          firstMatch.matchScore
-        ) {
-          return (
-            secondMatch.matchScore -
-            firstMatch.matchScore
-          );
+        if (secondMatch.matchScore !== firstMatch.matchScore) {
+          return secondMatch.matchScore - firstMatch.matchScore;
         }
 
         return (
@@ -157,6 +127,5 @@ export default function useLibrary({
     matchingItems,
     loading,
     error,
-    refreshLibrary: loadItems,
   };
 }

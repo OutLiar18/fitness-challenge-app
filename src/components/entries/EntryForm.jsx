@@ -24,6 +24,7 @@ const FORM_COMPONENTS = {
 };
 
 export default function EntryForm({
+  userId,
   type,
   formData,
   setFormData,
@@ -54,6 +55,7 @@ export default function EntryForm({
 
       {FormComponent ? (
         <FormComponent
+          userId={userId}
           category={type}
           formData={formData}
           setFormData={setFormData}

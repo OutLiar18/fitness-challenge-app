@@ -34,12 +34,46 @@ function validateDuration(data = {}, label = "Duration") {
   return errors;
 }
 
-export function validateSimpleEntry(category, data = {}) {
-  const errors = [];
+function validateReadingEntry(data = {}) {
+  const errors = [...validateDuration(data, "Reading duration")];
 
-  if (category.id === "reading") {
-    errors.push(...validateDuration(data, "Reading duration"));
+  if (typeof data.title !== "string" || !data.title.trim()) {
+    errors.push("Book title is required.");
   }
+
+  if (data.completed !== true && data.completed !== false) {
+    errors.push("Please indicate whether you completed the book.");
+  }
+
+  if (
+    data.totalPages !== "" &&
+    data.totalPages !== undefined &&
+    data.totalPages !== null
+  ) {
+    const totalPages = Number(data.totalPages);
+
+    if (!Number.isFinite(totalPages)) {
+      errors.push("Total pages must be a valid number.");
+    } else {
+      if (!Number.isInteger(totalPages)) {
+        errors.push("Total pages must be a whole number.");
+      }
+
+      if (totalPages < 1) {
+        errors.push("Total pages must be at least 1.");
+      }
+    }
+  }
+
+  return errors;
+}
+
+export function validateSimpleEntry(category, data = {}) {
+  if (category.id === "reading") {
+    return [...new Set(validateReadingEntry(data))];
+  }
+
+  const errors = [];
 
   if (category.id === "running") {
     errors.push(...validateDuration(data, "Running duration"));
