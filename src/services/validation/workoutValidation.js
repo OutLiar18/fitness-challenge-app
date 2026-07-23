@@ -1,58 +1,86 @@
 export function validateWorkoutEntry(data = {}) {
   const errors = [];
 
-  const exercises = Array.isArray(data.exercises)
-    ? data.exercises
-    : [];
+  const exercises = Array.isArray(data.exercises) ? data.exercises : [];
 
   if (exercises.length === 0) {
     return ["Please add an exercise."];
   }
 
-  exercises.forEach((exercise, index) => {
-    const exerciseNumber = index + 1;
+  exercises.forEach((exercise, exerciseIndex) => {
+    const exerciseNumber = exerciseIndex + 1;
     const name = exercise?.exercise;
-    const sets = Number(exercise?.sets);
-    const reps = Number(exercise?.reps);
-    const weight = exercise?.weight;
 
-    if (
-      typeof name !== "string" ||
-      !name.trim()
-    ) {
-      errors.push(
-        `Exercise ${exerciseNumber}: exercise is required.`,
-      );
+    if (typeof name !== "string" || !name.trim()) {
+      errors.push(`Exercise ${exerciseNumber}: exercise is required.`);
     }
 
-    if (!Number.isFinite(sets) || sets <= 0) {
-      errors.push(
-        `Exercise ${exerciseNumber}: sets must be greater than 0.`,
-      );
+    const sets = Array.isArray(exercise?.sets) ? exercise.sets : [];
+
+    if (sets.length === 0) {
+      errors.push(`Exercise ${exerciseNumber}: please add at least one set.`);
+
+      return;
     }
 
-    if (!Number.isFinite(reps) || reps <= 0) {
-      errors.push(
-        `Exercise ${exerciseNumber}: reps must be greater than 0.`,
-      );
-    }
+    sets.forEach((set, setIndex) => {
+      const setNumber = setIndex + 1;
 
-    if (
-      weight !== undefined &&
-      weight !== null &&
-      weight !== ""
-    ) {
-      const numericWeight = Number(weight);
+      const reps =
+        set?.reps === "" || set?.reps === undefined || set?.reps === null
+          ? 0
+          : Number(set.reps);
 
-      if (
-        !Number.isFinite(numericWeight) ||
-        numericWeight < 0
-      ) {
+      const seconds =
+        set?.seconds === "" ||
+        set?.seconds === undefined ||
+        set?.seconds === null
+          ? 0
+          : Number(set.seconds);
+
+      const weight =
+        set?.weight === "" || set?.weight === undefined || set?.weight === null
+          ? null
+          : Number(set.weight);
+
+      const hasValidReps = Number.isFinite(reps) && reps > 0;
+
+      const hasValidSeconds = Number.isFinite(seconds) && seconds > 0;
+
+      if (!hasValidReps && !hasValidSeconds) {
         errors.push(
-          `Exercise ${exerciseNumber}: weight cannot be negative.`,
+          `Exercise ${exerciseNumber}, set ${setNumber}: enter reps or a hold time.`,
         );
       }
-    }
+
+      if (
+        set?.reps !== "" &&
+        set?.reps !== undefined &&
+        set?.reps !== null &&
+        (!Number.isFinite(reps) || reps <= 0)
+      ) {
+        errors.push(
+          `Exercise ${exerciseNumber}, set ${setNumber}: reps must be greater than 0.`,
+        );
+      }
+
+      if (
+        set?.seconds !== "" &&
+        set?.seconds !== undefined &&
+        set?.seconds !== null &&
+        (!Number.isFinite(seconds) || seconds <= 0)
+      ) {
+        errors.push(
+          `Exercise ${exerciseNumber}, set ${setNumber}: hold time must be greater than 0.`,
+        );
+      }
+
+      if (weight !== null && (!Number.isFinite(weight) || weight < 0)) {
+        errors.push(
+          `Exercise ${exerciseNumber}, set ${setNumber}: weight cannot be negative.`,
+        );
+      }
+    });
   });
 
   return errors;

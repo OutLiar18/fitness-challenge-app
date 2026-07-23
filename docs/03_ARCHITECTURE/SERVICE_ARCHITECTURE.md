@@ -6,19 +6,19 @@
 
 # Purpose
 
-This document defines the responsibilities of the service layer within Champions Legacy.
+This document defines the responsibilities and interactions of the service layer within Champions Legacy.
 
-Services contain the business logic of the application.
+Services contain the application's business logic.
 
-They transform user actions into meaningful outcomes while keeping the user interface simple and the database independent of business rules.
+They transform user actions into meaningful outcomes while keeping the user interface simple and Firestore independent of business rules.
 
-Services should be reusable, predictable and independent wherever practical.
+Services should be reusable, predictable, loosely coupled and focused on a single responsibility wherever practical.
 
 ---
 
 # Design Philosophy
 
-The service layer acts as the bridge between the user interface and data storage.
+The service layer sits between the user interface and data storage.
 
 ```
 User Interface
@@ -30,38 +30,84 @@ Business Services
 Firestore
 ```
 
-User interface components should request work.
+The responsibilities of each layer are intentionally separated.
 
-Services should perform work.
+The user interface requests work.
 
-Firestore should store results.
+Services perform work.
+
+Firestore stores facts.
 
 ---
 
-# Service Design Principles
-
-Every service should have one clearly defined responsibility.
+# Core Principles
 
 Services should:
 
-- contain business logic
-- validate inputs
-- coordinate related operations
-- calculate derived values
-- communicate with Firestore
+- Contain business logic
+- Validate inputs
+- Coordinate related operations
+- Calculate derived values
+- Read and write Firestore data
+- Reuse other services where appropriate
 
 Services should not:
 
-- render UI
-- manage component state
-- directly manipulate layouts
-- contain presentation logic
+- Render UI
+- Manage React component state
+- Contain presentation logic
+- Manipulate layouts
+- Depend on pages or components
+
+Business logic should remain independent of the user interface.
+
+---
+
+# Shared Tracking Engine
+
+One of the defining principles of Champions Legacy is that users should only record an activity once.
+
+The application is responsible for updating every affected system automatically.
+
+For example:
+
+```
+Challenge Entry
+        │
+        ▼
+Validation
+        │
+        ▼
+Entry Stored
+        │
+        ▼
+Points Updated
+        │
+        ▼
+Statistics Updated
+        │
+        ▼
+Achievements Checked
+        │
+        ▼
+Streak Updated
+        │
+        ▼
+League Progress Updated (if applicable)
+        │
+        ▼
+Team Progress Updated (if applicable)
+```
+
+A single user action may affect multiple independent systems.
+
+The user should never have to perform duplicate actions to keep different parts of the application synchronised.
 
 ---
 
 # Service Domains
 
-Rather than organising services by files, Champions Legacy organises them by responsibility.
+Services are organised by responsibility rather than file type.
 
 ---
 
@@ -69,7 +115,7 @@ Rather than organising services by files, Champions Legacy organises them by res
 
 ## Purpose
 
-Responsible for recording and managing user activities.
+Manage user activity records.
 
 ### Responsibilities
 
@@ -78,7 +124,7 @@ Responsible for recording and managing user activities.
 - Delete entries
 - Validate activity data
 - Normalise activity data
-- Calculate derived entry values
+- Store factual information
 
 ### Current Examples
 
@@ -91,7 +137,7 @@ Responsible for recording and managing user activities.
 
 ## Purpose
 
-Responsible for calculating user progression.
+Calculate long-term progression.
 
 ### Responsibilities
 
@@ -102,7 +148,7 @@ Responsible for calculating user progression.
 - Achievements
 - Milestones
 
-### Current Examples
+### Current
 
 - pointsService
 
@@ -113,13 +159,17 @@ Responsible for calculating user progression.
 - achievementService
 - streakService
 
+Progress services calculate rewards.
+
+They should never overwrite the original activity data.
+
 ---
 
 # Statistics Services
 
 ## Purpose
 
-Generate statistics from recorded entries.
+Generate analytical information from recorded entries.
 
 ### Responsibilities
 
@@ -129,7 +179,7 @@ Generate statistics from recorded entries.
 - Personal Bests
 - Historical summaries
 
-Statistics should always be derived from Entries whenever practical.
+Statistics should be calculated from stored activity data wherever practical.
 
 ---
 
@@ -147,7 +197,7 @@ Manage reusable user-owned resources.
 - Track usage
 - Provide autocomplete
 
-### Current Examples
+### Current
 
 - libraryService
 
@@ -159,17 +209,20 @@ Future library types should reuse the same architecture.
 
 ## Purpose
 
-Manage competitive systems.
+Manage seasonal competition.
 
 ### Responsibilities
 
-- Seasons
+- League membership
 - Teams
 - Rankings
 - League progression
-- Awards
+- Seasonal rewards
+- League archives
 
-These services are planned for future versions.
+League services operate independently of Personal Progress.
+
+League participation contributes towards Personal Progress, but Personal Progress does not automatically contribute towards every league.
 
 ---
 
@@ -192,14 +245,17 @@ Manage reflective content.
 
 ## Purpose
 
-Communicate important information to users.
+Communicate meaningful events.
 
 Examples include:
 
 - Achievement unlocked
+- Milestone reached
 - League started
 - Reminder notifications
-- Milestone reached
+- Team updates
+
+Notifications should celebrate progress without becoming intrusive.
 
 ---
 
@@ -207,15 +263,17 @@ Examples include:
 
 ## Purpose
 
-Provide personalised recommendations.
+Provide personalised guidance.
 
 Future responsibilities include:
 
 - AI Coach
 - Habit analysis
-- Goal suggestions
-- Personal insights
 - Behaviour trends
+- Goal recommendations
+- Personal insights
+
+These services should assist users rather than make decisions for them.
 
 ---
 
@@ -227,31 +285,39 @@ Manage user identity.
 
 Responsibilities include:
 
-- Sign in
 - Registration
+- Sign in
 - Session management
 - Profile creation
 
-Authentication should remain isolated from business logic.
+Authentication should remain isolated from application business logic.
 
 ---
 
 # Service Relationships
 
+Services should cooperate through clearly defined responsibilities.
+
 ```
 Entry Service
         │
         ▼
-Progress Service
+Progress Services
         │
-        ▼
-Statistics Service
+        ├─────────────► Statistics Services
         │
-        ▼
-Achievement Service
+        ├─────────────► Achievement Services
+        │
+        ├─────────────► Streak Services
+        │
+        ├─────────────► League Services
+        │
+        └─────────────► Notification Services
 ```
 
-Services should cooperate through clear interfaces rather than duplicating logic.
+Each service owns its own responsibility.
+
+Services should communicate through well-defined interfaces rather than duplicating business logic.
 
 ---
 
@@ -261,25 +327,26 @@ Services may depend on:
 
 - Configuration
 - Firestore
-- Other services (when appropriate)
+- Other services where appropriate
 
 Services should never depend on:
 
 - React components
 - Pages
-- UI layouts
+- Layouts
+- Styling
 
-Business logic must remain independent of presentation.
+Business rules should remain independent of presentation.
 
 ---
 
 # Error Handling
 
-Services should return meaningful, predictable results.
+Services should return predictable results.
 
 Validation errors should be handled consistently.
 
-Unexpected failures should be logged and surfaced in a user-friendly way.
+Unexpected failures should be logged and presented to users in an understandable and friendly manner.
 
 ---
 
@@ -292,9 +359,9 @@ Examples include:
 - Analytics Services
 - Social Services
 - Marketplace Services
-- API Integration Services
+- External API Integration
 
-New services should extend existing domains wherever possible rather than creating isolated logic.
+New functionality should extend existing service domains wherever practical rather than introducing isolated business logic.
 
 ---
 
@@ -303,9 +370,10 @@ New services should extend existing domains wherever possible rather than creati
 This document does not define:
 
 - Firestore collections
+- Data models
 - React components
 - UI behaviour
 - Navigation
 - Styling
 
-These concerns are documented elsewhere within the architecture.
+These topics are documented elsewhere within the architecture.

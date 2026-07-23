@@ -2,129 +2,217 @@
 
 # Progression System
 
-Version: 2.0
+Version: 3.0
 
 ---
 
 # Purpose
 
-The Progression System defines how players grow throughout their Champions Legacy journey.
+The Progression System defines how users grow throughout their Champions Legacy journey.
 
-Unlike the Points System, which rewards individual activities, progression represents long-term personal development.
+Unlike the Points System, which rewards individual activities and determines competition, the Progression System represents long-term personal growth.
 
-Its purpose is to ensure that every player feels a sense of growth regardless of their starting ability or competitive ranking.
+Its purpose is to ensure that every positive action contributes towards building a lasting legacy.
 
-Progression rewards consistency over time rather than isolated exceptional performances.
+Champions Legacy rewards who users are becoming, not simply what they accomplished today.
 
 ---
 
 # Design Philosophy
 
-Champions Legacy believes that meaningful progress should always be visible.
+Progression exists to encourage consistency rather than talent.
 
-Every completed challenge, every healthy habit and every small improvement should contribute towards a player's long-term journey.
+Winning a league is exciting.
 
-Progression exists to encourage players to:
+Building a healthier, stronger and more disciplined version of yourself is far more important.
 
-- Build sustainable habits.
-- Celebrate personal improvement.
-- Continue participating after achieving short-term goals.
-- Focus on growth rather than comparison.
+Every completed activity should move the user forward in some meaningful way.
 
-Winning a season is temporary.
-
-Personal growth is permanent.
+The system is designed to support years of continuous growth rather than short bursts of motivation.
 
 ---
 
-# Core Objectives
+# Core Principles
 
-The Progression System has six primary objectives.
+The Progression System is built around six principles.
 
-## 1. Reward Long-Term Commitment
+## Consistency Over Talent
 
-Players who consistently participate over weeks, months and years should feel their dedication reflected.
+Long-term dedication should always be rewarded more than natural ability.
 
----
+## Personal Growth Before Competition
 
-## 2. Encourage Personal Growth
+Users should primarily compete against who they were yesterday.
 
-Progress should measure improvement rather than talent.
+## Progress Should Always Be Visible
 
-Every player should feel capable of progressing regardless of experience level.
+Every milestone should feel meaningful.
 
----
+## Recognition Should Inspire
 
-## 3. Maintain Motivation
+Achievements should celebrate memorable moments without creating unfair advantages.
 
-Players should regularly unlock meaningful milestones that reinforce continued participation.
+## Multiple Ways To Grow
 
----
+Different progression systems measure different aspects of the user's journey.
 
-## 4. Celebrate Achievement
+## Endless Growth
 
-Important accomplishments should become permanent parts of a player's history.
-
----
-
-## 5. Support Multiple Playstyles
-
-Some players enjoy competition.
-
-Others simply want healthier habits.
-
-The Progression System should support both.
+There should never be a point where users feel they have completed Champions Legacy.
 
 ---
 
-## 6. Remain Meaningful Forever
+# Dual Progression System
 
-There should never be a point where a player feels they have "finished" Champions Legacy.
+Champions Legacy contains two independent progression systems.
 
-New goals should always exist.
+Although they share the same activity entries, they exist for different purposes.
+
+## Personal Progression
+
+Personal Progression represents the user's lifelong journey.
+
+It never resets.
+
+Everything contributes towards building a permanent legacy.
+
+Examples include:
+
+- Lifetime XP
+- Lifetime Levels
+- Personal Achievements
+- Lifetime Statistics
+- Personal Records
+- Longest Streaks
+- Milestones
+- Titles
+- Trophy Cabinet
+
+Personal Progression answers one question:
+
+> "Who have I become?"
 
 ---
 
-# Progression Layers
+## League Progression
 
-Champions Legacy uses multiple progression systems rather than relying on a single level.
+League Progression exists only within an active league.
 
-Each layer measures a different aspect of a player's journey.
+Every participant begins equally.
+
+League Progression includes:
+
+- League XP
+- League Levels
+- League Rank
+- Team Contribution
+- Seasonal Achievements
+- Leaderboards
+
+When the league ends:
+
+- League progression becomes historical.
+- Personal progression continues.
+
+League Progression answers a different question:
+
+> "How did I perform this season?"
 
 ---
 
-# Player Level
+# Shared Progression
 
-Player Level represents overall account progression.
+Users should never record the same activity twice.
 
-It reflects consistent participation across all challenge categories rather than mastery of a single activity.
+One recorded activity may contribute to multiple progression systems.
 
-Player Level should:
+For example:
 
-- Never decrease.
-- Never reset.
-- Continue throughout the lifetime of the account.
+```
+Workout Completed
+        │
+        ├────────► Personal XP
+        ├────────► Personal Statistics
+        ├────────► Personal Achievements
+        ├────────► Streak
+        ├────────► League Progress (if active)
+        ├────────► Team Progress (if applicable)
+        └────────► Personal Bests
+```
 
-Player Level represents experience rather than skill.
+The user performs one action.
+
+Champions Legacy performs the bookkeeping.
 
 ---
 
 # Experience (XP)
 
-Experience Points (XP) measure long-term participation.
+Experience Points represent effort invested in personal growth.
 
-Unlike challenge points, XP is not intended to determine competition.
+XP should answer one question:
 
-Its purpose is to represent personal growth.
+> "How much have I invested in becoming a better version of myself?"
 
-XP should primarily reward:
+XP may be earned through:
 
-- Completing daily goals.
-- Consistent participation.
-- Maintaining healthy habits.
-- Long-term engagement.
+- Completing daily goals
+- Recording activities
+- Maintaining streaks
+- Finishing books
+- Participating in leagues
+- Unlocking achievements
+- Helping teammates
+- Completing challenges
 
-XP should not heavily favour naturally advanced athletes.
+XP should reward participation rather than athletic ability.
+
+---
+
+# Levels
+
+Levels represent long-term commitment.
+
+Higher levels indicate dedication rather than superiority.
+
+Early levels should arrive quickly to encourage new users.
+
+Later levels should require increasingly greater commitment.
+
+Levels should never decrease.
+
+---
+
+# Personal Levels
+
+Personal Levels never reset.
+
+They represent years of participation.
+
+Example progression:
+
+- Beginner
+- Building Momentum
+- Dedicated
+- Champion
+- Legacy Builder
+- Living Legend
+
+Exact names may change over time.
+
+There should always be another level to pursue.
+
+---
+
+# League Levels
+
+League Levels are temporary.
+
+Every league begins at Level 1.
+
+League XP exists only within that season.
+
+League Levels create excitement during competition without affecting long-term progression.
 
 ---
 
@@ -134,70 +222,90 @@ Points and XP serve different purposes.
 
 Points determine:
 
-- Leaderboards.
-- Seasonal competition.
-- Rankings.
+- Leaderboards
+- Competition
+- Team contribution
+- Seasonal rankings
 
 XP determines:
 
-- Player progression.
-- Account growth.
-- Unlockable milestones.
+- Personal progression
+- Levels
+- Long-term growth
 
-A player may earn many points without gaining significantly more XP than another player who consistently completes daily goals.
+Points measure performance.
 
-This ensures progression remains accessible to everyone.
-
----
-
-# Level Progression
-
-Levels provide visible milestones throughout a player's journey.
-
-Early levels should be earned quickly to encourage new players.
-
-Higher levels should require greater long-term commitment.
-
-Level progression should feel rewarding without becoming discouraging.
+XP measures commitment.
 
 ---
 
-# Lifetime Progression
+# Titles
 
-Lifetime Progression represents everything a player has accomplished since joining Champions Legacy.
+Titles recognise what a user has achieved.
 
 Examples include:
 
-- Total days participated.
-- Total distance run.
-- Total books completed.
-- Total workouts.
-- Total hours reading.
-- Total water consumed.
+- Explorer
+- Scholar
+- Bookworm
+- Hydration Hero
+- Iron Will
+- Marathon Mindset
+- Consistency King
 
-Lifetime Progression should never reset.
+Users may unlock many titles while choosing only a few to display.
+
+Titles become part of a user's identity.
 
 ---
 
-# Seasonal Progression
+# Ranks
 
-Each challenge season provides a fresh opportunity for competition.
+Ranks belong primarily to League Mode.
 
-Seasonal progression exists independently from lifetime progression.
+Examples include:
 
-When a season ends:
+- Bronze
+- Silver
+- Gold
+- Platinum
+- Diamond
+- Champion
+- Legend
 
-- Seasonal rankings reset.
-- Seasonal leaderboards reset.
-- Seasonal objectives reset.
+Ranks compare seasonal performance.
 
-Player history remains permanently recorded.
+They should never permanently define a user's value.
+
+Every league begins with a fresh opportunity.
+
+---
+
+# Milestones
+
+Large goals should be divided into meaningful milestones.
+
+For example:
+
+Running:
+
+- 1 km
+- 5 km
+- 10 km
+- 25 km
+- 50 km
+- 100 km
+- 250 km
+- 500 km
+- 1000 km
+
+Frequent milestones help maintain motivation throughout long-term goals.
 
 ---
 
 # Category Mastery
 
-Every challenge category maintains its own independent progression.
+Each challenge category maintains its own independent progression.
 
 Examples include:
 
@@ -208,27 +316,7 @@ Examples include:
 - Cardio Mastery
 - Skill Development Mastery
 
-This allows players to specialise while continuing to develop other areas.
-
-Category Mastery should progress independently from Player Level.
-
----
-
-# Milestones
-
-Milestones celebrate significant achievements throughout a player's journey.
-
-Examples include:
-
-- 100 km Run
-- 1,000 km Run
-- 100 Reading Hours
-- 1 Million Steps
-- 365 Daily Goals Completed
-- 500 Workouts
-- 1,000 Fruit Servings
-
-Milestones should represent memorable accomplishments rather than routine participation.
+Category Mastery develops alongside overall account progression.
 
 ---
 
@@ -238,14 +326,13 @@ Personal Bests celebrate improvement rather than comparison.
 
 Examples include:
 
-- Longest streak.
-- Most daily goals completed.
-- Fastest run.
-- Longest reading session.
-- Largest workout.
-- Highest weekly score.
+- Longest streak
+- Fastest run
+- Longest reading session
+- Largest workout
+- Highest weekly score
 
-Players should be encouraged to compete against their previous best performances.
+Users should be encouraged to compete against themselves.
 
 ---
 
@@ -253,173 +340,88 @@ Players should be encouraged to compete against their previous best performances
 
 Streaks reward consistency.
 
-A streak represents consecutive days of successful participation.
+A successful day is normally one in which at least one category reaches its daily goal.
 
-Unless league rules specify otherwise, a successful day is one in which at least one challenge category reaches its daily goal.
-
-Future versions may introduce:
+Future enhancements may include:
 
 - Grace Days
-- Streak Freezes
 - Recovery Tokens
-- Seasonal Streak Challenges
+- Streak Challenges
 
-Streaks should encourage routine rather than punish occasional setbacks.
-
----
-
-# Seasonal Rewards
-
-Every completed season should permanently contribute to a player's history.
-
-Examples include:
-
-- Season Champion
-- Top 10 Finish
-- Gold League
-- Silver League
-- Bronze League
-- Perfect Attendance
-- Most Improved
-
-Seasonal accomplishments should never be removed.
+Missing one day should never erase months of progress.
 
 ---
 
 # Prestige
 
-Champions Legacy is designed for years of participation.
-
-Players who reach very high levels may eventually unlock Prestige.
-
-Prestige represents extraordinary long-term commitment rather than competitive success.
+Prestige represents extraordinary long-term dedication.
 
 Prestige should provide:
 
-- Cosmetic recognition.
-- Historical distinction.
-- New progression opportunities.
+- Cosmetic recognition
+- Historical distinction
+- New long-term goals
 
-Prestige should never create unfair competitive advantages.
-
----
-
-# Progression Visibility
-
-Players should always understand:
-
-- Their current level.
-- Progress towards the next level.
-- Recent milestones.
-- Personal records.
-- Current streaks.
-
-Progress should be visible, motivating and easy to understand.
+Prestige should never provide competitive advantages.
 
 ---
 
-# Motivation Philosophy
+# Progress Visibility
 
-Champions Legacy aims to provide regular moments of achievement.
+Users should always understand:
 
-These may include:
+- Current Level
+- XP Progress
+- Recent Achievements
+- Current Streak
+- Personal Records
+- Upcoming Milestones
 
-- Level Ups
-- New Personal Bests
-- Category Mastery Levels
-- Streak Milestones
-- Seasonal Rewards
-- Lifetime Milestones
-
-Small victories build long-term motivation.
+Progress should be easy to understand at a glance.
 
 ---
 
 # Future Expansion
 
-Future versions may introduce:
+Future progression systems may include:
 
-- Skill Trees
-- Prestige Levels
 - Mentor Levels
+- Reputation
 - Legacy Ranks
-- Community Titles
-- Reputation Systems
 - Dynamic Milestones
-- AI-generated personal goals
+- AI-generated Goals
+- Seasonal Quest Lines
 
-Future additions should extend the existing progression framework without replacing it.
+New systems should extend the existing progression framework rather than replace it.
 
 ---
 
 # Relationship to Other Systems
 
-The Progression System builds upon several other game systems.
+The Progression System works alongside several other systems.
 
-Challenge Rules determine what activities qualify.
+- Challenge Rules determine qualifying activities.
+- The Points System rewards performance.
+- The Achievement System celebrates memorable milestones.
+- League Systems provide seasonal competition.
+- Statistics record historical activity.
 
-The Points System rewards qualifying activities.
-
-Achievements recognise exceptional accomplishments.
-
-League Systems provide competitive environments.
-
-Together these systems create a complete long-term player experience.
+Together these systems create a complete long-term progression experience.
 
 ---
 
 # Guiding Principles
 
-Every future progression feature should satisfy the following questions.
+Before introducing any new progression feature, ask:
 
-Does it encourage consistency?
+- Does it encourage consistency?
+- Does it celebrate improvement?
+- Does it remain meaningful for beginners?
+- Does it continue motivating long-term users?
+- Does it avoid creating unfair advantages?
+- Does it strengthen the user's personal journey?
 
-Does it reward personal growth?
-
-Does it remain meaningful for beginners?
-
-Does it continue motivating experienced players?
-
-Does it avoid creating unfair competitive advantages?
-
-Does it support long-term engagement?
-
-If the answer to any question is "No", the feature should be reconsidered.
-
----
-
-# Changes Since Version 1.0
-
-Version 2.0 introduces a complete progression framework for the Champions Legacy platform.
-
-Major additions include:
-
-- Lifetime Player Levels.
-- Experience (XP).
-- Category Mastery.
-- Seasonal Progression.
-- Lifetime Statistics.
-- Personal Bests.
-- Milestones.
-- Prestige.
-- Seasonal Rewards.
-- Long-term progression philosophy.
-
-The original challenge focused primarily on daily participation.
-
-Version 2.0 expands that vision into a progression system capable of supporting years of continuous personal development.
-
----
-
-# Related Documentation
-
-This document should be read alongside:
-
-- CHALLENGE_RULES.md
-- POINTS_SYSTEM.md
-- ACHIEVEMENTS_AND_REWARDS.md
-- LEAGUE_SYSTEM.md
-- GAME_DESIGN_OVERVIEW.md
+If the answer to any question is no, the feature should be reconsidered.
 
 ---
 
@@ -427,9 +429,9 @@ This document should be read alongside:
 
 The greatest reward in Champions Legacy is not reaching the highest level.
 
-It is looking back after months or years and seeing the person you have become.
+It is becoming the kind of person you once hoped to be.
 
-Every day is another opportunity to become better than yesterday.
+Every positive action is another step towards that legacy.
 
 ---
 

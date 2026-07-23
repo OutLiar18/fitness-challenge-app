@@ -2,381 +2,366 @@
 
 # Player Profile System
 
-Version: 2.0
+Version: 3.0
 
 ---
 
 # Purpose
 
-The Player Profile represents a player's identity, journey and accomplishments within Champions Legacy.
+The Player Profile represents a user's identity, journey and legacy within Champions Legacy.
 
-It serves as the player's permanent record, bringing together progression, achievements, statistics and league history into a single location.
+Rather than functioning as a traditional account page, the profile serves as a permanent record of personal growth.
 
-The Player Profile should tell the story of a player's growth over time rather than simply displaying numbers.
+It brings together progression, achievements, statistics, league history and memorable moments into a single place that answers one question:
+
+> "Who have I become?"
 
 ---
 
 # Design Philosophy
 
-A player profile should celebrate progress, encourage continued participation and provide meaningful insight into personal development.
+Every profile should tell a story.
 
-It should answer questions such as:
+Visitors should quickly understand:
 
-- Who is this player?
-- How have they improved?
-- What have they accomplished?
-- What are they currently working towards?
-- How long have they been part of the community?
+- Who this person is.
+- What they have accomplished.
+- What they enjoy.
+- How they have improved.
+- What makes their journey unique.
 
-The profile should motivate players to continue their journey while remaining simple and enjoyable to explore.
-
----
-
-# Core Objectives
-
-The Player Profile has five primary objectives.
-
-## 1. Represent Identity
-
-Every player should have a recognisable identity within Champions Legacy.
+The profile should inspire both its owner and everyone who views it.
 
 ---
 
-## 2. Showcase Progress
+# Core Principles
 
-Players should easily see how far they have come.
+The Player Profile is built around six principles.
 
----
+## Identity
 
-## 3. Celebrate Achievements
-
-Important accomplishments should be permanently recorded.
+Every user should have a recognisable identity.
 
 ---
 
-## 4. Preserve History
+## Legacy
 
-Past leagues, seasons and milestones should never be lost.
+Nothing meaningful should ever be lost.
 
 ---
 
-## 5. Encourage Future Growth
+## Recognition
 
-The profile should continually inspire players to pursue new goals.
+Achievements should be celebrated.
+
+---
+
+## Progress
+
+Growth should always remain visible.
+
+---
+
+## Personalisation
+
+Users should be able to express themselves without affecting competitive fairness.
+
+---
+
+## Reflection
+
+The profile should encourage users to appreciate how far they have come.
 
 ---
 
 # Player Identity
 
-Every profile represents a unique player.
-
-Core identity information includes:
-
-- Display Name
-- Username
-- Profile Picture / Avatar
-- Biography
-- Join Date
-
-Additional identity features may be introduced in future versions.
-
----
-
-# Progression
-
-The Player Profile displays progression information from the Progression System.
+Every profile begins with the user's identity.
 
 Examples include:
 
-- Player Level
-- Total Experience (XP)
-- Prestige Level
-- Category Mastery
-- Lifetime Progress
+- Display Name
+- Username
+- Avatar
+- Biography
+- Join Date
+- Current Title
 
-The rules governing progression are defined within the Progression System.
+Future versions may expand identity options.
+
+---
+
+# Progress Overview
+
+The profile displays the user's overall progression.
+
+Examples include:
+
+- Personal Level
+- Total XP
+- Prestige
+- Current Streak
+- Longest Streak
+- Lifetime Goals Completed
+
+The profile should make long-term growth immediately visible.
 
 ---
 
 # Statistics
 
-The Player Profile acts as the central location for player statistics.
-
-Statistics may be organised into multiple time periods.
+The profile serves as the central location for lifetime statistics.
 
 Examples include:
 
-- Lifetime
-- Seasonal
-- Monthly
-- Weekly
-- Daily
+- Water Consumed
+- Reading Time
+- Distance Run
+- Workouts Completed
+- Steps
+- Fruit Consumed
+- Skill Practice
+- Cardio Time
 
-The exact statistics displayed may evolve over time.
+Statistics may also be viewed by:
+
+- Year
+- Month
+- Week
+- League
 
 ---
 
 # Personal Records
 
-Personal Records highlight a player's best performances.
+Personal Records celebrate improvement.
 
 Examples include:
 
 - Highest Daily Score
-- Longest Streak
-- Most Water Consumed
 - Longest Run
-- Most Reading Time
+- Longest Reading Session
+- Most Water In One Day
 - Largest Workout
-- Fastest Personal Best
+- Longest Streak
 
-Personal records should remain permanently associated with the player.
+Personal Records should encourage users to compete against themselves.
+
+---
+
+# Trophy Cabinet
+
+The Trophy Cabinet celebrates memorable moments rather than simply displaying numbers.
+
+Examples include:
+
+- Favourite Achievement
+- Hardest Achievement
+- Rarest Achievement
+- Displayed Titles
+- Seasonal Trophies
+- League Championships
+- Personal Bests
+- Longest Streak
+- Legacy Cosmetics
+
+The Trophy Cabinet should feel like a museum of the user's journey.
+
+Years later, users should enjoy revisiting it.
 
 ---
 
 # Achievements
 
-Achievements earned by the player are permanently displayed within their profile.
+Achievements celebrate important milestones.
 
-Achievement information may include:
+Information may include:
 
-- Achievement Name
+- Name
 - Description
 - Date Earned
 - Rarity
 - Category
 
-Achievement design is defined within the Achievements & Rewards System.
+Achievements remain permanently associated with the user.
 
 ---
 
-# Rewards
+# Titles
 
-The Player Profile displays rewards that personalise a player's identity.
+Titles communicate what a user has accomplished.
 
 Examples include:
 
-- Titles
-- Badges
-- Seasonal Trophies
-- Profile Borders
-- Cosmetic Unlocks
-- Legacy Rewards
+- Explorer
+- Scholar
+- Bookworm
+- Hydration Hero
+- Iron Will
+- Consistency King
 
-Rewards should reflect meaningful accomplishments rather than financial investment.
+Users may unlock many titles while choosing only one or a few to display publicly.
+
+---
+
+# Cosmetic Recognition
+
+Recognition should remain cosmetic.
+
+Examples include:
+
+- Portrait Frames
+- Profile Borders
+- Legacy Banners
+- Seasonal Crowns
+- Profile Themes
+- Animated Nameplates
+- Profile Effects
+
+Cosmetics celebrate dedication without providing gameplay advantages.
 
 ---
 
 # League History
 
-Every completed league contributes to a player's history.
+Completed leagues become permanent chapters within the user's story.
 
-League information may include:
+League history may include:
 
 - League Name
 - Season
-- Final Position
-- Awards Earned
+- Final Placement
 - Team
-- Overall Statistics
+- League Level
+- Participation Rate
+- Awards
+- Personal Bests Achieved
+- Favourite Categories
+- Season Statistics
 
-Completed leagues become permanent parts of the player's profile.
-
----
-
-# Activity History
-
-Players should be able to review their own activity history.
-
-Examples include:
-
-- Daily Entries
-- Journals
-- Completed Goals
-- Milestones
-- Historical Progress
-
-Activity history encourages reflection and long-term habit formation.
+League history should feel like opening an old photo album.
 
 ---
 
-# Streaks
+# Activity Timeline
 
-The profile displays current and historical streaks.
-
-Examples include:
-
-- Current Streak
-- Longest Streak
-- Category Streaks
-- Seasonal Streaks
-
-Streaks represent consistency rather than perfection.
-
----
-
-# Milestones
-
-Milestones recognise significant moments throughout a player's journey.
+The profile should preserve a timeline of meaningful events.
 
 Examples include:
 
 - First Entry
-- First Completed Goal
 - First League
-- Level Milestones
-- Category Mastery
-- Anniversary Milestones
+- First Achievement
+- New Personal Records
+- Milestones
+- League Victories
+- Anniversary Celebrations
 
-Milestones celebrate long-term commitment.
+The timeline transforms statistics into memories.
 
 ---
 
 # Goals
 
-Players may define personal goals.
-
-Goals are separate from daily challenge requirements.
+Users may create personal goals separate from daily challenges.
 
 Examples include:
 
-- Run a Half Marathon
 - Read 20 Books
-- Reach Level 50
-- Drink Water Every Day for 100 Days
+- Complete a Marathon
+- Reach Level 100
+- Maintain a 365-Day Streak
 
-Personal goals encourage intrinsic motivation.
+Goals encourage intrinsic motivation.
 
 ---
 
-# Profile Visibility
+# Profile Privacy
 
-Players should have control over what information is visible to others.
+Users should control what others can see.
 
-Examples include:
+Privacy options may include:
 
-- Public Profile
-- Friends Only
-- Private Profile
+- Private
+- Friends
+- League Members
+- Public
 
-Privacy settings should be respected throughout the platform.
+League history, achievements and statistics should all respect these settings.
 
 ---
 
 # Personalisation
 
-Future versions may allow players to personalise their profiles through cosmetic options.
-
-Examples include:
+Future versions may support:
 
 - Themes
-- Banners
-- Borders
 - Backgrounds
-- Featured Achievements
 - Featured Statistics
+- Featured Achievements
+- Favourite Categories
+- Showcase Widgets
 
-Personalisation should never provide gameplay advantages.
+Personalisation should express identity without affecting gameplay.
 
 ---
 
 # Future Expansion
 
-Future versions of the Player Profile may include:
+Possible future additions include:
 
 - AI Coach
-- Mentor Rating
-- Community Contributions
-- Social Feed
 - Friends
-- Following System
-- Player Showcase
+- Following
+- Mentor System
 - Highlight Reels
-- Fitness Graphs
+- Community Contributions
 - Health Trends
+- Fitness Graphs
 
-These features should enhance the player's journey without distracting from the core philosophy.
+Future additions should strengthen the user's story rather than distract from it.
 
 ---
 
 # Relationship to Other Systems
 
-The Player Profile brings together information from multiple systems.
+The Player Profile presents information from multiple systems.
 
 These include:
 
 - Progression System
 - Points System
-- Achievements & Rewards
+- Achievement System
 - League System
-- Challenge Rules
+- Statistics System
+- Journal System
 
-The Player Profile does not define these systems.
-
-It presents them in a meaningful and motivating way for the player.
+The profile presents these systems in a meaningful and motivating way.
 
 ---
 
 # Guiding Principles
 
-Every future profile feature should answer the following questions.
+Before introducing a new profile feature, ask:
 
-Does it help tell the player's story?
+- Does it help tell the user's story?
+- Does it celebrate progress?
+- Does it encourage reflection?
+- Does it respect privacy?
+- Does it remain simple?
+- Does it reinforce the philosophy of becoming better than yesterday?
 
-Does it celebrate progress?
-
-Does it encourage continued participation?
-
-Does it remain easy to understand?
-
-Does it support the philosophy of becoming better than yesterday?
-
-If the answer to any question is "No", the feature should be reconsidered.
-
----
-
-# Changes Since Version 1.0
-
-Version 2.0 introduces the Player Profile as a comprehensive representation of a player's journey.
-
-Major additions include:
-
-- Unified player identity
-- Lifetime statistics
-- Personal records
-- League history
-- Goals
-- Milestones
-- Cosmetic personalisation
-- Privacy controls
-- Future social expansion
-
-Rather than functioning as a simple account page, the Player Profile becomes a living record of growth and achievement.
-
----
-
-# Related Documentation
-
-This document should be read alongside:
-
-- GAME_DESIGN_OVERVIEW.md
-- PROGRESSION_SYSTEM.md
-- POINTS_SYSTEM.md
-- ACHIEVEMENTS_AND_REWARDS.md
-- LEAGUE_SYSTEM.md
-- USER_ROLES.md
+If the answer to any question is no, the feature should be reconsidered.
 
 ---
 
 # Guiding Principle
 
-A player profile should not simply show who a player is today.
+A Player Profile should not simply show what someone has done.
 
-It should tell the story of who they have become.
+It should remind them of who they have become.
 
-Every statistic, achievement and milestone should remind players that meaningful progress is built one day at a time.
-
-Become Better Than Yesterday.
+Every achievement, every league, every milestone and every statistic is another chapter in their legacy.
 
 ---
 

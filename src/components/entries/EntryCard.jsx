@@ -169,38 +169,85 @@ function WorkoutDetails({ exercises = [] }) {
     return <p>No exercises recorded.</p>;
   }
 
-  return exercises.map((exercise, index) => {
+  return exercises.map((exercise, exerciseIndex) => {
     const exerciseName =
       typeof exercise.exercise === "string" && exercise.exercise.trim()
         ? exercise.exercise.trim()
-        : "Exercise";
+        : typeof exercise.name === "string" && exercise.name.trim()
+          ? exercise.name.trim()
+          : "Exercise";
 
-    const sets = Number(exercise.sets ?? 0);
+    const hasNewSetStructure = Array.isArray(exercise.sets);
 
-    const reps = Number(exercise.reps ?? 0);
+    const normalisedSets = hasNewSetStructure
+      ? exercise.sets
+      : Array.from(
+          {
+            length: Math.max(Number(exercise.sets ?? 1), 1),
+          },
+          () => ({
+            reps: exercise.reps,
+            weight: exercise.weight,
+            seconds: exercise.seconds,
+          }),
+        );
 
-    const weight = Number(exercise.weight ?? 0);
+    const validSets = normalisedSets.filter((set) => {
+      if (!set || typeof set !== "object") {
+        return false;
+      }
 
-    const seconds = Number(exercise.seconds ?? 0);
+      const reps = Number(set.reps ?? 0);
+      const weight = Number(set.weight ?? 0);
+      const seconds = Number(
+        set.seconds ?? set.durationSeconds ?? set.holdSeconds ?? 0,
+      );
+
+      return reps > 0 || weight > 0 || seconds > 0;
+    });
 
     return (
       <div
-        key={`${exerciseName}-${index}`}
+        key={`${exerciseName}-${exerciseIndex}`}
         style={{
-          marginBottom: "10px",
+          marginBottom: "16px",
         }}
       >
         <strong>{exerciseName}</strong>
 
-        <p>
-          {Number.isFinite(sets) ? sets : 0} sets ×{" "}
-          {Number.isFinite(reps) ? reps : 0} reps
-        </p>
+        {validSets.length === 0 ? (
+          <p>No set details recorded.</p>
+        ) : (
+          validSets.map((set, setIndex) => {
+            const reps = Number(set.reps ?? 0);
 
-        {Number.isFinite(weight) && weight > 0 && <p>Weight: {weight} kg</p>}
+            const weight = Number(set.weight ?? 0);
 
-        {Number.isFinite(seconds) && seconds > 0 && (
-          <p>Hold Time: {seconds}s</p>
+            const seconds = Number(
+              set.seconds ?? set.durationSeconds ?? set.holdSeconds ?? 0,
+            );
+
+            const hasReps = Number.isFinite(reps) && reps > 0;
+
+            const hasWeight = Number.isFinite(weight) && weight > 0;
+
+            const hasSeconds = Number.isFinite(seconds) && seconds > 0;
+
+            return (
+              <p
+                key={`${exerciseName}-set-${setIndex}`}
+                style={{
+                  margin: "4px 0",
+                }}
+              >
+                <strong>Set {setIndex + 1}:</strong> {hasReps && `${reps} reps`}
+                {hasReps && hasWeight && ` × ${weight} kg`}
+                {!hasReps && hasWeight && `${weight} kg`}
+                {(hasReps || hasWeight) && hasSeconds && " · "}
+                {hasSeconds && `${seconds}s hold`}
+              </p>
+            );
+          })
         )}
       </div>
     );

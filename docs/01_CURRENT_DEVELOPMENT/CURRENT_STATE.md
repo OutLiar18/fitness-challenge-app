@@ -2,54 +2,85 @@
 
 # Current State
 
+Version: Living Document
+
 ---
 
 # Purpose
 
-This document provides an accurate snapshot of the current implementation status of Champions Legacy.
+This document describes the current implementation status of Champions Legacy.
 
-It describes what is implemented today, what is currently under development, and the immediate priorities for the project.
+It should always reflect the actual state of the application and provide a quick overview of what has been built, what remains incomplete and where development should continue.
 
-This document should always reflect the actual state of the software.
+Unlike `RECENT_SESSION_SUMMARY.md`, this document changes only when the application's state changes.
 
 ---
 
 # Project Status
 
-**Version:** v0.5 (Development)
-
 **Status:** 🚧 Active Development
 
-**Current Phase:** Stabilisation & Architecture Migration
+Champions Legacy is currently focused on completing the core platform before expanding into advanced gamification and administration features.
+
+The priority is to build stable, reusable systems rather than rapidly adding new functionality.
 
 ---
 
-# Project Overview
+# Core Systems
 
-Champions Legacy is a configuration-driven personal development platform designed to help users become better than yesterday through consistency, balanced growth and long-term progression.
+## Authentication
 
-The application is built around reusable services, configuration-driven behaviour and scalable architecture to support future expansion into leagues, achievements, AI coaching and community features.
+**Status:** ✅ Complete
 
----
+Implemented:
 
-# Currently Implemented
-
-## Core Platform
-
-- ✅ Firebase Authentication
-- ✅ User Profiles
-- ✅ Protected Routes
-- ✅ Configuration-driven category system
-- ✅ Dynamic entry creation
-- ✅ Firestore persistence
-- ✅ Real-time data updates
-- ✅ Mobile-first dashboard
+- User registration
+- User login
+- User logout
+- Protected routes
+- User profile creation
+- Firebase Authentication integration
 
 ---
 
-## Activity Tracking
+## Dashboard
 
-The following activity categories are fully implemented:
+**Status:** ✅ Functional
+
+Implemented:
+
+- Welcome card
+- Statistics overview
+- Category grid
+- Dynamic entry forms
+- Journal integration
+
+Future improvements may expand the dashboard but should not require major redesign.
+
+---
+
+## Challenge Entry System
+
+**Status:** ✅ Functional
+
+Implemented:
+
+- Dynamic challenge categories
+- Dynamic entry forms
+- Entry creation
+- Entry deletion
+- Firestore persistence
+- Real-time updates
+
+The challenge system is considered the core of the application.
+
+---
+
+## Forms
+
+**Status:** ✅ Functional
+
+Current forms include:
 
 - Water
 - Fruit
@@ -62,197 +93,207 @@ The following activity categories are fully implemented:
 - Skill Development
 - Steps
 
-Each category supports dynamic form generation using shared configuration.
+New categories should follow the same configuration-driven architecture.
 
 ---
 
-## Dashboard
+## SmartSelect
 
-Current dashboard features include:
+**Status:** ✅ Complete
 
-- Welcome card
-- Statistics summary
-- Category grid
-- Daily progress
-- Daily goals
-- Top categories
-- Dynamic entry form
-- Journal integration
+Features:
+
+- Search while typing
+- Keyboard navigation
+- Mouse support
+- Touch support
+- Custom values
+- Large dataset support
+
+SmartSelect should remain the standard searchable input throughout the application.
 
 ---
 
-## Journal
+## Points System
 
-Current functionality:
+**Status:** 🚧 In Progress
 
-- Daily journal view
-- Entry history
-- Entry deletion
+Current implementation includes:
 
-Journal navigation improvements remain under development.
+- Centralised Points Service
+- Configuration-driven scoring
+- Dynamic point calculations
+
+Future work includes:
+
+- Difficulty-based exercise scoring
+- Effective repetition calculations
+- Final balancing and tuning
 
 ---
 
 ## Statistics
 
-Implemented statistics include:
+**Status:** ✅ Functional
 
-- Total entries
-- Daily entries
+Implemented:
+
+- Daily statistics
+- Overall statistics
+- Category statistics
 - Total points
 - Daily points
-- Water consumed
-- Reading progress
-- Running distance
-- Daily goal tracking
+- Goal progress
 
-Statistics are generated through the central Statistics Service.
+Statistics should always be calculated from stored data rather than permanently saved.
 
 ---
 
-## Resource Library
+## Journal
 
-Currently implemented:
+**Status:** 🚧 In Progress
 
-- Exercise Library
-- Difficulty Library
-- Exercise Option Service
+Implemented:
 
-Migration of workout functionality to the new library architecture is in progress.
+- Daily entry list
+- Entry deletion
+- Integration with challenge entries
 
----
+Planned improvements:
 
-# Current Development
-
-The current development sprint focuses on stabilising the platform following recent architectural improvements.
-
-Primary objectives include:
-
-- Complete Exercise Library migration
-- Complete Points Engine v2
-- Finalise workout migration
-- Restore validation consistency
-- Remove remaining legacy architecture
-- Synchronise documentation
-- Improve dashboard polish
+- Previous / next day navigation
+- Calendar selection
+- Improved history browsing
 
 ---
 
-# Major Systems In Progress
+## Administration
 
-## Points Engine v2
+**Status:** ⏳ Not Started
 
-Current progress:
+Planned features include:
 
-Completed
-
-- Centralised Points Service
-- Configuration-driven scoring
-- Category score definitions
-- Statistics integration
-
-In Progress
-
-- Difficulty multipliers
-- Effective repetitions
-- Workout migration
-- Cardio difficulty scoring
-
-Planned
-
-- Manual bonuses
-- Achievement rewards
-- Balance bonuses
+- User management
+- Challenge management
+- Moderation tools
+- Reporting
+- Administrative settings
 
 ---
 
-## Journal v2
+## Analytics
 
-Currently planned improvements:
+**Status:** ⏳ Planned
 
-- Previous / Next day navigation
-- Calendar picker
+Future analytics may include:
+
+- Trends
+- Historical reports
+- Progress charts
+- Personal insights
+- Team analytics
+
+---
+
+# Services
+
+Current services include:
+
+- EntryService
+- ValidationService
+- PointsService
+- StatisticsService
+- ChallengeService
+- DateService
+- MessageService
+- ExerciseLibraryService
+- ExerciseOptionService
+
+Business logic should continue to reside inside services rather than components.
+
+---
+
+# Current Architecture
+
+The application currently follows this structure:
+
+Configuration
+
+↓
+
+Services
+
+↓
+
+Reusable Components
+
+↓
+
+Pages
+
+↓
+
+Firestore
+
+Firestore stores factual data only.
+
+Derived values (points, statistics, progress, achievements) are calculated by services.
+
+---
+
+# Known Incomplete Features
+
+The following planned systems have not yet been completed:
+
+- Journal navigation
 - Calendar view
-- Improved locked-history experience
+- Streak system
+- XP system
+- Achievements
+- Leaderboards
+- Team functionality
+- Administration portal
+- Advanced analytics
 
 ---
 
-# Active Services
+# Current Constraints
 
-Current service layer includes:
+The project intentionally does **not** include:
 
-- Entry Service
-- Validation Service
-- Statistics Service
-- Points Service
-- Exercise Library Service
-- Exercise Option Service
-- Challenge Service
-- Date Service
-- Message Service
-- Migration Service
+- Image uploads
+- Firebase Storage
+- Proof submissions
+
+These features were removed to keep the application fully functional within Firebase's free tier.
+
+They may be reconsidered in a future version.
 
 ---
 
 # Known Issues
 
-Current known issues include:
+Refer to `KNOWN_ISSUES.md` for the current list of bugs, technical debt and outstanding problems.
 
-- Validation inconsistencies following form migration.
-- Legacy architecture still exists in selected forms.
-- Workout migration is incomplete.
-- Journal navigation has not yet been implemented.
-- Dashboard styling requires refinement.
-- Admin functionality has not yet begun.
+This document should not duplicate that information.
 
 ---
 
-# Next Milestones
+# Next Priority
 
-Following completion of the current stabilisation sprint, development will focus on:
+Refer to `NEXT_SESSION.md` for the immediate development objective.
 
-1. Journal v2
-2. Calendar navigation
-3. Today's Challenge
-4. Progress visualisations
-5. Streak System
-6. XP System
-7. Achievement System
-8. Leaderboards
-9. Admin Dashboard
-
----
-
-# Recent Progress
-
-Recent development highlights include:
-
-- Introduced Exercise Library
-- Introduced Difficulty Library
-- Introduced Exercise Option Service
-- Began Workout migration
-- Began Points Engine v2
-- Standardised category architecture
-- Completed architecture documentation redesign
+This document should remain focused on the application's overall implementation status rather than the current task.
 
 ---
 
 # Related Documentation
 
-For additional information see:
-
-- Vision
-- Mission
-- Roadmap
-- Architecture
-- Known Issues
-- Next Session
-- Changelog
+- CURRENT_STATE.md
+- NEXT_SESSION.md
+- KNOWN_ISSUES.md
+- RECENT_SESSION_SUMMARY.md
 
 ---
 
-# Guiding Principle
-
-This document represents the current state of Champions Legacy.
-
-Future ideas, architectural decisions and long-term planning should be documented elsewhere.
+# End of Document
