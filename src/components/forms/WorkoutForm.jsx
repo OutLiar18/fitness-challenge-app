@@ -1,5 +1,18 @@
+import MultiSelect from "../common/MultiSelect/MultiSelect";
+import {
+  EQUIPMENT_OPTIONS,
+  MOVEMENT_PATTERN_OPTIONS,
+  MUSCLE_OPTIONS,
+  DIFFICULTY_OPTIONS,
+} from "../../constants/libraries/exerciseMetaDataLibrary";
 import SmartSelect from "../common/SmartSelect/SmartSelect";
+
 import { getExercisesByCategory } from "../../services/exerciseOptionService";
+
+import {
+  getExercise,
+  isHoldExercise,
+} from "../../services/exerciseLibraryService";
 
 function createEmptySet() {
   return {
@@ -12,27 +25,41 @@ function createEmptySet() {
 function createEmptyExercise() {
   return {
     exercise: "",
+    source: "",
+    exerciseDefinition: null,
+    suggestionStatus: "",
     sets: [createEmptySet()],
   };
 }
 
-/*
-  Temporarily supports the previous workout structure:
+function createCustomExerciseDefinition(name, category) {
+  return {
+    name,
+    aliases: [],
+    category,
+    type: "",
+    exerciseType: "",
+    proposedTier: "",
+    equipment: "",
+    movementPattern: "",
+    primaryMuscles: [],
+    secondaryMuscles: [],
+  };
+}
 
-  {
-    exercise,
-    sets: 3,
-    reps: 10,
-    seconds: "",
-    weight: 20
-  }
-
-  It converts that structure into three individual set objects.
-*/
 function normalizeExercise(exercise) {
   if (Array.isArray(exercise?.sets)) {
     return {
       exercise: exercise.exercise || "",
+      source:
+        exercise.source || (exercise.exerciseDefinition ? "custom" : "library"),
+
+      exerciseDefinition: exercise.exerciseDefinition || null,
+
+      suggestionStatus:
+        exercise.suggestionStatus ||
+        (exercise.exerciseDefinition ? "pending" : ""),
+
       sets:
         exercise.sets.length > 0
           ? exercise.sets.map((set) => ({
@@ -48,12 +75,41 @@ function normalizeExercise(exercise) {
 
   return {
     exercise: exercise?.exercise || "",
+    source:
+      exercise?.source || (exercise?.exerciseDefinition ? "custom" : "library"),
+
+    exerciseDefinition: exercise?.exerciseDefinition || null,
+
+    suggestionStatus:
+      exercise?.suggestionStatus ||
+      (exercise?.exerciseDefinition ? "pending" : ""),
+
     sets: Array.from({ length: numberOfSets }, () => ({
       reps: exercise?.reps ?? "",
       seconds: exercise?.seconds ?? "",
       weight: exercise?.weight ?? "",
     })),
   };
+}
+
+function isCustomExercise(exercise) {
+  return exercise?.source === "custom" || Boolean(exercise?.exerciseDefinition);
+}
+
+function getExerciseType(exercise) {
+  if (isCustomExercise(exercise)) {
+    return exercise.exerciseDefinition?.exerciseType || "";
+  }
+
+  if (isHoldExercise(exercise.exercise)) {
+    return "hold";
+  }
+
+  if (getExercise(exercise.exercise)) {
+    return "repetition";
+  }
+
+  return "";
 }
 
 export default function WorkoutForm({
@@ -76,15 +132,85 @@ export default function WorkoutForm({
     });
   };
 
-  const updateExerciseName = (exerciseIndex, value) => {
-    const updatedExercises = exercises.map((exercise, index) =>
-      index === exerciseIndex
-        ? {
-            ...exercise,
-            exercise: value,
-          }
-        : exercise,
-    );
+  const updateExerciseName = (exerciseIndex, value, selectionDetails = {}) => {
+    const customExercise = selectionDetails.isCustom === true;
+
+    const updatedExercises = exercises.map((exercise, index) => {
+      if (index !== exerciseIndex) {
+        return exercise;
+      }
+
+      if (customExercise) {
+        return {
+          ...exercise,
+          exercise: value,
+          source: "custom",
+          suggestionStatus: "pending",
+          exerciseDefinition: createCustomExerciseDefinition(value, category),
+
+          sets: exercise.sets.map((set) => ({
+            ...set,
+            reps: "",
+            seconds: "",
+          })),
+        };
+      }
+
+      const selectedExercise = getExercise(value);
+
+      return {
+        ...exercise,
+        exercise: value,
+        source: "library",
+        suggestionStatus: "",
+        exerciseDefinition: null,
+
+        sets: exercise.sets.map((set) => ({
+          ...set,
+
+          reps: selectedExercise?.exerciseType === "hold" ? "" : set.reps,
+
+          seconds: selectedExercise?.exerciseType === "hold" ? set.seconds : "",
+        })),
+      };
+    });
+
+    updateExercises(updatedExercises);
+  };
+
+  const updateCustomDefinition = (exerciseIndex, field, value) => {
+    const updatedExercises = exercises.map((exercise, index) => {
+      if (index !== exerciseIndex) {
+        return exercise;
+      }
+
+      const previousType = exercise.exerciseDefinition?.exerciseType || "";
+
+      const nextDefinition = {
+        ...exercise.exerciseDefinition,
+        [field]: value,
+      };
+
+      if (field === "exerciseType") {
+        nextDefinition.type = value === "hold" ? "hold" : "dynamic";
+      }
+
+      let updatedSets = exercise.sets;
+
+      if (field === "exerciseType" && previousType !== value) {
+        updatedSets = exercise.sets.map((set) => ({
+          ...set,
+          reps: value === "hold" ? "" : set.reps,
+          seconds: value === "hold" ? set.seconds : "",
+        }));
+      }
+
+      return {
+        ...exercise,
+        exerciseDefinition: nextDefinition,
+        sets: updatedSets,
+      };
+    });
 
     updateExercises(updatedExercises);
   };
@@ -95,16 +221,31 @@ export default function WorkoutForm({
         return exercise;
       }
 
+      const exerciseType = getExerciseType(exercise);
+
       return {
         ...exercise,
-        sets: exercise.sets.map((set, currentSetIndex) =>
-          currentSetIndex === setIndex
-            ? {
-                ...set,
-                [field]: value,
-              }
-            : set,
-        ),
+
+        sets: exercise.sets.map((set, currentSetIndex) => {
+          if (currentSetIndex !== setIndex) {
+            return set;
+          }
+
+          const updatedSet = {
+            ...set,
+            [field]: value,
+          };
+
+          if (exerciseType === "hold") {
+            updatedSet.reps = "";
+          }
+
+          if (exerciseType === "repetition") {
+            updatedSet.seconds = "";
+          }
+
+          return updatedSet;
+        }),
       };
     });
 
@@ -148,6 +289,7 @@ export default function WorkoutForm({
 
       return {
         ...exercise,
+
         sets: [
           ...exercise.sets.slice(0, setIndex + 1),
           setToDuplicate,
@@ -171,6 +313,7 @@ export default function WorkoutForm({
         currentExerciseIndex === exerciseIndex
           ? {
               ...currentExercise,
+
               sets: currentExercise.sets.filter(
                 (_, index) => index !== setIndex,
               ),
@@ -183,206 +326,367 @@ export default function WorkoutForm({
 
   return (
     <>
-      {exercises.map((exercise, exerciseIndex) => (
-        <div
-          key={exerciseIndex}
-          style={{
-            border: "1px solid #ddd",
-            borderRadius: "10px",
-            padding: "15px",
-            marginBottom: "20px",
-          }}
-        >
+      {exercises.map((exercise, exerciseIndex) => {
+        const customExercise = isCustomExercise(exercise);
+
+        const exerciseType = getExerciseType(exercise);
+
+        const holdExercise = exerciseType === "hold";
+
+        const repetitionExercise = exerciseType === "repetition";
+
+        return (
           <div
+            key={exerciseIndex}
             style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              gap: "10px",
-              marginBottom: "15px",
+              border: "1px solid #ddd",
+              borderRadius: "10px",
+              padding: "15px",
+              marginBottom: "20px",
             }}
           >
-            <h4
-              style={{
-                margin: 0,
-              }}
-            >
-              Exercise {exerciseIndex + 1}
-            </h4>
-
-            {!readOnly && exercises.length > 1 && (
-              <button
-                type="button"
-                onClick={() => removeExercise(exerciseIndex)}
-              >
-                Remove Exercise
-              </button>
-            )}
-          </div>
-
-          <div
-            style={{
-              marginBottom: "15px",
-            }}
-          >
-            <label>
-              <strong>Exercise *</strong>
-            </label>
-
-            <SmartSelect
-              label="Exercise"
-              value={exercise.exercise || ""}
-              options={exerciseOptions}
-              disabled={readOnly}
-              onChange={(value) => updateExerciseName(exerciseIndex, value)}
-            />
-          </div>
-
-          {exercise.sets.map((set, setIndex) => (
             <div
-              key={setIndex}
               style={{
-                borderTop: "1px solid #eee",
-                paddingTop: "15px",
-                marginTop: setIndex === 0 ? "0" : "15px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: "10px",
+                marginBottom: "15px",
               }}
             >
+              <h4 style={{ margin: 0 }}>Exercise {exerciseIndex + 1}</h4>
+
+              {!readOnly && exercises.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeExercise(exerciseIndex)}
+                >
+                  Remove Exercise
+                </button>
+              )}
+            </div>
+
+            <div style={{ marginBottom: "15px" }}>
+              <label>
+                <strong>Exercise *</strong>
+              </label>
+
+              <SmartSelect
+                label="Exercise"
+                value={exercise.exercise || ""}
+                options={exerciseOptions}
+                disabled={readOnly}
+                allowCustom
+                customOptionLabel="Suggest new exercise"
+                onChange={(value, selectionDetails) =>
+                  updateExerciseName(exerciseIndex, value, selectionDetails)
+                }
+              />
+            </div>
+
+            {customExercise && (
               <div
                 style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  gap: "10px",
-                  marginBottom: "10px",
+                  border: "1px solid #ddd",
+                  borderRadius: "8px",
+                  padding: "15px",
+                  marginBottom: "15px",
                 }}
               >
-                <strong>Set {setIndex + 1}</strong>
+                <h5 style={{ marginTop: 0 }}>Suggest New Exercise</h5>
 
-                {!readOnly && (
+                <p>
+                  This exercise is not currently in the library. Add its details
+                  so it can be logged correctly and reviewed by an
+                  administrator.
+                </p>
+
+                <div style={{ marginBottom: "15px" }}>
+                  <label>
+                    <strong>Exercise Type *</strong>
+                  </label>
+
+                  <select
+                    disabled={readOnly}
+                    value={exercise.exerciseDefinition?.exerciseType || ""}
+                    onChange={(event) =>
+                      updateCustomDefinition(
+                        exerciseIndex,
+                        "exerciseType",
+                        event.target.value,
+                      )
+                    }
+                  >
+                    <option value="">Select exercise type...</option>
+
+                    <option value="repetition">Repetition exercise</option>
+
+                    <option value="hold">Timed hold exercise</option>
+                  </select>
+                </div>
+
+                <div style={{ marginBottom: "15px" }}>
+                  <label>
+                    <strong>Suggested Difficulty *</strong>
+                  </label>
+
+                  <select
+                    disabled={readOnly}
+                    value={exercise.exerciseDefinition?.proposedTier || ""}
+                    onChange={(event) =>
+                      updateCustomDefinition(
+                        exerciseIndex,
+                        "proposedTier",
+                        event.target.value === ""
+                          ? ""
+                          : Number(event.target.value),
+                      )
+                    }
+                  >
+                    <option value="">Select difficulty...</option>
+
+                    {DIFFICULTY_OPTIONS.map((difficulty) => (
+                      <option key={difficulty.tier} value={difficulty.tier}>
+                        {difficulty.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div style={{ marginBottom: "15px" }}>
+                  <label>
+                    <strong>Equipment *</strong>
+                  </label>
+
+                  <select
+                    disabled={readOnly}
+                    value={exercise.exerciseDefinition?.equipment || ""}
+                    onChange={(event) =>
+                      updateCustomDefinition(
+                        exerciseIndex,
+                        "equipment",
+                        event.target.value,
+                      )
+                    }
+                  >
+                    <option value="">Select equipment...</option>
+
+                    {EQUIPMENT_OPTIONS.map((equipment) => (
+                      <option key={equipment} value={equipment}>
+                        {equipment}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div style={{ marginBottom: "15px" }}>
+                  <label>
+                    <strong>Movement Pattern</strong>
+                  </label>
+
+                  <select
+                    disabled={readOnly}
+                    value={exercise.exerciseDefinition?.movementPattern || ""}
+                    onChange={(event) =>
+                      updateCustomDefinition(
+                        exerciseIndex,
+                        "movementPattern",
+                        event.target.value,
+                      )
+                    }
+                  >
+                    <option value="">Select movement pattern...</option>
+
+                    {MOVEMENT_PATTERN_OPTIONS.map((pattern) => (
+                      <option key={pattern} value={pattern}>
+                        {pattern}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div style={{ marginBottom: "15px" }}>
+                  <MultiSelect
+                    label="Primary Muscles *"
+                    options={MUSCLE_OPTIONS}
+                    value={exercise.exerciseDefinition?.primaryMuscles || []}
+                    disabled={readOnly}
+                    placeholder="Select primary muscles..."
+                    onChange={(value) =>
+                      updateCustomDefinition(
+                        exerciseIndex,
+                        "primaryMuscles",
+                        value,
+                      )
+                    }
+                  />
+                </div>
+
+                <div style={{ marginBottom: "15px" }}>
+                  <MultiSelect
+                    label="Secondary Muscles"
+                    options={MUSCLE_OPTIONS}
+                    value={exercise.exerciseDefinition?.secondaryMuscles || []}
+                    disabled={readOnly}
+                    placeholder="Select secondary muscles..."
+                    onChange={(value) =>
+                      updateCustomDefinition(
+                        exerciseIndex,
+                        "secondaryMuscles",
+                        value,
+                      )
+                    }
+                  />
+                </div>
+              </div>
+            )}
+
+            {!exerciseType && exercise.exercise && (
+              <p>
+                Select whether this is a repetition or timed-hold exercise
+                before adding sets.
+              </p>
+            )}
+
+            {exerciseType &&
+              exercise.sets.map((set, setIndex) => (
+                <div
+                  key={setIndex}
+                  style={{
+                    borderTop: "1px solid #eee",
+                    paddingTop: "15px",
+                    marginTop: setIndex === 0 ? "0" : "15px",
+                  }}
+                >
                   <div
                     style={{
                       display: "flex",
-                      gap: "8px",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      gap: "10px",
+                      marginBottom: "10px",
                     }}
                   >
-                    <button
-                      type="button"
-                      onClick={() => duplicateSet(exerciseIndex, setIndex)}
-                    >
-                      Duplicate
-                    </button>
+                    <strong>Set {setIndex + 1}</strong>
 
-                    {exercise.sets.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeSet(exerciseIndex, setIndex)}
+                    {!readOnly && (
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "8px",
+                        }}
                       >
-                        Remove
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => duplicateSet(exerciseIndex, setIndex)}
+                        >
+                          Duplicate
+                        </button>
+
+                        {exercise.sets.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeSet(exerciseIndex, setIndex)}
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
                     )}
                   </div>
-                )}
-              </div>
 
-              <div
-                style={{
-                  marginBottom: "15px",
-                }}
-              >
-                <label>
-                  <strong>Reps</strong>
-                </label>
+                  {repetitionExercise && (
+                    <div style={{ marginBottom: "15px" }}>
+                      <label>
+                        <strong>Reps *</strong>
+                      </label>
 
-                <input
-                  type="number"
-                  min="1"
-                  step="1"
-                  disabled={readOnly}
-                  placeholder="Leave blank for a hold"
-                  value={set.reps ?? ""}
-                  onWheel={(event) => event.currentTarget.blur()}
-                  onChange={(event) =>
-                    updateSet(
-                      exerciseIndex,
-                      setIndex,
-                      "reps",
-                      event.target.value === ""
-                        ? ""
-                        : Number(event.target.value),
-                    )
-                  }
-                />
-              </div>
+                      <input
+                        type="number"
+                        min="1"
+                        step="1"
+                        disabled={readOnly}
+                        placeholder="Number of repetitions"
+                        value={set.reps ?? ""}
+                        onWheel={(event) => event.currentTarget.blur()}
+                        onChange={(event) =>
+                          updateSet(
+                            exerciseIndex,
+                            setIndex,
+                            "reps",
+                            event.target.value === ""
+                              ? ""
+                              : Number(event.target.value),
+                          )
+                        }
+                      />
+                    </div>
+                  )}
 
-              <div
-                style={{
-                  marginBottom: "15px",
-                }}
-              >
-                <label>
-                  <strong>Hold Time (seconds)</strong>
-                </label>
+                  {holdExercise && (
+                    <div style={{ marginBottom: "15px" }}>
+                      <label>
+                        <strong>Hold Time (seconds) *</strong>
+                      </label>
 
-                <input
-                  type="number"
-                  min="1"
-                  step="1"
-                  disabled={readOnly}
-                  placeholder="Leave blank for reps"
-                  value={set.seconds ?? ""}
-                  onWheel={(event) => event.currentTarget.blur()}
-                  onChange={(event) =>
-                    updateSet(
-                      exerciseIndex,
-                      setIndex,
-                      "seconds",
-                      event.target.value === ""
-                        ? ""
-                        : Number(event.target.value),
-                    )
-                  }
-                />
-              </div>
+                      <input
+                        type="number"
+                        min="1"
+                        step="1"
+                        disabled={readOnly}
+                        placeholder="Duration in seconds"
+                        value={set.seconds ?? ""}
+                        onWheel={(event) => event.currentTarget.blur()}
+                        onChange={(event) =>
+                          updateSet(
+                            exerciseIndex,
+                            setIndex,
+                            "seconds",
+                            event.target.value === ""
+                              ? ""
+                              : Number(event.target.value),
+                          )
+                        }
+                      />
+                    </div>
+                  )}
 
-              <div
-                style={{
-                  marginBottom: "15px",
-                }}
-              >
-                <label>
-                  <strong>External Weight (kg) — Optional</strong>
-                </label>
+                  <div style={{ marginBottom: "15px" }}>
+                    <label>
+                      <strong>External Weight (kg) — Optional</strong>
+                    </label>
 
-                <input
-                  type="number"
-                  min="0"
-                  step="0.1"
-                  disabled={readOnly}
-                  placeholder="0"
-                  value={set.weight ?? ""}
-                  onWheel={(event) => event.currentTarget.blur()}
-                  onChange={(event) =>
-                    updateSet(
-                      exerciseIndex,
-                      setIndex,
-                      "weight",
-                      event.target.value === ""
-                        ? ""
-                        : Number(event.target.value),
-                    )
-                  }
-                />
-              </div>
-            </div>
-          ))}
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.1"
+                      disabled={readOnly}
+                      placeholder="0"
+                      value={set.weight ?? ""}
+                      onWheel={(event) => event.currentTarget.blur()}
+                      onChange={(event) =>
+                        updateSet(
+                          exerciseIndex,
+                          setIndex,
+                          "weight",
+                          event.target.value === ""
+                            ? ""
+                            : Number(event.target.value),
+                        )
+                      }
+                    />
+                  </div>
+                </div>
+              ))}
 
-          {!readOnly && (
-            <button type="button" onClick={() => addSet(exerciseIndex)}>
-              + Add Set
-            </button>
-          )}
-        </div>
-      ))}
+            {!readOnly && exerciseType && (
+              <button type="button" onClick={() => addSet(exerciseIndex)}>
+                + Add Set
+              </button>
+            )}
+          </div>
+        );
+      })}
 
       {!readOnly && (
         <button type="button" onClick={addExercise}>

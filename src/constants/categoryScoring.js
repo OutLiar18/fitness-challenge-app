@@ -7,12 +7,12 @@ export const CATEGORY_SCORING = {
   },
 
   fruit: {
-    field: "quantity",
+    field: "servings",
     table: POINTS.fruit,
   },
 
   reading: {
-    field: "minutes",
+    field: "totalMinutes",
     table: POINTS.reading,
   },
 
@@ -22,12 +22,12 @@ export const CATEGORY_SCORING = {
   },
 
   cardio: {
-    field: "minutes",
+    field: "totalMinutes",
     table: POINTS.cardio,
   },
 
   skill: {
-    field: "minutes",
+    field: "totalMinutes",
     table: POINTS.skill,
   },
 

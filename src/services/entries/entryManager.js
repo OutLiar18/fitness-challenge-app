@@ -2,8 +2,50 @@ import { saveLibraryItem } from "../libraryService";
 import { getNextCategory } from "../challengeService";
 import { validateEntry } from "../validation";
 
-import { createEntry } from "./entryRepository";
+import { createEntry, createExerciseSuggestion } from "./entryRepository";
+
 import { normalizeEntry } from "./normalizer";
+
+function getUniqueCustomExercises(exercises = []) {
+  const customExercises = exercises.filter(
+    (exercise) =>
+      exercise?.source === "custom" && exercise?.exerciseDefinition?.name,
+  );
+
+  const uniqueExercises = new Map();
+
+  customExercises.forEach((exercise) => {
+    const key = exercise.exerciseDefinition.name.trim().toLowerCase();
+
+    if (!uniqueExercises.has(key)) {
+      uniqueExercises.set(key, exercise.exerciseDefinition);
+    }
+  });
+
+  return [...uniqueExercises.values()];
+}
+
+async function saveExerciseSuggestions({
+  userId,
+  challengeEntryId,
+  normalizedData,
+}) {
+  const customExerciseDefinitions = getUniqueCustomExercises(
+    normalizedData.exercises,
+  );
+
+  const results = await Promise.allSettled(
+    customExerciseDefinitions.map((exerciseDefinition) =>
+      createExerciseSuggestion({
+        userId,
+        challengeEntryId,
+        exerciseDefinition,
+      }),
+    ),
+  );
+
+  return results;
+}
 
 export async function saveChallengeEntry({
   userId,
@@ -52,6 +94,16 @@ export async function saveChallengeEntry({
     selectedDate,
   );
 
+  let suggestionResults = [];
+
+  if (["upperBody", "lowerBody", "core"].includes(category)) {
+    suggestionResults = await saveExerciseSuggestions({
+      userId,
+      challengeEntryId: documentReference.id,
+      normalizedData,
+    });
+  }
+
   if (category === "reading") {
     await saveLibraryItem({
       userId,
@@ -72,6 +124,7 @@ export async function saveChallengeEntry({
     userId,
     category,
     data: normalizedData,
+
     challengeDate: {
       toDate: () => selectedDate,
     },
@@ -83,10 +136,19 @@ export async function saveChallengeEntry({
 
   const nextCategory = isToday ? getNextCategory(updatedEntries) : null;
 
+  const failedSuggestions = suggestionResults.filter(
+    (result) => result.status === "rejected",
+  );
+
   return {
     success: true,
     entry: temporaryEntry,
     normalizedData,
     nextCategory,
+
+    suggestionWarning:
+      failedSuggestions.length > 0
+        ? "The workout was saved, but one or more exercise suggestions could not be submitted."
+        : "",
   };
 }

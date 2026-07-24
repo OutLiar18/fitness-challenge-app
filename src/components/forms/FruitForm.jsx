@@ -1,24 +1,26 @@
-import { OPTIONS } from "../../constants/options";
+import { getFruitNames } from "../../services/fruitLibraryService";
 import SmartSelect from "../common/SmartSelect/SmartSelect";
 
 export default function FruitForm({ formData, setFormData, readOnly = false }) {
   const fruitType = formData.fruitType ?? "";
   const servings = formData.servings ?? "";
 
-  const updateField = (field, value) => {
+  const fruitOptions = getFruitNames();
+
+  function updateField(field, value) {
     setFormData((currentData) => ({
       ...currentData,
       [field]: value,
     }));
-  };
+  }
 
   return (
     <>
       <div style={{ marginBottom: "15px" }}>
         <SmartSelect
-          label="Fruit *"
+          label="Fruit"
           value={fruitType}
-          options={OPTIONS.fruit ?? []}
+          options={fruitOptions}
           disabled={readOnly}
           onChange={(value) => updateField("fruitType", value)}
         />

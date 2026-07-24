@@ -68,6 +68,69 @@ function validateReadingEntry(data = {}) {
   return errors;
 }
 
+function validateStepsEntry(data = {}) {
+  const errors = [];
+
+  const steps = Number(data.steps);
+
+  if (!Number.isFinite(steps)) {
+    errors.push("Steps must be a valid number.");
+
+    return errors;
+  }
+
+  if (!Number.isInteger(steps)) {
+    errors.push("Steps must be a whole number.");
+  }
+
+  if (steps < 1) {
+    errors.push("Steps must be at least 1.");
+  }
+
+  return errors;
+}
+
+function validateCardioEntry(data = {}) {
+  const errors = [...validateDuration(data, "Cardio duration")];
+
+  if (typeof data.activity !== "string" || !data.activity.trim()) {
+    errors.push("Activity is required.");
+  }
+
+  const customActivity =
+    data.source === "custom" || Boolean(data.activityDefinition);
+
+  if (customActivity) {
+    if (!data.activityDefinition?.cardioType?.trim()) {
+      errors.push("Cardio type is required.");
+    }
+
+    if (!data.activityDefinition?.environment?.trim()) {
+      errors.push("Cardio environment is required.");
+    }
+
+    if (!data.activityDefinition?.equipment?.trim()) {
+      errors.push("Cardio equipment is required.");
+    }
+  }
+
+  if (
+    data.distance !== "" &&
+    data.distance !== undefined &&
+    data.distance !== null
+  ) {
+    const distance = Number(data.distance);
+
+    if (!Number.isFinite(distance)) {
+      errors.push("Distance must be a valid number.");
+    } else if (distance <= 0) {
+      errors.push("Distance must be greater than 0.");
+    }
+  }
+
+  return errors;
+}
+
 export function validateSimpleEntry(category, data = {}) {
   if (category.id === "reading") {
     return [...new Set(validateReadingEntry(data))];
@@ -80,11 +143,24 @@ export function validateSimpleEntry(category, data = {}) {
   }
 
   if (category.id === "cardio") {
-    errors.push(...validateDuration(data, "Cardio duration"));
+    return [...new Set(validateCardioEntry(data))];
   }
 
   if (category.id === "skill") {
     errors.push(...validateDuration(data, "Skill duration"));
+
+    const customSkill =
+      data.source === "custom" || Boolean(data.skillDefinition);
+
+    if (customSkill) {
+      if (!data.skillDefinition?.area?.trim()) {
+        errors.push("Skill area is required.");
+      }
+    }
+  }
+
+  if (category.id === "steps") {
+    return [...new Set(validateStepsEntry(data))];
   }
 
   for (const field of category.fields ?? []) {

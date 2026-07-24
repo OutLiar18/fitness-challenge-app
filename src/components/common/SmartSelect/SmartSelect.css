@@ -60,3 +60,28 @@
 .smart-select__option--active {
   background: #eef5ff;
 }
+
+.smart-select__group + .smart-select__group {
+  border-top: 1px solid #e5e7eb;
+}
+
+.smart-select__group-label {
+  padding: 10px 12px 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #6b7280;
+  background: #f8fafc;
+}
+
+.smart-select__group .smart-select__option {
+  padding-left: 18px;
+}
+
+.smart-select__empty {
+  padding: 12px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
