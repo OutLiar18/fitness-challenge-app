@@ -7,7 +7,7 @@ import {
   SKILL_TAG_OPTIONS,
 } from "../../constants/libraries/skillMetaDataLibrary";
 
-import { getSkillNames } from "../../services/skillLibraryService";
+import { getSkillNames } from "../../services/libraries/skillLibraryService";
 
 function createCustomSkillDefinition(name) {
   return {

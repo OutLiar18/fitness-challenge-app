@@ -1,4 +1,4 @@
-import { FRUIT_LIBRARY } from "../constants/libraries/fruitLibrary";
+import { FRUIT_LIBRARY } from "../../constants/libraries/fruitLibrary";
 
 export function getFruit(name) {
   return FRUIT_LIBRARY[name] || null;

@@ -1,4 +1,4 @@
-import { SKILL_LIBRARY } from "../constants/libraries/skillLibrary";
+import { SKILL_LIBRARY } from "../../constants/libraries/skillLibrary";
 
 export function getSkill(name) {
   return SKILL_LIBRARY[name] || null;

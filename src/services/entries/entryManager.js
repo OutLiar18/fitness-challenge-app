@@ -1,4 +1,4 @@
-import { saveLibraryItem } from "../libraryService";
+import { saveLibraryItem } from "../libraries/libraryService";
 import { getNextCategory } from "../challengeService";
 import { validateEntry } from "../validation";
 

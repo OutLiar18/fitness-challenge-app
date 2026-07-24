@@ -9,13 +9,13 @@ import {
   where,
 } from "firebase/firestore";
 
-import { db } from "../firebase";
+import { db } from "../../firebase";
 
 import {
   cleanLibraryText,
   createLibraryItemId,
   normalizeLibraryText,
-} from "../utils/libraryTextUtils";
+} from "../../utils/libraryTextUtils";
 
 function getLibraryCollection(userId) {
   return collection(db, "users", userId, "library");

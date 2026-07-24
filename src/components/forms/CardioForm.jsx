@@ -11,7 +11,7 @@ import {
 import {
   getCardioActivity,
   getGroupedCardioActivities,
-} from "../../services/cardioLibraryService";
+} from "../../services/libraries/cardioLibraryService";
 
 function createCustomActivityDefinition(name) {
   return {

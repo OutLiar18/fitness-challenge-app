@@ -1,4 +1,4 @@
-import { CARDIO_LIBRARY } from "../constants/libraries/cardioLibrary";
+import { CARDIO_LIBRARY } from "../../constants/libraries/cardioLibrary";
 
 export function getCardioActivity(name) {
   return CARDIO_LIBRARY[name] || null;

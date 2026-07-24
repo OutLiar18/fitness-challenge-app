@@ -1,4 +1,4 @@
-import { getFruitNames } from "../../services/fruitLibraryService";
+import { getFruitNames } from "../../services/libraries/fruitLibraryService";
 import SmartSelect from "../common/Selector/SmartSelect";
 
 export default function FruitForm({ formData, setFormData, readOnly = false }) {
