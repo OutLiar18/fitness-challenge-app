@@ -1,5 +1,5 @@
 import DurationPicker from "../common/DurationPicker";
-import SmartSelect from "../common/SmartSelect/SmartSelect";
+import SmartSelect from "../common/Selector/SmartSelect";
 
 import {
   CARDIO_GROUP_OPTIONS,

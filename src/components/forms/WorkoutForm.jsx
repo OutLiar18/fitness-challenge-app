@@ -1,11 +1,11 @@
-import MultiSelect from "../common/MultiSelect/MultiSelect";
+import MultiSelect from "../common/Selector/MultiSelect";
 import {
   EQUIPMENT_OPTIONS,
   MOVEMENT_PATTERN_OPTIONS,
   MUSCLE_OPTIONS,
   DIFFICULTY_OPTIONS,
 } from "../../constants/libraries/exerciseMetaDataLibrary";
-import SmartSelect from "../common/SmartSelect/SmartSelect";
+import SmartSelect from "../common/Selector/SmartSelect";
 
 import { getExercisesByCategory } from "../../services/exerciseOptionService";
 

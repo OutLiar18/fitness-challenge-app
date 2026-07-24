@@ -1,6 +1,6 @@
 import DurationPicker from "../common/DurationPicker";
-import MultiSelect from "../common/MultiSelect/MultiSelect";
-import SmartSelect from "../common/SmartSelect/SmartSelect";
+import MultiSelect from "../common/Selector/MultiSelect";
+import SmartSelect from "../common/Selector/SmartSelect";
 
 import {
   SKILL_AREA_OPTIONS,

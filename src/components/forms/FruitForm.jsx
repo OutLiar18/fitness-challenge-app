@@ -1,5 +1,5 @@
 import { getFruitNames } from "../../services/fruitLibraryService";
-import SmartSelect from "../common/SmartSelect/SmartSelect";
+import SmartSelect from "../common/Selector/SmartSelect";
 
 export default function FruitForm({ formData, setFormData, readOnly = false }) {
   const fruitType = formData.fruitType ?? "";
