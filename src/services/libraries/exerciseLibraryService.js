@@ -1,4 +1,4 @@
-import { EXERCISE_LIBRARY } from "../constants/libraries/exerciseLibrary";
+import { EXERCISE_LIBRARY } from "../../constants/libraries/exerciseLibrary";
 
 export function getExercise(name) {
   return EXERCISE_LIBRARY[name] || null;

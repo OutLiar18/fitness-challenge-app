@@ -7,12 +7,12 @@ import {
 } from "../../constants/libraries/exerciseMetaDataLibrary";
 import SmartSelect from "../common/Selector/SmartSelect";
 
-import { getExercisesByCategory } from "../../services/exerciseOptionService";
+import { getExercisesByCategory } from "../../services/libraries/exerciseOptionService";
 
 import {
   getExercise,
   isHoldExercise,
-} from "../../services/exerciseLibraryService";
+} from "../../services/libraries/exerciseLibraryService";
 
 function createEmptySet() {
   return {

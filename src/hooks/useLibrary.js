@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 
-import { subscribeToLibraryItems } from "../services/libraryService";
+import { subscribeToLibraryItems } from "../services/libraries/libraryService";
 import { normalizeLibraryText } from "../utils/libraryTextUtils";
+
+const EMPTY_ITEMS = [];
 
 function getItemPrimaryText(itemType, item) {
   if (itemType === "books") {
@@ -19,49 +21,63 @@ function getSearchableText(itemType, item) {
   return getItemPrimaryText(itemType, item);
 }
 
+function createLibraryKey(userId, itemType) {
+  if (!userId || !itemType) {
+    return "";
+  }
+
+  return `${userId}:${itemType}`;
+}
+
 export default function useLibrary({ userId, itemType, searchText = "" }) {
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(Boolean(userId && itemType));
-  const [error, setError] = useState("");
+  const libraryKey = createLibraryKey(userId, itemType);
+
+  const [libraryState, setLibraryState] = useState({
+    key: "",
+    items: EMPTY_ITEMS,
+    error: "",
+  });
 
   useEffect(() => {
-    if (!userId || !itemType) {
-
-      setItems([]);
-      setLoading(false);
-      setError("");
-
+    if (!libraryKey) {
       return undefined;
     }
 
-    setLoading(true);
-    setError("");
-
-    const unsubscribe = subscribeToLibraryItems(
+    return subscribeToLibraryItems(
       userId,
       itemType,
       (libraryItems) => {
-
-        setItems(libraryItems);
-        setLoading(false);
-        setError("");
+        setLibraryState({
+          key: libraryKey,
+          items: libraryItems,
+          error: "",
+        });
       },
       (subscriptionError) => {
         console.error("❌ Library subscription error:", subscriptionError);
 
-        setItems([]);
-        setLoading(false);
-
-        setError(
-          subscriptionError instanceof Error
-            ? subscriptionError.message
-            : "Unable to load your library.",
-        );
+        setLibraryState({
+          key: libraryKey,
+          items: EMPTY_ITEMS,
+          error:
+            subscriptionError instanceof Error
+              ? subscriptionError.message
+              : "Unable to load your library.",
+        });
       },
     );
+  }, [userId, itemType, libraryKey]);
 
-    return unsubscribe;
-  }, [userId, itemType]);
+  const hasLibrary = Boolean(libraryKey);
+
+  const stateMatchesLibrary = libraryState.key === libraryKey;
+
+  const items =
+    hasLibrary && stateMatchesLibrary ? libraryState.items : EMPTY_ITEMS;
+
+  const loading = hasLibrary && !stateMatchesLibrary;
+
+  const error = hasLibrary && stateMatchesLibrary ? libraryState.error : "";
 
   const matchingItems = useMemo(() => {
     const normalizedSearch = normalizeLibraryText(searchText);

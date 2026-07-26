@@ -1,4 +1,4 @@
-import { EXERCISE_LIBRARY } from "../constants/libraries/exerciseLibrary";
+import { EXERCISE_LIBRARY } from "../../constants/libraries/exerciseLibrary";
 
 export function getExercisesByCategory(category) {
   return Object.values(EXERCISE_LIBRARY)

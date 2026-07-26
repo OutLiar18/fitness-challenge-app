@@ -1,5 +1,4 @@
-import SearchSelect from "../SearchSelect/SearchSelect";
-
+import SearchSelect from "./SearchSelect";
 import useLibrary from "../../../hooks/useLibrary";
 
 export default function LibrarySelect({

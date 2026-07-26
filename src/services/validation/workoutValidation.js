@@ -1,4 +1,4 @@
-import { getExercise, isHoldExercise } from "../exerciseLibraryService";
+import { getExercise, isHoldExercise } from "../libraries/exerciseLibraryService";
 
 function isCustomExercise(exercise) {
   return exercise?.source === "custom" || Boolean(exercise?.exerciseDefinition);

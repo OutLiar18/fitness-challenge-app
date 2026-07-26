@@ -1,8 +1,8 @@
-import { WORKOUT_POINTS } from "../../constants/workoutPoints";
+import { WORKOUT_POINTS } from "../../constants/points/workoutPoints";
 import {
   getExercise,
   isHoldExercise,
-} from "../exerciseLibraryService";
+} from "../libraries/exerciseLibraryService";
 
 import { getScoreFromTable } from "./utils";
 

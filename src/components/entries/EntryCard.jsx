@@ -1,6 +1,6 @@
 import { getCategory } from "../../utils/categoryHelpers";
 import { getUnit } from "../../utils/units";
-import { calculateEntryPoints } from "../../services/points";
+import { getEntryPointBreakdown } from "../../services/points";
 
 const WORKOUT_CATEGORIES = new Set(["upperBody", "lowerBody", "core"]);
 
@@ -287,7 +287,7 @@ export default function EntryCard({ entry, onDelete, readOnly = false }) {
     return null;
   }
 
-  const points = calculateEntryPoints(entry);
+  const pointBreakdown = getEntryPointBreakdown(entry);
 
   const isWorkout = WORKOUT_CATEGORIES.has(entry.category);
 
@@ -328,10 +328,54 @@ export default function EntryCard({ entry, onDelete, readOnly = false }) {
 
       <hr />
 
-      <p>
-        <strong>⭐ Points:</strong>{" "}
-        {Number.isFinite(Number(points)) ? points : 0}
-      </p>
+      <div>
+        <strong>⭐ Points</strong>
+
+        <div
+          style={{
+            marginTop: "10px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "6px",
+          }}
+        >
+          {pointBreakdown.breakdown.map((item) => (
+            <div
+              key={item.id}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <span>
+                {item.emoji} {item.label}
+              </span>
+
+              <strong>+{item.points}</strong>
+            </div>
+          ))}
+
+          <hr
+            style={{
+              margin: "6px 0",
+            }}
+          />
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              fontWeight: "bold",
+              fontSize: "1.05rem",
+            }}
+          >
+            <span>Total</span>
+
+            <span>+{pointBreakdown.total}</span>
+          </div>
+        </div>
+      </div>
 
       {!readOnly && (
         <button type="button" onClick={() => onDelete?.(entry.id)}>

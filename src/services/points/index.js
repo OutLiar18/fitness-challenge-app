@@ -1,5 +1,6 @@
 import { calculateCategoryPoints } from "./categoryPoints";
 import { calculateWorkoutPoints } from "./workoutPoints";
+export { getEntryPointBreakdown } from "./pointBreakdown";
 
 const WORKOUT_CATEGORIES = new Set([
   "upperBody",

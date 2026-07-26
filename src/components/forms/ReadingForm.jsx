@@ -1,5 +1,5 @@
 import DurationPicker from "../common/DurationPicker";
-import LibrarySelect from "../common/LibrarySelect/LibrarySelect";
+import LibrarySelect from "../common/Selector/LibrarySelect";
 
 export default function ReadingForm({
   userId,

@@ -1,4 +1,4 @@
-import { CATEGORY_SCORING } from "../../constants/categoryScoring";
+import { CATEGORY_SCORING } from "../../constants/points/categoryScoring";
 import { DIFFICULTY } from "../../constants/libraries/difficulty";
 import { getScoreFromTable } from "./utils";
 

@@ -1,5 +1,5 @@
-import { POINTS } from "../../constants/points";
-import { DIFFICULTY } from "../../constants/libraries/difficulty";
+import { POINTS } from "./points";
+import { DIFFICULTY } from "../libraries/difficulty";
 
 import { getCardioActivity } from "../cardioLibraryService";
 import { getScoreFromTable } from "./utils";
