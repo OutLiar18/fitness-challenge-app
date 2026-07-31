@@ -4,6 +4,12 @@
 
 ---
 
+# Progression Components — v0.6.0
+
+`ProgressionCard` displays the summary returned by the progression service. `DailyGoals` and `DailyProgress` display bonus values already attached by the goal service. Components must not calculate streaks, XP, levels or completion rewards.
+
+---
+
 # Purpose
 
 This document defines the architectural responsibilities of React components within Champions Legacy.

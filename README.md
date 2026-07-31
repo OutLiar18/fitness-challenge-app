@@ -1,86 +1,69 @@
 # Champions Legacy
 
-Champions Legacy is a React and Firebase application that turns consistent daily actions into visible progress. It currently tracks water, fruit, reading, running, strength workouts, cardio, skill development and steps.
+Champions Legacy is a configuration-driven personal-development platform built with React, Vite, Firebase Authentication and Cloud Firestore.
 
-## Current release
+Current version: **0.6.0**
 
-**v0.5.0 — Platform Stabilisation**
+## Current capabilities
 
-This release consolidates the app around a configuration-driven category model, a single explainable points engine, accessible selectors, local-date-safe journal navigation and clear Firestore service boundaries.
-
-## Core features
-
-- Firebase Authentication with protected routes and user profiles.
-- Real-time Firestore challenge entries.
-- Ten configurable challenge categories.
-- Searchable global libraries and a user-owned reading library.
-- Dynamic workout sets with repetition and timed-hold exercises.
-- Effective-repetition and difficulty-based workout scoring.
-- Running points plus an intentional Cardio bonus from one stored entry.
-- Daily goals, total statistics, top categories and date-based journal history.
-- Responsive light/dark UI with keyboard and screen-reader support.
-- Custom exercise, cardio and skill suggestions for later moderation.
+- Email/password authentication and protected routes.
+- Ten factual activity categories.
+- Real-time Firestore journal entries.
+- Local-calendar-safe date navigation.
+- Points Engine v2 with Effective Repetitions and moderate difficulty multipliers.
+- Running/Cardio cross-category scoring and statistics.
+- Daily and weekly goal dashboards.
+- Moderate goal-completion and mission bonus points.
+- Forgiving consistency streaks with an earned streak shield.
+- Personal XP, levels, titles, streak milestones and achievements.
+- Responsive light/dark interface and keyboard-accessible selectors.
 
 ## Local setup
 
-1. Install Node.js 20 or newer.
-2. Run `npm install`.
-3. Copy `.env.example` to `.env`.
-4. Add the Firebase web configuration values from your Firebase project.
-5. Run `npm run dev`.
-
-```bash
+```powershell
 npm install
-cp .env.example .env
+Copy-Item .env.example .env
+npm run check
 npm run dev
 ```
 
-On Windows, copy the environment file manually instead of using `cp`.
+Restore the real Firebase values inside `.env`. Never commit `.env`.
 
-## Firebase setup
+## Quality commands
 
-Enable **Email/Password Authentication** and create a **Cloud Firestore** database. Deploy the included rules before using real accounts:
-
-```bash
-firebase deploy --only firestore:rules
-```
-
-The rules enforce owner-only access to profiles, personal libraries and challenge entries. Suggestions can be created and read by their submitter but cannot be self-approved.
-
-## Quality checks
-
-```bash
+```powershell
 npm run lint
 npm test
 npm run build
+npm run check
+npm audit
 ```
 
-`npm run check` runs linting, domain tests and the production build.
+Do not run `npm audit fix --force` without reviewing dependency consequences.
+
+## Firebase rules
+
+```powershell
+npx firebase-tools deploy --only firestore:rules --project fitnesschallengeapp-9e87f
+```
+
+Rules must be deployed deliberately because CLI deployment replaces the active rules for the selected project.
 
 ## Architecture
 
 ```text
-src/
-├── components/       Reusable interface components
-├── constants/        Categories, libraries and balancing configuration
-├── context/          Authentication context
-├── hooks/            Reusable React state and subscriptions
-├── pages/            Route-level screens
-├── services/         Auth, entries, libraries, points, statistics and validation
-└── utils/            Pure formatting and lookup helpers
+Configuration
+    ↓
+Pure domain services
+(points, goals, progression, statistics, validation, dates)
+    ↓
+Repositories and orchestration
+    ↓
+Hooks and components
+    ↓
+Pages
 ```
 
-Firestore stores user-entered facts. Points, goals and statistics are derived by services so future balancing changes do not require rewriting historical entries.
+Firestore stores factual user activity. Points, goal progress, streaks, XP, levels and achievements are derived centrally from those facts.
 
-## Important project files
-
-- `docs/01_CURRENT_DEVELOPMENT/CURRENT_STATE.md`
-- `docs/01_CURRENT_DEVELOPMENT/ROADMAP.md`
-- `docs/02_GAME_DESIGN/POINTS_SYSTEM.md`
-- `docs/03_ARCHITECTURE/ARCHITECTURE_OVERVIEW.md`
-- `docs/05_DESIGN/DESIGN_LANGUAGE.md`
-- `OPTIMIZATION_SUMMARY.md`
-
-## Deployment
-
-The included `public/_redirects` file supports client-side routing on Netlify. Any static host must redirect unknown routes to `index.html`.
+Read `docs/06_CHAT_HANDOVER/CHAT_BRIEFING.md`, `docs/06_CHAT_HANDOVER/RECENT_SESSION_SUMMARY.md`, and `docs/01_CURRENT_DEVELOPMENT/NEXT_SESSION.md` before continuing development.

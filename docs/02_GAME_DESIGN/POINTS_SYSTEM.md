@@ -6,6 +6,26 @@ Version: 3.0
 
 ---
 
+# Current Implemented Bonus Points — v0.6.0
+
+Goal and streak bonuses are derived once from factual entries. They are included in Total Points but are not attributed to Top Categories.
+
+| Event | Points |
+|-------|-------:|
+| Complete one daily goal | 1 |
+| Complete all daily goals | 3 additional |
+| Complete one weekly goal | 2 |
+| Complete all weekly goals | 8 additional |
+| Reach a streak milestone | 1–75 once per lifetime threshold |
+
+Streak milestone values are defined in `src/constants/progression.js`. They remain small compared with sustained activity scoring.
+
+Running earns Running points only when distance is at least 3 km and average pace is 11:00/km or faster. Every saved run still receives its normal Cardio contribution and remains part of factual Running statistics.
+
+Activity points, goal bonuses and streak bonuses are calculated by separate services and combined only in the total score summary. XP is not Points and is never added to competitive totals.
+
+---
+
 # Purpose
 
 The Points System defines how Champions Legacy recognises meaningful effort.
@@ -38,7 +58,7 @@ It should be read alongside:
 - LEAGUE_SYSTEM.md
 - ACHIEVEMENTS_AND_REWARDS.md
 - CONFIGURATION_SYSTEM.md
-- CATEGORY_CONFIGURATIONS.md
+- CATEGORY_CONFIGURATION.md
 
 Responsibilities remain intentionally separated.
 
@@ -480,7 +500,7 @@ Typical configuration may include:
 
 The exact configuration structure is defined separately within:
 
-**CATEGORY_CONFIGURATIONS.md**
+**CATEGORY_CONFIGURATION.md**
 
 This separation allows balancing changes without modifying the core Points System.
 
@@ -864,7 +884,7 @@ Typical properties include:
 
 The exact configuration format is defined separately within:
 
-**CATEGORY_CONFIGURATIONS.md**
+**CATEGORY_CONFIGURATION.md**
 
 The Points System consumes this configuration rather than defining it.
 
@@ -1144,7 +1164,7 @@ The following examples demonstrate how the scoring engine behaves conceptually.
 
 Exact balancing values are defined separately within:
 
-**CATEGORY_CONFIGURATIONS.md**
+**CATEGORY_CONFIGURATION.md**
 
 ---
 

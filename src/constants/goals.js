@@ -1,3 +1,5 @@
+export const GOAL_RULESET_VERSION = "2026-07-v1";
+
 export const GOAL_PERIODS = Object.freeze({
   DAILY: "daily",
   WEEKLY: "weekly",
@@ -12,10 +14,7 @@ export const GOAL_CONFIGURATIONS = [
     selectCategoryId: "water",
     metric: "categoryTotal",
     unit: "ml",
-    targets: {
-      daily: 2000,
-      weekly: 15000,
-    },
+    targets: { daily: 2000, weekly: 15000 },
   },
   {
     id: "fruit",
@@ -25,10 +24,7 @@ export const GOAL_CONFIGURATIONS = [
     selectCategoryId: "fruit",
     metric: "categoryTotal",
     unit: "servings",
-    targets: {
-      daily: 3,
-      weekly: 21,
-    },
+    targets: { daily: 3, weekly: 21 },
   },
   {
     id: "reading",
@@ -38,10 +34,7 @@ export const GOAL_CONFIGURATIONS = [
     selectCategoryId: "reading",
     metric: "categoryTotal",
     unit: "min",
-    targets: {
-      daily: 60,
-      weekly: 450,
-    },
+    targets: { daily: 60, weekly: 450 },
   },
   {
     id: "running",
@@ -51,12 +44,8 @@ export const GOAL_CONFIGURATIONS = [
     selectCategoryId: "running",
     metric: "categoryTotal",
     unit: "km",
-    targets: {
-      weekly: 5,
-    },
-    minimumEntries: {
-      weekly: 1,
-    },
+    targets: { weekly: 5 },
+    minimumEntries: { weekly: 1 },
   },
   {
     id: "upperBody",
@@ -66,10 +55,7 @@ export const GOAL_CONFIGURATIONS = [
     selectCategoryId: "upperBody",
     metric: "effectiveReps",
     unit: "effective reps",
-    targets: {
-      daily: 50,
-      weekly: 400,
-    },
+    targets: { daily: 50, weekly: 400 },
   },
   {
     id: "lowerBody",
@@ -79,10 +65,7 @@ export const GOAL_CONFIGURATIONS = [
     selectCategoryId: "lowerBody",
     metric: "effectiveReps",
     unit: "effective reps",
-    targets: {
-      daily: 50,
-      weekly: 400,
-    },
+    targets: { daily: 50, weekly: 400 },
   },
   {
     id: "core",
@@ -92,10 +75,7 @@ export const GOAL_CONFIGURATIONS = [
     selectCategoryId: "core",
     metric: "effectiveReps",
     unit: "effective reps",
-    targets: {
-      daily: 50,
-      weekly: 400,
-    },
+    targets: { daily: 50, weekly: 400 },
   },
   {
     id: "cardio",
@@ -105,10 +85,7 @@ export const GOAL_CONFIGURATIONS = [
     selectCategoryId: "cardio",
     metric: "categoryTotal",
     unit: "min",
-    targets: {
-      daily: 15,
-      weekly: 150,
-    },
+    targets: { daily: 15, weekly: 150 },
   },
   {
     id: "skill",
@@ -118,10 +95,7 @@ export const GOAL_CONFIGURATIONS = [
     selectCategoryId: "skill",
     metric: "categoryTotal",
     unit: "min",
-    targets: {
-      daily: 15,
-      weekly: 150,
-    },
+    targets: { daily: 15, weekly: 150 },
   },
   {
     id: "steps",
@@ -131,9 +105,6 @@ export const GOAL_CONFIGURATIONS = [
     selectCategoryId: "steps",
     metric: "categoryTotal",
     unit: "steps",
-    targets: {
-      daily: 10000,
-      weekly: 90000,
-    },
+    targets: { daily: 10000, weekly: 90000 },
   },
 ];

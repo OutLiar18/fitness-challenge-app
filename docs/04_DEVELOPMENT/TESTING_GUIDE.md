@@ -38,9 +38,9 @@ Testing should:
 
 # Types of Testing
 
-Champions Legacy currently focuses primarily on manual testing.
+Champions Legacy uses both automated domain tests and focused manual testing.
 
-Future versions may introduce automated testing where appropriate.
+The automated suite protects scoring, goals, local dates, streaks, bonuses, XP and progression. Manual testing remains required for Firebase integration, security rules, responsive behaviour and complete user flows.
 
 ---
 
@@ -178,14 +178,13 @@ Before considering a feature complete:
 
 # Future Expansion
 
-Future versions may introduce:
+Future testing improvements may include:
 
-- Unit testing
-- Integration testing
-- End-to-end testing
-- Automated regression testing
-- Performance benchmarking
-- Continuous Integration pipelines
+- Broader unit and integration coverage.
+- Firestore Rules emulator tests.
+- End-to-end browser testing.
+- Performance benchmarking.
+- Continuous Integration pipelines.
 
 These should complement rather than replace thoughtful manual testing.
 
@@ -227,3 +226,14 @@ Testing simply confirms whether quality was built into the feature from the begi
 ---
 
 # End of Document
+---
+
+# v0.6 Domain Suite
+
+`npm test` runs three explicit suites:
+
+- `tests/domain.test.mjs` — scoring, Running/Cardio, workouts, validation and dates.
+- `tests/goals.test.mjs` — daily/weekly goals and local week boundaries.
+- `tests/progression.test.mjs` — bonus points, streak shields, milestones, XP, levels and achievements.
+
+The current suite contains 17 tests. Every progression defect must receive a regression test before closure.

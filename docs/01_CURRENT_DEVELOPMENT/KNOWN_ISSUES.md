@@ -1,56 +1,34 @@
 # Champions Legacy — Known Issues
 
-Last updated: 30 July 2026
+Last updated: 31 July 2026
 
-This file contains active problems and release risks only. Future features belong in the Roadmap.
+## Open
 
-## Release blockers
+### React Router audit advisory
 
-### Manual Firebase QA is outstanding
+`npm audit` reports the React Router RSC CSRF advisory for the installed 7.x range. Champions Legacy uses client-side browser routing and does not use React Server Components mode. Do not apply the suggested forced downgrade. Reassess when a non-breaking patched release is available.
 
-The complete create/read/delete flow, personal library updates and suggestion writes must be tested against the intended Firebase development project after installing dependencies on the target computer.
+### Large production bundle
 
-### Firestore rules require deployment
+The Vite build reports a JavaScript chunk above 500 kB. This is not a functional blocker. Add route-level code splitting when more routes are introduced rather than hiding the warning.
 
-`firestore.rules` is included but local source files do not protect a remote database until the rules are deployed.
+### Full-history progression calculation
 
-### Automated coverage is intentionally limited
+Streaks, bonuses, XP and achievements are derived from the user's complete subscribed entry history. This is correct at current scale but must be paired with historical aggregation before paginating entries.
 
-Six domain smoke tests protect the highest-risk scoring, statistics, validation and date behaviours. Component, repository and Firebase emulator tests are not yet configured.
+### Ruleset history
 
-## Active product limitations
+Changing current goal or progression configuration still recalculates historical derived values. Events expose ruleset identifiers, but leagues require immutable persisted snapshots before results can be frozen.
 
-### Suggestions cannot yet be moderated
+### Dedicated progression views
 
-Custom Exercise, Cardio and Skill suggestions are persisted with `pending` status, but no administrator review interface exists.
+The dashboard shows the progression summary, but full achievement browsing, category mastery, detailed milestones and personal-record history still need dedicated routes.
 
-### Entries cannot be edited
+## Closed in v0.6.0
 
-A user can create and delete eligible entries. Editing a saved entry is intentionally deferred until audit and recalculation behaviour is designed.
-
-### Historical access is basic
-
-The journal supports daily navigation and a date picker, but not a month calendar, search or filters.
-
-## Maintainability watchlist
-
-### Exercise library size
-
-The exercise configuration is intentionally centralised but large. It should eventually be split by category with a generated combined export, without changing its public service API.
-
-### No pagination yet
-
-The current real-time entry subscription loads all entries for a user. This is acceptable for early testing but should be replaced by paginated history queries before long-term production use.
-
-## Recently resolved
-
-- Running/Cardio point breakdown duplication.
-- Missing cross-category Cardio statistics.
-- Legacy Upper Body exercise scoring metadata.
-- Custom exercise scoring.
-- Duplicate exercise option service.
-- Journal date timezone drift.
-- Read-only history delete controls.
-- Selector folder/import migration.
-- Invalid nested interactive selector controls.
-- Missing custom Cardio validation.
+- Workout goals counting entries instead of Effective Repetitions.
+- Running points awarded below 3 km or slower than 11:00/km.
+- Missing daily/weekly goal separation.
+- Missing goal-completion bonus points.
+- Missing streak recovery behaviour.
+- Duplicate/obsolete service files with broken imports.

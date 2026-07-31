@@ -1,5 +1,6 @@
 import {
-  addDays,
+  getWeekEnd,
+  getWeekStart,
   isSameDay,
   normalizeChallengeDate,
   toDate,
@@ -14,7 +15,6 @@ export function getEntriesForDate(entries = [], selectedDate) {
 
   return entries.filter((entry) => {
     const entryDate = toDate(entry.challengeDate);
-
     return entryDate ? isSameDay(entryDate, validSelectedDate) : false;
   });
 }
@@ -24,16 +24,8 @@ export function getTodayEntries(entries = [], referenceDate = new Date()) {
 }
 
 export function getEntriesForWeek(entries = [], referenceDate = new Date()) {
-  const reference = normalizeChallengeDate(referenceDate);
-
-  if (!reference) {
-    return [];
-  }
-
-  // Monday = start of the local calendar week.
-  const daysSinceMonday = (reference.getDay() + 6) % 7;
-  const start = addDays(reference, -daysSinceMonday);
-  const end = addDays(start, 6);
+  const start = getWeekStart(referenceDate);
+  const end = getWeekEnd(referenceDate);
 
   if (!start || !end) {
     return [];
@@ -43,6 +35,19 @@ export function getEntriesForWeek(entries = [], referenceDate = new Date()) {
     const entryDate = normalizeChallengeDate(entry.challengeDate);
 
     return Boolean(entryDate && entryDate >= start && entryDate <= end);
+  });
+}
+
+export function getEntriesOnOrBefore(entries = [], referenceDate = new Date()) {
+  const end = normalizeChallengeDate(referenceDate);
+
+  if (!end) {
+    return [];
+  }
+
+  return entries.filter((entry) => {
+    const entryDate = normalizeChallengeDate(entry.challengeDate);
+    return Boolean(entryDate && entryDate <= end);
   });
 }
 

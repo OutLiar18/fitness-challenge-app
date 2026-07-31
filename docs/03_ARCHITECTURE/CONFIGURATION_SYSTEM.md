@@ -4,6 +4,12 @@
 
 ---
 
+# Implemented Goal and Progression Configuration — v0.6.0
+
+Goals no longer live inside category configuration. `src/constants/goals.js` is the single source for period targets, while `src/constants/progression.js` defines bonus points, streak milestones, XP rewards and level titles. This prevents category UI configuration from conflicting with progression balancing.
+
+---
+
 # Purpose
 
 This document defines the configuration-driven architecture used throughout Champions Legacy.

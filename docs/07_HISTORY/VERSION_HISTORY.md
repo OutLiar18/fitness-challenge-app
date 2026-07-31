@@ -6,6 +6,16 @@ Version: 2.0
 
 ---
 
+# Recorded Releases
+
+| Version | Date | Milestone |
+|---------|------|-----------|
+| 0.6.0 | 31 July 2026 | Personal progression, goals, bonuses, streaks, XP and achievements |
+| 0.5.1 | 30 July 2026 | Authentication hotfix and release stabilisation |
+| 0.5.0 | 30 July 2026 | Core tracking platform stabilised |
+
+---
+
 # Purpose
 
 Version History defines the versioning strategy used throughout Champions Legacy.

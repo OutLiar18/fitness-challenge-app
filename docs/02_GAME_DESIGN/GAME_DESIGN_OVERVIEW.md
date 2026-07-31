@@ -4,6 +4,12 @@
 
 ---
 
+# Implemented Personal Progression — v0.6.0
+
+Daily/weekly goals, moderate completion bonuses, forgiving streaks, personal XP, levels, titles and starter achievements now operate from one factual activity history. Points remain competitive; XP remains personal.
+
+---
+
 # Purpose
 
 This document provides a high-level overview of the game design philosophy behind Champions Legacy.

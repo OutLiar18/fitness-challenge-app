@@ -4,6 +4,21 @@
 
 ---
 
+# Implemented Progression Services — v0.6.0
+
+`src/services/progression/` contains:
+
+- `goalBonusService` — derives first completion events for daily and weekly goals.
+- `streakService` — derives current/longest streaks, shields and lifetime milestone events.
+- `pointBonusService` — combines goal and streak bonus points.
+- `xpService` — derives participation XP, goal XP, streak XP, levels and titles.
+- `achievementService` — evaluates configured starter achievements.
+- `progressionService` — provides the dashboard summary.
+
+These services are pure domain logic. They do not import React or Firestore.
+
+---
+
 # Purpose
 
 This document defines the responsibilities and interactions of the service layer within Champions Legacy.

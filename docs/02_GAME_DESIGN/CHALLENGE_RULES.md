@@ -2,7 +2,64 @@
 
 # Challenge Rules
 
-Version: 2.0
+Version: 3.0
+
+---
+
+# Current Goal and Running Rules — v0.6.0
+
+## Daily Goals
+
+| Category | Daily Goal |
+|----------|-----------:|
+| Water | 2,000 ml |
+| Fruit | 3 servings |
+| Reading | 60 minutes |
+| Upper Body | 50 Effective Repetitions |
+| Lower Body | 50 Effective Repetitions |
+| Core | 50 Effective Repetitions |
+| Cardio | 15 minutes |
+| Skill Development | 15 minutes |
+| Steps | 10,000 |
+
+Running intentionally has no daily goal.
+
+## Weekly Goals
+
+Weeks run from Monday through Sunday using the player's local calendar date.
+
+| Category | Weekly Goal |
+|----------|------------:|
+| Water | 15,000 ml |
+| Fruit | 21 servings |
+| Reading | 450 minutes |
+| Running | 5 km and at least one run |
+| Upper Body | 400 Effective Repetitions |
+| Lower Body | 400 Effective Repetitions |
+| Core | 400 Effective Repetitions |
+| Cardio | 150 minutes |
+| Skill Development | 150 minutes |
+| Steps | 90,000 |
+
+Running duration contributes to Cardio daily and weekly totals. One Running activity creates one Firestore entry.
+
+## Running Point Eligibility
+
+A saved run earns Running points only when both conditions are met:
+
+- Distance is at least 3 km.
+- Average pace is 11:00 per kilometre or faster.
+
+A run that fails either condition is still recorded, still contributes distance to Running statistics, and still contributes duration and points to Cardio.
+
+## Goal Completion Bonuses
+
+- Daily goal: +1 point.
+- Perfect day: +3 additional points.
+- Weekly goal: +2 points.
+- Perfect week: +8 additional points.
+
+Bonuses must remain moderate and transparent.
 
 ---
 
@@ -946,26 +1003,20 @@ Examples of systems defined elsewhere include:
 
 # Streaks
 
-## Current Rule
+A streak represents consecutive local calendar days of successful participation.
 
-Streaks are not yet active within the platform.
+A successful day requires at least one completed daily goal. Recording an activity that does not complete any daily goal does not advance the streak.
 
----
+Implemented recovery rules:
 
-## Planned Behaviour
+- One shield is earned after seven successful streak days.
+- A player may bank a maximum of one shield.
+- One missed day automatically consumes the shield and preserves the streak.
+- A protected missed day does not increase the streak count.
+- An unprotected missed day resets the current streak.
+- The current day remains pending while the player still has time to complete a goal.
 
-A streak represents consecutive days of successful participation.
-
-Unless otherwise specified by league rules, a successful day is one in which at least one category reaches its daily goal.
-
-Future versions may introduce:
-
-- Grace days
-- Freeze tokens
-- Recovery mechanics
-- League-specific streak rules
-
-The complete implementation will be documented within the Progression System.
+Streak milestone points and XP are defined in `PROGRESSION_SYSTEM.md` and centrally configured in `src/constants/progression.js`.
 
 ---
 

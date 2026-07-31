@@ -1,74 +1,51 @@
 # Champions Legacy — Next Session
 
-## Objective
-
-Release-readiness QA for v0.5.0.
+Version target: 0.6.0
+Objective: Verify and release the Personal Progression Foundation
 
 ## Required sequence
 
-1. Delete the old `node_modules` folder on the target computer.
-2. Run `npm install`.
-3. Copy `.env.example` to `.env` and restore Firebase values.
-4. Run `npm run lint` and `npm run build`.
-5. Run `npm test` and confirm all domain tests pass.
-6. Deploy `firestore.rules` to the development Firebase project.
-7. Run the manual test checklist below.
+1. Back up `.env` and confirm it remains ignored.
+2. Delete `node_modules`.
+3. Run `npm install`.
+4. Run `npm run check`.
+5. Run `npm audit` and do not use `--force`.
+6. Start the app with `npm run dev`.
 
-## Manual test checklist
+## Focused manual checks
 
-### Authentication
+### Goals and bonuses
 
-- Register a new account.
-- Confirm the user profile document is created.
-- Sign out and sign back in.
-- Verify protected-route redirects.
-
-### Every category
-
-- Save one valid entry.
-- Confirm invalid entries show useful errors.
-- Confirm the journal updates in real time.
-- Confirm daily goals and statistics update correctly.
-- Delete today’s entry.
+- Daily tab shows nine goals and excludes Running.
+- Weekly tab shows ten goals and uses Monday–Sunday.
+- Upper Body, Lower Body and Core progress independently.
+- Running duration contributes to Cardio.
+- Each completed daily goal shows +1 point.
+- A perfect day adds +3 additional points.
+- Each completed weekly goal shows +2 points.
+- A perfect week adds +8 additional points.
+- Total Points includes bonuses; Top Categories does not.
 
 ### Running
 
-Confirm one Running entry:
+- A run below 3 km receives zero Running points.
+- A run slower than 11:00/km receives zero Running points.
+- Both runs remain saved and still receive Cardio credit.
+- A qualifying run receives both Running and Cardio points from one document.
 
-- creates one Firestore document;
-- displays Running points;
-- displays Cardio Bonus points;
-- contributes distance to Running;
-- contributes duration to Cardio;
-- contributes points to both Top Categories totals.
+### Streak and progression
 
-### Workouts
+- Completing one daily goal starts/continues the streak.
+- An incomplete current day displays as pending rather than immediately breaking it.
+- Seven successful days earn one shield.
+- One missed day consumes the shield and preserves the streak.
+- A second unprotected miss breaks it.
+- XP, level progress, bonus totals and achievements update.
 
-- Test a repetition exercise.
-- Test a timed-hold exercise.
-- Test an older Upper Body library exercise.
-- Test a Tier 5 custom exercise.
-- Verify Effective Repetitions appear in the point detail.
+## After verification
 
-### Libraries and suggestions
-
-- Select an existing book.
-- Enter a new book and confirm personal library creation.
-- Submit a custom Exercise, Cardio activity and Skill.
-- Confirm suggestion documents are created with `pending` status.
-
-### Journal and dates
-
-- Navigate to yesterday and add/delete an entry.
-- Navigate to an older date and confirm read-only behaviour.
-- Confirm the date picker never shifts by one day.
-
-### Responsive/accessibility
-
-- Test keyboard-only selector use.
-- Test at 320 px, tablet width and desktop width.
-- Test light and dark operating-system themes.
-
-## After QA
-
-Fix only verified defects, expand the domain tests for each defect, record the release in `CHANGELOG.md`, then plan Streaks and XP.
+- Fix only reproducible defects.
+- Add a regression test for each defect.
+- Commit with: `feat: add personal progression and streaks`
+- Update release notes if behaviour changes during QA.
+- Tag `v0.6.0` only after `npm run check` passes locally.

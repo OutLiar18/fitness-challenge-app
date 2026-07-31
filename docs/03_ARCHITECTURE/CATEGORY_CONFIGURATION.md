@@ -1,358 +1,152 @@
 # Champions Legacy
 
-# Category Configurations
+# Category, Goal and Progression Configuration
 
-Version: 1.0
+Version: 4.0
+Implemented release: 0.6.0
 
 ---
 
 # Purpose
 
-This document defines the configurable values used by the Champions Legacy Points System.
+This document records the current balancing values consumed by the configuration-driven domain services.
 
-Unlike the Points System, which explains the philosophy and mechanics of scoring, this document contains the current balancing values used by the Scoring Engine.
+Authoritative implementation files:
 
-These values may change over time as the platform evolves.
+- `src/constants/categories.js` — category identity, forms and statistical contribution metadata.
+- `src/constants/goals.js` — daily and weekly goals.
+- `src/constants/points/` — activity point tables and workout scoring.
+- `src/constants/progression.js` — goal bonuses, streak milestones, XP and levels.
 
-Changes to this document should not require architectural changes to the scoring engine.
-
----
-
-# Relationship to Other Documentation
-
-This document should be read alongside:
-
-- POINTS_SYSTEM.md
-- CONFIGURATION_SYSTEM.md
-- LIBRARY_SYSTEM.md
-- CHALLENGE_RULES.md
-
-Responsibilities remain intentionally separated.
-
-| Document | Responsibility |
-|----------|----------------|
-| Points System | Explains how scoring works. |
-| Category Configurations | Defines current balancing values. |
-| Configuration System | Explains how configuration is consumed. |
-| Library System | Defines metadata libraries. |
-| Challenge Rules | Defines permitted activities. |
+Do not duplicate these values inside React components.
 
 ---
 
-# Configuration Philosophy
+# Daily and Weekly Goals
 
-Every activity category should be configurable rather than hardcoded.
+| Category | Daily | Weekly | Unit |
+|----------|------:|-------:|------|
+| Water | 2,000 | 15,000 | ml |
+| Fruit | 3 | 21 | servings |
+| Reading | 60 | 450 | minutes |
+| Running | — | 5 | km |
+| Upper Body | 50 | 400 | Effective Repetitions |
+| Lower Body | 50 | 400 | Effective Repetitions |
+| Core | 50 | 400 | Effective Repetitions |
+| Cardio | 15 | 150 | minutes |
+| Skill Development | 15 | 150 | minutes |
+| Steps | 10,000 | 90,000 | steps |
 
-Categories should define:
+Running's weekly goal also requires at least one Running entry. Weeks use local Monday–Sunday boundaries.
 
-- Identity
-- Display information
-- Scoring behaviour
-- Validation rules
-- XP rewards
-- Statistics behaviour
-
-The scoring engine interprets this configuration dynamically.
-
----
-
-# Standard Category Structure
-
-Every category should conceptually define:
-
-| Property | Purpose |
-|----------|---------|
-| id | Unique identifier |
-| displayName | Player-facing name |
-| unit | Measurement unit |
-| scoringModel | Quantity, Duration, Distance or Exercise |
-| dailyGoal | Target for daily completion |
-| pointProgression | Point calculation configuration |
-| xpProgression | XP calculation configuration |
-| validation | Accepted value limits |
-| statistics | Statistics behaviour |
-| supportsDifficulty | Whether difficulty applies |
-| visibility | UI visibility |
-
-Not every category requires every property.
+Running duration contributes to Cardio totals.
 
 ---
 
-# Quantity Categories
-
-## Water
-
-### General
+# Running Eligibility
 
 | Property | Value |
 |----------|-------|
-| ID | water |
-| Model | Quantity |
-| Unit | ml |
-| Daily Goal | 2000 ml |
+| Minimum distance for Running points | 3 km |
+| Slowest eligible pace | 11:00/km |
+| Ineligible run stored | Yes |
+| Ineligible run contributes Running distance | Yes |
+| Ineligible run contributes Cardio duration/points | Yes |
+| Firestore documents per run | One |
 
-### Validation
+---
+
+# Workout Difficulty
+
+Difficulty remains intentionally moderate.
+
+| Tier | Multiplier |
+|-----:|-----------:|
+| 1 | 1.00 |
+| 2 | 1.10 |
+| 3 | 1.20 |
+| 4 | 1.35 |
+| 5 | 1.50 |
+
+Workout goal progress and scoring use Effective Repetitions. Static holds are converted through centrally defined exercise metadata.
+
+---
+
+# Goal Bonus Points
+
+| Completion | Points |
+|------------|-------:|
+| Daily goal | 1 |
+| Daily mission | 3 |
+| Weekly goal | 2 |
+| Weekly mission | 8 |
+
+The mission bonus is additional to individual goal bonuses.
+
+---
+
+# Streak Configuration
 
 | Property | Value |
 |----------|-------|
-| Minimum | 0 ml |
-| Maximum Entry | TBD |
-| Negative Values | Not Allowed |
+| Successful day | At least one daily goal completed |
+| Shield earn interval | 7 successful days |
+| Maximum banked shields | 1 |
+| Protected missed day adds to streak | No |
+| Second unprotected miss | Resets current streak |
 
-### Statistics
+## Streak Milestones
 
-- Lifetime Water
-- Monthly Water
-- Daily Water
+| Days | Points | XP |
+|-----:|-------:|---:|
+| 3 | 1 | 5 |
+| 7 | 3 | 15 |
+| 14 | 5 | 25 |
+| 30 | 10 | 50 |
+| 60 | 15 | 75 |
+| 100 | 25 | 125 |
+| 180 | 40 | 200 |
+| 365 | 75 | 375 |
 
----
-
-## Fruit
-
-### General
-
-| Property | Value |
-|----------|-------|
-| ID | fruit |
-| Model | Quantity |
-| Unit | Servings |
-| Daily Goal | 3 |
-
-### Statistics
-
-- Lifetime Servings
-- Favourite Fruit
-- Daily Fruit
+Milestone rewards are earned only when Longest Streak first reaches the threshold.
 
 ---
 
-## Steps
+# XP Configuration
 
-### General
+| Event | XP |
+|-------|---:|
+| Unique category participation per day | 2 |
+| Daily goal | 5 |
+| Daily mission | 10 |
+| Weekly goal | 8 |
+| Weekly mission | 25 |
 
-| Property | Value |
-|----------|-------|
-| ID | steps |
-| Model | Quantity |
-| Unit | Steps |
-| Daily Goal | 10,000 |
+## Level Curve
 
-### Statistics
+- Level 1 → 2: 100 XP.
+- Each following level requires 25 more XP than the previous level.
+- Levels do not reset between challenges.
 
-- Lifetime Steps
-- Monthly Steps
-- Longest Walking Day
+## Titles
 
----
-
-# Duration Categories
-
-## Reading
-
-### General
-
-| Property | Value |
-|----------|-------|
-| ID | reading |
-| Model | Duration |
-| Unit | Minutes |
-| Daily Goal | 30 |
+| Minimum Level | Title |
+|--------------:|-------|
+| 1 | Beginning the Journey |
+| 5 | Building Momentum |
+| 10 | Dedicated |
+| 20 | Champion |
+| 35 | Legacy Builder |
+| 50 | Living Legend |
 
 ---
 
-## Skill Development
-
-### General
-
-| Property | Value |
-|----------|-------|
-| ID | skill |
-| Model | Duration |
-| Unit | Minutes |
-| Daily Goal | 30 |
-
----
-
-## Cardio
-
-### General
-
-| Property | Value |
-|----------|-------|
-| ID | cardio |
-| Model | Duration |
-| Unit | Minutes |
-| Daily Goal | 30 |
-
-Supports Difficulty:
-
-✅ Yes
-
----
-
-# Distance Categories
-
-## Running
-
-### General
-
-| Property | Value |
-|----------|-------|
-| ID | running |
-| Model | Distance |
-| Unit | Kilometres |
-| Daily Goal | 5 km |
-
-Additional Statistics
-
-- Pace
-- Fastest Run
-- Longest Run
-
----
-
-# Exercise Categories
-
-The following categories all use the Exercise Scoring Model.
-
-- Upper Body
-- Lower Body
-- Core
-
----
-
-## Upper Body
-
-| Property | Value |
-|----------|-------|
-| Model | Exercise |
-| Difficulty | Enabled |
-| Static Conversion | Enabled |
-
----
-
-## Lower Body
-
-| Property | Value |
-|----------|-------|
-| Model | Exercise |
-| Difficulty | Enabled |
-| Static Conversion | Enabled |
-
----
-
-## Core
-
-| Property | Value |
-|----------|-------|
-| Model | Exercise |
-| Difficulty | Enabled |
-| Static Conversion | Enabled |
-
----
-
-# Difficulty Multipliers
-
-Exercise difficulty is intentionally conservative.
-
-| Tier | Description | Multiplier |
-|------|-------------|-----------:|
-| 1 | Beginner / Standard | 1.00 |
-| 2 | Intermediate | 1.10 |
-| 3 | Advanced | 1.20 |
-| 4 | Elite | 1.35 |
-
-These values should only change after significant testing.
-
----
-
-# Static Exercise Conversion
-
-Static exercises define:
-
-- Conversion Ratio
-- Difficulty Tier
-
-Examples
-
-| Exercise | Seconds per Effective Rep |
-|----------|--------------------------:|
-| Plank | TBD |
-| Front Lever | TBD |
-| Planche | TBD |
-| Wall Sit | TBD |
-
-Conversion values should be reviewed periodically.
-
----
-
-# XP Progression
-
-Every category defines how XP is awarded.
-
-XP progression may differ from Point progression.
-
-This allows long-term progression to evolve independently from competitive balancing.
-
----
-
-# Validation Rules
-
-Every category should define:
-
-- Minimum Value
-- Maximum Value
-- Accepted Units
-- Decimal Support
-- Manual Entry Rules
-
-Validation should prevent impossible or unsafe values.
-
----
-
-# Statistics Behaviour
-
-Every category defines which statistics should update.
-
-Examples include:
-
-- Lifetime
-- Monthly
-- Weekly
-- Daily
-- Personal Records
-
-Statistics continue increasing regardless of point balancing.
-
----
-
-# Future Expansion
-
-Future categories should only require configuration.
-
-Potential additions include:
-
-- Sleep
-- Nutrition
-- Meditation
-- Cycling
-- Swimming
-- Stretching
-- Journaling
-- Budgeting
-
-The scoring engine should not require modification.
-
----
-
-# Guiding Principle
-
-Configuration should define values.
-
-The scoring engine should define behaviour.
-
-Keeping these responsibilities separate allows Champions Legacy to evolve without becoming increasingly complex.
-
----
-
-# End of Document
+# Change Control
+
+Balancing changes require:
+
+1. Update central configuration.
+2. Add or update domain tests.
+3. Update Points, Challenge Rules and Progression documentation.
+4. Re-run lint, tests and production build.
+5. Consider historical recalculation and future league ruleset versioning.

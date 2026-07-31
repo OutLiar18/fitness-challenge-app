@@ -4,6 +4,14 @@
 
 ---
 
+# Progression Persistence Status — v0.6.0
+
+No new progression collection is introduced. Goal completion, streaks, XP, levels and achievements are derived from owner-scoped `challengeEntries`. Firestore rules therefore remain focused on profiles, entries, libraries and suggestions.
+
+A future aggregation collection may be added only with a trusted write path, clear ruleset versioning and an audit link back to factual entries.
+
+---
+
 # Purpose
 
 This document defines how the Champions Legacy data model is implemented within Firestore.

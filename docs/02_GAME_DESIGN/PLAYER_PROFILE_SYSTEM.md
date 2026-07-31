@@ -6,6 +6,22 @@ Version: 3.0
 
 ---
 
+# Implemented Progress Summary — v0.6.0
+
+The dashboard currently displays:
+
+- Personal level and title.
+- Lifetime XP and progress to the next level.
+- Current streak.
+- Longest streak.
+- Streak shield state.
+- Total bonus points.
+- Achievement count and recent unlocked achievements.
+
+A dedicated profile/progress route remains planned. The dashboard summary consumes `getProgressionSummary()` and contains no scoring formulas.
+
+---
+
 # Purpose
 
 The Player Profile represents a user's identity, journey and legacy within Champions Legacy.

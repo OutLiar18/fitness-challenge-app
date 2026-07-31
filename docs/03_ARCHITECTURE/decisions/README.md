@@ -275,3 +275,76 @@ When a decision changes, update this document and the relevant architecture docu
 ---
 
 # End of Document
+---
+
+# Decision 10: Goals Have a Dedicated Source of Truth
+
+## Decision
+
+Daily and weekly targets live in `src/constants/goals.js`, not in category presentation configuration.
+
+## Reason
+
+Goal periods, Running's weekly-only rule and independent workout targets cannot be represented safely by one legacy `dailyGoal` field.
+
+## Result
+
+- No duplicated goal values.
+- Daily and weekly logic remains consistent.
+- Goal balancing can evolve without changing forms.
+
+---
+
+# Decision 11: Progression Is Derived From Factual Entries
+
+## Decision
+
+Goal bonuses, streaks, XP, levels, achievements and records are derived from factual `challengeEntries` through pure services.
+
+## Reason
+
+Derived progression rules will evolve. Preserving activity facts allows transparent recalculation and avoids client-maintained totals drifting out of sync.
+
+## Result
+
+- One activity record drives every system.
+- No new Firestore progression collection is required in v0.6.
+- Domain tests can verify progression without Firebase.
+- Historical aggregation must preserve an audit path when scaling.
+
+---
+
+# Decision 12: Streak Recovery Is Earned and Limited
+
+## Decision
+
+A player earns one bankable streak shield after seven successful days. The shield protects one missed day but does not increase the streak.
+
+## Reason
+
+A strict streak can erase months of motivation after one difficult day. Unlimited grace removes meaning. An earned, capped shield balances forgiveness and consistency.
+
+## Result
+
+- Missing one day need not erase long progress.
+- Streaks still require regular completed goals.
+- The rule is deterministic and centrally testable.
+
+---
+
+# Decision 13: Progression Events Carry Ruleset Identifiers
+
+## Decision
+
+Derived goal and progression events include the active goal and progression ruleset identifiers.
+
+## Reason
+
+The current personal system recalculates from factual history, but future leagues must be able to freeze the exact rules used for a season. Adding identifiers now creates a clear migration path without prematurely persisting derived totals.
+
+## Result
+
+- Current summaries expose their active ruleset versions.
+- Derived reward events identify the configuration that produced them.
+- Future immutable league snapshots can reuse the same identifiers.
+- Persisted snapshots and trusted aggregation remain required before seasonal competition.

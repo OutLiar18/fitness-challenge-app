@@ -21,15 +21,12 @@ export const CATEGORIES = [
     ],
     scoreField: "amount",
     unit: "ml",
-    dailyGoal: 2000,
-    goalType: "higher",
   },
   {
     id: "fruit",
     name: "Fruit",
     emoji: "🍎",
-    description:
-      "Record whole-fruit servings that support your nutrition goals.",
+    description: "Record whole-fruit servings that support your nutrition goals.",
     fields: [
       {
         id: "fruitType",
@@ -49,8 +46,6 @@ export const CATEGORIES = [
     ],
     scoreField: "servings",
     unit: "servings",
-    dailyGoal: 3,
-    goalType: "higher",
   },
   {
     id: "reading",
@@ -97,15 +92,12 @@ export const CATEGORIES = [
     ],
     scoreField: "totalMinutes",
     unit: "min",
-    dailyGoal: 30,
-    goalType: "higher",
   },
   {
     id: "running",
     name: "Running",
     emoji: "🏃",
-    description:
-      "Log distance, duration and pace. Running also contributes to Cardio.",
+    description: "Log distance, duration and pace. Running also contributes to Cardio.",
     fields: [
       {
         id: "distance",
@@ -136,8 +128,6 @@ export const CATEGORIES = [
     ],
     scoreField: "distance",
     unit: "km",
-    dailyGoal: 5,
-    goalType: "higher",
     statisticsContributions: [
       {
         categoryId: "cardio",
@@ -151,9 +141,6 @@ export const CATEGORIES = [
     emoji: "💪",
     description: "Train pushing, pulling and upper-body strength.",
     unit: "effective reps",
-    dailyGoal: 50,
-    dailyGoalMetric: "effectiveReps",
-    goalType: "higher",
   },
   {
     id: "lowerBody",
@@ -161,9 +148,6 @@ export const CATEGORIES = [
     emoji: "🦵",
     description: "Build lower-body strength, balance and power.",
     unit: "effective reps",
-    dailyGoal: 50,
-    dailyGoalMetric: "effectiveReps",
-    goalType: "higher",
   },
   {
     id: "core",
@@ -171,9 +155,6 @@ export const CATEGORIES = [
     emoji: "🔥",
     description: "Strengthen your trunk, stability and control.",
     unit: "effective reps",
-    dailyGoal: 50,
-    dailyGoalMetric: "effectiveReps",
-    goalType: "higher",
   },
   {
     id: "cardio",
@@ -207,8 +188,6 @@ export const CATEGORIES = [
     ],
     scoreField: "totalMinutes",
     unit: "min",
-    dailyGoal: 30,
-    goalType: "higher",
   },
   {
     id: "skill",
@@ -243,8 +222,6 @@ export const CATEGORIES = [
     ],
     scoreField: "totalMinutes",
     unit: "min",
-    dailyGoal: 30,
-    goalType: "higher",
   },
   {
     id: "steps",
@@ -264,8 +241,6 @@ export const CATEGORIES = [
     ],
     scoreField: "steps",
     unit: "steps",
-    dailyGoal: 10000,
-    goalType: "higher",
   },
 ];
 

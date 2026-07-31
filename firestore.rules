@@ -115,16 +115,13 @@ service cloud.firestore {
     match /users/{userId} {
       allow create: if isOwner(userId) && validUserProfile(userId);
       allow read: if isOwner(userId);
-
-      // Profile editing and account deletion require a designed workflow.
       allow update, delete: if false;
     }
 
     match /users/{userId}/library/{itemId} {
       allow read: if isOwner(userId);
 
-      allow create: if isOwner(userId)
-        && validLibraryItem();
+      allow create: if isOwner(userId) && validLibraryItem();
 
       allow update: if isOwner(userId)
         && validLibraryItem()
@@ -140,7 +137,6 @@ service cloud.firestore {
       allow read, delete: if signedIn()
         && resource.data.userId == request.auth.uid;
 
-      // Saved activity records are immutable.
       allow update: if false;
     }
 

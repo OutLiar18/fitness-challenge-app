@@ -174,20 +174,25 @@ export function calculateCategoryPointBreakdown(category, data = {}) {
     detail: category === "running" ? getRunningPointDetail(data) : "",
   };
 
-  const bonuses = (BONUS_CATEGORY_MAP[category] ?? []).map((bonusCategory) => ({
-    categoryId: bonusCategory,
-    points: calculateBaseCategoryPoints(
-      bonusCategory,
-      getBonusCategoryData(category, bonusCategory, data),
-    ),
-    type: "bonus",
-    sourceCategoryId: category,
-  }));
+  const bonuses = (BONUS_CATEGORY_MAP[category] ?? []).map(
+    (bonusCategory) => ({
+      categoryId: bonusCategory,
+      points: calculateBaseCategoryPoints(
+        bonusCategory,
+        getBonusCategoryData(category, bonusCategory, data),
+      ),
+      type: "bonus",
+      sourceCategoryId: category,
+    }),
+  );
 
   return {
     main,
     bonuses,
-    total: bonuses.reduce((total, bonus) => total + bonus.points, main.points),
+    total: bonuses.reduce(
+      (total, bonus) => total + bonus.points,
+      main.points,
+    ),
   };
 }
 

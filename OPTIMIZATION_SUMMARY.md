@@ -1,70 +1,35 @@
-# Champions Legacy v0.5 Optimisation Summary
+# Champions Legacy v0.6.0 Optimisation Summary
 
-Date: 30 July 2026
+Date: 31 July 2026
 
-## Completed
+## Architecture
 
-### Scoring and statistics
+- Removed goal values from category presentation configuration.
+- Added dedicated goal and progression configuration modules.
+- Added pure progression services with no React or Firebase dependencies.
+- Kept activity points, factual statistics and personal progression as separate responsibilities.
+- Removed obsolete monolithic statistics, migration, Cardio points and exercise-option services.
+- Preserved one Firestore entry per activity.
 
-- Replaced duplicated point calculations with one structured point-breakdown path.
-- Fixed the previous Running breakdown double-count risk.
-- Running now intentionally contributes Running points, Cardio bonus points, Running statistics and Cardio-duration statistics from one Firestore entry.
-- Added category-aware point labels and clear journal breakdowns.
-- Completed workout difficulty multipliers, static-hold conversion and Effective Repetitions.
-- Fixed legacy Upper Body exercises that omitted `exerciseType` by normalising library definitions in one service.
-- Enabled custom workout exercises to score from their proposed difficulty tier.
+## Correctness
 
-### Architecture
+- Running points require 3 km and 11:00/km or faster.
+- Ineligible runs still contribute Cardio points and duration.
+- Workout goals use Effective Repetitions.
+- Daily and weekly periods preserve local dates.
+- Goal bonuses are awarded once per goal per period.
+- Streak milestone bonuses are awarded once per lifetime threshold.
+- XP remains separate from competitive points.
 
-- Separated authentication, user, entry, library, points, statistics and validation responsibilities.
-- Removed direct Firestore logic from page components.
-- Added dedicated auth and dashboard hooks.
-- Centralised workout category constants and category lookups.
-- Consolidated duplicate exercise option logic into `exerciseLibraryService`.
-- Removed unused legacy files and broken duplicate services.
-- Added an application error boundary.
-- Added generic Cardio and Skill suggestion persistence alongside exercise suggestions.
+## Scalability
 
-### Data integrity and security
-
-- Normalised challenge dates at local noon and removed UTC date-input drift.
-- Preserved a successful challenge entry when a non-critical library update fails.
-- Added owner-based Firestore rules and Firebase configuration.
-- Added account cleanup if profile creation fails after Authentication registration.
-- Made unused Firebase configuration values optional.
-- Added `.env.example`; the real `.env` is excluded from the delivery archive.
-
-### UI and accessibility
-
-- Introduced a responsive design-token system with dark-mode support.
-- Rebuilt authentication, dashboard, forms, selectors, journal, entry cards and toasts.
-- Removed invalid nested interactive controls from multi-select fields.
-- Added combobox/listbox semantics, keyboard navigation, visible focus states and live-region feedback.
-- Added read-only journal behaviour for locked dates.
-- Added loading, empty and error states.
-- Replaced inline component styling with reusable CSS.
-- Added a Champions Legacy favicon and deployment redirect.
-
-### Validation
-
-- Standardised form validation.
-- Added missing custom Cardio group and difficulty checks.
-- Corrected custom workout difficulty to support all five tiers.
-- Kept optional post-save tasks separate from the primary entry transaction.
-
-## Removed legacy files
-
-- `TimeDurationPicker.jsx` and its CSS
-- old Easter egg placeholders
-- obsolete Cardio points configuration
-- duplicate `exerciseOptionService`
-- obsolete monolithic statistics service
-- unused migration service
-- obsolete units helper
+- Progression event IDs are deterministic.
+- Bonus completion dates are derived from the first date a target is reached.
+- XP participation is capped to one event per category per day, preventing split-entry farming.
+- UI consumes one progression summary instead of recomputing formulas.
+- Future pagination requires trusted historical aggregation; this is documented rather than hidden.
 
 ## Verification
 
-- ESLint passes with no errors or warnings.
-- Six automated domain tests pass for Running/Cardio scoring, cross-category statistics, legacy and custom workout scoring, Cardio validation and local date handling.
-- JSX and module syntax are parsed by ESLint across the complete source tree.
-- A production Vite build could not be executed inside the Linux sandbox because the uploaded archive contained Windows-only native Rolldown binaries. The delivery archive excludes `node_modules`; running `npm install` on the target computer installs the correct platform package before `npm run build`.
+- 17 automated domain tests pass.
+- Local lint and production build remain required after a fresh platform-correct dependency install.

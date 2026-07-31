@@ -2,11 +2,13 @@ import { GOAL_PERIODS } from "../../constants/goals";
 import { getMissionProgress, getNextGoal } from "../../services/statistics";
 import "./DailyProgress.css";
 
-export default function DailyProgress({ goals, period = GOAL_PERIODS.DAILY }) {
+export default function DailyProgress({
+  goals,
+  period = GOAL_PERIODS.DAILY,
+}) {
   const mission = getMissionProgress(goals);
   const nextGoal = getNextGoal(goals);
   const complete = mission.total > 0 && mission.completed === mission.total;
-
   const weekly = period === GOAL_PERIODS.WEEKLY;
   const periodLabel = weekly ? "Weekly" : "Daily";
 
@@ -23,7 +25,6 @@ export default function DailyProgress({ goals, period = GOAL_PERIODS.DAILY }) {
       <div className="daily-progress__header">
         <div>
           <p className="daily-progress__eyebrow">{periodLabel} mission</p>
-
           <h2 id="mission-title">{heading}</h2>
         </div>
 
@@ -42,21 +43,18 @@ export default function DailyProgress({ goals, period = GOAL_PERIODS.DAILY }) {
       >
         <div
           className="daily-progress__fill"
-          style={{
-            width: `${mission.percentage}%`,
-          }}
+          style={{ width: `${mission.percentage}%` }}
         />
       </div>
 
       <div className="daily-progress__summary">
         <strong>{mission.percentage}% complete</strong>
-
         <span>
           {complete
-            ? `Every ${periodLabel.toLowerCase()} goal is complete. Excellent work.`
+            ? `All goals complete. +${mission.bonusPoints} mission bonus earned.`
             : `${mission.total - mission.completed} goal${
                 mission.total - mission.completed === 1 ? "" : "s"
-              } remaining.`}
+              } remaining. Complete all for +${mission.bonusPoints} points.`}
         </span>
       </div>
 

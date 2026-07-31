@@ -6,6 +6,25 @@ Version: 2.0
 
 ---
 
+# Implemented Progression Achievements — v0.6.0
+
+The first derived achievement set is active:
+
+- First Step — first activity.
+- Goal Getter — first daily goal.
+- Perfect Day — every daily goal.
+- Perfect Week — every weekly goal.
+- Spark — 3-day streak.
+- Momentum — 7-day streak.
+- Committed — 14-day streak.
+- Unshakeable — 30-day streak.
+- Momentum Builder — Level 5.
+- Dedicated — Level 10.
+
+Achievements currently provide recognition only. Goal and streak points are awarded by their explicit completion events, preventing duplicated rewards.
+
+---
+
 # Purpose
 
 The Achievements & Rewards System recognises significant accomplishments throughout a player's Champions Legacy journey.

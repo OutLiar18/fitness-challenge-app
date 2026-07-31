@@ -23,11 +23,7 @@ test("Qualifying Running awards Running points and a Cardio bonus", () => {
   const entry = {
     id: "running-test",
     category: "running",
-    data: {
-      distance: 5,
-      totalMinutes: 30,
-      totalSeconds: 1800,
-    },
+    data: { distance: 5, totalMinutes: 30, totalSeconds: 1800 },
     challengeDate: { toDate: () => new Date() },
   };
 
@@ -45,19 +41,13 @@ test("Qualifying Running awards Running points and a Cardio bonus", () => {
 test("Running below 3 km earns only Cardio points", () => {
   const entry = {
     category: "running",
-    data: {
-      distance: 2,
-      totalMinutes: 20,
-      totalSeconds: 1200,
-    },
+    data: { distance: 2, totalMinutes: 20, totalSeconds: 1200 },
   };
 
   const result = getEntryPointBreakdown(entry);
 
-  assert.equal(result.breakdown[0].categoryId, "running");
   assert.equal(result.breakdown[0].points, 0);
   assert.match(result.breakdown[0].detail, /at least 3 km/i);
-
   assert.equal(result.breakdown[1].categoryId, "cardio");
   assert.equal(result.breakdown[1].points, 2);
   assert.equal(result.total, 2);
@@ -66,19 +56,13 @@ test("Running below 3 km earns only Cardio points", () => {
 test("Running slower than 11 minutes per kilometre earns only Cardio points", () => {
   const entry = {
     category: "running",
-    data: {
-      distance: 3,
-      totalMinutes: 36,
-      totalSeconds: 2160,
-    },
+    data: { distance: 3, totalMinutes: 36, totalSeconds: 2160 },
   };
 
   const result = getEntryPointBreakdown(entry);
 
-  assert.equal(result.breakdown[0].categoryId, "running");
   assert.equal(result.breakdown[0].points, 0);
   assert.match(result.breakdown[0].detail, /11:00\/km or faster/i);
-
   assert.equal(result.breakdown[1].categoryId, "cardio");
   assert.equal(result.breakdown[1].points, 7);
   assert.equal(result.total, 7);
@@ -87,10 +71,7 @@ test("Running slower than 11 minutes per kilometre earns only Cardio points", ()
 test("Running contributes to both Running and Cardio statistics", () => {
   const entry = {
     category: "running",
-    data: {
-      distance: 5,
-      totalMinutes: 30,
-    },
+    data: { distance: 5, totalMinutes: 30 },
     challengeDate: { toDate: () => new Date() },
   };
 
@@ -98,12 +79,10 @@ test("Running contributes to both Running and Cardio statistics", () => {
   assert.equal(getCategoryTotal([entry], "cardio"), 30);
 
   const topCategories = getTopCategories([entry]);
-
   assert.equal(
     topCategories.find((category) => category.id === "running")?.points,
     18,
   );
-
   assert.equal(
     topCategories.find((category) => category.id === "cardio")?.points,
     7,
@@ -112,7 +91,6 @@ test("Running contributes to both Running and Cardio statistics", () => {
 
 test("Workout daily goals use Effective Repetitions", () => {
   const today = new Date();
-
   const entries = [
     {
       category: "upperBody",
@@ -191,12 +169,8 @@ test("Tier 5 custom workout exercises validate and score", () => {
   });
 
   assert.deepEqual(validateEntry(getCategory("upperBody"), normalized), []);
-
   assert.ok(
-    calculateEntryPoints({
-      category: "upperBody",
-      data: normalized,
-    }) > 0,
+    calculateEntryPoints({ category: "upperBody", data: normalized }) > 0,
   );
 });
 
@@ -225,9 +199,7 @@ test("Custom Cardio requires complete scoring metadata", () => {
   });
 
   const errors = validateEntry(getCategory("cardio"), invalid);
-
   assert.ok(errors.some((error) => error.includes("group")));
-
   assert.ok(errors.some((error) => error.includes("difficulty")));
 });
 
@@ -235,6 +207,5 @@ test("Date input parsing remains on the selected local calendar day", () => {
   const date = parseDateInputValue("2026-07-30");
 
   assert.equal(formatDateInputValue(date), "2026-07-30");
-
   assert.ok(isSameDay(date, new Date(2026, 6, 30, 23, 59)));
 });

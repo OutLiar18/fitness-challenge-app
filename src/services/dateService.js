@@ -105,3 +105,42 @@ export function isFutureDate(value) {
 
   return Boolean(date && today && date > today);
 }
+
+export function getLocalDateKey(value) {
+  return formatDateInputValue(normalizeChallengeDate(value));
+}
+
+export function getWeekStart(value) {
+  const date = normalizeChallengeDate(value);
+
+  if (!date) {
+    return null;
+  }
+
+  const daysSinceMonday = (date.getDay() + 6) % 7;
+  return addDays(date, -daysSinceMonday);
+}
+
+export function getWeekEnd(value) {
+  const start = getWeekStart(value);
+  return start ? addDays(start, 6) : null;
+}
+
+export function getDateRange(startValue, endValue) {
+  const start = normalizeChallengeDate(startValue);
+  const end = normalizeChallengeDate(endValue);
+
+  if (!start || !end || start > end) {
+    return [];
+  }
+
+  const dates = [];
+  let current = start;
+
+  while (current <= end) {
+    dates.push(current);
+    current = addDays(current, 1);
+  }
+
+  return dates;
+}

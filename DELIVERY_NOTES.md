@@ -1,38 +1,44 @@
-# Champions Legacy v0.5 Delivery Notes
+# Champions Legacy v0.6.0 Delivery Notes
 
-This package is a cleaned source-code delivery. It intentionally excludes `.env`, `.git`, `node_modules` and generated build files.
+## Included
 
-## Replace the current project safely
+- Central daily and weekly goals.
+- Running eligibility with preserved Cardio credit.
+- Moderate goal-completion and perfect-period bonus Points.
+- Forgiving streaks with one earned shield.
+- One-time streak milestone Points and XP.
+- Personal XP, levels, titles, starter achievements and progress records.
+- Ruleset identifiers on derived progression events.
+- Hardened Firestore rules and obsolete-service cleanup.
+- Eighteen automated domain tests.
+- Updated product, architecture, current-state and release documentation.
 
-1. Keep a backup of the current project folder.
-2. Copy the current project's `.env` file somewhere safe.
-3. Extract this package into a new folder.
-4. Copy the saved `.env` into the new project root. If no `.env` exists, copy `.env.example` to `.env` and add the Firebase values.
-5. Open a terminal in the new project folder and run:
+## Recommended installation
 
-```bash
+Use the supplied update package and run `APPLY_UPDATE.ps1`. It preserves the existing real `.env`, Git history and audited `package-lock.json`.
+
+After applying the update:
+
+```powershell
 npm install
 npm run check
+npm audit
 npm run dev
 ```
 
-A fresh `npm install` is important because native Vite/Rolldown packages differ between Windows and Linux.
+Do not run `npm audit fix --force`.
 
-## Firebase rules
+## Verification completed in the handover environment
 
-Review and deploy the included owner-based Firestore rules before using production accounts:
+- Eighteen domain tests pass.
+- All local JavaScript and JSX files pass a TypeScript syntax/transpile check.
+- All relative source imports resolve.
+- Obsolete conflicting services were removed.
 
-```bash
-firebase deploy --only firestore:rules
+The handover environment could not complete a fresh dependency installation because its internal npm mirror lacked one transitive ESLint package. Run ESLint and the Vite production build on the Windows development computer through `npm run check` before tagging the release.
+
+## Suggested commit
+
+```text
+feat: add personal progression and streaks
 ```
-
-## Manual checks after starting the app
-
-- Sign up, sign in and sign out.
-- Add and delete one entry in every category.
-- Confirm a Running entry shows separate Running and Cardio Bonus points.
-- Confirm Running duration advances both Running and Cardio statistics.
-- Check today's journal and a locked older date.
-- Test the app at desktop and mobile widths.
-
-See `OPTIMIZATION_SUMMARY.md` for the complete refactor summary and `docs/01_CURRENT_DEVELOPMENT/ROADMAP.md` for the next planned work.

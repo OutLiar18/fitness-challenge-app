@@ -4,6 +4,24 @@
 
 ---
 
+# Personal Progression Architecture — v0.6.0
+
+```text
+Entry facts
+   ├── Points services → activity point breakdowns
+   ├── Statistics services → factual totals and goals
+   └── Progression services
+          ├── goal bonus events
+          ├── streak state and shields
+          ├── milestone rewards
+          ├── XP and levels
+          └── achievements and records
+```
+
+The progression layer consumes goal results; it does not reimplement category totals or Effective Repetitions. Dashboard components consume one `getProgressionSummary()` object.
+
+---
+
 # Purpose
 
 This document provides a high-level overview of the Champions Legacy architecture.

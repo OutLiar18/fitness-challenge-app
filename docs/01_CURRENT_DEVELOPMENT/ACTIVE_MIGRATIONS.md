@@ -1,44 +1,40 @@
 # Champions Legacy — Active Migrations
 
-Last updated: 30 July 2026
+Last updated: 31 July 2026
 
 ## Current status
 
-There are no incomplete high-risk architecture migrations in v0.5.
+There are no incomplete high-risk architecture migrations in v0.6.0.
 
-The following migrations were completed during Platform Stabilisation:
+## Completed migrations
 
 - Selector consolidation.
 - Exercise Library migration.
-- Points Engine v2 migration.
+- Points Engine v2.
 - Effective Repetitions and difficulty scoring.
-- Statistics service decomposition.
-- Entry repository/orchestration separation.
+- Statistics decomposition.
+- Repository/orchestration separation.
 - Validation standardisation.
-- Local-date-safe journal migration.
+- Local-date-safe journal.
 - Authentication service/context cleanup.
-- Legacy service and component removal.
+- Daily/weekly goal centralisation.
+- Progression service foundation.
+- Obsolete service removal.
 
-## Remaining controlled follow-up
+## Controlled follow-up
 
-### Automated testing adoption
+### Historical progression aggregation
 
-Status: Planned
+Status: Planned before pagination
 
-Introduce tests around domain services before starting XP and streak features. This is a development capability improvement, not a replacement of current runtime architecture.
+The current progression engine derives streaks, bonuses, XP and achievements from full factual entry history. Before historical entries are paginated, introduce trusted summary checkpoints or server-side aggregation while preserving factual entries as the audit source.
 
-### Paginated entry history
+### Ruleset versioning
 
-Status: Deferred until data volume requires it
+Status: Required before leagues
 
-Replace the all-user real-time subscription with a current-window subscription and paginated historical queries while preserving the repository interface.
+Goal and progression events now carry central ruleset identifiers. Competitive seasons still require immutable persisted scoring and goal snapshots tied to those identifiers.
 
 ## Migration closure rule
 
-A future migration is complete only when:
-
-- the replacement is used by all callers;
-- the legacy implementation is removed;
-- lint/tests pass;
-- relevant documentation is updated;
-- Firestore and statistics behaviour are verified.
+A migration is complete only when all callers use the replacement, obsolete code is removed, tests pass, documentation is updated and live behaviour is verified.

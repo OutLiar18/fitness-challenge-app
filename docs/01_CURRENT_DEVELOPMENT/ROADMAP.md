@@ -1,77 +1,94 @@
 # Champions Legacy — Roadmap
 
-Last updated: 30 July 2026
+Last updated: 31 July 2026
 
 ## Phase 1 — Core tracking platform
 
-Status: Complete for v0.5
+Status: Complete
 
 - Authentication and profiles.
-- Ten challenge categories.
-- Firestore entries and personal Reading library.
+- Ten activity categories.
+- Factual Firestore entries.
 - Validation and normalisation.
 - Points Engine v2.
 - Effective Repetitions and difficulty.
-- Running/Cardio cross-category contribution.
-- Daily statistics and goals.
-- Journal navigation and read-only history.
-- Responsive accessible UI.
-- Custom content suggestions.
+- Running/Cardio cross-contribution.
+- Journal and local-safe dates.
+- Libraries and suggestions.
 
 ## Phase 2 — Release confidence
 
-Status: Next
+Status: Substantially complete; ongoing discipline
 
-- Fresh dependency install and production build verification.
-- Firebase integration QA.
+- Fresh dependency verification.
 - Firestore rules deployment.
-- Expand automated tests beyond the current high-risk domain smoke suite.
-- Error monitoring strategy.
-- Entry history pagination design.
+- Domain tests.
+- Safe audit review.
+- Manual Firebase QA.
+
+Remaining:
+
+- Error-monitoring strategy.
+- Route-level bundle splitting.
+- Historical aggregation/pagination design.
 
 ## Phase 3 — Personal progression
 
-Status: Planned
+Status: Foundation complete in v0.6.0
 
-- Streaks with forgiving recovery rules.
-- XP and player levels.
-- Personal milestones.
-- Achievement engine.
-- Progress timeline and weekly summaries.
+Completed:
 
-Derived progression must consume the existing point breakdown rather than duplicating scoring rules.
+- Daily and weekly goals.
+- Moderate goal-completion bonuses.
+- Forgiving daily consistency streak.
+- Earned streak shield.
+- Streak milestone rewards.
+- Personal XP and levels.
+- Level titles.
+- Starter achievements.
+- Basic personal records and progression dashboard.
+
+Next:
+
+- Dedicated Progress/Profile page.
+- Full achievement library.
+- Category mastery and milestones.
+- Personal records for running, reading and workouts.
+- Weekly summaries and progress timeline.
 
 ## Phase 4 — Administration and moderation
 
 Status: Planned
 
 - Role/claim-based administrator access.
-- Review queues for Exercise, Cardio and Skill suggestions.
+- Suggestion review queues.
 - Library publishing tools.
 - User and challenge management.
 - Audit history.
+- Versioned challenge configuration.
 
 ## Phase 5 — Competition and community
 
 Status: Future
 
-- Teams.
-- Leagues and seasons.
+- Teams, leagues and seasons.
 - Leaderboards.
 - Challenge templates.
-- Social encouragement and notifications.
+- Social encouragement.
 
-Competition must preserve the core principle that consistency matters more than natural athletic ability.
+Competition must preserve consistency over natural athletic ability. League scoring must freeze a versioned ruleset.
 
 ## Phase 6 — Intelligence and analytics
 
 Status: Future
 
-- Personal trend charts.
+- Trend charts.
 - Goal recommendations.
 - Training and habit insights.
-- AI Coach with transparent, user-controlled guidance.
+- Transparent, user-controlled AI Coach.
 
 ## Guardrails
 
-Do not begin a later phase by bypassing existing services. New systems must use factual entries, point breakdowns and category configuration as their source of truth.
+- Do not duplicate scoring or progression logic in UI components.
+- Do not store calculated progression without a documented aggregation strategy.
+- Do not begin leagues before configuration versioning and secure administration exist.

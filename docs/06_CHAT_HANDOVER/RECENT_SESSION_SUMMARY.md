@@ -1,33 +1,45 @@
-# Recent Session Summary
+# Champions Legacy — Recent Session Summary
 
-Date: 30 July 2026
-Release target: Champions Legacy v0.5.0
+Date: 31 July 2026
+Release target: v0.6.0
 
 ## Session outcome
 
-A full platform-stabilisation pass was completed on the uploaded React/Vite/Firebase project.
+The project advanced from release stabilisation into the Personal Progression Foundation.
 
-### Major results
+### Implemented
 
-- Completed the structured points breakdown system.
-- Fixed Running so one entry intentionally awards Running and Cardio points without double counting.
-- Made Running duration contribute to Cardio statistics and goals.
-- Completed Effective Repetitions, difficulty multipliers and custom workout scoring.
-- Normalised inconsistent legacy exercise metadata.
-- Rebuilt the journal, entry cards, selectors, forms, auth pages, dashboard elements and notifications around one design system.
-- Removed invalid nested selector interactions and added keyboard/listbox semantics.
-- Separated repositories, orchestration, domain services and React hooks.
-- Added generic Cardio and Skill suggestion persistence.
-- Added Firestore rules, Firebase project config, an error boundary, `.env.example`, SPA redirect and favicon.
-- Removed obsolete components, services and duplicate helpers.
-- Updated release documentation and manual QA instructions.
+- Central daily and weekly goals.
+- Nine daily goals and ten weekly goals.
+- Independent Upper Body, Lower Body and Core progress.
+- Running weekly-only goal.
+- Running point eligibility: minimum 3 km and 11:00/km or faster.
+- Cardio credit preserved for every run.
+- Daily/weekly goal completion bonuses.
+- Perfect day/week bonuses.
+- Daily consistency streak.
+- One earned streak shield after seven successful days.
+- One-time streak milestone rewards.
+- Personal XP, levels and titles.
+- Ten starter achievements.
+- Progression dashboard summary.
+- Personal progression records.
+- Obsolete service cleanup.
+
+## Architecture
+
+- Categories define activity identity and facts.
+- Goals live in `src/constants/goals.js`.
+- Progression balancing lives in `src/constants/progression.js`.
+- Pure progression services derive bonuses, streaks, XP, levels and achievements.
+- Firestore stores no calculated progression values.
 
 ## Verification
 
-- `npm run lint` passes with no errors or warnings.
-- `npm test` passes all six domain smoke tests.
-- The sandbox could not complete `npm run build` because the uploaded `node_modules` directory contained Windows-only native Rolldown binaries. The cleaned handover excludes `node_modules`; run a fresh `npm install` on the target computer.
+- Eighteen automated domain tests pass in the handover environment.
+- The environment could not install the complete dependency tree because its internal npm mirror lacked one transitive ESLint package.
+- Run a fresh `npm install` and `npm run check` on the Windows development computer.
 
 ## Next action
 
-Follow `docs/01_CURRENT_DEVELOPMENT/NEXT_SESSION.md` exactly. Do not start Streaks, XP or Achievements until v0.5 Firebase QA is complete and the existing domain test suite is retained.
+Follow `docs/01_CURRENT_DEVELOPMENT/NEXT_SESSION.md`, visually verify the progression dashboard, fix only reproducible defects, then commit and tag v0.6.0.

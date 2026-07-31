@@ -1,11 +1,8 @@
 import { GOAL_CONFIGURATIONS, GOAL_PERIODS } from "../../constants/goals";
+import { GOAL_BONUS_POINTS } from "../../constants/progression";
 import { calculateEffectiveReps } from "../points/workoutPoints";
-import {
-  getCategoryEntries,
-  getEntriesForWeek,
-  getTodayEntries,
-} from "./filters";
-import { getCategoryTotal } from "./totals";
+import { getCategoryEntries, getEntriesForWeek, getTodayEntries } from "./filters";
+import { getCategoryTotal } from "./activityTotals";
 
 function getWorkoutEffectiveReps(entries = [], categoryIds = []) {
   const allowedCategories = new Set(categoryIds);
@@ -33,9 +30,19 @@ function getGoalEntryCount(entries, configuration) {
   }
 
   const allowedCategories = new Set(configuration.categoryIds ?? []);
+  return entries.filter((entry) => allowedCategories.has(entry.category)).length;
+}
 
-  return entries.filter((entry) => allowedCategories.has(entry.category))
-    .length;
+function getGoalBonusPoints(period) {
+  return period === GOAL_PERIODS.WEEKLY
+    ? GOAL_BONUS_POINTS.weeklyGoal
+    : GOAL_BONUS_POINTS.dailyGoal;
+}
+
+function getMissionBonusPoints(period) {
+  return period === GOAL_PERIODS.WEEKLY
+    ? GOAL_BONUS_POINTS.weeklyMission
+    : GOAL_BONUS_POINTS.dailyMission;
 }
 
 function buildGoal(entries, configuration, period) {
@@ -46,16 +53,12 @@ function buildGoal(entries, configuration, period) {
   }
 
   const current = getGoalCurrent(entries, configuration);
-
   const minimumEntries = Number(configuration.minimumEntries?.[period] ?? 0);
-
   const entryCount = getGoalEntryCount(entries, configuration);
-
   const meetsEntryRequirement =
     minimumEntries <= 0 || entryCount >= minimumEntries;
 
   return {
-    // Maintains compatibility with the current goal-card click handler.
     id: configuration.selectCategoryId,
     goalId: configuration.id,
     categoryId: configuration.selectCategoryId,
@@ -70,7 +73,15 @@ function buildGoal(entries, configuration, period) {
     minimumEntries,
     entryCount,
     meetsEntryRequirement,
+    bonusPoints: getGoalBonusPoints(period),
+    missionBonusPoints: getMissionBonusPoints(period),
   };
+}
+
+export function calculateGoals(entries = [], period = GOAL_PERIODS.DAILY) {
+  return GOAL_CONFIGURATIONS.map((configuration) =>
+    buildGoal(entries, configuration, period),
+  ).filter(Boolean);
 }
 
 export function getGoalsForPeriod(
@@ -83,9 +94,7 @@ export function getGoalsForPeriod(
       ? getEntriesForWeek(entries, referenceDate)
       : getTodayEntries(entries, referenceDate);
 
-  return GOAL_CONFIGURATIONS.map((configuration) =>
-    buildGoal(periodEntries, configuration, period),
-  ).filter(Boolean);
+  return calculateGoals(periodEntries, period);
 }
 
 export function getDailyGoals(entries = [], referenceDate = new Date()) {

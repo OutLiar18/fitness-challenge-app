@@ -110,3 +110,35 @@ Instead, communicate the overall progress made in each release.
 ---
 
 # End of Document
+# Version 0.6.0
+
+Release Date: 31 July 2026
+
+## Summary
+
+Introduces Champions Legacy's first complete personal-progression experience while preserving the factual entry and central scoring architecture.
+
+## New Features
+
+- Daily and weekly goal dashboards.
+- Small goal-completion and perfect-period bonuses.
+- Forgiving consistency streak with an earned shield.
+- Streak milestone rewards.
+- Personal XP, levels and titles.
+- Starter achievements and progression records.
+
+## Improvements
+
+- Running eligibility is transparent and still preserves Cardio credit.
+- Workout categories progress independently through Effective Repetitions.
+- Total score clearly separates activity and bonus contributions internally.
+- Goal and progression rules are centralised for future expansion.
+
+## Known Issues
+
+- Full achievement and profile pages are still planned.
+- Historical aggregation is required before entry pagination.
+- React Router's RSC-only audit advisory remains unresolved upstream.
+- The production bundle still benefits from future route splitting.
+
+---

@@ -4,6 +4,14 @@
 
 ---
 
+# Derived Personal Progress — v0.6.0
+
+Personal Progress is currently a derived read model rather than a Firestore document. It contains score summaries, goal bonus events, streak state, XP, level, achievements and records calculated from `challengeEntries`. No duplicate progression facts are written.
+
+This decision preserves recalculation and auditability. Before entry history is paginated, the project must design trusted aggregation checkpoints that retain entry facts as the source of truth.
+
+---
+
 # Purpose
 
 This document defines the core entities that make up Champions Legacy and the relationships between them.

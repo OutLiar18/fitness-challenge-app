@@ -5,6 +5,7 @@ import CategoryGrid from "../components/categories/CategoryGrid";
 import Toast from "../components/common/Toast/Toast";
 import DailyGoals from "../components/dashboard/DailyGoals";
 import DailyProgress from "../components/dashboard/DailyProgress";
+import ProgressionCard from "../components/dashboard/ProgressionCard";
 import StatsCard from "../components/dashboard/StatsCard";
 import TopCategories from "../components/dashboard/TopCategories";
 import WelcomeCard from "../components/dashboard/WelcomeCard";
@@ -21,14 +22,13 @@ import {
 } from "../services/dateService";
 import { deleteEntry, saveChallengeEntry } from "../services/entries";
 import { getValidationMessage } from "../services/messageService";
+import { getProgressionSummary } from "../services/progression";
 import {
   getEntriesForDate,
   getGoalsForPeriod,
   getTodayEntryCount,
-  getTodayPoints,
   getTopCategories,
   getTotalEntries,
-  getTotalPoints,
 } from "../services/statistics";
 import { getCategory } from "../utils/categoryHelpers";
 import "./Dashboard.css";
@@ -40,26 +40,17 @@ function getInitialFormData(categoryId) {
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
-
-  const {
-    profile,
-    entries,
-    loading,
-    error: dataError,
-  } = useDashboardData(user?.uid);
-
+  const { profile, entries, loading, error: dataError } = useDashboardData(
+    user?.uid,
+  );
   const { toast, showToast, dismissToast } = useToast();
 
   const [selectedDate, setSelectedDate] = useState(() =>
     normalizeChallengeDate(new Date()),
   );
-
   const [categoryId, setCategoryId] = useState("water");
-
   const [goalPeriod, setGoalPeriod] = useState(GOAL_PERIODS.DAILY);
-
   const [formData, setFormData] = useState(() => getInitialFormData("water"));
-
   const [formErrors, setFormErrors] = useState([]);
   const [saving, setSaving] = useState(false);
 
@@ -76,15 +67,16 @@ export default function Dashboard() {
   );
 
   const topCategories = useMemo(() => getTopCategories(entries), [entries]);
+  const progression = useMemo(() => getProgressionSummary(entries), [entries]);
 
   const stats = useMemo(
     () => ({
-      points: getTotalPoints(entries),
-      todayPoints: getTodayPoints(entries),
+      points: progression.score.totalPoints,
+      todayPoints: progression.score.todayPoints,
       entries: getTotalEntries(entries),
       todayEntries: getTodayEntryCount(entries),
     }),
-    [entries],
+    [entries, progression],
   );
 
   function handleCategorySelect(nextCategoryId) {
@@ -99,7 +91,6 @@ export default function Dashboard() {
       navigate("/", { replace: true });
     } catch (error) {
       console.error(error);
-
       showToast(error.message || "You could not be logged out.", "error");
     }
   }
@@ -113,7 +104,6 @@ export default function Dashboard() {
 
     if (!category) {
       showToast("The selected category could not be found.", "error");
-
       return;
     }
 
@@ -132,16 +122,12 @@ export default function Dashboard() {
 
       if (!result.success) {
         setFormErrors(result.errors);
-
         showToast(getValidationMessage(categoryId), "error");
-
         return;
       }
 
       const nextCategory = result.nextCategory ?? categoryId;
-
       setCategoryId(nextCategory);
-
       setFormData(getInitialFormData(nextCategory));
 
       if (result.warning) {
@@ -151,7 +137,6 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.error(error);
-
       showToast(error.message || "The entry could not be saved.", "error");
     } finally {
       setSaving(false);
@@ -176,7 +161,6 @@ export default function Dashboard() {
       showToast("Entry deleted.");
     } catch (error) {
       console.error(error);
-
       showToast(error.message || "The entry could not be deleted.", "error");
     }
   }
@@ -189,7 +173,6 @@ export default function Dashboard() {
             <span className="dashboard-brand__icon" aria-hidden="true">
               🏆
             </span>
-
             <span className="dashboard-brand__text">Champions Legacy</span>
           </div>
 
@@ -212,12 +195,11 @@ export default function Dashboard() {
         )}
 
         <WelcomeCard profile={profile} user={user} />
-
         <StatsCard stats={stats} />
+        <ProgressionCard progression={progression} />
 
         <div className="dashboard-insights">
           <DailyProgress goals={goals} period={goalPeriod} />
-
           <TopCategories categories={topCategories} />
         </div>
 
@@ -232,7 +214,6 @@ export default function Dashboard() {
 
         <div className="dashboard-workspace">
           <CategoryGrid selected={categoryId} onSelect={handleCategorySelect} />
-
           <EntryForm
             userId={user?.uid}
             type={categoryId}

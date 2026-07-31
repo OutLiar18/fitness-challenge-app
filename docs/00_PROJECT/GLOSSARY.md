@@ -309,3 +309,40 @@ The core philosophy of Champions Legacy.
 Users are encouraged to compare themselves only with who they were yesterday.
 
 This principle underpins every feature, system and design decision throughout the platform.
+# Goal Completion Bonus
+
+A small competitive Point reward derived when a daily or weekly goal is completed.
+
+Goal bonuses are separate from activity scoring and are awarded once per goal period.
+
+---
+
+# Perfect Day
+
+A local calendar day on which every configured daily goal is completed.
+
+A Perfect Day earns its own moderate bonus in addition to the individual daily-goal bonuses.
+
+---
+
+# Perfect Week
+
+A Monday-to-Sunday local calendar week in which every configured weekly goal is completed.
+
+A Perfect Week earns its own moderate bonus in addition to the individual weekly-goal bonuses.
+
+---
+
+# Streak Shield
+
+An automatically earned recovery resource that preserves a consistency streak through one missed day.
+
+A player earns one shield after seven successful streak days and may bank a maximum of one.
+
+---
+
+# Ruleset Version
+
+An identifier for a specific set of goal, scoring or progression values.
+
+Future leagues should freeze a Ruleset Version so later balancing changes do not rewrite completed competition results.

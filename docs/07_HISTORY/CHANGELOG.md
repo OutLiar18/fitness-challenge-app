@@ -110,6 +110,56 @@ Avoid recording trivial changes such as formatting or spelling corrections unles
 # End of Document
 ---
 
+# v0.6.0 — Personal Progression Foundation
+
+Date: 31 July 2026
+
+## Added
+
+- Central daily and weekly goal configuration.
+- Independent Upper Body, Lower Body and Core goals.
+- Moderate goal and mission bonus points.
+- Daily consistency streaks.
+- Earned streak shield and protected missed days.
+- One-time streak milestone points and XP.
+- Personal XP, levels and titles.
+- Starter achievements and personal progression records.
+- Progression dashboard card.
+- Progression domain service layer.
+- Goal and progression regression suite.
+
+## Changed
+
+- Total Points now includes goal and streak bonuses.
+- Top Categories remains activity-only.
+- Reading goal changed to 60 daily and 450 weekly.
+- Cardio and Skill goals changed to 15 daily and 150 weekly.
+- Running moved to a 5 km weekly-only goal.
+- Steps weekly goal set to 90,000.
+- Weekly periods use local Monday–Sunday dates.
+- Category configuration no longer duplicates goal values.
+
+## Fixed
+
+- Running points now require at least 3 km at 11:00/km or faster.
+- Ineligible runs still retain Cardio credit.
+- Workout goal progress now uses Effective Repetitions.
+- Entry-update and profile-role security rules remain locked.
+
+## Removed
+
+- Obsolete monolithic statistics service.
+- Obsolete migration service.
+- Obsolete Cardio points configuration.
+- Duplicate exercise option service.
+
+## Verification
+
+- Eighteen automated domain tests pass.
+- Local lint and production build must be rerun after a fresh dependency install.
+
+---
+
 # v0.5.0 — Platform Stabilisation
 
 Date: 30 July 2026

@@ -7,7 +7,6 @@ const numberFormatter = new Intl.NumberFormat(undefined, {
 
 function formatValue(value) {
   const number = Number(value);
-
   return Number.isFinite(number) ? numberFormatter.format(number) : "0";
 }
 
@@ -17,7 +16,6 @@ function getEntryRequirement(goal) {
   }
 
   const label = goal.minimumEntries === 1 ? "run" : "runs";
-
   return `${goal.entryCount}/${goal.minimumEntries} ${label} logged`;
 }
 
@@ -32,10 +30,7 @@ export default function DailyGoals({
   const title = weekly ? "This week’s goals" : "Today’s goals";
 
   return (
-    <section
-      className="daily-goals card"
-      aria-labelledby="dashboard-goals-title"
-    >
+    <section className="daily-goals card" aria-labelledby="dashboard-goals-title">
       <div className="daily-goals__header">
         <div>
           <p>Consistency dashboard</p>
@@ -95,20 +90,19 @@ export default function DailyGoals({
                 goal.completed ? " goal-card--completed" : ""
               }`}
               onClick={() => onSelect(categoryId)}
-              aria-label={`${goal.name}: ${formatValue(
-                goal.current,
-              )} of ${formatValue(goal.goal)} ${
-                goal.unit
-              }. ${goal.percentage}% complete.${
-                requirement ? ` ${requirement}.` : ""
-              }`}
+              aria-label={`${goal.name}: ${formatValue(goal.current)} of ${formatValue(
+                goal.goal,
+              )} ${goal.unit}. ${goal.percentage}% complete. ${
+                goal.completed
+                  ? `${goal.bonusPoints} bonus points earned.`
+                  : `${goal.bonusPoints} bonus points available.`
+              }${requirement ? ` ${requirement}.` : ""}`}
             >
               <span className="goal-card__topline">
                 <span className="goal-card__title">
                   <span className="goal-card__emoji" aria-hidden="true">
                     {goal.emoji}
                   </span>
-
                   <span>{goal.name}</span>
                 </span>
 
@@ -118,9 +112,7 @@ export default function DailyGoals({
               <span className="goal-card__track" aria-hidden="true">
                 <span
                   className="goal-card__fill"
-                  style={{
-                    width: `${goal.percentage}%`,
-                  }}
+                  style={{ width: `${goal.percentage}%` }}
                 />
               </span>
 
@@ -130,7 +122,11 @@ export default function DailyGoals({
                   {goal.unit ? ` ${goal.unit}` : ""}
                 </span>
 
-                <span>{goal.completed ? "Complete ✓" : "Log activity →"}</span>
+                <span>
+                  {goal.completed
+                    ? `+${goal.bonusPoints} pts earned ✓`
+                    : `+${goal.bonusPoints} pts at goal`}
+                </span>
               </span>
 
               {requirement && (
