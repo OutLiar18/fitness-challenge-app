@@ -1,0 +1,115 @@
+import { WORKOUT_CATEGORY_IDS } from "./categories";
+
+export const GOAL_PERIODS = Object.freeze({
+  DAILY: "daily",
+  WEEKLY: "weekly",
+});
+
+export const GOAL_CONFIGURATIONS = [
+  {
+    id: "water",
+    name: "Water",
+    emoji: "💧",
+    categoryId: "water",
+    selectCategoryId: "water",
+    metric: "categoryTotal",
+    unit: "ml",
+    targets: {
+      daily: 2000,
+      weekly: 15000,
+    },
+  },
+  {
+    id: "fruit",
+    name: "Fruit",
+    emoji: "🍎",
+    categoryId: "fruit",
+    selectCategoryId: "fruit",
+    metric: "categoryTotal",
+    unit: "servings",
+    targets: {
+      daily: 3,
+      weekly: 21,
+    },
+  },
+  {
+    id: "reading",
+    name: "Reading",
+    emoji: "📚",
+    categoryId: "reading",
+    selectCategoryId: "reading",
+    metric: "categoryTotal",
+    unit: "min",
+    targets: {
+      daily: 60,
+      weekly: 450,
+    },
+  },
+  {
+    id: "running",
+    name: "Running",
+    emoji: "🏃",
+    categoryId: "running",
+    selectCategoryId: "running",
+    metric: "categoryTotal",
+    unit: "km",
+    targets: {
+      weekly: 5,
+    },
+    minimumEntries: {
+      weekly: 1,
+    },
+  },
+  {
+    id: "workouts",
+    name: "All Workouts",
+    emoji: "🏋️",
+    categoryIds: WORKOUT_CATEGORY_IDS,
+    selectCategoryId: "upperBody",
+    metric: "effectiveReps",
+    unit: "effective reps",
+    targets: {
+      daily: 50,
+      weekly: 400,
+    },
+  },
+  {
+    id: "cardio",
+    name: "Cardio",
+    emoji: "❤️",
+    categoryId: "cardio",
+    selectCategoryId: "cardio",
+    metric: "categoryTotal",
+    unit: "min",
+    targets: {
+      daily: 15,
+      weekly: 150,
+    },
+  },
+  {
+    id: "skill",
+    name: "Skill Development",
+    emoji: "🎯",
+    categoryId: "skill",
+    selectCategoryId: "skill",
+    metric: "categoryTotal",
+    unit: "min",
+    targets: {
+      daily: 15,
+      weekly: 150,
+    },
+  },
+  {
+    id: "steps",
+    name: "Steps",
+    emoji: "👣",
+    categoryId: "steps",
+    selectCategoryId: "steps",
+    metric: "categoryTotal",
+    unit: "steps",
+    targets: {
+      daily: 10000,
+      weekly: 90000,
+    },
+  },
+];

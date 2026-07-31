@@ -7,7 +7,7 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 20px;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .daily-goals__header p {
@@ -27,6 +27,44 @@
   color: var(--text-muted);
   font-size: 0.85rem;
   font-weight: 700;
+  white-space: nowrap;
+}
+
+.goal-period-tabs {
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(100px, 1fr));
+  gap: 4px;
+  margin-bottom: 18px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-soft);
+}
+
+.goal-period-tab {
+  min-height: 44px;
+  padding: 9px 18px;
+  border: 0;
+  border-radius: calc(var(--radius-md) - 4px);
+  color: var(--text-muted);
+  background: transparent;
+  font-size: 0.86rem;
+  font-weight: 800;
+  transition:
+    color var(--transition),
+    background var(--transition),
+    box-shadow var(--transition);
+}
+
+.goal-period-tab:hover {
+  color: var(--text);
+  background: var(--surface);
+}
+
+.goal-period-tab--active {
+  color: var(--primary-strong);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
 }
 
 .daily-goals__grid {
@@ -128,10 +166,19 @@
 .goal-card__footer span:last-child {
   color: var(--primary);
   font-weight: 750;
+  white-space: nowrap;
 }
 
 .goal-card--completed .goal-card__footer span:last-child {
   color: var(--success);
+}
+
+.goal-card__requirement {
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
 }
 
 @media (max-width: 650px) {
@@ -143,5 +190,15 @@
     align-items: flex-start;
     flex-direction: column;
     gap: 5px;
+  }
+}
+
+@media (max-width: 420px) {
+  .daily-goals {
+    padding: 18px;
+  }
+
+  .goal-period-tabs {
+    width: 100%;
   }
 }

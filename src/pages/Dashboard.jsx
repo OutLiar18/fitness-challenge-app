@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import CategoryGrid from "../components/categories/CategoryGrid";
 import Toast from "../components/common/Toast/Toast";
 import DailyGoals from "../components/dashboard/DailyGoals";
@@ -9,16 +10,20 @@ import TopCategories from "../components/dashboard/TopCategories";
 import WelcomeCard from "../components/dashboard/WelcomeCard";
 import EntryForm from "../components/entries/EntryForm";
 import Journal from "../components/journal/Journal";
+import { GOAL_PERIODS } from "../constants/goals";
 import useAuth from "../hooks/useAuth";
 import useDashboardData from "../hooks/useDashboardData";
 import useToast from "../hooks/useToast";
 import { logoutUser } from "../services/auth/authService";
-import { isEditableDate, normalizeChallengeDate } from "../services/dateService";
+import {
+  isEditableDate,
+  normalizeChallengeDate,
+} from "../services/dateService";
 import { deleteEntry, saveChallengeEntry } from "../services/entries";
 import { getValidationMessage } from "../services/messageService";
 import {
-  getDailyGoals,
   getEntriesForDate,
+  getGoalsForPeriod,
   getTodayEntryCount,
   getTodayPoints,
   getTopCategories,
@@ -35,27 +40,43 @@ function getInitialFormData(categoryId) {
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { profile, entries, loading, error: dataError } = useDashboardData(
-    user?.uid,
-  );
+
+  const {
+    profile,
+    entries,
+    loading,
+    error: dataError,
+  } = useDashboardData(user?.uid);
+
   const { toast, showToast, dismissToast } = useToast();
 
   const [selectedDate, setSelectedDate] = useState(() =>
     normalizeChallengeDate(new Date()),
   );
+
   const [categoryId, setCategoryId] = useState("water");
+
+  const [goalPeriod, setGoalPeriod] = useState(GOAL_PERIODS.DAILY);
+
   const [formData, setFormData] = useState(() => getInitialFormData("water"));
+
   const [formErrors, setFormErrors] = useState([]);
   const [saving, setSaving] = useState(false);
 
   const readOnly = !isEditableDate(selectedDate);
 
-  const dailyGoals = useMemo(() => getDailyGoals(entries), [entries]);
+  const goals = useMemo(
+    () => getGoalsForPeriod(entries, goalPeriod),
+    [entries, goalPeriod],
+  );
+
   const selectedEntries = useMemo(
     () => getEntriesForDate(entries, selectedDate),
     [entries, selectedDate],
   );
+
   const topCategories = useMemo(() => getTopCategories(entries), [entries]);
+
   const stats = useMemo(
     () => ({
       points: getTotalPoints(entries),
@@ -78,6 +99,7 @@ export default function Dashboard() {
       navigate("/", { replace: true });
     } catch (error) {
       console.error(error);
+
       showToast(error.message || "You could not be logged out.", "error");
     }
   }
@@ -91,6 +113,7 @@ export default function Dashboard() {
 
     if (!category) {
       showToast("The selected category could not be found.", "error");
+
       return;
     }
 
@@ -109,12 +132,16 @@ export default function Dashboard() {
 
       if (!result.success) {
         setFormErrors(result.errors);
+
         showToast(getValidationMessage(categoryId), "error");
+
         return;
       }
 
       const nextCategory = result.nextCategory ?? categoryId;
+
       setCategoryId(nextCategory);
+
       setFormData(getInitialFormData(nextCategory));
 
       if (result.warning) {
@@ -124,6 +151,7 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.error(error);
+
       showToast(error.message || "The entry could not be saved.", "error");
     } finally {
       setSaving(false);
@@ -148,6 +176,7 @@ export default function Dashboard() {
       showToast("Entry deleted.");
     } catch (error) {
       console.error(error);
+
       showToast(error.message || "The entry could not be deleted.", "error");
     }
   }
@@ -157,35 +186,53 @@ export default function Dashboard() {
       <div className="dashboard-shell">
         <header className="dashboard-topbar">
           <div className="dashboard-brand">
-            <span className="dashboard-brand__icon" aria-hidden="true">🏆</span>
+            <span className="dashboard-brand__icon" aria-hidden="true">
+              🏆
+            </span>
+
             <span className="dashboard-brand__text">Champions Legacy</span>
           </div>
 
-          <button className="button button--secondary" type="button" onClick={handleLogout}>
+          <button
+            className="button button--secondary"
+            type="button"
+            onClick={handleLogout}
+          >
             Sign out
           </button>
         </header>
 
         {dataError && (
-          <div className="inline-alert inline-alert--danger dashboard-data-error" role="alert">
+          <div
+            className="inline-alert inline-alert--danger dashboard-data-error"
+            role="alert"
+          >
             {dataError}
           </div>
         )}
 
         <WelcomeCard profile={profile} user={user} />
+
         <StatsCard stats={stats} />
 
         <div className="dashboard-insights">
-          <DailyProgress goals={dailyGoals} />
+          <DailyProgress goals={goals} period={goalPeriod} />
+
           <TopCategories categories={topCategories} />
         </div>
 
         <section className="dashboard-section">
-          <DailyGoals goals={dailyGoals} onSelect={handleCategorySelect} />
+          <DailyGoals
+            goals={goals}
+            period={goalPeriod}
+            onPeriodChange={setGoalPeriod}
+            onSelect={handleCategorySelect}
+          />
         </section>
 
         <div className="dashboard-workspace">
           <CategoryGrid selected={categoryId} onSelect={handleCategorySelect} />
+
           <EntryForm
             userId={user?.uid}
             type={categoryId}

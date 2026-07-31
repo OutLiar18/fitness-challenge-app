@@ -1,4 +1,10 @@
-export { getCategoryEntries, getEntriesForDate, getTodayEntries } from "./filters";
+export {
+  getCategoryEntries,
+  getEntriesForDate,
+  getEntriesForWeek,
+  getTodayEntries,
+} from "./filters";
+
 export {
   getCategoryEntryCount,
   getCategoryTotal,
@@ -10,6 +16,9 @@ export {
   getTotalRunning,
   getTotalWater,
 } from "./totals";
+
 export { getTopCategories } from "./categories";
-export { getDailyGoals } from "./daily";
+
+export { getDailyGoals, getGoalsForPeriod, getWeeklyGoals } from "./goals";
+
 export { getMissionProgress, getNextGoal } from "./mission";

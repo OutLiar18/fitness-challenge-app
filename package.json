@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "check": "npm run lint && npm test && npm run build",
-    "test": "node --import=./scripts/register-loader.mjs --test tests/domain.test.mjs"
+    "test": "node --import=./scripts/register-loader.mjs --test tests/domain.test.mjs tests/goals.test.mjs"
   },
   "dependencies": {
     "firebase": "^12.15.0",
