@@ -125,7 +125,7 @@ test("Workout daily goals use Effective Repetitions", () => {
   assert.equal(goal.current, 50);
   assert.equal(goal.goal, 50);
   assert.equal(goal.percentage, 100);
-  assert.equal(goal.unit, "effective reps");
+  assert.equal(goal.unit, "Effective Repetitions");
   assert.equal(goal.completed, true);
 });
 
@@ -146,7 +146,7 @@ test("Legacy exercise definitions without exerciseType still score", () => {
   const result = getEntryPointBreakdown(entry);
 
   assert.ok(result.total > 0);
-  assert.equal(result.breakdown[0].detail, "20 effective reps");
+  assert.equal(result.breakdown[0].detail, "20 Effective Repetitions");
 });
 
 test("Tier 5 custom workout exercises validate and score", () => {

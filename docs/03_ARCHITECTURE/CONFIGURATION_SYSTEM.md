@@ -132,7 +132,7 @@ Configuration may define:
 
 - Base points
 - Multipliers
-- Effective reps
+- Effective Repetitions
 - Daily limits
 - Bonus conditions
 

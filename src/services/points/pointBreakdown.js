@@ -36,7 +36,7 @@ function getWorkoutBreakdown(entry) {
         points: result.points,
         detail:
           result.effectiveReps > 0
-            ? `${result.effectiveReps} effective reps`
+            ? `${result.effectiveReps} Effective Repetitions`
             : "",
       }),
     ],

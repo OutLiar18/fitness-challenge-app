@@ -54,7 +54,7 @@ export const GOAL_CONFIGURATIONS = [
     categoryIds: ["upperBody"],
     selectCategoryId: "upperBody",
     metric: "effectiveReps",
-    unit: "effective reps",
+    unit: "Effective Repetitions",
     targets: { daily: 50, weekly: 400 },
   },
   {
@@ -64,7 +64,7 @@ export const GOAL_CONFIGURATIONS = [
     categoryIds: ["lowerBody"],
     selectCategoryId: "lowerBody",
     metric: "effectiveReps",
-    unit: "effective reps",
+    unit: "Effective Repetitions",
     targets: { daily: 50, weekly: 400 },
   },
   {
@@ -74,7 +74,7 @@ export const GOAL_CONFIGURATIONS = [
     categoryIds: ["core"],
     selectCategoryId: "core",
     metric: "effectiveReps",
-    unit: "effective reps",
+    unit: "Effective Repetitions",
     targets: { daily: 50, weekly: 400 },
   },
   {

@@ -89,11 +89,11 @@ Consistency is valued more highly than isolated exceptional performances.
 
 ---
 
-# Effective Reps
+# Effective Repetitions
 
 A normalised measurement used to estimate meaningful training effort across different exercises.
 
-Effective Reps provide a fairer comparison between exercises with different levels of difficulty.
+Effective Repetitions provide a fairer comparison between exercises with different levels of difficulty.
 
 ---
 
