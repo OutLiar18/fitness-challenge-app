@@ -38,41 +38,52 @@ function createWorkout(category, exercise, reps, date) {
   );
 }
 
-test("Daily goals exclude Running and combine workout categories", () => {
+test("Daily goals exclude Running and show each workout category", () => {
   const referenceDate = new Date(2026, 6, 29, 12);
 
   const entries = [
-    createWorkout("upperBody", "Push Up", 20, referenceDate),
+    createWorkout("upperBody", "Push Up", 50, referenceDate),
     createWorkout("lowerBody", "Bodyweight Squat", 30, referenceDate),
+    createWorkout("core", "Sit Up", 20, referenceDate),
   ];
 
   const goals = getDailyGoals(entries, referenceDate);
 
-  assert.equal(goals.length, 7);
+  assert.equal(goals.length, 9);
 
   assert.equal(
     goals.some((goal) => goal.goalId === "running"),
     false,
   );
 
-  const workouts = goals.find((goal) => goal.goalId === "workouts");
+  const upperBody = goals.find((goal) => goal.goalId === "upperBody");
 
-  assert.equal(workouts.current, 50);
-  assert.equal(workouts.goal, 50);
-  assert.equal(workouts.completed, true);
+  assert.equal(upperBody.current, 50);
+  assert.equal(upperBody.goal, 50);
+  assert.equal(upperBody.completed, true);
+
+  const lowerBody = goals.find((goal) => goal.goalId === "lowerBody");
+
+  assert.equal(lowerBody.current, 30);
+  assert.equal(lowerBody.goal, 50);
+  assert.equal(lowerBody.completed, false);
+
+  const core = goals.find((goal) => goal.goalId === "core");
+
+  assert.equal(core.current, 20);
+  assert.equal(core.goal, 50);
+  assert.equal(core.completed, false);
 
   assert.equal(goals.find((goal) => goal.goalId === "reading").goal, 60);
 
   assert.equal(goals.find((goal) => goal.goalId === "cardio").goal, 15);
 });
 
-test("Weekly goals use Monday through Sunday and include Running Cardio time", () => {
+test("Weekly goals use Monday through Sunday and separate workout categories", () => {
   const referenceDate = new Date(2026, 6, 29, 12);
 
   const previousSunday = new Date(2026, 6, 26, 12);
-
   const monday = new Date(2026, 6, 27, 12);
-
   const sunday = new Date(2026, 7, 2, 12);
 
   const entries = [
@@ -103,8 +114,9 @@ test("Weekly goals use Monday through Sunday and include Running Cardio time", (
       },
       monday,
     ),
-    createWorkout("upperBody", "Push Up", 200, monday),
-    createWorkout("lowerBody", "Bodyweight Squat", 200, sunday),
+    createWorkout("upperBody", "Push Up", 400, monday),
+    createWorkout("lowerBody", "Bodyweight Squat", 250, sunday),
+    createWorkout("core", "Sit Up", 400, sunday),
   ];
 
   const weekEntries = getEntriesForWeek(entries, referenceDate);
@@ -113,7 +125,7 @@ test("Weekly goals use Monday through Sunday and include Running Cardio time", (
 
   const goals = getWeeklyGoals(entries, referenceDate);
 
-  assert.equal(goals.length, 8);
+  assert.equal(goals.length, 10);
 
   const water = goals.find((goal) => goal.goalId === "water");
 
@@ -127,10 +139,20 @@ test("Weekly goals use Monday through Sunday and include Running Cardio time", (
   assert.equal(running.minimumEntries, 1);
   assert.equal(running.completed, true);
 
-  const workouts = goals.find((goal) => goal.goalId === "workouts");
+  const upperBody = goals.find((goal) => goal.goalId === "upperBody");
 
-  assert.equal(workouts.current, 400);
-  assert.equal(workouts.completed, true);
+  assert.equal(upperBody.current, 400);
+  assert.equal(upperBody.completed, true);
+
+  const lowerBody = goals.find((goal) => goal.goalId === "lowerBody");
+
+  assert.equal(lowerBody.current, 250);
+  assert.equal(lowerBody.completed, false);
+
+  const core = goals.find((goal) => goal.goalId === "core");
+
+  assert.equal(core.current, 400);
+  assert.equal(core.completed, true);
 
   const cardio = goals.find((goal) => goal.goalId === "cardio");
 

@@ -1,5 +1,3 @@
-import { WORKOUT_CATEGORY_IDS } from "./categories";
-
 export const GOAL_PERIODS = Object.freeze({
   DAILY: "daily",
   WEEKLY: "weekly",
@@ -61,11 +59,37 @@ export const GOAL_CONFIGURATIONS = [
     },
   },
   {
-    id: "workouts",
-    name: "All Workouts",
-    emoji: "🏋️",
-    categoryIds: WORKOUT_CATEGORY_IDS,
+    id: "upperBody",
+    name: "Upper Body",
+    emoji: "💪",
+    categoryIds: ["upperBody"],
     selectCategoryId: "upperBody",
+    metric: "effectiveReps",
+    unit: "effective reps",
+    targets: {
+      daily: 50,
+      weekly: 400,
+    },
+  },
+  {
+    id: "lowerBody",
+    name: "Lower Body",
+    emoji: "🦵",
+    categoryIds: ["lowerBody"],
+    selectCategoryId: "lowerBody",
+    metric: "effectiveReps",
+    unit: "effective reps",
+    targets: {
+      daily: 50,
+      weekly: 400,
+    },
+  },
+  {
+    id: "core",
+    name: "Core",
+    emoji: "🔥",
+    categoryIds: ["core"],
+    selectCategoryId: "core",
     metric: "effectiveReps",
     unit: "effective reps",
     targets: {
