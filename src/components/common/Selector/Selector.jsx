@@ -1,93 +1,83 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import "./Selector.css";
 
 function normalizeText(value) {
-  return String(value ?? "")
-    .trim()
-    .toLowerCase();
+  return String(value ?? "").trim().toLocaleLowerCase();
 }
+
+const defaultGetItemKey = (item) => item?.id ?? item?.label ?? item;
+const defaultGetItemLabel = (item) =>
+  item?.label ?? item?.name ?? String(item ?? "");
+const defaultGetItemGroup = () => "";
 
 export default function Selector({
   label,
   required = false,
-
   mode = "single",
   displayMode = "control",
-
   value = "",
   items = [],
-
   onInputChange,
   onSelect,
   onChange,
   onCustom,
-
-  getItemKey = (item) => item?.id ?? item?.label ?? item,
-  getItemLabel = (item) => item?.label ?? item?.name ?? String(item ?? ""),
-  getItemGroup = () => "",
+  getItemKey = defaultGetItemKey,
+  getItemLabel = defaultGetItemLabel,
+  getItemGroup = defaultGetItemGroup,
   renderItem,
-
   disabled = false,
-
-  placeholder = "Select an option...",
-  searchPlaceholder = "Search...",
-
+  placeholder = "Select an option…",
+  searchPlaceholder = "Search…",
   allowCustom = false,
   customLabel = "Use new entry",
-
   loading = false,
   error = "",
-
   recentLabel = "Recently used",
   resultsLabel = "Suggestions",
   emptyMessage = "No matching options found.",
-
   maxResults,
   showHeading = false,
 }) {
+  const generatedId = useId().replaceAll(":", "");
+  const controlId = `selector-${generatedId}`;
+  const menuId = `${controlId}-menu`;
   const wrapperRef = useRef(null);
   const searchInputRef = useRef(null);
-
   const [open, setOpen] = useState(false);
   const [internalSearch, setInternalSearch] = useState("");
   const [highlightedIndex, setHighlightedIndex] = useState(0);
 
   const multiple = mode === "multiple";
   const inputDisplay = displayMode === "input";
-
   const selectedValues = multiple && Array.isArray(value) ? value : [];
-
   const searchText = inputDisplay ? String(value ?? "") : internalSearch;
-
   const normalizedSearch = normalizeText(searchText);
 
   useEffect(() => {
-    function handleClickOutside(event) {
+    function handlePointerOutside(event) {
       if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
         setOpen(false);
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    document.addEventListener("pointerdown", handlePointerOutside);
+    return () => document.removeEventListener("pointerdown", handlePointerOutside);
   }, []);
 
   useEffect(() => {
     if (!open || inputDisplay) {
-      return;
+      return undefined;
     }
 
-    window.setTimeout(() => {
+    const frame = window.requestAnimationFrame(() => {
       searchInputRef.current?.focus();
-    }, 0);
+    });
+
+    return () => window.cancelAnimationFrame(frame);
   }, [open, inputDisplay]);
 
   const filteredItems = useMemo(() => {
-    const matchingItems = !normalizedSearch
+    const matches = !normalizedSearch
       ? items
       : items.filter((item) => {
           const labelText = normalizeText(getItemLabel(item));
@@ -99,11 +89,7 @@ export default function Selector({
           );
         });
 
-    if (Number.isFinite(maxResults)) {
-      return matchingItems.slice(0, maxResults);
-    }
-
-    return matchingItems;
+    return Number.isFinite(maxResults) ? matches.slice(0, maxResults) : matches;
   }, [items, normalizedSearch, getItemLabel, getItemGroup, maxResults]);
 
   const exactMatch = useMemo(() => {
@@ -122,19 +108,13 @@ export default function Selector({
     allowCustom && Boolean(normalizedSearch) && !exactMatch && !multiple;
 
   const selectableItems = useMemo(() => {
-    const normalItems = filteredItems.map((item) => ({
-      type: "item",
-      item,
-    }));
+    const result = filteredItems.map((item) => ({ type: "item", item }));
 
     if (canUseCustom) {
-      normalItems.push({
-        type: "custom",
-        value: searchText.trim(),
-      });
+      result.push({ type: "custom", value: searchText.trim() });
     }
 
-    return normalItems;
+    return result;
   }, [filteredItems, canUseCustom, searchText]);
 
   const groupedItems = useMemo(() => {
@@ -145,56 +125,38 @@ export default function Selector({
       const groupName = getItemGroup(item) || "";
 
       if (!groupMap.has(groupName)) {
-        const group = {
-          name: groupName,
-          items: [],
-        };
-
+        const group = { name: groupName, items: [] };
         groupMap.set(groupName, group);
         groups.push(group);
       }
 
-      groupMap.get(groupName).items.push({
-        item,
-        flatIndex,
-      });
+      groupMap.get(groupName).items.push({ item, flatIndex });
     });
 
     return groups;
   }, [filteredItems, getItemGroup]);
 
-  function resetSearch() {
-    if (!inputDisplay) {
-      setInternalSearch("");
-    }
+  const safeHighlightedIndex = Math.min(
+    highlightedIndex,
+    Math.max(selectableItems.length - 1, 0),
+  );
 
-    setHighlightedIndex(0);
-  }
+  const activeDescendant =
+    open && selectableItems.length > 0
+      ? `${menuId}-option-${safeHighlightedIndex}`
+      : undefined;
 
   function closeSelector() {
     setOpen(false);
-    resetSearch();
+    setHighlightedIndex(0);
+
+    if (!inputDisplay) {
+      setInternalSearch("");
+    }
   }
 
   function isItemSelected(item) {
-    const itemLabel = getItemLabel(item);
-
-    return selectedValues.includes(itemLabel);
-  }
-
-  function selectSingleItem(item) {
-    onSelect?.(item);
-    closeSelector();
-  }
-
-  function toggleMultipleItem(item) {
-    const itemLabel = getItemLabel(item);
-
-    const nextValues = selectedValues.includes(itemLabel)
-      ? selectedValues.filter((selectedValue) => selectedValue !== itemLabel)
-      : [...selectedValues, itemLabel];
-
-    onChange?.(nextValues);
+    return selectedValues.includes(getItemLabel(item));
   }
 
   function selectItem(item) {
@@ -203,11 +165,17 @@ export default function Selector({
     }
 
     if (multiple) {
-      toggleMultipleItem(item);
+      const itemLabel = getItemLabel(item);
+      const nextValues = selectedValues.includes(itemLabel)
+        ? selectedValues.filter((selectedValue) => selectedValue !== itemLabel)
+        : [...selectedValues, itemLabel];
+
+      onChange?.(nextValues);
       return;
     }
 
-    selectSingleItem(item);
+    onSelect?.(item);
+    closeSelector();
   }
 
   function selectCustomValue() {
@@ -219,28 +187,6 @@ export default function Selector({
 
     onCustom?.(customValue);
     closeSelector();
-  }
-
-  function removeSelectedValue(selectedValue, event) {
-    event.stopPropagation();
-
-    if (disabled) {
-      return;
-    }
-
-    onChange?.(
-      selectedValues.filter((valueItem) => valueItem !== selectedValue),
-    );
-  }
-
-  function clearSelectedValues(event) {
-    event.stopPropagation();
-
-    if (disabled) {
-      return;
-    }
-
-    onChange?.([]);
   }
 
   function handleSearchChange(nextValue) {
@@ -255,89 +201,85 @@ export default function Selector({
   }
 
   function handleKeyDown(event) {
-    if (event.key === "ArrowDown") {
-      event.preventDefault();
-
-      if (!open) {
-        setOpen(true);
-        return;
-      }
-
-      setHighlightedIndex((currentIndex) => {
-        const maxIndex = Math.max(selectableItems.length - 1, 0);
-        return Math.min(currentIndex + 1, maxIndex);
-      });
-
-      return;
-    }
-
-    if (event.key === "ArrowUp") {
-      event.preventDefault();
-
-      setHighlightedIndex((currentIndex) => Math.max(currentIndex - 1, 0));
-
-      return;
-    }
-
-    if (event.key === "Enter") {
-      if (!open) {
-        setOpen(true);
-        return;
-      }
-
-      event.preventDefault();
-
-      const safeHighlightedIndex = Math.min(
-        highlightedIndex,
-        Math.max(selectableItems.length - 1, 0),
-      );
-
-      const highlightedItem = selectableItems[safeHighlightedIndex];
-
-      if (!highlightedItem) {
-        return;
-      }
-
-      if (highlightedItem.type === "custom") {
-        selectCustomValue();
-        return;
-      }
-
-      selectItem(highlightedItem.item);
+    if (event.key === "Tab") {
+      setOpen(false);
       return;
     }
 
     if (event.key === "Escape") {
-      setOpen(false);
+      event.preventDefault();
+      closeSelector();
+      return;
+    }
+
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault();
+
+      if (!open) {
+        setOpen(true);
+        return;
+      }
+
+      const direction = event.key === "ArrowDown" ? 1 : -1;
+      const lastIndex = Math.max(selectableItems.length - 1, 0);
+
+      setHighlightedIndex((current) =>
+        Math.min(lastIndex, Math.max(0, current + direction)),
+      );
+      return;
+    }
+
+    if (event.key === "Home" && open) {
+      event.preventDefault();
+      setHighlightedIndex(0);
+      return;
+    }
+
+    if (event.key === "End" && open) {
+      event.preventDefault();
+      setHighlightedIndex(Math.max(selectableItems.length - 1, 0));
+      return;
+    }
+
+    if (event.key !== "Enter" || !open) {
+      return;
+    }
+
+    event.preventDefault();
+    const highlightedItem = selectableItems[safeHighlightedIndex];
+
+    if (highlightedItem?.type === "custom") {
+      selectCustomValue();
+    } else if (highlightedItem?.item) {
+      selectItem(highlightedItem.item);
     }
   }
 
   function renderOption(item, flatIndex) {
     const itemKey = getItemKey(item);
     const itemLabel = getItemLabel(item);
-    const selected = multiple && isItemSelected(item);
-    const highlighted = highlightedIndex === flatIndex;
+    const selected = multiple
+      ? isItemSelected(item)
+      : normalizeText(value) === normalizeText(itemLabel);
+    const highlighted = safeHighlightedIndex === flatIndex;
+    const optionId = `${menuId}-option-${flatIndex}`;
 
     return (
       <button
+        id={optionId}
         key={itemKey}
         type="button"
         role="option"
         aria-selected={selected}
-        className={[
-          "selector__option",
-          selected ? "selector__option--selected" : "",
-          highlighted ? "selector__option--active" : "",
-        ]
-          .filter(Boolean)
-          .join(" ")}
+        className={`selector__option${selected ? " selector__option--selected" : ""}${highlighted ? " selector__option--active" : ""}`}
         onMouseEnter={() => setHighlightedIndex(flatIndex)}
         onClick={() => selectItem(item)}
       >
         {multiple && (
-          <input type="checkbox" tabIndex={-1} checked={selected} readOnly />
+          <span className="selector__check" aria-hidden="true">
+            {selected ? "✓" : ""}
+          </span>
         )}
-
         <span className="selector__option-content">
           {renderItem ? renderItem(item) : itemLabel}
         </span>
@@ -347,7 +289,7 @@ export default function Selector({
 
   function renderMenuContent() {
     if (loading) {
-      return <div className="selector__message">Loading...</div>;
+      return <div className="selector__message">Loading…</div>;
     }
 
     if (error) {
@@ -371,7 +313,6 @@ export default function Selector({
             {group.name && (
               <div className="selector__group-label">{group.name}</div>
             )}
-
             {group.items.map(({ item, flatIndex }) =>
               renderOption(item, flatIndex),
             )}
@@ -381,21 +322,19 @@ export default function Selector({
         {canUseCustom && (
           <>
             {filteredItems.length > 0 && <div className="selector__divider" />}
-
             <button
+              id={`${menuId}-option-${filteredItems.length}`}
               type="button"
-              className={[
-                "selector__custom",
-                highlightedIndex === filteredItems.length
-                  ? "selector__option--active"
-                  : "",
-              ]
-                .filter(Boolean)
-                .join(" ")}
+              role="option"
+              aria-selected="false"
+              className={`selector__custom${safeHighlightedIndex === filteredItems.length ? " selector__option--active" : ""}`}
               onMouseEnter={() => setHighlightedIndex(filteredItems.length)}
               onClick={selectCustomValue}
             >
-              ＋ {customLabel}: <strong>{searchText.trim()}</strong>
+              <span aria-hidden="true">＋</span>
+              <span>
+                {customLabel}: <strong>{searchText.trim()}</strong>
+              </span>
             </button>
           </>
         )}
@@ -412,102 +351,101 @@ export default function Selector({
   return (
     <div
       ref={wrapperRef}
-      className={["selector", multiple ? "selector--multiple" : ""]
-        .filter(Boolean)
-        .join(" ")}
+      className={`selector${multiple ? " selector--multiple" : ""}`}
     >
       {label && (
-        <label className="selector__label">
-          <strong>
-            {label}
-            {required ? " *" : ""}
-          </strong>
+        <label className="selector__label" htmlFor={controlId}>
+          {label}
+          {required && (
+            <span className="form-required" aria-hidden="true">
+              {" "}*
+            </span>
+          )}
         </label>
       )}
 
       {inputDisplay ? (
         <input
+          id={controlId}
           type="text"
+          role="combobox"
           className="selector__input"
+          aria-autocomplete="list"
+          aria-controls={menuId}
+          aria-expanded={open}
+          aria-activedescendant={activeDescendant}
           disabled={disabled}
           required={required}
           autoComplete="off"
           spellCheck
           value={String(value ?? "")}
           placeholder={placeholder}
-          onFocus={() => {
-            if (!disabled) {
-              setOpen(true);
-            }
-          }}
+          onFocus={() => !disabled && setOpen(true)}
           onChange={(event) => handleSearchChange(event.target.value)}
           onKeyDown={handleKeyDown}
         />
       ) : (
         <div
-          className={[
-            "selector__control",
-            disabled ? "selector__control--disabled" : "",
-          ]
-            .filter(Boolean)
-            .join(" ")}
-          role="button"
-          tabIndex={disabled ? -1 : 0}
-          onClick={() => {
-            if (!disabled) {
-              setOpen((currentValue) => !currentValue);
-            }
-          }}
-          onKeyDown={handleKeyDown}
+          className={`selector__control${disabled ? " selector__control--disabled" : ""}`}
         >
-          <div className="selector__values">
-            {multiple ? (
-              selectedValues.length > 0 ? (
-                selectedValues.map((selectedValue) => (
-                  <span key={selectedValue} className="selector__tag">
-                    {selectedValue}
+          {multiple && selectedValues.length > 0 && (
+            <div className="selector__tags" aria-label="Selected values">
+              {selectedValues.map((selectedValue) => (
+                <span key={selectedValue} className="selector__tag">
+                  <span>{selectedValue}</span>
+                  {!disabled && (
+                    <button
+                      type="button"
+                      className="selector__tag-remove"
+                      aria-label={`Remove ${selectedValue}`}
+                      onClick={() =>
+                        onChange?.(
+                          selectedValues.filter((item) => item !== selectedValue),
+                        )
+                      }
+                    >
+                      ×
+                    </button>
+                  )}
+                </span>
+              ))}
+            </div>
+          )}
 
-                    {!disabled && (
-                      <button
-                        type="button"
-                        className="selector__tag-remove"
-                        aria-label={`Remove ${selectedValue}`}
-                        onClick={(event) =>
-                          removeSelectedValue(selectedValue, event)
-                        }
-                      >
-                        ×
-                      </button>
-                    )}
-                  </span>
-                ))
-              ) : (
-                <span className="selector__placeholder">{placeholder}</span>
-              )
-            ) : (
-              <span
-                className={
-                  value ? "selector__selected-value" : "selector__placeholder"
-                }
-              >
-                {value || placeholder}
-              </span>
-            )}
-          </div>
+          <button
+            id={controlId}
+            type="button"
+            className="selector__trigger"
+            aria-haspopup="listbox"
+            aria-controls={menuId}
+            aria-expanded={open}
+            disabled={disabled}
+            onClick={() => setOpen((current) => !current)}
+            onKeyDown={handleKeyDown}
+          >
+            <span
+              className={
+                multiple || !value
+                  ? "selector__placeholder"
+                  : "selector__selected-value"
+              }
+            >
+              {multiple ? (selectedValues.length ? "Add more…" : placeholder) : value || placeholder}
+            </span>
+            <span className="selector__arrow" aria-hidden="true">
+              {open ? "▲" : "▼"}
+            </span>
+          </button>
 
-          <div className="selector__actions">
-            {multiple && !disabled && selectedValues.length > 0 && (
-              <button
-                type="button"
-                className="selector__clear"
-                onClick={clearSelectedValues}
-              >
-                Clear
-              </button>
-            )}
-
-            <span className="selector__arrow">{open ? "▲" : "▼"}</span>
-          </div>
+          {multiple && !disabled && selectedValues.length > 0 && (
+            <button
+              className="selector__clear"
+              type="button"
+              onClick={() => onChange?.([])}
+            >
+              Clear
+            </button>
+          )}
         </div>
       )}
 
@@ -517,18 +455,23 @@ export default function Selector({
             <input
               ref={searchInputRef}
               type="text"
+              role="combobox"
               className="selector__search"
+              aria-label={searchPlaceholder}
+              aria-controls={menuId}
+              aria-expanded="true"
+              aria-activedescendant={activeDescendant}
               placeholder={searchPlaceholder}
               value={internalSearch}
               onChange={(event) => handleSearchChange(event.target.value)}
               onKeyDown={handleKeyDown}
             />
           )}
-
           <div
+            id={menuId}
             className="selector__options"
             role="listbox"
-            aria-multiselectable={multiple}
+            aria-multiselectable={multiple || undefined}
           >
             {renderMenuContent()}
           </div>

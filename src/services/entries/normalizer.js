@@ -1,4 +1,4 @@
-const WORKOUT_CATEGORIES = new Set(["upperBody", "lowerBody", "core"]);
+import { WORKOUT_CATEGORIES } from "../../constants/categories";
 
 function toNonNegativeNumber(value) {
   if (value === "" || value === undefined || value === null) {
@@ -296,8 +296,15 @@ function normalizeExerciseDefinition(
 
     exerciseType,
 
-    proposedTier:
-      definition.proposedTier === "" ? "" : Number(definition.proposedTier),
+    proposedTier: (() => {
+      const proposedTier = Number(definition.proposedTier);
+
+      return Number.isInteger(proposedTier) &&
+        proposedTier >= 1 &&
+        proposedTier <= 5
+        ? proposedTier
+        : "";
+    })(),
 
     equipment: normalizeText(definition.equipment),
 

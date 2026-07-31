@@ -1,9 +1,13 @@
+export const WORKOUT_CATEGORY_IDS = ["upperBody", "lowerBody", "core"];
+
+export const WORKOUT_CATEGORIES = new Set(WORKOUT_CATEGORY_IDS);
+
 export const CATEGORIES = [
   {
     id: "water",
     name: "Water",
     emoji: "💧",
-
+    description: "Track the water you drink throughout the day.",
     fields: [
       {
         id: "amount",
@@ -15,18 +19,17 @@ export const CATEGORIES = [
         step: 1,
       },
     ],
-
     scoreField: "amount",
     unit: "ml",
     dailyGoal: 2000,
     goalType: "higher",
   },
-
   {
     id: "fruit",
     name: "Fruit",
     emoji: "🍎",
-
+    description:
+      "Record whole-fruit servings that support your nutrition goals.",
     fields: [
       {
         id: "fruitType",
@@ -44,32 +47,22 @@ export const CATEGORIES = [
         step: 1,
       },
     ],
-
     scoreField: "servings",
     unit: "servings",
     dailyGoal: 3,
     goalType: "higher",
   },
-
   {
     id: "reading",
     name: "Reading",
     emoji: "📚",
-
+    description: "Build knowledge through focused reading sessions.",
     fields: [
-      {
-        id: "hours",
-        label: "Hours",
-        type: "number",
-        required: false,
-        min: 0,
-        step: 1,
-      },
+      { id: "hours", label: "Hours", type: "number", min: 0, step: 1 },
       {
         id: "minutes",
         label: "Minutes",
         type: "number",
-        required: false,
         min: 0,
         max: 59,
         step: 1,
@@ -78,20 +71,19 @@ export const CATEGORIES = [
         id: "seconds",
         label: "Seconds",
         type: "number",
-        required: false,
         min: 0,
         max: 59,
         step: 1,
       },
       {
-        id: "book",
-        label: "Book Name",
+        id: "title",
+        label: "Book",
         type: "text",
         placeholder: "What book did you read?",
         required: true,
       },
       {
-        id: "completedBook",
+        id: "completed",
         label: "Book Completed",
         type: "select",
         required: true,
@@ -101,21 +93,19 @@ export const CATEGORIES = [
         label: "Reflection",
         type: "text",
         placeholder: "Optional: What did you learn?",
-        required: false,
       },
     ],
-
     scoreField: "totalMinutes",
     unit: "min",
     dailyGoal: 30,
     goalType: "higher",
   },
-
   {
     id: "running",
     name: "Running",
     emoji: "🏃",
-
+    description:
+      "Log distance, duration and pace. Running also contributes to Cardio.",
     fields: [
       {
         id: "distance",
@@ -126,19 +116,11 @@ export const CATEGORIES = [
         min: 0.01,
         step: 0.01,
       },
-      {
-        id: "hours",
-        label: "Hours",
-        type: "number",
-        required: false,
-        min: 0,
-        step: 1,
-      },
+      { id: "hours", label: "Hours", type: "number", min: 0, step: 1 },
       {
         id: "minutes",
         label: "Minutes",
         type: "number",
-        required: false,
         min: 0,
         max: 59,
         step: 1,
@@ -147,54 +129,57 @@ export const CATEGORIES = [
         id: "seconds",
         label: "Seconds",
         type: "number",
-        required: false,
         min: 0,
         max: 59,
         step: 1,
       },
     ],
-
     scoreField: "distance",
     unit: "km",
     dailyGoal: 5,
     goalType: "higher",
+    statisticsContributions: [
+      {
+        categoryId: "cardio",
+        field: "totalMinutes",
+      },
+    ],
   },
-
   {
     id: "upperBody",
     name: "Upper Body",
     emoji: "💪",
-
-    unit: "workout",
-    dailyGoal: 1,
+    description: "Train pushing, pulling and upper-body strength.",
+    unit: "effective reps",
+    dailyGoal: 50,
+    dailyGoalMetric: "effectiveReps",
     goalType: "higher",
   },
-
   {
     id: "lowerBody",
     name: "Lower Body",
     emoji: "🦵",
-
-    unit: "workout",
-    dailyGoal: 1,
+    description: "Build lower-body strength, balance and power.",
+    unit: "effective reps",
+    dailyGoal: 50,
+    dailyGoalMetric: "effectiveReps",
     goalType: "higher",
   },
-
   {
     id: "core",
     name: "Core",
     emoji: "🔥",
-
-    unit: "workout",
-    dailyGoal: 1,
+    description: "Strengthen your trunk, stability and control.",
+    unit: "effective reps",
+    dailyGoal: 50,
+    dailyGoalMetric: "effectiveReps",
     goalType: "higher",
   },
-
   {
     id: "cardio",
     name: "Cardio",
-    emoji: "🚴",
-
+    emoji: "❤️",
+    description: "Record conditioning work and cardiovascular activity.",
     fields: [
       {
         id: "activity",
@@ -202,19 +187,11 @@ export const CATEGORIES = [
         type: "select",
         required: true,
       },
-      {
-        id: "hours",
-        label: "Hours",
-        type: "number",
-        required: false,
-        min: 0,
-        step: 1,
-      },
+      { id: "hours", label: "Hours", type: "number", min: 0, step: 1 },
       {
         id: "minutes",
         label: "Minutes",
         type: "number",
-        required: false,
         min: 0,
         max: 59,
         step: 1,
@@ -223,24 +200,22 @@ export const CATEGORIES = [
         id: "seconds",
         label: "Seconds",
         type: "number",
-        required: false,
         min: 0,
         max: 59,
         step: 1,
       },
     ],
-
     scoreField: "totalMinutes",
     unit: "min",
     dailyGoal: 30,
     goalType: "higher",
   },
-
   {
     id: "skill",
     name: "Skill Development",
+    shortName: "Skills",
     emoji: "🎯",
-
+    description: "Practise a useful ability with deliberate focus.",
     fields: [
       {
         id: "skill",
@@ -248,19 +223,11 @@ export const CATEGORIES = [
         type: "select",
         required: true,
       },
-      {
-        id: "hours",
-        label: "Hours",
-        type: "number",
-        required: false,
-        min: 0,
-        step: 1,
-      },
+      { id: "hours", label: "Hours", type: "number", min: 0, step: 1 },
       {
         id: "minutes",
         label: "Minutes",
         type: "number",
-        required: false,
         min: 0,
         max: 59,
         step: 1,
@@ -269,24 +236,21 @@ export const CATEGORIES = [
         id: "seconds",
         label: "Seconds",
         type: "number",
-        required: false,
         min: 0,
         max: 59,
         step: 1,
       },
     ],
-
     scoreField: "totalMinutes",
     unit: "min",
     dailyGoal: 30,
     goalType: "higher",
   },
-
   {
     id: "steps",
     name: "Steps",
     emoji: "👣",
-
+    description: "Track your daily movement and walking volume.",
     fields: [
       {
         id: "steps",
@@ -298,10 +262,13 @@ export const CATEGORIES = [
         step: 1,
       },
     ],
-
     scoreField: "steps",
     unit: "steps",
     dailyGoal: 10000,
     goalType: "higher",
   },
 ];
+
+export const CATEGORY_MAP = new Map(
+  CATEGORIES.map((category) => [category.id, category]),
+);

@@ -1,5 +1,10 @@
 import { POINTS } from "./points";
 
+export const RUNNING_SCORING_RULES = Object.freeze({
+  minimumDistanceKm: 3,
+  maximumPaceSecondsPerKm: 11 * 60,
+});
+
 export const CATEGORY_SCORING = {
   water: {
     field: "amount",

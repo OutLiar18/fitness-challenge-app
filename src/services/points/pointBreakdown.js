@@ -1,90 +1,76 @@
-import { calculateCategoryPoints } from "./categoryPoints";
-import { calculateWorkoutPoints } from "./workoutPoints";
+import { WORKOUT_CATEGORIES } from "../../constants/categories";
+import { getCategory } from "../../utils/categoryHelpers";
+import { calculateCategoryPointBreakdown } from "./categoryPoints";
+import { calculateWorkoutPointBreakdown } from "./workoutPoints";
 
-const WORKOUT_CATEGORIES = new Set(["upperBody", "lowerBody", "core"]);
-
-function getRunningBreakdown(data = {}) {
-  const runningPoints = calculateCategoryPoints("running", data);
-
-  const cardioBonus = calculateCategoryPoints("cardio", {
-    activity: "Running",
-    isRunningBonus: true,
-    totalMinutes: Number(data.totalMinutes ?? 0),
-
-    activityDefinition: {
-      name: "Running",
-      difficulty: {
-        tier: 3,
-        multiplier: 1.5,
-      },
-    },
-  });
-
-  const breakdown = [];
-
-  if (runningPoints > 0) {
-    breakdown.push({
-      id: "running",
-      emoji: "🏃",
-      label: "Running",
-      points: runningPoints,
-    });
-  }
-
-  if (cardioBonus > 0) {
-    breakdown.push({
-      id: "cardioBonus",
-      emoji: "❤️",
-      label: "Cardio Bonus",
-      points: cardioBonus,
-    });
-  }
+function createBreakdownItem({
+  categoryId,
+  points,
+  type = "main",
+  sourceCategoryId = "",
+  label,
+  id,
+  detail = "",
+}) {
+  const category = getCategory(categoryId);
 
   return {
-    total: runningPoints + cardioBonus,
+    id: id ?? `${sourceCategoryId || categoryId}-${categoryId}-${type}`,
+    categoryId,
+    type,
+    emoji: category?.emoji ?? "⭐",
+    label: label ?? category?.name ?? "Points",
+    points: Number.isFinite(Number(points)) ? Number(points) : 0,
+    detail,
+  };
+}
+
+function getWorkoutBreakdown(entry) {
+  const result = calculateWorkoutPointBreakdown(entry.data);
+
+  return {
+    total: result.points,
+    breakdown: [
+      createBreakdownItem({
+        categoryId: entry.category,
+        points: result.points,
+        detail:
+          result.effectiveReps > 0
+            ? `${result.effectiveReps} effective reps`
+            : "",
+      }),
+    ],
+  };
+}
+
+function getCategoryBreakdown(entry) {
+  const result = calculateCategoryPointBreakdown(entry.category, entry.data);
+  const breakdown = [createBreakdownItem(result.main)];
+
+  result.bonuses.forEach((bonus) => {
+    const bonusCategory = getCategory(bonus.categoryId);
+
+    breakdown.push(
+      createBreakdownItem({
+        ...bonus,
+        id: `${entry.category}-${bonus.categoryId}-bonus`,
+        label: `${bonusCategory?.name ?? "Category"} Bonus`,
+      }),
+    );
+  });
+
+  return {
+    total: result.total,
     breakdown,
   };
 }
 
 export function getEntryPointBreakdown(entry) {
-  if (!entry) {
-    return {
-      total: 0,
-      breakdown: [],
-    };
+  if (!entry?.category) {
+    return { total: 0, breakdown: [] };
   }
 
-  if (WORKOUT_CATEGORIES.has(entry.category)) {
-    const points = calculateWorkoutPoints(entry.data);
-
-    return {
-      total: points,
-      breakdown: [
-        {
-          id: entry.category,
-          emoji: "💪",
-          label: "Workout",
-          points,
-        },
-      ],
-    };
-  }
-
-  if (entry.category === "running") {
-    return getRunningBreakdown(entry.data);
-  }
-
-  const points = calculateCategoryPoints(entry.category, entry.data);
-
-  return {
-    total: points,
-    breakdown: [
-      {
-        id: entry.category,
-        emoji: "⭐",
-        label: "Points",
-        points,
-      },
-    ],
-  };
+  return WORKOUT_CATEGORIES.has(entry.category)
+    ? getWorkoutBreakdown(entry)
+    : getCategoryBreakdown(entry);
 }

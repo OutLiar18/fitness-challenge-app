@@ -6,6 +6,7 @@ export default function MultiSelect({
   value = [],
   onChange,
   disabled = false,
+  required = false,
   placeholder,
 }) {
   const normalizedOptions = options
@@ -33,6 +34,7 @@ export default function MultiSelect({
   return (
     <Selector
       label={label}
+      required={required}
       mode="multiple"
       displayMode="control"
       value={Array.isArray(value) ? value : []}

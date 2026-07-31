@@ -1,39 +1,79 @@
 .top-categories {
-  background: white;
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  padding: 24px;
 }
 
-.top-categories h2 {
-  margin-top: 0;
-  margin-bottom: 16px;
+.top-categories__header p {
+  margin-bottom: 5px;
+  color: var(--primary);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.top-categories__header h2 {
+  margin-bottom: 18px;
+}
+
+.top-categories__list {
+  display: grid;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
 }
 
 .top-category {
-  display: flex;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid #eee;
+  gap: 9px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
 }
 
 .top-category:last-child {
-  border-bottom: none;
+  border-bottom: 0;
 }
 
-.medal {
-  width: 35px;
-  font-size: 1.4rem;
+.top-category__rank {
+  font-size: 1.15rem;
 }
 
-.category-name {
-  flex: 1;
-  font-weight: 600;
+.top-category__name {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.86rem;
+  font-weight: 700;
 }
 
-.category-points {
-  color: #1d4ed8;
-  font-weight: bold;
+.top-category__name span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.top-category strong {
+  color: var(--primary);
+  font-size: 0.82rem;
+}
+
+.top-categories__empty {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 20px 8px 8px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.top-categories__empty span {
+  font-size: 1.8rem;
+}
+
+.top-categories__empty p {
+  margin-bottom: 0;
+  font-size: 0.88rem;
 }

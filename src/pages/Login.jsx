@@ -1,43 +1,89 @@
 import { useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
-import { useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
+import { getAuthErrorMessage, loginUser } from "../services/auth/authService";
+import "./Auth.css";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  if (!authLoading && user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  function updateField(field, value) {
+    setForm((current) => ({ ...current, [field]: value }));
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    setError("");
+    setSubmitting(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      alert("Logged in!");
-      navigate("/dashboard");
-    } catch (err) {
-      alert(err.message);
+      await loginUser(form);
+      navigate(location.state?.from || "/dashboard", { replace: true });
+    } catch (loginError) {
+      setError(getAuthErrorMessage(loginError, "You could not be logged in."));
+    } finally {
+      setSubmitting(false);
     }
-  };
+  }
 
   return (
-    <form onSubmit={handleLogin}>
-      <h1>Login</h1>
+    <main className="auth-page">
+      <div className="auth-shell">
+        <section className="auth-brand" aria-label="Champions Legacy">
+          <div className="auth-brand__mark"><span>🏆</span><span>Champions Legacy</span></div>
+          <h1>Become better than yesterday.</h1>
+          <p>Turn daily effort into visible progress across fitness, learning and personal growth.</p>
+        </section>
 
-      <input
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
+        <section className="auth-panel">
+          <p className="auth-panel__eyebrow">Welcome back</p>
+          <h2>Continue your legacy</h2>
+          <p className="auth-panel__intro">Sign in to record today’s progress and keep your momentum moving.</p>
 
-      <input
-        placeholder="Password"
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+          <form className="auth-form" onSubmit={handleSubmit}>
+            <div className="form-field">
+              <label htmlFor="login-email">Email address</label>
+              <input
+                id="login-email"
+                type="email"
+                autoComplete="email"
+                required
+                value={form.email}
+                onChange={(event) => updateField("email", event.target.value)}
+              />
+            </div>
 
-      <button type="submit">Login</button>
-    </form>
+            <div className="form-field">
+              <label htmlFor="login-password">Password</label>
+              <input
+                id="login-password"
+                type="password"
+                autoComplete="current-password"
+                required
+                value={form.password}
+                onChange={(event) => updateField("password", event.target.value)}
+              />
+            </div>
+
+            {error && <div className="auth-form__error" role="alert">{error}</div>}
+
+            <button className="button button--primary button--large" type="submit" disabled={submitting}>
+              {submitting ? "Signing in…" : "Sign in"}
+            </button>
+          </form>
+
+          <p className="auth-panel__switch">New to Champions Legacy? <Link to="/signup">Create an account</Link></p>
+        </section>
+      </div>
+    </main>
   );
 }

@@ -1,15 +1,27 @@
 import "./WelcomeCard.css";
 
 export default function WelcomeCard({ profile, user }) {
+  const displayName =
+    profile?.displayName || profile?.fullName || user?.email || "Champion";
+  const firstName = displayName.includes("@")
+    ? displayName
+    : displayName.split(" ")[0];
+
   return (
-    <div className="welcome-card">
-      <h1>🏆 Champions Legacy Challenge</h1>
+    <section className="welcome-card">
+      <div className="welcome-card__content">
+        <p className="welcome-card__eyebrow">Today is another chance</p>
+        <h1>Welcome back, {firstName}.</h1>
+        <p>
+          Show up honestly, record the work and keep becoming better than
+          yesterday.
+        </p>
+      </div>
 
-      <p className="welcome-text">Welcome back,</p>
-
-      <h2>{profile?.displayName || profile?.fullName || user?.email}</h2>
-
-      <p className="role">{profile?.role || "User"}</p>
-    </div>
+      <div className="welcome-card__badge" aria-label={`Role: ${profile?.role || "User"}`}>
+        <span aria-hidden="true">⚡</span>
+        <span>{profile?.role || "User"}</span>
+      </div>
+    </section>
   );
 }

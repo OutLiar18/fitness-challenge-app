@@ -1,50 +1,93 @@
-import { saveLibraryItem } from "../libraries/libraryService";
+import { WORKOUT_CATEGORIES } from "../../constants/categories";
 import { getNextCategory } from "../challengeService";
+import { isToday } from "../dateService";
+import { saveLibraryItem } from "../libraries/libraryService";
 import { validateEntry } from "../validation";
-
-import { createEntry, createExerciseSuggestion } from "./entryRepository";
-
+import {
+  createEntry,
+  createExerciseSuggestion,
+  createLibrarySuggestion,
+} from "./entryRepository";
 import { normalizeEntry } from "./normalizer";
 
 function getUniqueCustomExercises(exercises = []) {
-  const customExercises = exercises.filter(
-    (exercise) =>
-      exercise?.source === "custom" && exercise?.exerciseDefinition?.name,
-  );
-
   const uniqueExercises = new Map();
 
-  customExercises.forEach((exercise) => {
-    const key = exercise.exerciseDefinition.name.trim().toLowerCase();
+  exercises.forEach((exercise) => {
+    const definition = exercise?.exerciseDefinition;
 
-    if (!uniqueExercises.has(key)) {
-      uniqueExercises.set(key, exercise.exerciseDefinition);
+    if (exercise?.source !== "custom" || !definition?.name) {
+      return;
+    }
+
+    const key = definition.name.trim().toLocaleLowerCase();
+
+    if (key && !uniqueExercises.has(key)) {
+      uniqueExercises.set(key, definition);
     }
   });
 
   return [...uniqueExercises.values()];
 }
 
-async function saveExerciseSuggestions({
-  userId,
-  challengeEntryId,
-  normalizedData,
-}) {
-  const customExerciseDefinitions = getUniqueCustomExercises(
-    normalizedData.exercises,
-  );
+function createPostSaveTasks({ userId, category, entryId, normalizedData }) {
+  const tasks = [];
 
-  const results = await Promise.allSettled(
-    customExerciseDefinitions.map((exerciseDefinition) =>
-      createExerciseSuggestion({
+  if (WORKOUT_CATEGORIES.has(category)) {
+    getUniqueCustomExercises(normalizedData.exercises).forEach(
+      (exerciseDefinition) => {
+        tasks.push({
+          label: `exercise suggestion: ${exerciseDefinition.name}`,
+          promise: createExerciseSuggestion({
+            userId,
+            challengeEntryId: entryId,
+            exerciseDefinition,
+          }),
+        });
+      },
+    );
+  }
+
+  if (category === "cardio" && normalizedData.source === "custom") {
+    tasks.push({
+      label: `cardio suggestion: ${normalizedData.activity}`,
+      promise: createLibrarySuggestion({
         userId,
-        challengeEntryId,
-        exerciseDefinition,
+        challengeEntryId: entryId,
+        itemType: "cardio",
+        definition: normalizedData.activityDefinition,
       }),
-    ),
-  );
+    });
+  }
 
-  return results;
+  if (category === "skill" && normalizedData.source === "custom") {
+    tasks.push({
+      label: `skill suggestion: ${normalizedData.skill}`,
+      promise: createLibrarySuggestion({
+        userId,
+        challengeEntryId: entryId,
+        itemType: "skill",
+        definition: normalizedData.skillDefinition,
+      }),
+    });
+  }
+
+  if (category === "reading") {
+    tasks.push({
+      label: "reading library update",
+      promise: saveLibraryItem({
+        userId,
+        itemType: "books",
+        data: {
+          title: normalizedData.title ?? "",
+          author: normalizedData.author ?? "",
+          totalPages: normalizedData.totalPages ?? "",
+        },
+      }),
+    });
+  }
+
+  return tasks;
 }
 
 export async function saveChallengeEntry({
@@ -56,20 +99,14 @@ export async function saveChallengeEntry({
   currentEntries = [],
 }) {
   if (!userId) {
-    return {
-      success: false,
-      errors: ["A user is required to save an entry."],
-    };
+    return { success: false, errors: ["A user is required to save an entry."] };
   }
 
   if (!category || !categoryConfig) {
-    return {
-      success: false,
-      errors: ["A valid category is required."],
-    };
+    return { success: false, errors: ["A valid category is required."] };
   }
 
-  if (!(selectedDate instanceof Date)) {
+  if (!(selectedDate instanceof Date) || Number.isNaN(selectedDate.getTime())) {
     return {
       success: false,
       errors: ["A valid challenge date is required."],
@@ -77,14 +114,10 @@ export async function saveChallengeEntry({
   }
 
   const normalizedData = normalizeEntry(category, data);
-
   const errors = validateEntry(categoryConfig, normalizedData);
 
   if (errors.length > 0) {
-    return {
-      success: false,
-      errors,
-    };
+    return { success: false, errors };
   }
 
   const documentReference = await createEntry(
@@ -94,61 +127,47 @@ export async function saveChallengeEntry({
     selectedDate,
   );
 
-  let suggestionResults = [];
+  const postSaveTasks = createPostSaveTasks({
+    userId,
+    category,
+    entryId: documentReference.id,
+    normalizedData,
+  });
 
-  if (["upperBody", "lowerBody", "core"].includes(category)) {
-    suggestionResults = await saveExerciseSuggestions({
-      userId,
-      challengeEntryId: documentReference.id,
-      normalizedData,
-    });
-  }
+  const postSaveResults = await Promise.allSettled(
+    postSaveTasks.map((task) => task.promise),
+  );
 
-  if (category === "reading") {
-    await saveLibraryItem({
-      userId,
-      itemType: "books",
+  const failedTasks = postSaveResults
+    .map((result, index) => ({ result, label: postSaveTasks[index]?.label }))
+    .filter(({ result }) => result.status === "rejected");
 
-      data: {
-        title: normalizedData.title ?? normalizedData.book ?? "",
-
-        author: normalizedData.author ?? "",
-
-        totalPages: normalizedData.totalPages ?? "",
-      },
-    });
-  }
+  failedTasks.forEach(({ result, label }) => {
+    console.error(`Post-save task failed (${label}):`, result.reason);
+  });
 
   const temporaryEntry = {
     id: documentReference.id,
     userId,
     category,
     data: normalizedData,
-
     challengeDate: {
-      toDate: () => selectedDate,
+      toDate: () => new Date(selectedDate),
     },
   };
 
-  const updatedEntries = [...currentEntries, temporaryEntry];
-
-  const isToday = selectedDate.toDateString() === new Date().toDateString();
-
-  const nextCategory = isToday ? getNextCategory(updatedEntries) : null;
-
-  const failedSuggestions = suggestionResults.filter(
-    (result) => result.status === "rejected",
-  );
+  const nextCategory = isToday(selectedDate)
+    ? getNextCategory([...currentEntries, temporaryEntry])
+    : null;
 
   return {
     success: true,
     entry: temporaryEntry,
     normalizedData,
     nextCategory,
-
-    suggestionWarning:
-      failedSuggestions.length > 0
-        ? "The workout was saved, but one or more exercise suggestions could not be submitted."
+    warning:
+      failedTasks.length > 0
+        ? "Your entry was saved, but one background update could not be completed."
         : "",
   };
 }

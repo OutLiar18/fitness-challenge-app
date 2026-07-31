@@ -1,27 +1,38 @@
-export default function Toast({
-  message,
-  type = "success",
-}) {
-  if (!message) return null;
+import "./Toast.css";
+
+const TOAST_ICONS = {
+  success: "✓",
+  error: "!",
+  warning: "!",
+  info: "i",
+};
+
+export default function Toast({ message, type = "success", onDismiss }) {
+  if (!message) {
+    return null;
+  }
+
+  const safeType = TOAST_ICONS[type] ? type : "info";
+  const isUrgent = safeType === "error" || safeType === "warning";
 
   return (
     <div
-      style={{
-        position: "fixed",
-        top: "20px",
-        right: "20px",
-        padding: "15px 20px",
-        borderRadius: "10px",
-        color: "#fff",
-        background:
-          type === "success"
-            ? "#28a745"
-            : "#dc3545",
-        boxShadow: "0 6px 18px rgba(0,0,0,.2)",
-        zIndex: 9999,
-      }}
+      className={`toast toast--${safeType}`}
+      role={isUrgent ? "alert" : "status"}
+      aria-live={isUrgent ? "assertive" : "polite"}
     >
-      {message}
+      <span className="toast__icon" aria-hidden="true">
+        {TOAST_ICONS[safeType]}
+      </span>
+      <p>{message}</p>
+      <button
+        className="toast__dismiss"
+        type="button"
+        aria-label="Dismiss notification"
+        onClick={onDismiss}
+      >
+        ×
+      </button>
     </div>
   );
 }

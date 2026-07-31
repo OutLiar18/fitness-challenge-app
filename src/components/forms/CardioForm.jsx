@@ -1,17 +1,21 @@
-import DurationPicker from "../common/DurationPicker";
-import SmartSelect from "../common/Selector/SmartSelect";
-
 import {
-  CARDIO_GROUP_OPTIONS,
-  CARDIO_TYPE_OPTIONS,
   CARDIO_ENVIRONMENT_OPTIONS,
   CARDIO_EQUIPMENT_OPTIONS,
+  CARDIO_GROUP_OPTIONS,
+  CARDIO_TYPE_OPTIONS,
 } from "../../constants/libraries/cardioMetaDataLibrary";
-
 import {
   getCardioActivity,
   getGroupedCardioActivities,
 } from "../../services/libraries/cardioLibraryService";
+import DurationPicker from "../common/DurationPicker";
+import FormField from "../common/Form/FormField";
+import NumberInput from "../common/Form/NumberInput";
+import TextArea from "../common/Form/TextArea";
+import SmartSelect from "../common/Selector/SmartSelect";
+import "./FormSections.css";
+
+const ACTIVITY_OPTIONS = getGroupedCardioActivities();
 
 function createCustomActivityDefinition(name) {
   return {
@@ -24,216 +28,145 @@ function createCustomActivityDefinition(name) {
   };
 }
 
-function isCustomActivity(formData = {}) {
-  return formData.source === "custom";
-}
-
-export default function CardioForm({
-  formData,
-  setFormData,
-  readOnly = false,
-}) {
-  const activityOptions = getGroupedCardioActivities();
-
-  const updateActivity = (value, selectionDetails = {}) => {
+export default function CardioForm({ formData, setFormData, readOnly = false }) {
+  function updateActivity(value, selectionDetails = {}) {
     const customActivity = selectionDetails.isCustom === true;
 
-    setFormData((currentData) => {
-      if (customActivity) {
-        return {
-          ...currentData,
-          activity: value,
-          source: "custom",
-          suggestionStatus: "pending",
-          activityDefinition: createCustomActivityDefinition(value),
-        };
-      }
-
-      const activityDefinition = getCardioActivity(value);
-
-      return {
-        ...currentData,
-        activity: value,
-        source: "library",
-        suggestionStatus: "",
-        activityDefinition,
-      };
-    });
-  };
-
-  const updateActivityDefinition = (field, value) => {
     setFormData((currentData) => ({
       ...currentData,
+      activity: value,
+      source: customActivity ? "custom" : "library",
+      suggestionStatus: customActivity ? "pending" : "",
+      activityDefinition: customActivity
+        ? createCustomActivityDefinition(value)
+        : getCardioActivity(value),
+    }));
+  }
 
+  function updateDefinition(field, value) {
+    setFormData((currentData) => ({
+      ...currentData,
       activityDefinition: {
-        ...(currentData.activityDefinition ||
+        ...(currentData.activityDefinition ??
           createCustomActivityDefinition(currentData.activity || "")),
-
         [field]: value,
       },
     }));
-  };
+  }
 
-  const updateField = (field, value) => {
-    setFormData((currentData) => ({
-      ...currentData,
-      [field]: value,
-    }));
-  };
+  function updateField(field, value) {
+    setFormData((currentData) => ({ ...currentData, [field]: value }));
+  }
 
-  const customActivity = isCustomActivity(formData);
+  const customActivity = formData.source === "custom";
 
   return (
     <>
-      <div style={{ marginBottom: "15px" }}>
-        <label>
-          <strong>Activity *</strong>
-        </label>
-
-        <SmartSelect
-          label="Activity"
-          value={formData.activity ?? ""}
-          options={activityOptions}
-          disabled={readOnly}
-          allowCustom
-          customOptionLabel="Suggest new activity"
-          onChange={updateActivity}
-        />
-      </div>
+      <SmartSelect
+        label="Activity"
+        required
+        value={formData.activity ?? ""}
+        options={ACTIVITY_OPTIONS}
+        disabled={readOnly}
+        allowCustom
+        customOptionLabel="Suggest new activity"
+        onChange={updateActivity}
+      />
 
       {customActivity && (
-        <div
-          style={{
-            border: "1px solid #ddd",
-            borderRadius: "8px",
-            padding: "15px",
-            marginBottom: "15px",
-          }}
-        >
-          <h4 style={{ marginTop: 0 }}>Suggest New Cardio Activity</h4>
-
-          <p>
-            This activity is not currently in the library. Add its details so it
-            can be organised and reviewed later.
-          </p>
-
-          <div style={{ marginBottom: "15px" }}>
-            <label htmlFor="cardio-group">
-              <strong>Group *</strong>
-            </label>
-
-            <select
-              id="cardio-group"
-              disabled={readOnly}
-              value={formData.activityDefinition?.group || ""}
-              onChange={(event) =>
-                updateActivityDefinition("group", event.target.value)
-              }
-            >
-              <option value="">Select activity group...</option>
-
-              {CARDIO_GROUP_OPTIONS.map((group) => (
-                <option key={group} value={group}>
-                  {group}
-                </option>
-              ))}
-            </select>
+        <section className="form-section" aria-labelledby="cardio-suggestion-title">
+          <div className="form-section__header">
+            <h3 id="cardio-suggestion-title">Suggest a new cardio activity</h3>
+            <p>
+              Add enough detail for the activity to be scored now and reviewed
+              for the shared library later.
+            </p>
           </div>
 
-          <div style={{ marginBottom: "15px" }}>
-            <label htmlFor="cardio-type">
-              <strong>Cardio Type *</strong>
+          <div className="form-section__grid">
+            <label className="form-section__field" htmlFor="cardio-group">
+              Group <span className="form-required">*</span>
+              <select
+                id="cardio-group"
+                disabled={readOnly}
+                value={formData.activityDefinition?.group ?? ""}
+                onChange={(event) => updateDefinition("group", event.target.value)}
+              >
+                <option value="">Select a group…</option>
+                {CARDIO_GROUP_OPTIONS.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
             </label>
 
-            <select
-              id="cardio-type"
-              disabled={readOnly}
-              value={formData.activityDefinition?.cardioType || ""}
-              onChange={(event) =>
-                updateActivityDefinition("cardioType", event.target.value)
-              }
-            >
-              <option value="">Select cardio type...</option>
-
-              {CARDIO_TYPE_OPTIONS.map((cardioType) => (
-                <option key={cardioType} value={cardioType}>
-                  {cardioType}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div style={{ marginBottom: "15px" }}>
-            <label htmlFor="cardio-environment">
-              <strong>Environment *</strong>
+            <label className="form-section__field" htmlFor="cardio-type">
+              Cardio type <span className="form-required">*</span>
+              <select
+                id="cardio-type"
+                disabled={readOnly}
+                value={formData.activityDefinition?.cardioType ?? ""}
+                onChange={(event) => updateDefinition("cardioType", event.target.value)}
+              >
+                <option value="">Select a type…</option>
+                {CARDIO_TYPE_OPTIONS.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
             </label>
 
-            <select
-              id="cardio-environment"
-              disabled={readOnly}
-              value={formData.activityDefinition?.environment || ""}
-              onChange={(event) =>
-                updateActivityDefinition("environment", event.target.value)
-              }
-            >
-              <option value="">Select environment...</option>
-
-              {CARDIO_ENVIRONMENT_OPTIONS.map((environment) => (
-                <option key={environment} value={environment}>
-                  {environment}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div style={{ marginBottom: "15px" }}>
-            <label htmlFor="cardio-equipment">
-              <strong>Equipment *</strong>
+            <label className="form-section__field" htmlFor="cardio-environment">
+              Environment <span className="form-required">*</span>
+              <select
+                id="cardio-environment"
+                disabled={readOnly}
+                value={formData.activityDefinition?.environment ?? ""}
+                onChange={(event) => updateDefinition("environment", event.target.value)}
+              >
+                <option value="">Select an environment…</option>
+                {CARDIO_ENVIRONMENT_OPTIONS.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
             </label>
 
-            <select
-              id="cardio-equipment"
-              disabled={readOnly}
-              value={formData.activityDefinition?.equipment || ""}
-              onChange={(event) =>
-                updateActivityDefinition("equipment", event.target.value)
-              }
-            >
-              <option value="">Select equipment...</option>
-
-              {CARDIO_EQUIPMENT_OPTIONS.map((equipment) => (
-                <option key={equipment} value={equipment}>
-                  {equipment}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div style={{ marginBottom: "15px" }}>
-            <label htmlFor="cardio-tier">
-              <strong>Difficulty Tier *</strong>
+            <label className="form-section__field" htmlFor="cardio-equipment">
+              Equipment <span className="form-required">*</span>
+              <select
+                id="cardio-equipment"
+                disabled={readOnly}
+                value={formData.activityDefinition?.equipment ?? ""}
+                onChange={(event) => updateDefinition("equipment", event.target.value)}
+              >
+                <option value="">Select equipment…</option>
+                {CARDIO_EQUIPMENT_OPTIONS.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
             </label>
 
-            <select
-              id="cardio-tier"
-              disabled={readOnly}
-              value={formData.activityDefinition?.proposedTier || ""}
-              onChange={(event) =>
-                updateActivityDefinition(
-                  "proposedTier",
-                  event.target.value === "" ? "" : Number(event.target.value),
-                )
-              }
-            >
-              <option value="">Select difficulty...</option>
-              <option value={1}>Tier 1 - Beginner</option>
-              <option value={2}>Tier 2 - Novice</option>
-              <option value={3}>Tier 3 - Intermediate</option>
-              <option value={4}>Tier 4 - Advanced</option>
-              <option value={5}>Tier 5 - Elite</option>
-            </select>
+            <label className="form-section__field" htmlFor="cardio-tier">
+              Difficulty <span className="form-required">*</span>
+              <select
+                id="cardio-tier"
+                disabled={readOnly}
+                value={formData.activityDefinition?.proposedTier ?? ""}
+                onChange={(event) =>
+                  updateDefinition(
+                    "proposedTier",
+                    event.target.value === "" ? "" : Number(event.target.value),
+                  )
+                }
+              >
+                <option value="">Select difficulty…</option>
+                <option value="1">Tier 1 — Beginner</option>
+                <option value="2">Tier 2 — Novice</option>
+                <option value="3">Tier 3 — Intermediate</option>
+                <option value="4">Tier 4 — Advanced</option>
+                <option value="5">Tier 5 — Elite</option>
+              </select>
+            </label>
           </div>
-        </div>
+        </section>
       )}
 
       <DurationPicker
@@ -242,45 +175,30 @@ export default function CardioForm({
         readOnly={readOnly}
       />
 
-      <div style={{ marginBottom: "15px" }}>
-        <label htmlFor="cardio-distance">
-          <strong>Distance (km) — Optional</strong>
-        </label>
-
-        <input
+      <FormField label="Distance (km)" htmlFor="cardio-distance" help="Optional">
+        <NumberInput
           id="cardio-distance"
           name="distance"
-          type="number"
-          min="0.01"
-          step="0.01"
-          disabled={readOnly}
+          min={0.01}
+          step={0.01}
+          readOnly={readOnly}
           value={formData.distance ?? ""}
           placeholder="For example: 10.5"
-          onWheel={(event) => event.currentTarget.blur()}
-          onChange={(event) =>
-            updateField(
-              "distance",
-              event.target.value === "" ? "" : Number(event.target.value),
-            )
-          }
+          onChange={(value) => updateField("distance", value)}
         />
-      </div>
+      </FormField>
 
-      <div style={{ marginBottom: "15px" }}>
-        <label htmlFor="cardio-notes">
-          <strong>Notes — Optional</strong>
-        </label>
-
-        <textarea
+      <FormField label="Notes" htmlFor="cardio-notes" help="Optional">
+        <TextArea
           id="cardio-notes"
           name="notes"
-          disabled={readOnly}
+          readOnly={readOnly}
           value={formData.notes ?? ""}
-          placeholder="Add anything useful about the session..."
-          rows="4"
-          onChange={(event) => updateField("notes", event.target.value)}
+          placeholder="Add anything useful about the session…"
+          rows={4}
+          onChange={(value) => updateField("notes", value)}
         />
-      </div>
+      </FormField>
     </>
   );
 }

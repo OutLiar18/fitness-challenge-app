@@ -1,54 +1,40 @@
 import { getFruitNames } from "../../services/libraries/fruitLibraryService";
+import FormField from "../common/Form/FormField";
+import NumberInput from "../common/Form/NumberInput";
 import SmartSelect from "../common/Selector/SmartSelect";
 
+const FRUIT_OPTIONS = getFruitNames();
+
 export default function FruitForm({ formData, setFormData, readOnly = false }) {
-  const fruitType = formData.fruitType ?? "";
-  const servings = formData.servings ?? "";
-
-  const fruitOptions = getFruitNames();
-
   function updateField(field, value) {
-    setFormData((currentData) => ({
-      ...currentData,
-      [field]: value,
-    }));
+    setFormData((current) => ({ ...current, [field]: value }));
   }
 
   return (
     <>
-      <div style={{ marginBottom: "15px" }}>
-        <SmartSelect
-          label="Fruit"
-          value={fruitType}
-          options={fruitOptions}
-          disabled={readOnly}
-          onChange={(value) => updateField("fruitType", value)}
-        />
-      </div>
+      <SmartSelect
+        label="Fruit"
+        required
+        value={formData.fruitType ?? ""}
+        options={FRUIT_OPTIONS}
+        disabled={readOnly}
+        onChange={(value) => updateField("fruitType", value)}
+      />
 
-      <div style={{ marginBottom: "15px" }}>
-        <label htmlFor="fruit-servings">
-          <strong>Servings *</strong>
-        </label>
-
-        <input
+      <FormField label="Servings" htmlFor="fruit-servings" required>
+        <NumberInput
           id="fruit-servings"
           name="servings"
-          type="number"
-          min="1"
-          step="1"
+          min={1}
+          step={1}
           inputMode="numeric"
-          disabled={readOnly}
-          value={servings}
+          readOnly={readOnly}
+          value={formData.servings}
           placeholder="1"
-          onChange={(event) => {
-            const value = event.target.value;
-
-            updateField("servings", value === "" ? "" : Number(value));
-          }}
-          onWheel={(event) => event.currentTarget.blur()}
+          required
+          onChange={(value) => updateField("servings", value)}
         />
-      </div>
+      </FormField>
     </>
   );
 }

@@ -1,134 +1,87 @@
-import DurationPicker from "../common/DurationPicker";
-import MultiSelect from "../common/Selector/MultiSelect";
-import SmartSelect from "../common/Selector/SmartSelect";
-
 import {
   SKILL_AREA_OPTIONS,
   SKILL_TAG_OPTIONS,
 } from "../../constants/libraries/skillMetaDataLibrary";
-
 import { getSkillNames } from "../../services/libraries/skillLibraryService";
+import DurationPicker from "../common/DurationPicker";
+import MultiSelect from "../common/Selector/MultiSelect";
+import SmartSelect from "../common/Selector/SmartSelect";
+import "./FormSections.css";
+
+const SKILL_OPTIONS = getSkillNames();
 
 function createCustomSkillDefinition(name) {
-  return {
-    name,
-    area: "",
-    tags: [],
-  };
-}
-
-function isCustomSkill(formData) {
-  return formData.source === "custom" || Boolean(formData.skillDefinition);
+  return { name, area: "", tags: [] };
 }
 
 export default function SkillForm({ formData, setFormData, readOnly = false }) {
-  const skillOptions = getSkillNames();
-
-  const updateSkill = (value, selectionDetails = {}) => {
+  function updateSkill(value, selectionDetails = {}) {
     const customSkill = selectionDetails.isCustom === true;
 
-    setFormData((currentData) => {
-      if (customSkill) {
-        return {
-          ...currentData,
-          skill: value,
-          source: "custom",
-          suggestionStatus: "pending",
-          skillDefinition: createCustomSkillDefinition(value),
-        };
-      }
-
-      return {
-        ...currentData,
-        skill: value,
-        source: "library",
-        suggestionStatus: "",
-        skillDefinition: null,
-      };
-    });
-  };
-
-  const updateSkillDefinition = (field, value) => {
     setFormData((currentData) => ({
       ...currentData,
+      skill: value,
+      source: customSkill ? "custom" : "library",
+      suggestionStatus: customSkill ? "pending" : "",
+      skillDefinition: customSkill ? createCustomSkillDefinition(value) : null,
+    }));
+  }
 
+  function updateDefinition(field, value) {
+    setFormData((currentData) => ({
+      ...currentData,
       skillDefinition: {
-        ...(currentData.skillDefinition ||
+        ...(currentData.skillDefinition ??
           createCustomSkillDefinition(currentData.skill || "")),
-
         [field]: value,
       },
     }));
-  };
-
-  const customSkill = isCustomSkill(formData);
+  }
 
   return (
     <>
-      <div style={{ marginBottom: "15px" }}>
-        <label>
-          <strong>Skill *</strong>
-        </label>
+      <SmartSelect
+        label="Skill"
+        required
+        value={formData.skill ?? ""}
+        options={SKILL_OPTIONS}
+        disabled={readOnly}
+        allowCustom
+        customOptionLabel="Suggest new skill"
+        onChange={updateSkill}
+      />
 
-        <SmartSelect
-          label="Skill"
-          value={formData.skill ?? ""}
-          options={skillOptions}
-          disabled={readOnly}
-          allowCustom
-          customOptionLabel="Suggest new skill"
-          onChange={updateSkill}
-        />
-      </div>
+      {formData.source === "custom" && (
+        <section className="form-section" aria-labelledby="skill-suggestion-title">
+          <div className="form-section__header">
+            <h3 id="skill-suggestion-title">Suggest a new skill</h3>
+            <p>Add a category and useful tags so the skill can be reviewed later.</p>
+          </div>
 
-      {customSkill && (
-        <div
-          style={{
-            border: "1px solid #ddd",
-            borderRadius: "8px",
-            padding: "15px",
-            marginBottom: "15px",
-          }}
-        >
-          <h4 style={{ marginTop: 0 }}>Suggest New Skill</h4>
-
-          <p>
-            This skill is not currently in the library. Add a few details so it
-            can be organised and reviewed later.
-          </p>
-
-          <div style={{ marginBottom: "15px" }}>
-            <label htmlFor="skill-area">
-              <strong>Skill Area *</strong>
-            </label>
-
+          <label className="form-section__field" htmlFor="skill-area">
+            Skill area <span className="form-required">*</span>
             <select
               id="skill-area"
               disabled={readOnly}
-              value={formData.skillDefinition?.area || ""}
-              onChange={(event) =>
-                updateSkillDefinition("area", event.target.value)
-              }
+              value={formData.skillDefinition?.area ?? ""}
+              onChange={(event) => updateDefinition("area", event.target.value)}
             >
-              <option value="">Select skill area...</option>
-
+              <option value="">Select a skill area…</option>
               {SKILL_AREA_OPTIONS.map((area) => (
-                <option key={area} value={area}>
-                  {area}
-                </option>
+                <option key={area} value={area}>{area}</option>
               ))}
             </select>
-          </div>
+          </label>
 
           <MultiSelect
             label="Tags"
             options={SKILL_TAG_OPTIONS}
-            value={formData.skillDefinition?.tags || []}
+            value={formData.skillDefinition?.tags ?? []}
             disabled={readOnly}
-            placeholder="Select relevant tags..."
-            onChange={(value) => updateSkillDefinition("tags", value)}
+            placeholder="Select relevant tags…"
+            onChange={(value) => updateDefinition("tags", value)}
           />
-        </div>
+        </section>
       )}
 
       <DurationPicker

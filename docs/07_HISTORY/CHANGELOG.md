@@ -108,3 +108,46 @@ Avoid recording trivial changes such as formatting or spelling corrections unles
 ---
 
 # End of Document
+---
+
+# v0.5.0 — Platform Stabilisation
+
+Date: 30 July 2026
+
+## Added
+
+- Structured point breakdowns with category identities.
+- Running Cardio bonus and cross-category Cardio statistics.
+- Effective Repetitions and five-tier workout difficulty support.
+- Custom Exercise, Cardio and Skill suggestion persistence.
+- Accessible selector architecture and reusable form sections.
+- Date-safe journal navigation and locked historical views.
+- Responsive design system, polished auth/dashboard/journal UI and toast notifications.
+- Error boundary, Firebase rules, Firebase config, `.env.example`, favicon and SPA redirect.
+- Repository/auth/user hooks and domain-oriented service boundaries.
+
+## Fixed
+
+- Potential Running point double counting in the journal explanation.
+- Legacy Upper Body exercises not scoring because `exerciseType` was absent.
+- Custom workout exercises scoring zero.
+- Running not contributing to Cardio goals/statistics.
+- UTC date-input shifts.
+- Delete controls appearing in read-only history.
+- Custom Cardio validation omissions.
+- incomplete-account cleanup after profile-write failure.
+- stale selector import paths and invalid nested interactive controls.
+
+## Removed
+
+- Legacy duration picker.
+- obsolete Easter egg placeholders.
+- broken duplicate Cardio point configuration.
+- duplicate exercise option service.
+- obsolete monolithic statistics and migration services.
+- unused units helper.
+
+## Verification
+
+- ESLint passes.
+- Production build requires a fresh platform-correct dependency installation outside the sandbox.

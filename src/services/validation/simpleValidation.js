@@ -97,10 +97,13 @@ function validateCardioEntry(data = {}) {
     errors.push("Activity is required.");
   }
 
-  const customActivity =
-    data.source === "custom" || Boolean(data.activityDefinition);
+  const customActivity = data.source === "custom";
 
   if (customActivity) {
+    if (!data.activityDefinition?.group?.trim()) {
+      errors.push("Cardio group is required.");
+    }
+
     if (!data.activityDefinition?.cardioType?.trim()) {
       errors.push("Cardio type is required.");
     }
@@ -111,6 +114,16 @@ function validateCardioEntry(data = {}) {
 
     if (!data.activityDefinition?.equipment?.trim()) {
       errors.push("Cardio equipment is required.");
+    }
+
+    const proposedTier = Number(data.activityDefinition?.proposedTier);
+
+    if (
+      !Number.isInteger(proposedTier) ||
+      proposedTier < 1 ||
+      proposedTier > 5
+    ) {
+      errors.push("Cardio difficulty is required.");
     }
   }
 
@@ -149,8 +162,7 @@ export function validateSimpleEntry(category, data = {}) {
   if (category.id === "skill") {
     errors.push(...validateDuration(data, "Skill duration"));
 
-    const customSkill =
-      data.source === "custom" || Boolean(data.skillDefinition);
+    const customSkill = data.source === "custom";
 
     if (customSkill) {
       if (!data.skillDefinition?.area?.trim()) {

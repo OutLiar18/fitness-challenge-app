@@ -1,30 +1,16 @@
-export function getEntriesForDate(
-  entries = [],
-  selectedDate,
-) {
-  if (!(selectedDate instanceof Date)) {
+import { isSameDay, toDate } from "../dateService";
+
+export function getEntriesForDate(entries = [], selectedDate) {
+  const validSelectedDate = toDate(selectedDate);
+
+  if (!validSelectedDate) {
     return [];
   }
 
   return entries.filter((entry) => {
-    if (!entry.challengeDate) {
-      return false;
-    }
+    const entryDate = toDate(entry.challengeDate);
 
-    const entryDate =
-      typeof entry.challengeDate.toDate === "function"
-        ? entry.challengeDate.toDate()
-        : new Date(entry.challengeDate);
-
-    if (Number.isNaN(entryDate.getTime())) {
-      return false;
-    }
-
-    return (
-      entryDate.getFullYear() === selectedDate.getFullYear() &&
-      entryDate.getMonth() === selectedDate.getMonth() &&
-      entryDate.getDate() === selectedDate.getDate()
-    );
+    return entryDate ? isSameDay(entryDate, validSelectedDate) : false;
   });
 }
 
@@ -32,11 +18,6 @@ export function getTodayEntries(entries = []) {
   return getEntriesForDate(entries, new Date());
 }
 
-export function getCategoryEntries(
-  entries = [],
-  categoryId,
-) {
-  return entries.filter(
-    (entry) => entry.category === categoryId,
-  );
+export function getCategoryEntries(entries = [], categoryId) {
+  return entries.filter((entry) => entry.category === categoryId);
 }

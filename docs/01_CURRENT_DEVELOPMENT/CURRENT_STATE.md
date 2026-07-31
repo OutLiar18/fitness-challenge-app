@@ -1,86 +1,40 @@
-# Champions Legacy
+# Champions Legacy — Current State
 
-# Current State
+Version: 0.5.0
+Last updated: 30 July 2026
+Status: Active development; core platform stabilised
 
-Version: Living Document
+## Product state
 
----
+Champions Legacy has a functional, responsive core loop:
 
-# Purpose
+```text
+Choose category → record factual activity → validate → save once →
+derive points/statistics/goals → review in journal
+```
 
-This document describes the current implementation status of Champions Legacy.
+The current release is suitable for controlled manual testing. Advanced progression and social systems remain future work.
 
-It should always reflect the actual state of the application and provide a quick overview of what has been built, what remains incomplete and where development should continue.
+## Implemented systems
 
-Unlike `RECENT_SESSION_SUMMARY.md`, this document changes only when the application's state changes.
+### Authentication and profiles — Complete
 
----
+- Email/password registration and sign-in.
+- Protected dashboard route.
+- Firestore profile creation.
+- Account cleanup when profile creation fails.
+- Friendly authentication errors and loading states.
 
-# Project Status
+### Challenge entries — Complete for v0.5
 
-**Status:** 🚧 Active Development
+- Real-time owner-scoped Firestore entries.
+- Create and delete workflows.
+- Today/yesterday editing rule.
+- Local-date-safe challenge dates.
+- Normalisation and category-aware validation.
+- One entry can contribute to multiple derived systems without duplicate documents.
 
-Champions Legacy is currently focused on completing the core platform before expanding into advanced gamification and administration features.
-
-The priority is to build stable, reusable systems rather than rapidly adding new functionality.
-
----
-
-# Core Systems
-
-## Authentication
-
-**Status:** ✅ Complete
-
-Implemented:
-
-- User registration
-- User login
-- User logout
-- Protected routes
-- User profile creation
-- Firebase Authentication integration
-
----
-
-## Dashboard
-
-**Status:** ✅ Functional
-
-Implemented:
-
-- Welcome card
-- Statistics overview
-- Category grid
-- Dynamic entry forms
-- Journal integration
-
-Future improvements may expand the dashboard but should not require major redesign.
-
----
-
-## Challenge Entry System
-
-**Status:** ✅ Functional
-
-Implemented:
-
-- Dynamic challenge categories
-- Dynamic entry forms
-- Entry creation
-- Entry deletion
-- Firestore persistence
-- Real-time updates
-
-The challenge system is considered the core of the application.
-
----
-
-## Forms
-
-**Status:** ✅ Functional
-
-Current forms include:
+### Categories and forms — Complete for v0.5
 
 - Water
 - Fruit
@@ -93,207 +47,96 @@ Current forms include:
 - Skill Development
 - Steps
 
-New categories should follow the same configuration-driven architecture.
-
----
-
-## SmartSelect
-
-**Status:** ✅ Complete
-
-Features:
-
-- Search while typing
-- Keyboard navigation
-- Mouse support
-- Touch support
-- Custom values
-- Large dataset support
-
-SmartSelect should remain the standard searchable input throughout the application.
-
----
-
-## Points System
-
-**Status:** 🚧 In Progress
-
-Current implementation includes:
-
-- Centralised Points Service
-- Configuration-driven scoring
-- Dynamic point calculations
-
-Future work includes:
-
-- Difficulty-based exercise scoring
-- Effective repetition calculations
-- Final balancing and tuning
-
----
-
-## Statistics
-
-**Status:** ✅ Functional
-
-Implemented:
-
-- Daily statistics
-- Overall statistics
-- Category statistics
-- Total points
-- Daily points
-- Goal progress
-
-Statistics should always be calculated from stored data rather than permanently saved.
-
----
-
-## Journal
-
-**Status:** 🚧 In Progress
-
-Implemented:
-
-- Daily entry list
-- Entry deletion
-- Integration with challenge entries
-
-Planned improvements:
-
-- Previous / next day navigation
-- Calendar selection
-- Improved history browsing
-
----
-
-## Administration
-
-**Status:** ⏳ Not Started
-
-Planned features include:
-
-- User management
-- Challenge management
-- Moderation tools
-- Reporting
-- Administrative settings
-
----
-
-## Analytics
-
-**Status:** ⏳ Planned
-
-Future analytics may include:
-
-- Trends
-- Historical reports
-- Progress charts
-- Personal insights
-- Team analytics
-
----
-
-# Services
-
-Current services include:
-
-- EntryService
-- ValidationService
-- PointsService
-- StatisticsService
-- ChallengeService
-- DateService
-- MessageService
-- ExerciseLibraryService
-- ExerciseOptionService
-
-Business logic should continue to reside inside services rather than components.
-
----
-
-# Current Architecture
-
-The application currently follows this structure:
-
-Configuration
-
-↓
-
-Services
-
-↓
-
-Reusable Components
-
-↓
-
-Pages
-
-↓
-
-Firestore
-
-Firestore stores factual data only.
-
-Derived values (points, statistics, progress, achievements) are calculated by services.
-
----
-
-# Known Incomplete Features
-
-The following planned systems have not yet been completed:
-
-- Journal navigation
-- Calendar view
-- Streak system
-- XP system
-- Achievements
-- Leaderboards
-- Team functionality
-- Administration portal
-- Advanced analytics
-
----
-
-# Current Constraints
-
-The project intentionally does **not** include:
-
-- Image uploads
-- Firebase Storage
-- Proof submissions
-
-These features were removed to keep the application fully functional within Firebase's free tier.
-
-They may be reconsidered in a future version.
-
----
-
-# Known Issues
-
-Refer to `KNOWN_ISSUES.md` for the current list of bugs, technical debt and outstanding problems.
-
-This document should not duplicate that information.
-
----
-
-# Next Priority
-
-Refer to `NEXT_SESSION.md` for the immediate development objective.
-
-This document should remain focused on the application's overall implementation status rather than the current task.
-
----
-
-# Related Documentation
-
-- CURRENT_STATE.md
-- NEXT_SESSION.md
-- KNOWN_ISSUES.md
-- RECENT_SESSION_SUMMARY.md
-
----
-
-# End of Document
+Forms support global libraries, a personal reading library, custom suggestions, dynamic workout exercises and per-set details.
+
+### Points Engine v2 — Complete
+
+- Configuration-driven category scoring.
+- Structured point breakdowns.
+- Difficulty multipliers.
+- Effective Repetitions.
+- Static hold conversion.
+- Custom exercise scoring.
+- Running awards Running points and an intentional Cardio bonus.
+- Point calculations remain derived from factual entry data.
+
+### Statistics and goals — Complete for v0.5
+
+- Total and daily points.
+- Total and daily entry counts.
+- Daily goal progress.
+- Mission progress.
+- Top categories.
+- Cross-category contributions: Running duration contributes to Cardio statistics and Cardio’s daily goal.
+
+### Journal — Complete for v0.5
+
+- Previous/next date navigation.
+- Native date picker.
+- Today shortcut.
+- Loading and empty states.
+- Read-only historical days.
+- Rich category-specific entry summaries.
+- Explainable point breakdowns.
+
+### Libraries and suggestions — Functional
+
+- Global Fruit, Exercise, Cardio and Skill libraries.
+- User-owned Reading library with usage ranking.
+- Custom Exercise suggestions.
+- Custom Cardio and Skill suggestions.
+- Moderation interface is not yet implemented.
+
+### UI and accessibility — Stabilised
+
+- Responsive light/dark design system.
+- Consistent cards, forms, buttons, alerts and empty states.
+- Accessible searchable selectors.
+- Keyboard navigation and visible focus states.
+- Live-region notifications.
+- Reduced-motion support.
+- Application error boundary.
+
+### Security — Implemented locally
+
+- Owner-based Firestore rules are included in `firestore.rules`.
+- Rules must be deployed to the Firebase project before production use.
+- Real credentials remain in `.env`, which is ignored and excluded from handovers.
+
+## Architecture snapshot
+
+```text
+Configuration and libraries
+          ↓
+Pure domain services
+(points, statistics, validation, dates)
+          ↓
+Firestore repositories and orchestration
+          ↓
+Hooks and reusable components
+          ↓
+Route-level pages
+```
+
+Firestore stores facts. Derived values are recalculated by services.
+
+## Intentionally out of scope
+
+- Image uploads and proof submissions.
+- Firebase Storage usage.
+- Entry editing after save.
+- Admin/moderation dashboard.
+- XP, levels, streaks, achievements and leagues.
+- Social/team systems.
+- Advanced analytics and charts.
+
+## Verification status
+
+- ESLint: passing.
+- Production build: requires a fresh platform-correct `npm install` before verification.
+- Automated domain smoke tests: passing (six tests).
+- Manual Firebase workflow testing: still required before release.
+
+## Immediate next step
+
+Complete the v0.5 manual QA checklist, deploy Firestore rules to the development project and expand the automated domain suite as defects are found.

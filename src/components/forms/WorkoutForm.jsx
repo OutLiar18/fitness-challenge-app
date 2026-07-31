@@ -1,25 +1,21 @@
-import MultiSelect from "../common/Selector/MultiSelect";
+import { useMemo } from "react";
 import {
+  DIFFICULTY_OPTIONS,
   EQUIPMENT_OPTIONS,
   MOVEMENT_PATTERN_OPTIONS,
   MUSCLE_OPTIONS,
-  DIFFICULTY_OPTIONS,
 } from "../../constants/libraries/exerciseMetaDataLibrary";
-import SmartSelect from "../common/Selector/SmartSelect";
-
-import { getExercisesByCategory } from "../../services/libraries/exerciseOptionService";
-
 import {
   getExercise,
-  isHoldExercise,
+  getExerciseNamesByCategory,
 } from "../../services/libraries/exerciseLibraryService";
+import NumberInput from "../common/Form/NumberInput";
+import MultiSelect from "../common/Selector/MultiSelect";
+import SmartSelect from "../common/Selector/SmartSelect";
+import "./FormSections.css";
 
 function createEmptySet() {
-  return {
-    reps: "",
-    seconds: "",
-    weight: "",
-  };
+  return { reps: "", seconds: "", weight: "" };
 }
 
 function createEmptyExercise() {
@@ -47,652 +43,520 @@ function createCustomExerciseDefinition(name, category) {
   };
 }
 
-function normalizeExercise(exercise) {
-  if (Array.isArray(exercise?.sets)) {
+function normalizeSet(set = {}) {
+  return {
+    reps: set.reps ?? "",
+    seconds: set.seconds ?? "",
+    weight: set.weight ?? "",
+  };
+}
+
+function normalizeExercise(exercise = {}) {
+  const custom =
+    exercise.source === "custom" || Boolean(exercise.exerciseDefinition);
+
+  if (Array.isArray(exercise.sets)) {
     return {
-      exercise: exercise.exercise || "",
-      source:
-        exercise.source || (exercise.exerciseDefinition ? "custom" : "library"),
-
-      exerciseDefinition: exercise.exerciseDefinition || null,
-
+      exercise: exercise.exercise ?? "",
+      source: exercise.source || (custom ? "custom" : "library"),
+      exerciseDefinition: exercise.exerciseDefinition ?? null,
       suggestionStatus:
-        exercise.suggestionStatus ||
-        (exercise.exerciseDefinition ? "pending" : ""),
-
+        exercise.suggestionStatus || (custom ? "pending" : ""),
       sets:
         exercise.sets.length > 0
-          ? exercise.sets.map((set) => ({
-              reps: set.reps ?? "",
-              seconds: set.seconds ?? "",
-              weight: set.weight ?? "",
-            }))
+          ? exercise.sets.map(normalizeSet)
           : [createEmptySet()],
     };
   }
 
-  const numberOfSets = Number(exercise?.sets) > 0 ? Number(exercise.sets) : 1;
+  const numberOfSets = Math.max(Number(exercise.sets ?? 1), 1);
 
   return {
-    exercise: exercise?.exercise || "",
-    source:
-      exercise?.source || (exercise?.exerciseDefinition ? "custom" : "library"),
-
-    exerciseDefinition: exercise?.exerciseDefinition || null,
-
-    suggestionStatus:
-      exercise?.suggestionStatus ||
-      (exercise?.exerciseDefinition ? "pending" : ""),
-
-    sets: Array.from({ length: numberOfSets }, () => ({
-      reps: exercise?.reps ?? "",
-      seconds: exercise?.seconds ?? "",
-      weight: exercise?.weight ?? "",
-    })),
+    exercise: exercise.exercise ?? "",
+    source: exercise.source || (custom ? "custom" : "library"),
+    exerciseDefinition: exercise.exerciseDefinition ?? null,
+    suggestionStatus: exercise.suggestionStatus || (custom ? "pending" : ""),
+    sets: Array.from({ length: numberOfSets }, () =>
+      normalizeSet({
+        reps: exercise.reps,
+        seconds: exercise.seconds,
+        weight: exercise.weight,
+      }),
+    ),
   };
 }
 
-function isCustomExercise(exercise) {
-  return exercise?.source === "custom" || Boolean(exercise?.exerciseDefinition);
+function getExercises(formData = {}) {
+  return Array.isArray(formData.exercises) && formData.exercises.length > 0
+    ? formData.exercises.map(normalizeExercise)
+    : [createEmptyExercise()];
 }
 
 function getExerciseType(exercise) {
-  if (isCustomExercise(exercise)) {
-    return exercise.exerciseDefinition?.exerciseType || "";
+  if (exercise.source === "custom") {
+    return exercise.exerciseDefinition?.exerciseType ?? "";
   }
 
-  if (isHoldExercise(exercise.exercise)) {
-    return "hold";
-  }
-
-  if (getExercise(exercise.exercise)) {
-    return "repetition";
-  }
-
-  return "";
+  return getExercise(exercise.exercise)?.exerciseType ?? "";
 }
 
 export default function WorkoutForm({
   category,
   formData,
   setFormData,
-  readOnly,
+  readOnly = false,
 }) {
-  const exerciseOptions = getExercisesByCategory(category);
+  const exerciseOptions = useMemo(
+    () => getExerciseNamesByCategory(category),
+    [category],
+  );
+  const exercises = getExercises(formData);
 
-  const exercises =
-    Array.isArray(formData.exercises) && formData.exercises.length > 0
-      ? formData.exercises.map(normalizeExercise)
-      : [createEmptyExercise()];
+  function updateExercises(updater) {
+    setFormData((currentData) => ({
+      ...currentData,
+      exercises: updater(getExercises(currentData)),
+    }));
+  }
 
-  const updateExercises = (updatedExercises) => {
-    setFormData({
-      ...formData,
-      exercises: updatedExercises,
-    });
-  };
+  function updateExerciseName(exerciseIndex, value, details = {}) {
+    updateExercises((currentExercises) =>
+      currentExercises.map((exercise, index) => {
+        if (index !== exerciseIndex) {
+          return exercise;
+        }
 
-  const updateExerciseName = (exerciseIndex, value, selectionDetails = {}) => {
-    const customExercise = selectionDetails.isCustom === true;
+        if (details.isCustom === true) {
+          return {
+            ...exercise,
+            exercise: value,
+            source: "custom",
+            suggestionStatus: "pending",
+            exerciseDefinition: createCustomExerciseDefinition(value, category),
+            sets: exercise.sets.map((set) => ({
+              ...set,
+              reps: "",
+              seconds: "",
+            })),
+          };
+        }
 
-    const updatedExercises = exercises.map((exercise, index) => {
-      if (index !== exerciseIndex) {
-        return exercise;
-      }
+        const definition = getExercise(value);
+        const hold = definition?.exerciseType === "hold";
 
-      if (customExercise) {
         return {
           ...exercise,
           exercise: value,
-          source: "custom",
-          suggestionStatus: "pending",
-          exerciseDefinition: createCustomExerciseDefinition(value, category),
-
+          source: "library",
+          suggestionStatus: "",
+          exerciseDefinition: null,
           sets: exercise.sets.map((set) => ({
             ...set,
-            reps: "",
-            seconds: "",
+            reps: hold ? "" : set.reps,
+            seconds: hold ? set.seconds : "",
           })),
         };
-      }
-
-      const selectedExercise = getExercise(value);
-
-      return {
-        ...exercise,
-        exercise: value,
-        source: "library",
-        suggestionStatus: "",
-        exerciseDefinition: null,
-
-        sets: exercise.sets.map((set) => ({
-          ...set,
-
-          reps: selectedExercise?.exerciseType === "hold" ? "" : set.reps,
-
-          seconds: selectedExercise?.exerciseType === "hold" ? set.seconds : "",
-        })),
-      };
-    });
-
-    updateExercises(updatedExercises);
-  };
-
-  const updateCustomDefinition = (exerciseIndex, field, value) => {
-    const updatedExercises = exercises.map((exercise, index) => {
-      if (index !== exerciseIndex) {
-        return exercise;
-      }
-
-      const previousType = exercise.exerciseDefinition?.exerciseType || "";
-
-      const nextDefinition = {
-        ...exercise.exerciseDefinition,
-        [field]: value,
-      };
-
-      if (field === "exerciseType") {
-        nextDefinition.type = value === "hold" ? "hold" : "dynamic";
-      }
-
-      let updatedSets = exercise.sets;
-
-      if (field === "exerciseType" && previousType !== value) {
-        updatedSets = exercise.sets.map((set) => ({
-          ...set,
-          reps: value === "hold" ? "" : set.reps,
-          seconds: value === "hold" ? set.seconds : "",
-        }));
-      }
-
-      return {
-        ...exercise,
-        exerciseDefinition: nextDefinition,
-        sets: updatedSets,
-      };
-    });
-
-    updateExercises(updatedExercises);
-  };
-
-  const updateSet = (exerciseIndex, setIndex, field, value) => {
-    const updatedExercises = exercises.map((exercise, currentExerciseIndex) => {
-      if (currentExerciseIndex !== exerciseIndex) {
-        return exercise;
-      }
-
-      const exerciseType = getExerciseType(exercise);
-
-      return {
-        ...exercise,
-
-        sets: exercise.sets.map((set, currentSetIndex) => {
-          if (currentSetIndex !== setIndex) {
-            return set;
-          }
-
-          const updatedSet = {
-            ...set,
-            [field]: value,
-          };
-
-          if (exerciseType === "hold") {
-            updatedSet.reps = "";
-          }
-
-          if (exerciseType === "repetition") {
-            updatedSet.seconds = "";
-          }
-
-          return updatedSet;
-        }),
-      };
-    });
-
-    updateExercises(updatedExercises);
-  };
-
-  const addExercise = () => {
-    updateExercises([...exercises, createEmptyExercise()]);
-  };
-
-  const removeExercise = (exerciseIndex) => {
-    if (exercises.length === 1) {
-      return;
-    }
-
-    updateExercises(exercises.filter((_, index) => index !== exerciseIndex));
-  };
-
-  const addSet = (exerciseIndex) => {
-    const updatedExercises = exercises.map((exercise, index) =>
-      index === exerciseIndex
-        ? {
-            ...exercise,
-            sets: [...exercise.sets, createEmptySet()],
-          }
-        : exercise,
+      }),
     );
+  }
 
-    updateExercises(updatedExercises);
-  };
+  function updateCustomDefinition(exerciseIndex, field, value) {
+    updateExercises((currentExercises) =>
+      currentExercises.map((exercise, index) => {
+        if (index !== exerciseIndex) {
+          return exercise;
+        }
 
-  const duplicateSet = (exerciseIndex, setIndex) => {
-    const updatedExercises = exercises.map((exercise, index) => {
-      if (index !== exerciseIndex) {
-        return exercise;
-      }
+        const previousType = exercise.exerciseDefinition?.exerciseType ?? "";
+        const nextDefinition = {
+          ...exercise.exerciseDefinition,
+          [field]: value,
+        };
 
-      const setToDuplicate = {
-        ...exercise.sets[setIndex],
-      };
+        if (field === "exerciseType") {
+          nextDefinition.type = value === "hold" ? "hold" : "dynamic";
+        }
 
-      return {
-        ...exercise,
-
-        sets: [
-          ...exercise.sets.slice(0, setIndex + 1),
-          setToDuplicate,
-          ...exercise.sets.slice(setIndex + 1),
-        ],
-      };
-    });
-
-    updateExercises(updatedExercises);
-  };
-
-  const removeSet = (exerciseIndex, setIndex) => {
-    const exercise = exercises[exerciseIndex];
-
-    if (exercise.sets.length === 1) {
-      return;
-    }
-
-    const updatedExercises = exercises.map(
-      (currentExercise, currentExerciseIndex) =>
-        currentExerciseIndex === exerciseIndex
-          ? {
-              ...currentExercise,
-
-              sets: currentExercise.sets.filter(
-                (_, index) => index !== setIndex,
-              ),
-            }
-          : currentExercise,
+        return {
+          ...exercise,
+          exerciseDefinition: nextDefinition,
+          sets:
+            field === "exerciseType" && value !== previousType
+              ? exercise.sets.map((set) => ({
+                  ...set,
+                  reps: value === "hold" ? "" : set.reps,
+                  seconds: value === "hold" ? set.seconds : "",
+                }))
+              : exercise.sets,
+        };
+      }),
     );
+  }
 
-    updateExercises(updatedExercises);
-  };
-
-  return (
-    <>
-      {exercises.map((exercise, exerciseIndex) => {
-        const customExercise = isCustomExercise(exercise);
+  function updateSet(exerciseIndex, setIndex, field, value) {
+    updateExercises((currentExercises) =>
+      currentExercises.map((exercise, currentExerciseIndex) => {
+        if (currentExerciseIndex !== exerciseIndex) {
+          return exercise;
+        }
 
         const exerciseType = getExerciseType(exercise);
 
-        const holdExercise = exerciseType === "hold";
+        return {
+          ...exercise,
+          sets: exercise.sets.map((set, currentSetIndex) => {
+            if (currentSetIndex !== setIndex) {
+              return set;
+            }
 
-        const repetitionExercise = exerciseType === "repetition";
+            return {
+              ...set,
+              [field]: value,
+              ...(exerciseType === "hold" ? { reps: "" } : {}),
+              ...(exerciseType === "repetition" ? { seconds: "" } : {}),
+            };
+          }),
+        };
+      }),
+    );
+  }
+
+  function addExercise() {
+    updateExercises((currentExercises) => [
+      ...currentExercises,
+      createEmptyExercise(),
+    ]);
+  }
+
+  function removeExercise(exerciseIndex) {
+    updateExercises((currentExercises) =>
+      currentExercises.length === 1
+        ? currentExercises
+        : currentExercises.filter((_, index) => index !== exerciseIndex),
+    );
+  }
+
+  function addSet(exerciseIndex) {
+    updateExercises((currentExercises) =>
+      currentExercises.map((exercise, index) =>
+        index === exerciseIndex
+          ? { ...exercise, sets: [...exercise.sets, createEmptySet()] }
+          : exercise,
+      ),
+    );
+  }
+
+  function duplicateSet(exerciseIndex, setIndex) {
+    updateExercises((currentExercises) =>
+      currentExercises.map((exercise, index) => {
+        if (index !== exerciseIndex) {
+          return exercise;
+        }
+
+        return {
+          ...exercise,
+          sets: [
+            ...exercise.sets.slice(0, setIndex + 1),
+            { ...exercise.sets[setIndex] },
+            ...exercise.sets.slice(setIndex + 1),
+          ],
+        };
+      }),
+    );
+  }
+
+  function removeSet(exerciseIndex, setIndex) {
+    updateExercises((currentExercises) =>
+      currentExercises.map((exercise, index) =>
+        index === exerciseIndex && exercise.sets.length > 1
+          ? {
+              ...exercise,
+              sets: exercise.sets.filter((_, indexToRemove) => indexToRemove !== setIndex),
+            }
+          : exercise,
+      ),
+    );
+  }
+
+  return (
+    <div className="workout-builder">
+      {exercises.map((exercise, exerciseIndex) => {
+        const exerciseType = getExerciseType(exercise);
+        const customExercise = exercise.source === "custom";
 
         return (
-          <div
-            key={exerciseIndex}
-            style={{
-              border: "1px solid #ddd",
-              borderRadius: "10px",
-              padding: "15px",
-              marginBottom: "20px",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                gap: "10px",
-                marginBottom: "15px",
-              }}
-            >
-              <h4 style={{ margin: 0 }}>Exercise {exerciseIndex + 1}</h4>
+          <section className="workout-exercise" key={`exercise-${exerciseIndex}`}>
+            <div className="workout-exercise__header">
+              <p className="workout-exercise__index">
+                <span aria-hidden="true">{exerciseIndex + 1}</span>
+                Exercise
+              </p>
 
               {!readOnly && exercises.length > 1 && (
                 <button
+                  className="button button--danger button--compact"
                   type="button"
                   onClick={() => removeExercise(exerciseIndex)}
                 >
-                  Remove Exercise
+                  Remove exercise
                 </button>
               )}
             </div>
 
-            <div style={{ marginBottom: "15px" }}>
-              <label>
-                <strong>Exercise *</strong>
-              </label>
-
-              <SmartSelect
-                label="Exercise"
-                value={exercise.exercise || ""}
-                options={exerciseOptions}
-                disabled={readOnly}
-                allowCustom
-                customOptionLabel="Suggest new exercise"
-                onChange={(value, selectionDetails) =>
-                  updateExerciseName(exerciseIndex, value, selectionDetails)
-                }
-              />
-            </div>
+            <SmartSelect
+              label="Exercise"
+              required
+              value={exercise.exercise}
+              options={exerciseOptions}
+              disabled={readOnly}
+              allowCustom
+              customOptionLabel="Suggest new exercise"
+              onChange={(value, details) =>
+                updateExerciseName(exerciseIndex, value, details)
+              }
+            />
 
             {customExercise && (
-              <div
-                style={{
-                  border: "1px solid #ddd",
-                  borderRadius: "8px",
-                  padding: "15px",
-                  marginBottom: "15px",
-                }}
+              <section
+                className="form-section"
+                aria-labelledby={`custom-exercise-${exerciseIndex}`}
               >
-                <h5 style={{ marginTop: 0 }}>Suggest New Exercise</h5>
-
-                <p>
-                  This exercise is not currently in the library. Add its details
-                  so it can be logged correctly and reviewed by an
-                  administrator.
-                </p>
-
-                <div style={{ marginBottom: "15px" }}>
-                  <label>
-                    <strong>Exercise Type *</strong>
-                  </label>
-
-                  <select
-                    disabled={readOnly}
-                    value={exercise.exerciseDefinition?.exerciseType || ""}
-                    onChange={(event) =>
-                      updateCustomDefinition(
-                        exerciseIndex,
-                        "exerciseType",
-                        event.target.value,
-                      )
-                    }
-                  >
-                    <option value="">Select exercise type...</option>
-
-                    <option value="repetition">Repetition exercise</option>
-
-                    <option value="hold">Timed hold exercise</option>
-                  </select>
+                <div className="form-section__header">
+                  <h3 id={`custom-exercise-${exerciseIndex}`}>
+                    New exercise details
+                  </h3>
+                  <p>
+                    These details determine how the exercise scores while it is
+                    waiting for library review.
+                  </p>
                 </div>
 
-                <div style={{ marginBottom: "15px" }}>
-                  <label>
-                    <strong>Suggested Difficulty *</strong>
-                  </label>
-
-                  <select
-                    disabled={readOnly}
-                    value={exercise.exerciseDefinition?.proposedTier || ""}
-                    onChange={(event) =>
-                      updateCustomDefinition(
-                        exerciseIndex,
-                        "proposedTier",
-                        event.target.value === ""
-                          ? ""
-                          : Number(event.target.value),
-                      )
-                    }
-                  >
-                    <option value="">Select difficulty...</option>
-
-                    {DIFFICULTY_OPTIONS.map((difficulty) => (
-                      <option key={difficulty.tier} value={difficulty.tier}>
-                        {difficulty.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div style={{ marginBottom: "15px" }}>
-                  <label>
-                    <strong>Equipment *</strong>
-                  </label>
-
-                  <select
-                    disabled={readOnly}
-                    value={exercise.exerciseDefinition?.equipment || ""}
-                    onChange={(event) =>
-                      updateCustomDefinition(
-                        exerciseIndex,
-                        "equipment",
-                        event.target.value,
-                      )
-                    }
-                  >
-                    <option value="">Select equipment...</option>
-
-                    {EQUIPMENT_OPTIONS.map((equipment) => (
-                      <option key={equipment} value={equipment}>
-                        {equipment}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div style={{ marginBottom: "15px" }}>
-                  <label>
-                    <strong>Movement Pattern</strong>
-                  </label>
-
-                  <select
-                    disabled={readOnly}
-                    value={exercise.exerciseDefinition?.movementPattern || ""}
-                    onChange={(event) =>
-                      updateCustomDefinition(
-                        exerciseIndex,
-                        "movementPattern",
-                        event.target.value,
-                      )
-                    }
-                  >
-                    <option value="">Select movement pattern...</option>
-
-                    {MOVEMENT_PATTERN_OPTIONS.map((pattern) => (
-                      <option key={pattern} value={pattern}>
-                        {pattern}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div style={{ marginBottom: "15px" }}>
-                  <MultiSelect
-                    label="Primary Muscles *"
-                    options={MUSCLE_OPTIONS}
-                    value={exercise.exerciseDefinition?.primaryMuscles || []}
-                    disabled={readOnly}
-                    placeholder="Select primary muscles..."
-                    onChange={(value) =>
-                      updateCustomDefinition(
-                        exerciseIndex,
-                        "primaryMuscles",
-                        value,
-                      )
-                    }
-                  />
-                </div>
-
-                <div style={{ marginBottom: "15px" }}>
-                  <MultiSelect
-                    label="Secondary Muscles"
-                    options={MUSCLE_OPTIONS}
-                    value={exercise.exerciseDefinition?.secondaryMuscles || []}
-                    disabled={readOnly}
-                    placeholder="Select secondary muscles..."
-                    onChange={(value) =>
-                      updateCustomDefinition(
-                        exerciseIndex,
-                        "secondaryMuscles",
-                        value,
-                      )
-                    }
-                  />
-                </div>
-              </div>
-            )}
-
-            {!exerciseType && exercise.exercise && (
-              <p>
-                Select whether this is a repetition or timed-hold exercise
-                before adding sets.
-              </p>
-            )}
-
-            {exerciseType &&
-              exercise.sets.map((set, setIndex) => (
-                <div
-                  key={setIndex}
-                  style={{
-                    borderTop: "1px solid #eee",
-                    paddingTop: "15px",
-                    marginTop: setIndex === 0 ? "0" : "15px",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      gap: "10px",
-                      marginBottom: "10px",
-                    }}
-                  >
-                    <strong>Set {setIndex + 1}</strong>
-
-                    {!readOnly && (
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: "8px",
-                        }}
-                      >
-                        <button
-                          type="button"
-                          onClick={() => duplicateSet(exerciseIndex, setIndex)}
-                        >
-                          Duplicate
-                        </button>
-
-                        {exercise.sets.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => removeSet(exerciseIndex, setIndex)}
-                          >
-                            Remove
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  {repetitionExercise && (
-                    <div style={{ marginBottom: "15px" }}>
-                      <label>
-                        <strong>Reps *</strong>
-                      </label>
-
-                      <input
-                        type="number"
-                        min="1"
-                        step="1"
-                        disabled={readOnly}
-                        placeholder="Number of repetitions"
-                        value={set.reps ?? ""}
-                        onWheel={(event) => event.currentTarget.blur()}
-                        onChange={(event) =>
-                          updateSet(
-                            exerciseIndex,
-                            setIndex,
-                            "reps",
-                            event.target.value === ""
-                              ? ""
-                              : Number(event.target.value),
-                          )
-                        }
-                      />
-                    </div>
-                  )}
-
-                  {holdExercise && (
-                    <div style={{ marginBottom: "15px" }}>
-                      <label>
-                        <strong>Hold Time (seconds) *</strong>
-                      </label>
-
-                      <input
-                        type="number"
-                        min="1"
-                        step="1"
-                        disabled={readOnly}
-                        placeholder="Duration in seconds"
-                        value={set.seconds ?? ""}
-                        onWheel={(event) => event.currentTarget.blur()}
-                        onChange={(event) =>
-                          updateSet(
-                            exerciseIndex,
-                            setIndex,
-                            "seconds",
-                            event.target.value === ""
-                              ? ""
-                              : Number(event.target.value),
-                          )
-                        }
-                      />
-                    </div>
-                  )}
-
-                  <div style={{ marginBottom: "15px" }}>
-                    <label>
-                      <strong>External Weight (kg) — Optional</strong>
-                    </label>
-
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.1"
+                <div className="form-section__grid">
+                  <label htmlFor={`exercise-type-${exerciseIndex}`}>
+                    Tracking method <span className="form-required">*</span>
+                    <select
+                      id={`exercise-type-${exerciseIndex}`}
                       disabled={readOnly}
-                      placeholder="0"
-                      value={set.weight ?? ""}
-                      onWheel={(event) => event.currentTarget.blur()}
+                      value={exercise.exerciseDefinition?.exerciseType ?? ""}
                       onChange={(event) =>
-                        updateSet(
+                        updateCustomDefinition(
                           exerciseIndex,
-                          setIndex,
-                          "weight",
+                          "exerciseType",
+                          event.target.value,
+                        )
+                      }
+                    >
+                      <option value="">Select a method…</option>
+                      <option value="repetition">Repetitions</option>
+                      <option value="hold">Timed hold</option>
+                    </select>
+                  </label>
+
+                  <label htmlFor={`exercise-tier-${exerciseIndex}`}>
+                    Difficulty <span className="form-required">*</span>
+                    <select
+                      id={`exercise-tier-${exerciseIndex}`}
+                      disabled={readOnly}
+                      value={exercise.exerciseDefinition?.proposedTier ?? ""}
+                      onChange={(event) =>
+                        updateCustomDefinition(
+                          exerciseIndex,
+                          "proposedTier",
                           event.target.value === ""
                             ? ""
                             : Number(event.target.value),
                         )
                       }
-                    />
-                  </div>
-                </div>
-              ))}
+                    >
+                      <option value="">Select difficulty…</option>
+                      {DIFFICULTY_OPTIONS.map((option) => (
+                        <option key={option.tier} value={option.tier}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
 
-            {!readOnly && exerciseType && (
-              <button type="button" onClick={() => addSet(exerciseIndex)}>
-                + Add Set
-              </button>
+                  <label htmlFor={`exercise-equipment-${exerciseIndex}`}>
+                    Equipment <span className="form-required">*</span>
+                    <select
+                      id={`exercise-equipment-${exerciseIndex}`}
+                      disabled={readOnly}
+                      value={exercise.exerciseDefinition?.equipment ?? ""}
+                      onChange={(event) =>
+                        updateCustomDefinition(
+                          exerciseIndex,
+                          "equipment",
+                          event.target.value,
+                        )
+                      }
+                    >
+                      <option value="">Select equipment…</option>
+                      {EQUIPMENT_OPTIONS.map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label htmlFor={`exercise-pattern-${exerciseIndex}`}>
+                    Movement pattern
+                    <select
+                      id={`exercise-pattern-${exerciseIndex}`}
+                      disabled={readOnly}
+                      value={exercise.exerciseDefinition?.movementPattern ?? ""}
+                      onChange={(event) =>
+                        updateCustomDefinition(
+                          exerciseIndex,
+                          "movementPattern",
+                          event.target.value,
+                        )
+                      }
+                    >
+                      <option value="">Select a pattern…</option>
+                      {MOVEMENT_PATTERN_OPTIONS.map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+
+                <MultiSelect
+                  label="Primary muscles"
+                  required
+                  options={MUSCLE_OPTIONS}
+                  value={exercise.exerciseDefinition?.primaryMuscles ?? []}
+                  disabled={readOnly}
+                  placeholder="Select primary muscles…"
+                  onChange={(value) =>
+                    updateCustomDefinition(exerciseIndex, "primaryMuscles", value)
+                  }
+                />
+
+                <MultiSelect
+                  label="Secondary muscles"
+                  options={MUSCLE_OPTIONS}
+                  value={exercise.exerciseDefinition?.secondaryMuscles ?? []}
+                  disabled={readOnly}
+                  placeholder="Select secondary muscles…"
+                  onChange={(value) =>
+                    updateCustomDefinition(exerciseIndex, "secondaryMuscles", value)
+                  }
+                />
+              </section>
             )}
-          </div>
+
+            {!exerciseType && exercise.exercise && (
+              <div className="inline-alert">
+                Choose a tracking method before adding set details.
+              </div>
+            )}
+
+            {exerciseType && (
+              <div className="workout-sets">
+                {exercise.sets.map((set, setIndex) => (
+                  <section className="workout-set" key={`set-${setIndex}`}>
+                    <div className="workout-set__header">
+                      <strong>Set {setIndex + 1}</strong>
+
+                      {!readOnly && (
+                        <div className="workout-set__actions">
+                          <button
+                            className="button button--secondary button--compact"
+                            type="button"
+                            onClick={() => duplicateSet(exerciseIndex, setIndex)}
+                          >
+                            Duplicate
+                          </button>
+                          {exercise.sets.length > 1 && (
+                            <button
+                              className="button button--danger button--compact"
+                              type="button"
+                              onClick={() => removeSet(exerciseIndex, setIndex)}
+                            >
+                              Remove
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="form-section__grid">
+                      {exerciseType === "repetition" && (
+                        <label htmlFor={`exercise-${exerciseIndex}-set-${setIndex}-reps`}>
+                          Reps <span className="form-required">*</span>
+                          <NumberInput
+                            id={`exercise-${exerciseIndex}-set-${setIndex}-reps`}
+                            min={1}
+                            step={1}
+                            inputMode="numeric"
+                            readOnly={readOnly}
+                            value={set.reps}
+                            placeholder="Repetitions"
+                            onChange={(value) =>
+                              updateSet(exerciseIndex, setIndex, "reps", value)
+                            }
+                          />
+                        </label>
+                      )}
+
+                      {exerciseType === "hold" && (
+                        <label htmlFor={`exercise-${exerciseIndex}-set-${setIndex}-seconds`}>
+                          Hold time (seconds) <span className="form-required">*</span>
+                          <NumberInput
+                            id={`exercise-${exerciseIndex}-set-${setIndex}-seconds`}
+                            min={1}
+                            step={1}
+                            inputMode="numeric"
+                            readOnly={readOnly}
+                            value={set.seconds}
+                            placeholder="Seconds"
+                            onChange={(value) =>
+                              updateSet(exerciseIndex, setIndex, "seconds", value)
+                            }
+                          />
+                        </label>
+                      )}
+
+                      <label htmlFor={`exercise-${exerciseIndex}-set-${setIndex}-weight`}>
+                        External weight (kg) <span className="form-help-inline">Optional</span>
+                        <NumberInput
+                          id={`exercise-${exerciseIndex}-set-${setIndex}-weight`}
+                          min={0}
+                          step={0.1}
+                          readOnly={readOnly}
+                          value={set.weight}
+                          placeholder="0"
+                          onChange={(value) =>
+                            updateSet(exerciseIndex, setIndex, "weight", value)
+                          }
+                        />
+                      </label>
+                    </div>
+                  </section>
+                ))}
+
+                {!readOnly && (
+                  <button
+                    className="button button--secondary"
+                    type="button"
+                    onClick={() => addSet(exerciseIndex)}
+                  >
+                    + Add set
+                  </button>
+                )}
+              </div>
+            )}
+          </section>
         );
       })}
 
       {!readOnly && (
-        <button type="button" onClick={addExercise}>
-          + Add Exercise
-        </button>
+        <div className="workout-builder__footer">
+          <button className="button button--secondary" type="button" onClick={addExercise}>
+            + Add another exercise
+          </button>
+        </div>
       )}
-    </>
+    </div>
   );
 }

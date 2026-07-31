@@ -1,67 +1,45 @@
-import { getCategory } from "../../utils/categoryHelpers";
-import { getUnit } from "../../utils/units";
+import { WORKOUT_CATEGORIES } from "../../constants/categories";
 import { getEntryPointBreakdown } from "../../services/points";
+import { getCategory } from "../../utils/categoryHelpers";
+import { formatDuration, formatPace } from "../../utils/timeHelpers";
+import "./EntryCard.css";
 
-const WORKOUT_CATEGORIES = new Set(["upperBody", "lowerBody", "core"]);
+const numberFormatter = new Intl.NumberFormat(undefined, {
+  maximumFractionDigits: 2,
+});
 
-function formatDuration(data = {}) {
-  const hours = Number(data.hours ?? 0);
-  const minutes = Number(data.minutes ?? 0);
-  const seconds = Number(data.seconds ?? 0);
-
-  const parts = [];
-
-  if (hours > 0) {
-    parts.push(`${hours} ${hours === 1 ? "hour" : "hours"}`);
-  }
-
-  if (minutes > 0) {
-    parts.push(`${minutes} ${minutes === 1 ? "minute" : "minutes"}`);
-  }
-
-  if (seconds > 0) {
-    parts.push(`${seconds} ${seconds === 1 ? "second" : "seconds"}`);
-  }
-
-  return parts.length > 0 ? parts.join(", ") : "No duration recorded";
+function cleanText(value, fallback = "Not recorded") {
+  return typeof value === "string" && value.trim() ? value.trim() : fallback;
 }
 
-function formatPace(averagePaceSecondsPerKm) {
-  const totalSeconds = Number(averagePaceSecondsPerKm);
-
-  if (!Number.isFinite(totalSeconds) || totalSeconds <= 0) {
-    return "Not available";
+function formatValue(value) {
+  if (typeof value === "boolean") {
+    return value ? "Yes" : "No";
   }
 
-  let minutes = Math.floor(totalSeconds / 60);
+  const numericValue = Number(value);
 
-  let seconds = Math.round(totalSeconds % 60);
-
-  if (seconds === 60) {
-    minutes += 1;
-    seconds = 0;
+  if (value !== "" && Number.isFinite(numericValue)) {
+    return numberFormatter.format(numericValue);
   }
 
-  return `${minutes}:${String(seconds).padStart(2, "0")} min/km`;
+  return String(value);
+}
+
+function Detail({ label, children }) {
+  if (children === undefined || children === null || children === "") {
+    return null;
+  }
+
+  return (
+    <div className="entry-detail">
+      <dt>{label}</dt>
+      <dd>{children}</dd>
+    </div>
+  );
 }
 
 function ReadingDetails({ data = {} }) {
-  const title =
-    typeof data.title === "string" && data.title.trim()
-      ? data.title.trim()
-      : typeof data.book === "string" && data.book.trim()
-        ? data.book.trim()
-        : "Not recorded";
-
-  const author = typeof data.author === "string" ? data.author.trim() : "";
-
-  const totalPages = Number.isFinite(Number(data.totalPages))
-    ? Number(data.totalPages)
-    : null;
-
-  const reflection =
-    typeof data.reflection === "string" ? data.reflection.trim() : "";
-
   const completed =
     typeof data.completed === "boolean"
       ? data.completed
@@ -71,187 +49,140 @@ function ReadingDetails({ data = {} }) {
 
   return (
     <>
-      <p>
-        <strong>Duration:</strong> {formatDuration(data)}
-      </p>
-
-      <p>
-        <strong>Book:</strong> {title}
-      </p>
-
-      {author && (
-        <p>
-          <strong>Author:</strong> {author}
-        </p>
+      <Detail label="Book">{cleanText(data.title ?? data.book)}</Detail>
+      {cleanText(data.author, "") && (
+        <Detail label="Author">{cleanText(data.author, "")}</Detail>
       )}
-
-      {totalPages && (
-        <p>
-          <strong>Total Pages:</strong> {totalPages}
-        </p>
+      <Detail label="Duration">{formatDuration(data, { long: true })}</Detail>
+      {Number(data.totalPages) > 0 && (
+        <Detail label="Total pages">{numberFormatter.format(Number(data.totalPages))}</Detail>
       )}
-
-      <p>
-        <strong>Completed:</strong>{" "}
+      <Detail label="Completed">
         {completed === null ? "Not recorded" : completed ? "Yes" : "No"}
-      </p>
-
-      {reflection && (
-        <p>
-          <strong>Reflection:</strong> {reflection}
-        </p>
+      </Detail>
+      {cleanText(data.reflection, "") && (
+        <div className="entry-card__reflection">
+          <strong>Reflection</strong>
+          <p>{cleanText(data.reflection, "")}</p>
+        </div>
       )}
     </>
   );
 }
 
 function RunningDetails({ data = {} }) {
-  const distance = Number(data.distance ?? 0);
-
   return (
     <>
-      <p>
-        <strong>Distance:</strong> {Number.isFinite(distance) ? distance : 0} km
-      </p>
-
-      <p>
-        <strong>Duration:</strong> {formatDuration(data)}
-      </p>
-
-      <p>
-        <strong>Average Pace:</strong>{" "}
-        {formatPace(data.averagePaceSecondsPerKm)}
-      </p>
+      <Detail label="Distance">{numberFormatter.format(Number(data.distance ?? 0))} km</Detail>
+      <Detail label="Duration">{formatDuration(data, { long: true })}</Detail>
+      <Detail label="Average pace">{formatPace(data.averagePaceSecondsPerKm)}</Detail>
     </>
   );
 }
 
 function CardioDetails({ data = {} }) {
-  const activity =
-    typeof data.activity === "string" && data.activity.trim()
-      ? data.activity.trim()
-      : "Not recorded";
-
   return (
     <>
-      <p>
-        <strong>Activity:</strong> {activity}
-      </p>
-
-      <p>
-        <strong>Duration:</strong> {formatDuration(data)}
-      </p>
+      <Detail label="Activity">{cleanText(data.activity)}</Detail>
+      <Detail label="Duration">{formatDuration(data, { long: true })}</Detail>
+      {Number(data.distance) > 0 && (
+        <Detail label="Distance">{numberFormatter.format(Number(data.distance))} km</Detail>
+      )}
+      {cleanText(data.notes, "") && (
+        <div className="entry-card__reflection">
+          <strong>Notes</strong>
+          <p>{cleanText(data.notes, "")}</p>
+        </div>
+      )}
     </>
   );
 }
 
 function SkillDetails({ data = {} }) {
-  const skill =
-    typeof data.skill === "string" && data.skill.trim()
-      ? data.skill.trim()
-      : "Not recorded";
-
   return (
     <>
-      <p>
-        <strong>Skill:</strong> {skill}
-      </p>
-
-      <p>
-        <strong>Duration:</strong> {formatDuration(data)}
-      </p>
+      <Detail label="Skill">{cleanText(data.skill)}</Detail>
+      <Detail label="Duration">{formatDuration(data, { long: true })}</Detail>
     </>
   );
 }
 
-function WorkoutDetails({ exercises = [] }) {
-  if (!Array.isArray(exercises) || exercises.length === 0) {
-    return <p>No exercises recorded.</p>;
+function getNormalizedSets(exercise = {}) {
+  if (Array.isArray(exercise.sets)) {
+    return exercise.sets;
   }
 
-  return exercises.map((exercise, exerciseIndex) => {
-    const exerciseName =
-      typeof exercise.exercise === "string" && exercise.exercise.trim()
-        ? exercise.exercise.trim()
-        : typeof exercise.name === "string" && exercise.name.trim()
-          ? exercise.name.trim()
-          : "Exercise";
+  return Array.from(
+    { length: Math.max(Number(exercise.sets ?? 1), 1) },
+    () => ({
+      reps: exercise.reps,
+      seconds: exercise.seconds,
+      weight: exercise.weight,
+    }),
+  );
+}
 
-    const hasNewSetStructure = Array.isArray(exercise.sets);
+function formatWorkoutSet(set = {}) {
+  const reps = Number(set.reps ?? 0);
+  const seconds = Number(
+    set.seconds ?? set.durationSeconds ?? set.holdSeconds ?? 0,
+  );
+  const weight = Number(set.weight ?? 0);
+  const parts = [];
 
-    const normalisedSets = hasNewSetStructure
-      ? exercise.sets
-      : Array.from(
-          {
-            length: Math.max(Number(exercise.sets ?? 1), 1),
-          },
-          () => ({
-            reps: exercise.reps,
-            weight: exercise.weight,
-            seconds: exercise.seconds,
-          }),
+  if (Number.isFinite(reps) && reps > 0) {
+    parts.push(`${numberFormatter.format(reps)} reps`);
+  }
+
+  if (Number.isFinite(seconds) && seconds > 0) {
+    parts.push(`${numberFormatter.format(seconds)}s hold`);
+  }
+
+  if (Number.isFinite(weight) && weight > 0) {
+    parts.push(`${numberFormatter.format(weight)} kg`);
+  }
+
+  return parts.join(" · ");
+}
+
+function WorkoutDetails({ exercises = [] }) {
+  const validExercises = Array.isArray(exercises) ? exercises : [];
+
+  if (validExercises.length === 0) {
+    return <p className="entry-card__muted">No exercises recorded.</p>;
+  }
+
+  return (
+    <div className="entry-card__exercises">
+      {validExercises.map((exercise, exerciseIndex) => {
+        const name = cleanText(exercise.exercise ?? exercise.name, "Exercise");
+        const sets = getNormalizedSets(exercise)
+          .map(formatWorkoutSet)
+          .filter(Boolean);
+
+        return (
+          <section className="entry-exercise" key={`${name}-${exerciseIndex}`}>
+            <div className="entry-exercise__header">
+              <strong>{name}</strong>
+              <span>{sets.length} set{sets.length === 1 ? "" : "s"}</span>
+            </div>
+            {sets.length > 0 ? (
+              <ol className="entry-exercise__sets">
+                {sets.map((set, setIndex) => (
+                  <li key={`${name}-set-${setIndex}`}>
+                    <span>Set {setIndex + 1}</span>
+                    <strong>{set}</strong>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p className="entry-card__muted">No set details recorded.</p>
+            )}
+          </section>
         );
-
-    const validSets = normalisedSets.filter((set) => {
-      if (!set || typeof set !== "object") {
-        return false;
-      }
-
-      const reps = Number(set.reps ?? 0);
-      const weight = Number(set.weight ?? 0);
-      const seconds = Number(
-        set.seconds ?? set.durationSeconds ?? set.holdSeconds ?? 0,
-      );
-
-      return reps > 0 || weight > 0 || seconds > 0;
-    });
-
-    return (
-      <div
-        key={`${exerciseName}-${exerciseIndex}`}
-        style={{
-          marginBottom: "16px",
-        }}
-      >
-        <strong>{exerciseName}</strong>
-
-        {validSets.length === 0 ? (
-          <p>No set details recorded.</p>
-        ) : (
-          validSets.map((set, setIndex) => {
-            const reps = Number(set.reps ?? 0);
-
-            const weight = Number(set.weight ?? 0);
-
-            const seconds = Number(
-              set.seconds ?? set.durationSeconds ?? set.holdSeconds ?? 0,
-            );
-
-            const hasReps = Number.isFinite(reps) && reps > 0;
-
-            const hasWeight = Number.isFinite(weight) && weight > 0;
-
-            const hasSeconds = Number.isFinite(seconds) && seconds > 0;
-
-            return (
-              <p
-                key={`${exerciseName}-set-${setIndex}`}
-                style={{
-                  margin: "4px 0",
-                }}
-              >
-                <strong>Set {setIndex + 1}:</strong> {hasReps && `${reps} reps`}
-                {hasReps && hasWeight && ` × ${weight} kg`}
-                {!hasReps && hasWeight && `${weight} kg`}
-                {(hasReps || hasWeight) && hasSeconds && " · "}
-                {hasSeconds && `${seconds}s hold`}
-              </p>
-            );
-          })
-        )}
-      </div>
-    );
-  });
+      })}
+    </div>
+  );
 }
 
 function SimpleEntryDetails({ category, data = {} }) {
@@ -262,22 +193,44 @@ function SimpleEntryDetails({ category, data = {} }) {
       return null;
     }
 
-    const unit = getUnit(field.id);
-
-    const displayValue =
-      typeof value === "boolean" ? (value ? "Yes" : "No") : value;
+    const unit = field.id === category.scoreField ? category.unit : "";
 
     return (
-      <p key={field.id}>
-        <strong>{field.label}:</strong> {displayValue}
-        {unit ? ` ${unit}` : ""}
-      </p>
+      <Detail key={field.id} label={field.label}>
+        {formatValue(value)}{unit ? ` ${unit}` : ""}
+      </Detail>
     );
   });
 }
 
+function PointBreakdown({ result }) {
+  return (
+    <section className="entry-points" aria-label="Points earned">
+      <div className="entry-points__heading">
+        <span>Points earned</span>
+        <strong>+{result.total}</strong>
+      </div>
+
+      <div className="entry-points__rows">
+        {result.breakdown.map((item) => (
+          <div className="entry-points__row" key={item.id}>
+            <span className="entry-points__label">
+              <span aria-hidden="true">{item.emoji}</span>
+              <span>
+                {item.label}
+                {item.detail && <small>{item.detail}</small>}
+              </span>
+            </span>
+            <strong>+{item.points}</strong>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default function EntryCard({ entry, onDelete, readOnly = false }) {
-  if (!entry) {
+  if (!entry?.category) {
     return null;
   }
 
@@ -287,101 +240,51 @@ export default function EntryCard({ entry, onDelete, readOnly = false }) {
     return null;
   }
 
+  const data = entry.data ?? {};
   const pointBreakdown = getEntryPointBreakdown(entry);
-
   const isWorkout = WORKOUT_CATEGORIES.has(entry.category);
 
-  const isReading = entry.category === "reading";
-
-  const isRunning = entry.category === "running";
-
-  const isCardio = entry.category === "cardio";
-
-  const isSkill = entry.category === "skill";
-
   return (
-    <div
-      style={{
-        border: "1px solid #ddd",
-        borderRadius: "10px",
-        padding: "15px",
-        marginBottom: "10px",
-      }}
-    >
-      <h3>
-        {category.emoji} {category.name}
-      </h3>
-
-      {isWorkout ? (
-        <WorkoutDetails exercises={entry.data?.exercises ?? []} />
-      ) : isReading ? (
-        <ReadingDetails data={entry.data ?? {}} />
-      ) : isRunning ? (
-        <RunningDetails data={entry.data ?? {}} />
-      ) : isCardio ? (
-        <CardioDetails data={entry.data ?? {}} />
-      ) : isSkill ? (
-        <SkillDetails data={entry.data ?? {}} />
-      ) : (
-        <SimpleEntryDetails category={category} data={entry.data ?? {}} />
-      )}
-
-      <hr />
-
-      <div>
-        <strong>⭐ Points</strong>
-
-        <div
-          style={{
-            marginTop: "10px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "6px",
-          }}
-        >
-          {pointBreakdown.breakdown.map((item) => (
-            <div
-              key={item.id}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <span>
-                {item.emoji} {item.label}
-              </span>
-
-              <strong>+{item.points}</strong>
-            </div>
-          ))}
-
-          <hr
-            style={{
-              margin: "6px 0",
-            }}
-          />
-
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              fontWeight: "bold",
-              fontSize: "1.05rem",
-            }}
-          >
-            <span>Total</span>
-
-            <span>+{pointBreakdown.total}</span>
-          </div>
+    <article className="entry-card">
+      <header className="entry-card__header">
+        <span className="entry-card__emoji" aria-hidden="true">{category.emoji}</span>
+        <div>
+          <p className="entry-card__type">Challenge entry</p>
+          <h3>{category.name}</h3>
         </div>
+      </header>
+
+      <div className="entry-card__content">
+        {isWorkout ? (
+          <WorkoutDetails exercises={data.exercises} />
+        ) : entry.category === "reading" ? (
+          <dl className="entry-card__details"><ReadingDetails data={data} /></dl>
+        ) : entry.category === "running" ? (
+          <dl className="entry-card__details"><RunningDetails data={data} /></dl>
+        ) : entry.category === "cardio" ? (
+          <dl className="entry-card__details"><CardioDetails data={data} /></dl>
+        ) : entry.category === "skill" ? (
+          <dl className="entry-card__details"><SkillDetails data={data} /></dl>
+        ) : (
+          <dl className="entry-card__details">
+            <SimpleEntryDetails category={category} data={data} />
+          </dl>
+        )}
       </div>
 
+      <PointBreakdown result={pointBreakdown} />
+
       {!readOnly && (
-        <button type="button" onClick={() => onDelete?.(entry.id)}>
-          Delete
-        </button>
+        <div className="entry-card__actions">
+          <button
+            className="button button--danger"
+            type="button"
+            onClick={() => onDelete?.(entry.id)}
+          >
+            Delete entry
+          </button>
+        </div>
       )}
-    </div>
+    </article>
   );
 }

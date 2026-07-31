@@ -1,171 +1,56 @@
-# Champions Legacy
+# Champions Legacy — Known Issues
 
-# Known Issues
+Last updated: 30 July 2026
 
----
+This file contains active problems and release risks only. Future features belong in the Roadmap.
 
-# Purpose
+## Release blockers
 
-This document tracks known issues, technical debt and incomplete functionality within Champions Legacy.
+### Manual Firebase QA is outstanding
 
-Issues should be removed once resolved.
+The complete create/read/delete flow, personal library updates and suggestion writes must be tested against the intended Firebase development project after installing dependencies on the target computer.
 
-This document should only contain active issues affecting development.
+### Firestore rules require deployment
 
----
+`firestore.rules` is included but local source files do not protect a remote database until the rules are deployed.
 
-# Current Status
+### Automated coverage is intentionally limited
 
-Last Updated:
+Six domain smoke tests protect the highest-risk scoring, statistics, validation and date behaviours. Component, repository and Firebase emulator tests are not yet configured.
 
-v0.5 (Development)
+## Active product limitations
 
-Current Focus:
+### Suggestions cannot yet be moderated
 
-Platform Stabilisation
+Custom Exercise, Cardio and Skill suggestions are persisted with `pending` status, but no administrator review interface exists.
 
----
+### Entries cannot be edited
 
-# Critical Issues
+A user can create and delete eligible entries. Editing a saved entry is intentionally deferred until audit and recalculation behaviour is designed.
 
-## Workout Migration
+### Historical access is basic
 
-Status:
+The journal supports daily navigation and a date picker, but not a month calendar, search or filters.
 
-🚧 In Progress
+## Maintainability watchlist
 
-Description:
+### Exercise library size
 
-Workout functionality is currently split between the legacy implementation and the new Exercise Library architecture.
+The exercise configuration is intentionally centralised but large. It should eventually be split by category with a generated combined export, without changing its public service API.
 
-Impact:
+### No pagination yet
 
-- Duplicate logic
-- Increased maintenance
-- Inconsistent scoring
+The current real-time entry subscription loads all entries for a user. This is acceptable for early testing but should be replaced by paginated history queries before long-term production use.
 
-Priority:
+## Recently resolved
 
-High
-
----
-
-## Points Engine v2
-
-Status:
-
-🚧 In Progress
-
-Description:
-
-Workout scoring has not yet fully migrated to the new Points Engine.
-
-Remaining work includes:
-
-- Difficulty multipliers
-- Effective repetitions
-- Cardio difficulty calculations
-
-Priority:
-
-High
-
----
-
-## Validation Consistency
-
-Status:
-
-🚧 In Progress
-
-Description:
-
-Some forms still rely on legacy validation behaviour following the dynamic form migration.
-
-Priority:
-
-High
-
----
-
-# Medium Priority Issues
-
-## Journal Navigation
-
-Status:
-
-Not Started
-
-Missing features:
-
-- Previous day navigation
-- Next day navigation
-- Calendar picker
-- Calendar view
-
----
-
-## Dashboard Polish
-
-Status:
-
-Ongoing
-
-Remaining work:
-
-- Responsive improvements
-- Visual consistency
-- Spacing adjustments
-
----
-
-## Legacy Architecture
-
-Description:
-
-Several legacy components and helper functions remain in the project.
-
-These should be removed once their replacements are verified.
-
----
-
-# Low Priority Issues
-
-## Admin Dashboard
-
-Status:
-
-Not Started
-
-Reason:
-
-Scheduled for a future development phase.
-
----
-
-# Technical Debt
-
-Current technical debt includes:
-
-- Legacy workout architecture
-- Temporary migration code
-- Duplicate option systems
-- Incomplete service migration
-
-Technical debt should be reduced continuously during development rather than postponed indefinitely.
-
----
-
-# Recently Resolved
-
-Move completed issues to the changelog before removing them from this document.
-
-This document should only contain active issues.
-
----
-
-# Guiding Principle
-
-Known Issues should represent problems that currently exist.
-
-Future ideas and planned features belong in the Roadmap instead.
+- Running/Cardio point breakdown duplication.
+- Missing cross-category Cardio statistics.
+- Legacy Upper Body exercise scoring metadata.
+- Custom exercise scoring.
+- Duplicate exercise option service.
+- Journal date timezone drift.
+- Read-only history delete controls.
+- Selector folder/import migration.
+- Invalid nested interactive selector controls.
+- Missing custom Cardio validation.

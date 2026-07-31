@@ -1,38 +1,21 @@
-export default function WaterForm({
-  formData,
-  setFormData,
-  readOnly = false,
-}) {
-  const amount = formData.amount ?? "";
+import FormField from "../common/Form/FormField";
+import NumberInput from "../common/Form/NumberInput";
 
-  const handleChange = (event) => {
-    const value = event.target.value;
-
-    setFormData((currentData) => ({
-      ...currentData,
-      amount: value === "" ? "" : Number(value),
-    }));
-  };
-
+export default function WaterForm({ formData, setFormData, readOnly = false }) {
   return (
-    <div style={{ marginBottom: "15px" }}>
-      <label htmlFor="water-amount">
-        <strong>Water (ml) *</strong>
-      </label>
-
-      <input
+    <FormField label="Water" htmlFor="water-amount" required help="Enter the amount in millilitres.">
+      <NumberInput
         id="water-amount"
         name="amount"
-        type="number"
-        min="1"
-        step="1"
+        min={1}
+        step={1}
         inputMode="numeric"
-        disabled={readOnly}
-        value={amount}
-        onChange={handleChange}
-        onWheel={(event) => event.currentTarget.blur()}
+        readOnly={readOnly}
+        value={formData.amount}
         placeholder="500"
+        required
+        onChange={(amount) => setFormData((current) => ({ ...current, amount }))}
       />
-    </div>
+    </FormField>
   );
 }

@@ -1,5 +1,8 @@
-import { CATEGORY_SCORING } from "../../constants/points/categoryScoring";
 import { DIFFICULTY } from "../../constants/libraries/difficulty";
+import {
+  CATEGORY_SCORING,
+  RUNNING_SCORING_RULES,
+} from "../../constants/points/categoryScoring";
 import { getScoreFromTable } from "./utils";
 
 const FRUIT_POINTS_PER_SERVING = 5;
@@ -31,45 +34,91 @@ function calculateFruitPoints(data = {}) {
     return 0;
   }
 
-  return servings * FRUIT_POINTS_PER_SERVING;
+  return Math.floor(servings) * FRUIT_POINTS_PER_SERVING;
+}
+
+function getRunningPaceSecondsPerKm(data = {}) {
+  const savedPace = Number(data.averagePaceSecondsPerKm);
+
+  if (Number.isFinite(savedPace) && savedPace > 0) {
+    return savedPace;
+  }
+
+  const distance = Number(data.distance ?? 0);
+  const savedTotalSeconds = Number(data.totalSeconds);
+  const savedTotalMinutes = Number(data.totalMinutes);
+
+  const totalSeconds =
+    Number.isFinite(savedTotalSeconds) && savedTotalSeconds > 0
+      ? savedTotalSeconds
+      : Number.isFinite(savedTotalMinutes) && savedTotalMinutes > 0
+        ? savedTotalMinutes * 60
+        : 0;
+
+  if (!Number.isFinite(distance) || distance <= 0 || totalSeconds <= 0) {
+    return 0;
+  }
+
+  return totalSeconds / distance;
+}
+
+export function getRunningPointEligibility(data = {}) {
+  const distance = Number(data.distance ?? 0);
+  const paceSecondsPerKm = getRunningPaceSecondsPerKm(data);
+
+  const meetsDistance =
+    Number.isFinite(distance) &&
+    distance >= RUNNING_SCORING_RULES.minimumDistanceKm;
+
+  const meetsPace =
+    Number.isFinite(paceSecondsPerKm) &&
+    paceSecondsPerKm > 0 &&
+    paceSecondsPerKm <= RUNNING_SCORING_RULES.maximumPaceSecondsPerKm;
+
+  return {
+    eligible: meetsDistance && meetsPace,
+    meetsDistance,
+    meetsPace,
+    distance,
+    paceSecondsPerKm,
+  };
+}
+
+function getRunningPointDetail(data = {}) {
+  const eligibility = getRunningPointEligibility(data);
+
+  if (eligibility.eligible) {
+    return "";
+  }
+
+  if (!eligibility.meetsDistance && !eligibility.meetsPace) {
+    return "No Running points: complete at least 3 km at 11:00/km or faster.";
+  }
+
+  if (!eligibility.meetsDistance) {
+    return "No Running points: Running requires at least 3 km.";
+  }
+
+  return "No Running points: pace must be 11:00/km or faster.";
 }
 
 function getCardioDifficulty(data = {}) {
-  /*
-   * Running automatically counts as Tier 3 Cardio.
-   */
   if (data.isRunningBonus === true || data.activity === "Running") {
     return DIFFICULTY.TIER_3;
   }
 
-  /*
-   * Normal Cardio entries should contain the activity
-   * definition copied from the Cardio library.
-   */
   const savedDifficulty = data.activityDefinition?.difficulty;
+  const savedMultiplier = Number(savedDifficulty?.multiplier);
 
-  if (savedDifficulty && Number.isFinite(Number(savedDifficulty.multiplier))) {
+  if (Number.isFinite(savedMultiplier) && savedMultiplier > 0) {
     return savedDifficulty;
   }
 
-  /*
-   * Support custom activities that have a proposed tier.
-   */
   const proposedTier = Number(
     data.activityDefinition?.proposedTier ?? data.proposedTier ?? 0,
   );
 
-  const proposedDifficulty = DIFFICULTY[`TIER_${proposedTier}`];
-
-  if (proposedDifficulty) {
-    return proposedDifficulty;
-  }
-
-  /*
-   * Old Cardio entries without difficulty information
-   * safely score as Tier 1.
-   */
-  return DIFFICULTY.TIER_1;
+  return DIFFICULTY[`TIER_${proposedTier}`] ?? DIFFICULTY.TIER_1;
 }
 
 function calculateCardioPoints(data = {}) {
@@ -79,20 +128,22 @@ function calculateCardioPoints(data = {}) {
     return 0;
   }
 
-  const difficulty = getCardioDifficulty(data);
-
-  const multiplier = Number(difficulty.multiplier ?? 1);
+  const multiplier = Number(getCardioDifficulty(data).multiplier ?? 1);
 
   return Math.round(basePoints * multiplier);
 }
 
-function calculateSingleCategoryPoints(category, data = {}) {
+export function calculateBaseCategoryPoints(category, data = {}) {
   if (category === "fruit") {
     return calculateFruitPoints(data);
   }
 
   if (category === "cardio") {
     return calculateCardioPoints(data);
+  }
+
+  if (category === "running" && !getRunningPointEligibility(data).eligible) {
+    return 0;
   }
 
   return calculateConfiguredCategoryPoints(category, data);
@@ -104,7 +155,6 @@ function getBonusCategoryData(category, bonusCategory, data = {}) {
       activity: "Running",
       isRunningBonus: true,
       totalMinutes: Number(data.totalMinutes ?? 0),
-
       activityDefinition: {
         name: "Running",
         tier: DIFFICULTY.TIER_3.tier,
@@ -116,16 +166,31 @@ function getBonusCategoryData(category, bonusCategory, data = {}) {
   return data;
 }
 
+export function calculateCategoryPointBreakdown(category, data = {}) {
+  const main = {
+    categoryId: category,
+    points: calculateBaseCategoryPoints(category, data),
+    type: "main",
+    detail: category === "running" ? getRunningPointDetail(data) : "",
+  };
+
+  const bonuses = (BONUS_CATEGORY_MAP[category] ?? []).map((bonusCategory) => ({
+    categoryId: bonusCategory,
+    points: calculateBaseCategoryPoints(
+      bonusCategory,
+      getBonusCategoryData(category, bonusCategory, data),
+    ),
+    type: "bonus",
+    sourceCategoryId: category,
+  }));
+
+  return {
+    main,
+    bonuses,
+    total: bonuses.reduce((total, bonus) => total + bonus.points, main.points),
+  };
+}
+
 export function calculateCategoryPoints(category, data = {}) {
-  const mainPoints = calculateSingleCategoryPoints(category, data);
-
-  const bonusCategories = BONUS_CATEGORY_MAP[category] ?? [];
-
-  const bonusPoints = bonusCategories.reduce((total, bonusCategory) => {
-    const bonusData = getBonusCategoryData(category, bonusCategory, data);
-
-    return total + calculateSingleCategoryPoints(bonusCategory, bonusData);
-  }, 0);
-
-  return mainPoints + bonusPoints;
+  return calculateCategoryPointBreakdown(category, data).total;
 }

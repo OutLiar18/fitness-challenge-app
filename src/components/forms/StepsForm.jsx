@@ -1,30 +1,21 @@
+import FormField from "../common/Form/FormField";
+import NumberInput from "../common/Form/NumberInput";
+
 export default function StepsForm({ formData, setFormData, readOnly = false }) {
-  const updateSteps = (value) => {
-    setFormData((currentData) => ({
-      ...currentData,
-      steps: value === "" ? "" : Number(value),
-    }));
-  };
-
   return (
-    <div style={{ marginBottom: "15px" }}>
-      <label htmlFor="steps-amount">
-        <strong>Steps *</strong>
-      </label>
-
-      <input
+    <FormField label="Steps" htmlFor="steps-amount" required help="Use your phone, watch or best available estimate.">
+      <NumberInput
         id="steps-amount"
         name="steps"
-        type="number"
-        min="1"
-        step="1"
+        min={1}
+        step={1}
         inputMode="numeric"
-        disabled={readOnly}
-        value={formData.steps ?? ""}
+        readOnly={readOnly}
+        value={formData.steps}
         placeholder="10000"
-        onWheel={(event) => event.currentTarget.blur()}
-        onChange={(event) => updateSteps(event.target.value)}
+        required
+        onChange={(steps) => setFormData((current) => ({ ...current, steps }))}
       />
-    </div>
+    </FormField>
   );
 }

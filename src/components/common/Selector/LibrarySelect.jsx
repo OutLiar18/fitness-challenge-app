@@ -1,5 +1,24 @@
-import SearchSelect from "./SearchSelect";
 import useLibrary from "../../../hooks/useLibrary";
+import SearchSelect from "./SearchSelect";
+
+const getBookKey = (item) => item.id;
+const getBookLabel = (item) => item.title;
+
+function renderBook(item) {
+  const metadata = [
+    item.author,
+    item.totalPages ? `${item.totalPages} pages` : null,
+  ].filter(Boolean);
+
+  return (
+    <>
+      <strong>{item.title}</strong>
+      {metadata.length > 0 && (
+        <div className="library-option__meta">{metadata.join(" • ")}</div>
+      )}
+    </>
+  );
+}
 
 export default function LibrarySelect({
   userId,
@@ -12,42 +31,11 @@ export default function LibrarySelect({
   placeholder,
   required = false,
 }) {
-  const {
-    matchingItems,
-    loading,
-    error,
-  } = useLibrary({
+  const { matchingItems, loading, error } = useLibrary({
     userId,
     itemType,
     searchText: value,
   });
-
-  function renderBook(item) {
-    return (
-      <>
-        <strong>{item.title}</strong>
-
-        {(item.author || item.totalPages) && (
-          <div
-            style={{
-              fontSize: "0.85rem",
-              color: "#666",
-              marginTop: 2,
-            }}
-          >
-            {[
-              item.author,
-              item.totalPages
-                ? `${item.totalPages} pages`
-                : null,
-            ]
-              .filter(Boolean)
-              .join(" • ")}
-          </div>
-        )}
-      </>
-    );
-  }
 
   return (
     <SearchSelect
@@ -63,13 +51,9 @@ export default function LibrarySelect({
       customLabel="Use new title"
       onInputChange={onChange}
       onSelect={onSelect}
-      getItemKey={(item) => item.id}
-      getItemLabel={(item) => item.title}
-      renderItem={
-        itemType === "books"
-          ? renderBook
-          : undefined
-      }
+      getItemKey={getBookKey}
+      getItemLabel={getBookLabel}
+      renderItem={itemType === "books" ? renderBook : undefined}
     />
   );
 }

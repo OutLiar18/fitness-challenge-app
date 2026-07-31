@@ -1,18 +1,24 @@
 export default function TextInput({
+  id,
+  name,
   value,
   onChange,
-  readOnly,
+  readOnly = false,
   placeholder,
+  required = false,
+  autoComplete,
 }) {
   return (
     <input
+      id={id}
+      name={name}
       type="text"
       disabled={readOnly}
       placeholder={placeholder}
+      required={required}
+      autoComplete={autoComplete}
       value={value ?? ""}
-      onChange={(e) =>
-        onChange(e.target.value)
-      }
+      onChange={(event) => onChange(event.target.value)}
     />
   );
 }

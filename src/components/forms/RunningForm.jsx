@@ -1,51 +1,44 @@
 import DurationPicker from "../common/DurationPicker";
+import FormField from "../common/Form/FormField";
+import NumberInput from "../common/Form/NumberInput";
 
 export default function RunningForm({
   formData,
   setFormData,
   readOnly = false,
 }) {
-  const updateDistance = (value) => {
-    setFormData((currentData) => ({
-      ...currentData,
-      distance:
-        value === ""
-          ? ""
-          : Number(value),
-    }));
-  };
-
   return (
     <>
-      <div style={{ marginBottom: "15px" }}>
-        <label htmlFor="running-distance">
-          <strong>Distance (km) *</strong>
-        </label>
-
-        <input
+      <FormField label="Distance (km)" htmlFor="running-distance" required>
+        <NumberInput
           id="running-distance"
           name="distance"
-          type="number"
-          step="0.01"
-          min="0.01"
+          step={0.01}
+          min={0.01}
           inputMode="decimal"
-          disabled={readOnly}
+          readOnly={readOnly}
           placeholder="5"
-          value={formData.distance ?? ""}
-          onChange={(event) =>
-            updateDistance(event.target.value)
-          }
-          onWheel={(event) =>
-            event.currentTarget.blur()
+          value={formData.distance}
+          required
+          onChange={(distance) =>
+            setFormData((current) => ({
+              ...current,
+              distance,
+            }))
           }
         />
-      </div>
+      </FormField>
 
       <DurationPicker
         formData={formData}
         setFormData={setFormData}
         readOnly={readOnly}
       />
+
+      <p className="form-note">
+        Running points require at least 3 km at 11:00/km or faster. Every saved
+        run still contributes its duration to Cardio.
+      </p>
     </>
   );
 }

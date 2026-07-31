@@ -4,31 +4,33 @@ export default function TopCategories({ categories }) {
   const medals = ["🥇", "🥈", "🥉"];
 
   return (
-    <div className="top-categories">
-      <h2>Top Categories</h2>
+    <section className="top-categories card" aria-labelledby="top-categories-title">
+      <div className="top-categories__header">
+        <p>Strongest areas</p>
+        <h2 id="top-categories-title">Top categories</h2>
+      </div>
 
       {categories.length === 0 ? (
-        <p>No points earned yet.</p>
+        <div className="top-categories__empty">
+          <span aria-hidden="true">🌱</span>
+          <p>Your first points will reveal your strongest categories.</p>
+        </div>
       ) : (
-        categories.map((category, index) => (
-          <div
-            key={category.id}
-            className="top-category"
-          >
-            <span className="medal">
-              {medals[index]}
-            </span>
-
-            <span className="category-name">
-              {category.emoji} {category.name}
-            </span>
-
-            <span className="category-points">
-              {category.points} pts
-            </span>
-          </div>
-        ))
+        <ol className="top-categories__list">
+          {categories.map((category, index) => (
+            <li key={category.id} className="top-category">
+              <span className="top-category__rank" aria-label={`Rank ${index + 1}`}>
+                {medals[index]}
+              </span>
+              <span className="top-category__name">
+                <span aria-hidden="true">{category.emoji}</span>
+                <span>{category.name}</span>
+              </span>
+              <strong>{category.points} pts</strong>
+            </li>
+          ))}
+        </ol>
       )}
-    </div>
+    </section>
   );
 }

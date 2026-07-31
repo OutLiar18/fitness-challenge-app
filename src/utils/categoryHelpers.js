@@ -1,9 +1,5 @@
-import { CATEGORIES } from "../constants/categories";
+import { CATEGORY_MAP } from "../constants/categories";
 
 export function getCategory(categoryId) {
-  return (
-    CATEGORIES.find(
-      (c) => c.id === categoryId
-    ) || null
-  );
+  return CATEGORY_MAP.get(categoryId) ?? null;
 }

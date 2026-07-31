@@ -81,7 +81,7 @@ export function validateWorkoutEntry(data = {}) {
       if (
         !Number.isInteger(proposedTier) ||
         proposedTier < 1 ||
-        proposedTier > 4
+        proposedTier > 5
       ) {
         errors.push(
           `Exercise ${exerciseNumber}: select a suggested difficulty.`,

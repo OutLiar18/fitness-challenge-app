@@ -1,56 +1,44 @@
 import "./DailyGoals.css";
 
-export default function DailyGoals({
-  goals,
-  onSelect,
-}) {
+export default function DailyGoals({ goals, onSelect }) {
   return (
-    <div className="daily-goals">
-      <h2>🎯 Daily Goals</h2>
-
-      {goals.map((goal) => (
-        <div
-          key={goal.id}
-          className={`goal-card ${
-            goal.completed ? "completed" : ""
-          }`}
-          onClick={() => onSelect(goal.id)}
-        >
-          <div className="goal-header">
-            <span className="goal-title">
-              {goal.emoji} {goal.name}
-            </span>
-
-            <span className="goal-value">
-              {goal.current} / {goal.goal}
-              {goal.unit
-                ? ` ${goal.unit}`
-                : ""}
-            </span>
-          </div>
-
-          <div className="goal-bar">
-            <div
-              className="goal-progress"
-              style={{
-                width: `${goal.percentage}%`,
-              }}
-            />
-          </div>
-
-          <div className="goal-footer">
-            {goal.completed ? (
-              <span className="goal-complete">
-                ✅ Goal Complete
-              </span>
-            ) : (
-              <span className="goal-percent">
-                {goal.percentage}% Complete
-              </span>
-            )}
-          </div>
+    <section className="daily-goals card" aria-labelledby="daily-goals-title">
+      <div className="daily-goals__header">
+        <div>
+          <p>Consistency dashboard</p>
+          <h2 id="daily-goals-title">Today’s goals</h2>
         </div>
-      ))}
-    </div>
+        <span>{goals.filter((goal) => goal.completed).length}/{goals.length} complete</span>
+      </div>
+
+      <div className="daily-goals__grid">
+        {goals.map((goal) => (
+          <button
+            key={goal.id}
+            type="button"
+            className={`goal-card${goal.completed ? " goal-card--completed" : ""}`}
+            onClick={() => onSelect(goal.id)}
+            aria-label={`${goal.name}: ${goal.current} of ${goal.goal} ${goal.unit}. ${goal.percentage}% complete.`}
+          >
+            <span className="goal-card__topline">
+              <span className="goal-card__title">
+                <span className="goal-card__emoji" aria-hidden="true">{goal.emoji}</span>
+                <span>{goal.name}</span>
+              </span>
+              <strong>{goal.percentage}%</strong>
+            </span>
+
+            <span className="goal-card__track" aria-hidden="true">
+              <span className="goal-card__fill" style={{ width: `${goal.percentage}%` }} />
+            </span>
+
+            <span className="goal-card__footer">
+              <span>{goal.current} / {goal.goal}{goal.unit ? ` ${goal.unit}` : ""}</span>
+              <span>{goal.completed ? "Complete ✓" : "Log activity →"}</span>
+            </span>
+          </button>
+        ))}
+      </div>
+    </section>
   );
 }

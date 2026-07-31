@@ -1,4 +1,8 @@
 import DurationPicker from "../common/DurationPicker";
+import FormField from "../common/Form/FormField";
+import NumberInput from "../common/Form/NumberInput";
+import TextArea from "../common/Form/TextArea";
+import TextInput from "../common/Form/TextInput";
 import LibrarySelect from "../common/Selector/LibrarySelect";
 
 export default function ReadingForm({
@@ -7,16 +11,13 @@ export default function ReadingForm({
   setFormData,
   readOnly = false,
 }) {
-  const updateField = (field, value) => {
-    setFormData((currentData) => ({
-      ...currentData,
-      [field]: value,
-    }));
-  };
+  function updateField(field, value) {
+    setFormData((current) => ({ ...current, [field]: value }));
+  }
 
   function handleBookSelected(book) {
-    setFormData((currentData) => ({
-      ...currentData,
+    setFormData((current) => ({
+      ...current,
       title: book.title ?? "",
       author: book.author ?? "",
       totalPages: book.totalPages ?? "",
@@ -29,7 +30,7 @@ export default function ReadingForm({
         userId={userId}
         itemType="books"
         label="Book"
-        placeholder="Search your library..."
+        placeholder="Search your library or enter a new title…"
         required
         readOnly={readOnly}
         value={formData.title ?? ""}
@@ -37,40 +38,31 @@ export default function ReadingForm({
         onSelect={handleBookSelected}
       />
 
-      <div style={{ marginBottom: "15px" }}>
-        <label htmlFor="reading-author">
-          <strong>Author</strong>
-        </label>
+      <div className="form-grid form-grid--two">
+        <FormField label="Author" htmlFor="reading-author">
+          <TextInput
+            id="reading-author"
+            name="author"
+            readOnly={readOnly}
+            value={formData.author}
+            placeholder="Optional"
+            onChange={(value) => updateField("author", value)}
+          />
+        </FormField>
 
-        <input
-          id="reading-author"
-          type="text"
-          disabled={readOnly}
-          value={formData.author ?? ""}
-          placeholder="Optional"
-          onChange={(event) => updateField("author", event.target.value)}
-        />
-      </div>
-
-      <div style={{ marginBottom: "15px" }}>
-        <label htmlFor="reading-pages">
-          <strong>Total Pages</strong>
-        </label>
-
-        <input
-          id="reading-pages"
-          type="number"
-          min="1"
-          disabled={readOnly}
-          value={formData.totalPages ?? ""}
-          placeholder="Optional"
-          onWheel={(event) => event.currentTarget.blur()}
-          onChange={(event) => {
-            const value = event.target.value;
-
-            updateField("totalPages", value === "" ? "" : Number(value));
-          }}
-        />
+        <FormField label="Total pages" htmlFor="reading-pages">
+          <NumberInput
+            id="reading-pages"
+            name="totalPages"
+            min={1}
+            step={1}
+            inputMode="numeric"
+            readOnly={readOnly}
+            value={formData.totalPages}
+            placeholder="Optional"
+            onChange={(value) => updateField("totalPages", value)}
+          />
+        </FormField>
       </div>
 
       <DurationPicker
@@ -79,11 +71,7 @@ export default function ReadingForm({
         readOnly={readOnly}
       />
 
-      <div style={{ marginBottom: "15px" }}>
-        <label htmlFor="reading-completed">
-          <strong>Completed?</strong>
-        </label>
-
+      <FormField label="Book completed?" htmlFor="reading-completed">
         <select
           id="reading-completed"
           disabled={readOnly}
@@ -92,25 +80,22 @@ export default function ReadingForm({
             updateField("completed", event.target.value === "yes")
           }
         >
-          <option value="no">No</option>
-          <option value="yes">Yes</option>
+          <option value="no">No, I am still reading it</option>
+          <option value="yes">Yes, I completed it</option>
         </select>
-      </div>
+      </FormField>
 
-      <div style={{ marginBottom: "15px" }}>
-        <label htmlFor="reading-reflection">
-          <strong>Reflection</strong>
-        </label>
-
-        <textarea
+      <FormField label="Reflection" htmlFor="reading-reflection" help="Optional: capture one useful idea while it is still fresh.">
+        <TextArea
           id="reading-reflection"
-          rows={5}
-          disabled={readOnly}
-          value={formData.reflection ?? ""}
-          placeholder="Optional"
-          onChange={(event) => updateField("reflection", event.target.value)}
+          name="reflection"
+          rows={4}
+          readOnly={readOnly}
+          value={formData.reflection}
+          placeholder="What did you learn or notice?"
+          onChange={(value) => updateField("reflection", value)}
         />
-      </div>
+      </FormField>
     </>
   );
 }
