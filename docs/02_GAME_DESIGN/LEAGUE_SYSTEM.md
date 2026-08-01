@@ -1,424 +1,94 @@
-# Champions Legacy Challenge
+# Champions Legacy Challenge — League System
 
-# League System
+Last updated: 1 August 2026  
+Implemented foundation: v0.11.0
 
-Version: 3.0
+## Purpose
 
----
+Leagues provide time-limited, friendly competition while personal progress remains permanent. Every season begins from zero and rewards consistent participation more than one exceptional burst.
 
-# Purpose
+## Shared activity model
 
-The League System provides the seasonal competitive experience within Champions Legacy Challenge.
+Players record an activity once. During an active league, the same atomic write creates:
 
-While Personal Progression represents a user's lifelong journey, League Mode creates exciting, time-limited competitions where everyone begins equally.
-
-Leagues exist to motivate, encourage consistency and create memorable shared experiences without diminishing the importance of personal growth.
-
----
-
-# Design Philosophy
-
-Champions Legacy Challenge separates competition from personal development.
-
-Personal Progress never resets.
-
-League Progress exists only for the duration of a season.
-
-This allows experienced users to retain their lifelong legacy while ensuring that every new league feels fair and exciting.
-
-Winning a league is temporary.
-
-Becoming a better version of yourself is permanent.
-
----
-
-# Core Principles
-
-The League System is built around six principles.
-
-## Equal Starting Point
-
-Every league begins with every participant on equal footing.
-
-Experience provides wisdom.
-
-Not free points.
-
----
-
-## Friendly Competition
-
-Competition should encourage improvement rather than intimidation.
-
-Leaderboards should motivate participation rather than discourage it.
-
----
-
-## Community
-
-Leagues should strengthen friendships, teamwork and accountability.
-
-Competition should build relationships rather than damage them.
-
----
-
-## Integrity
-
-Winning should never matter more than honesty.
-
-The system should encourage fair participation through thoughtful design.
-
----
-
-## Lasting Memories
-
-Every league becomes part of the user's story.
-
-A completed season should remain memorable years later.
-
----
-
-## Personal Growth First
-
-League competition should always support the wider goal of helping users become better than yesterday.
-
----
-
-# Personal Progress vs League Progress
-
-Champions Legacy Challenge contains two independent progression systems.
-
-## Personal Progress
-
-Personal Progress represents the user's complete history.
-
-It includes:
-
-- Lifetime XP
-- Personal Levels
-- Lifetime Statistics
-- Personal Achievements
-- Personal Records
-- Longest Streaks
-- Titles
-- Trophy Cabinet
-
-Personal Progress never resets.
-
----
-
-## League Progress
-
-League Progress exists only within an active league.
-
-It includes:
-
-- League XP
-- League Levels
-- League Rank
-- Team Contribution
-- Seasonal Achievements
-- League Statistics
-
-League Progress resets every season.
-
-Completed seasons become historical records.
-
----
-
-# Shared Activity Model
-
-Users should never perform duplicate work.
-
-One recorded activity may update multiple systems simultaneously.
-
-```
+```text
 Challenge Entry
-        │
-        ├────────► Personal Progress
-        ├────────► League Progress
-        ├────────► Team Score
-        ├────────► Statistics
-        ├────────► Achievements
-        └────────► Streaks
+├── Personal points, goals and progression
+└── Immutable league contribution snapshot
 ```
 
-The application performs the bookkeeping.
+No duplicate league logging is required.
 
-The user simply records their progress.
+## Lifecycle
 
----
+A league moves forward one audited stage at a time:
 
-# League Lifecycle
+1. **Draft** — name, description, dates, mode and rules are created.
+2. **Registration** — the access code opens and players may join or withdraw.
+3. **Active** — registered memberships become active and qualifying entries contribute.
+4. **Completed** — scoring closes and memberships become completed.
+5. **Archived** — the season becomes historical and remains read-only.
 
-Every league progresses through five stages.
+Stages cannot be skipped or reversed.
 
-## Draft
+## Frozen rules
 
-League created.
+Every v0.11.0 league stores `consistency-v1`:
 
-Administrators configure:
+- scoring engine: `points-v2`;
+- included categories: all ten factual activity categories;
+- maximum raw activity contribution per player per calendar day: 20 points;
+- participation bonus per active calendar day: 5 points.
 
-- Rules
-- Teams
-- Dates
-- Invitations
-- Settings
+The ruleset and version are copied into the league document and may not change during the season.
 
-No scoring occurs.
+## Standings
 
----
+For each player and calendar day:
 
-## Registration
+1. Sum immutable entry contribution points.
+2. Cap the raw daily activity contribution at 20 points.
+3. Add the five-point participation bonus.
+4. Sum all league days for player standings.
+5. Group player totals by the team snapshot captured at registration for team standings.
 
-Players may join.
+This makes steady participation competitive without making difficulty or natural athletic ability overwhelmingly valuable.
 
-Rules become visible.
+## League modes
 
-Teams may be organised.
+- **Individual** — player ranking is primary.
+- **Team** — individual contributions are grouped by the registered team snapshot.
 
----
+Both views may be displayed so individual effort remains visible.
 
-## Active
+## Authority
 
-Activities contribute towards:
+League Administrators and Platform Administrators may create leagues. Only an explicitly assigned league administrator or Platform Administrator may move that league through its lifecycle. Every creation and lifecycle change requires an audit event.
 
-- League Points
-- League XP
-- Team Scores
-- Seasonal Achievements
-- Leaderboards
+Administrative authority does not grant points or standings advantages.
 
-Personal Progress continues simultaneously.
+## Integrity boundary
 
----
+Security Rules require a contribution to match:
 
-## Completed
+- the authenticated player;
+- an active membership;
+- an active league;
+- the player identity and team snapshot stored in membership;
+- the category and date of an entry written in the same database state;
+- the frozen rules version.
 
-Competition ends.
+The client still calculates category points. Before leagues support prizes or high-stakes competition, a trusted backend must recalculate contributions authoritatively.
 
-Final standings become permanent.
+## Deferred league features
 
-Awards are issued.
+- seasonal achievements and awards;
+- evidence and dispute review;
+- privacy controls for archived seasons;
+- server-authoritative scoring;
+- configurable future rulesets;
+- historical league trophy-cabinet presentation.
 
-No further scoring occurs.
+## Principle
 
----
-
-## Archived
-
-The league becomes historical.
-
-No further modifications are permitted.
-
-Players may revisit the season at any time.
-
----
-
-# League Types
-
-Examples include:
-
-- Friends League
-- Family League
-- Workplace League
-- School League
-- Community League
-- Charity League
-- Tournament League
-
-Additional formats may be introduced in future.
-
----
-
-# Teams
-
-Some leagues organise players into teams.
-
-Team Progress is calculated from individual contributions.
-
-Teams should encourage cooperation rather than allowing one player to carry the entire group.
-
----
-
-# League Administrators
-
-League administrators are responsible for maintaining fair competition.
-
-Responsibilities include:
-
-- Creating leagues
-- Managing participants
-- Clarifying rules
-- Resolving disputes
-- Reviewing evidence (where applicable)
-- Protecting league integrity
-
-Administrators should remain transparent and consistent.
-
----
-
-# Leaderboards
-
-Leaderboards display seasonal performance.
-
-Examples include:
-
-- Total Points
-- Daily Goals Completed
-- Streaks
-- Improvement
-- Team Rankings
-
-Leaderboards should celebrate participation rather than shame lower-ranked players.
-
----
-
-# Seasonal Awards
-
-Examples include:
-
-- Champion
-- Runner-up
-- Most Improved
-- Perfect Attendance
-- Team Champion
-- Best Consistency
-- Team MVP
-
-Seasonal awards become permanent collectibles.
-
-They never provide gameplay advantages.
-
----
-
-# League Archives
-
-Completed leagues become part of the user's permanent history.
-
-Archived leagues should preserve information such as:
-
-- Final Placement
-- Team
-- League Points
-- League Level
-- Participation Rate
-- Favourite Categories
-- Personal Bests achieved
-- Awards
-- Final Streak
-- Season Dates
-
-League archives should feel like opening an old photo album.
-
-They preserve memories rather than progression.
-
----
-
-# League History Privacy
-
-League history belongs to the user.
-
-Users should decide who can view their previous seasons.
-
-Possible visibility options include:
-
-- Private
-- Friends
-- League Members
-- Public
-
-Historical participation should always respect user privacy.
-
----
-
-# Cosmetic Recognition
-
-Long-term dedication deserves recognition.
-
-Recognition should remain cosmetic.
-
-Examples include:
-
-- Portrait Frames
-- Legacy Banners
-- Founder Badges
-- Seasonal Crowns
-- Animated Nameplates
-- Profile Effects
-
-Recognition should inspire other players without creating unfair advantages.
-
----
-
-# League Integrity
-
-League competition depends upon trust.
-
-The system should discourage:
-
-- Duplicate entries
-- False reporting
-- Exploits
-- Unsportsmanlike behaviour
-
-Integrity is always more important than victory.
-
----
-
-# Future Expansion
-
-Future versions may introduce:
-
-- Promotion and Relegation
-- Divisions
-- Official Champions Legacy Challenge Seasons
-- Community Events
-- Tournament Brackets
-- Cross-League Championships
-- Live Events
-
-Future additions should strengthen the existing philosophy rather than replace it.
-
----
-
-# Relationship to Other Systems
-
-The League System works alongside:
-
-- Challenge Rules
-- Points System
-- Progression System
-- Achievement System
-- Statistics System
-
-League competition should enhance Personal Progress rather than replace it.
-
----
-
-# Guiding Principles
-
-Before introducing a new league feature, ask:
-
-- Does it create fair competition?
-- Does it encourage consistency?
-- Does it strengthen the community?
-- Does it preserve long-term history?
-- Does it respect user privacy?
-- Does it support personal growth?
-
-If the answer to any question is no, the feature should be reconsidered.
-
----
-
-# Guiding Principle
-
-Leagues eventually end.
-
-Your legacy never does.
-
-Every season becomes another chapter in the story of who you are becoming.
-
----
-
-# End of Document
+Winning a season is temporary. The honest habits built during it become part of the player’s permanent legacy.

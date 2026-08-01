@@ -234,7 +234,7 @@ export default function AnnouncementManager({
               value={form.version}
               maxLength={20}
               onChange={(event) => updateField("version", event.target.value)}
-              placeholder="0.10.0"
+              placeholder="0.11.0"
             />
           </label>
         </div>

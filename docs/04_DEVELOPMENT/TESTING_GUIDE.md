@@ -2,81 +2,53 @@
 
 Last updated: 1 August 2026
 
-## Test layers
-
-### Domain tests
-
-Run:
+## Domain tests
 
 ```powershell
 npm test
 ```
 
-Target for v0.10.0: **37 passing tests**.
+v0.11.0 target: **44 passing tests**.
 
-Coverage includes:
+Coverage includes existing scoring, goals, progression, navigation, profiles, announcements and administration plus:
 
-- Running eligibility and Cardio cross-contribution.
-- Workout effective repetitions.
-- Daily and weekly goals and bonuses.
-- Streaks, shields, experience points, achievements and records.
-- Timeline and navigation integrity.
-- Profiles and announcements.
-- Administration models, complete measurement wording, versioned library definitions and error-report sanitization.
+- team invitation normalization and identity validation;
+- weekly team snapshots using factual entry points;
+- forward-only league lifecycle;
+- frozen league rules;
+- consistency standings with daily cap and participation bonus;
+- Legacy Coach evidence, preferences and optional state.
 
-### Firestore Security Rules tests
-
-Run:
+## Firestore Security Rules tests
 
 ```powershell
 npm run test:rules
 ```
 
-Target for v0.10.0: **7 passing tests**.
+v0.11.0 target: **12 passing tests**.
 
-Coverage includes:
+Coverage includes the previous seven tests plus:
 
-- Published-versus-archived global library reads.
-- Self-role-change denial.
-- Authenticated sanitised error-report creation.
-- Audited administrator library publication.
-- Draft-announcement privacy.
-- Audited error-report resolution.
-- Immutable global-library release history.
+- atomic team creation/joining, self-promotion denial and captain transfer;
+- owner-private Legacy Coach preferences;
+- authorised and audited league Draft creation;
+- forward-only audited league lifecycle;
+- entry-linked active league contribution integrity.
 
-The Firebase CLI launches and shuts down the Firestore Emulator automatically.
+Expected permission-denied logs are normal for `assertFails` cases.
 
-### Lint and build
-
-```powershell
-npm run lint
-npm run build
-```
-
-### Standard check
+## Full checks
 
 ```powershell
 npm run check
-```
-
-Runs ESLint, domain tests and the production build.
-
-### Release check
-
-```powershell
 npm run check:release
+npm audit
 ```
 
-Runs the standard check, Firestore Rules tests and release-structure verification.
+- `check` runs ESLint, domain tests and production build.
+- `check:release` additionally runs Rules tests and release-structure verification.
+- Do not run `npm audit fix --force`.
 
 ## Defect rule
 
-For each verified logic or security defect:
-
-1. Reproduce it.
-2. Add a failing regression test where practical.
-3. Apply the smallest maintainable fix.
-4. Run the relevant focused test.
-5. Run `npm run check`.
-6. Run `npm run test:rules` for any Security Rules or privileged-write change.
-7. Update documentation.
+Reproduce, add regression coverage where practical, apply the smallest maintainable fix, run focused tests, run complete checks and update documentation.

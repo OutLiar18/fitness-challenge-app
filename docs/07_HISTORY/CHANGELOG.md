@@ -43,6 +43,34 @@ Version: Living Document
 
 ---
 
+# v0.11.0 — Teams, Leagues and Legacy Coach
+
+Date: 1 August 2026
+
+## Added
+
+- Team models, services, context, route and Firestore collections.
+- Team invitations, roster snapshots and captain transfer.
+- League models, services, context, lifecycle, registrations and standings.
+- Entry-linked league contribution snapshots.
+- Local Legacy Coach recommendations and private preferences.
+- ADR-016, ADR-017 and ADR-018.
+- Community and coaching domain and Security Rules tests.
+
+## Changed
+
+- Replaced Teams, Leagues and Coach preview navigation with functional routes.
+- Extended protected providers with Team, League and Coach state.
+- Entry creation/deletion now atomically includes/removes league contributions when applicable.
+- League Administrator now has narrowly scoped, audited league authority.
+- Documentation and release verification now target v0.11.0.
+
+## Fixed
+
+- Team provider clears stale team and roster state after membership removal.
+- Team member captain-transfer rules use explicit boolean grouping.
+
+
 # Purpose
 
 The Changelog records all notable changes made to Champions Legacy Challenge.

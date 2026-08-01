@@ -1,4 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import { subscribeToAllAnnouncements } from "../services/admin/announcementAdminService";
 import { getAuditEventPage } from "../services/admin/auditService";
@@ -78,66 +83,47 @@ export default function useAdminData(enabled) {
             return;
           }
 
-          setState((current) => ({
-            ...current,
-            announcements,
-          }));
+          setState((current) => ({ ...current, announcements }));
         },
         (error) => reportError("Announcements", error),
       ),
-
       subscribeToExerciseSuggestions(
         (exerciseSuggestions) => {
           if (!active) {
             return;
           }
 
-          setState((current) => ({
-            ...current,
-            exerciseSuggestions,
-          }));
+          setState((current) => ({ ...current, exerciseSuggestions }));
         },
         (error) => reportError("Exercise suggestions", error),
       ),
-
       subscribeToLibrarySuggestions(
         (librarySuggestions) => {
           if (!active) {
             return;
           }
 
-          setState((current) => ({
-            ...current,
-            librarySuggestions,
-          }));
+          setState((current) => ({ ...current, librarySuggestions }));
         },
         (error) => reportError("Library suggestions", error),
       ),
-
       subscribeToAllPublishedLibraryItems(
         (libraryItems) => {
           if (!active) {
             return;
           }
 
-          setState((current) => ({
-            ...current,
-            libraryItems,
-          }));
+          setState((current) => ({ ...current, libraryItems }));
         },
         (error) => reportError("Published library", error),
       ),
-
       subscribeToLibraryReleases(
         (libraryReleases) => {
           if (!active) {
             return;
           }
 
-          setState((current) => ({
-            ...current,
-            libraryReleases,
-          }));
+          setState((current) => ({ ...current, libraryReleases }));
         },
         (error) => reportError("Library releases", error),
       ),
@@ -151,10 +137,7 @@ export default function useAdminData(enabled) {
 
         setState((current) => ({
           ...current,
-          usersPage: {
-            ...page,
-            loading: false,
-          },
+          usersPage: { ...page, loading: false },
         }));
       })
       .catch((error) => {
@@ -163,13 +146,9 @@ export default function useAdminData(enabled) {
         }
 
         console.error(error);
-
         setState((current) => ({
           ...current,
-          usersPage: {
-            ...current.usersPage,
-            loading: false,
-          },
+          usersPage: { ...current.usersPage, loading: false },
           errors: updateErrorList(current.errors, "Users", error),
         }));
       });
@@ -182,10 +161,7 @@ export default function useAdminData(enabled) {
 
         setState((current) => ({
           ...current,
-          auditPage: {
-            ...page,
-            loading: false,
-          },
+          auditPage: { ...page, loading: false },
         }));
       })
       .catch((error) => {
@@ -194,13 +170,9 @@ export default function useAdminData(enabled) {
         }
 
         console.error(error);
-
         setState((current) => ({
           ...current,
-          auditPage: {
-            ...current.auditPage,
-            loading: false,
-          },
+          auditPage: { ...current.auditPage, loading: false },
           errors: updateErrorList(current.errors, "Audit history", error),
         }));
       });
@@ -213,10 +185,7 @@ export default function useAdminData(enabled) {
 
         setState((current) => ({
           ...current,
-          errorPage: {
-            ...page,
-            loading: false,
-          },
+          errorPage: { ...page, loading: false },
         }));
       })
       .catch((error) => {
@@ -225,23 +194,16 @@ export default function useAdminData(enabled) {
         }
 
         console.error(error);
-
         setState((current) => ({
           ...current,
-          errorPage: {
-            ...current.errorPage,
-            loading: false,
-          },
+          errorPage: { ...current.errorPage, loading: false },
           errors: updateErrorList(current.errors, "Error reports", error),
         }));
       });
 
     return () => {
       active = false;
-
-      unsubscribers.forEach((unsubscribe) => {
-        unsubscribe();
-      });
+      unsubscribers.forEach((unsubscribe) => unsubscribe());
     };
   }, [enabled, reportError]);
 
@@ -255,15 +217,11 @@ export default function useAdminData(enabled) {
 
       setState((current) => ({
         ...current,
-        [pageKey]: {
-          ...current[pageKey],
-          loading: true,
-        },
+        [pageKey]: { ...current[pageKey], loading: true },
       }));
 
       try {
         const page = await loader(pageState.cursor);
-
         setState((current) => ({
           ...current,
           [pageKey]: {
@@ -274,13 +232,9 @@ export default function useAdminData(enabled) {
         }));
       } catch (error) {
         console.error(error);
-
         setState((current) => ({
           ...current,
-          [pageKey]: {
-            ...current[pageKey],
-            loading: false,
-          },
+          [pageKey]: { ...current[pageKey], loading: false },
           errors: updateErrorList(current.errors, source, error),
         }));
       }
@@ -290,7 +244,11 @@ export default function useAdminData(enabled) {
 
   const loadMoreUsers = useCallback(
     () =>
-      loadMorePage("usersPage", (cursor) => getUserPage({ cursor }), "Users"),
+      loadMorePage(
+        "usersPage",
+        (cursor) => getUserPage({ cursor }),
+        "Users",
+      ),
     [loadMorePage],
   );
 
@@ -320,12 +278,7 @@ export default function useAdminData(enabled) {
       usersPage: {
         ...current.usersPage,
         items: current.usersPage.items.map((player) =>
-          player.id === userId
-            ? {
-                ...player,
-                ...updates,
-              }
-            : player,
+          player.id === userId ? { ...player, ...updates } : player,
         ),
       },
     }));
@@ -338,11 +291,7 @@ export default function useAdminData(enabled) {
         ...current.errorPage,
         items: current.errorPage.items.map((report) =>
           report.id === reportId
-            ? {
-                ...report,
-                status: "resolved",
-                resolutionNote,
-              }
+            ? { ...report, status: "resolved", resolutionNote }
             : report,
         ),
       },
@@ -355,7 +304,10 @@ export default function useAdminData(enabled) {
       users: state.usersPage.items,
       auditEvents: state.auditPage.items,
       errorReports: state.errorPage.items,
-      suggestions: [...state.exerciseSuggestions, ...state.librarySuggestions],
+      suggestions: [
+        ...state.exerciseSuggestions,
+        ...state.librarySuggestions,
+      ],
       loadMoreUsers,
       loadMoreAuditEvents,
       loadMoreErrorReports,

@@ -12,3 +12,8 @@ package.before-audit-fix.json
 package-lock.before-audit-fix.json
 .firebase/
 firestore-export/
+
+# Local updater packages
+payload/
+APPLY_UPDATE.ps1
+README_UPDATE.md

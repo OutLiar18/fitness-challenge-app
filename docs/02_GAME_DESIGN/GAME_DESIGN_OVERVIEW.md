@@ -272,3 +272,12 @@ A successful game design should ensure that players:
 Champions Legacy Challenge is not about becoming better than other people.
 
 It is about becoming better than the person you were yesterday.
+## Community and guidance foundations
+
+The current pre-1.0 product includes:
+
+- persistent teams for identity and accountability;
+- seasonal leagues with immutable consistency-weighted rules;
+- an optional, transparent Legacy Coach derived from the player’s own factual entries.
+
+See `TEAM_SYSTEM.md`, `LEAGUE_SYSTEM.md` and `LEGACY_COACH.md`.

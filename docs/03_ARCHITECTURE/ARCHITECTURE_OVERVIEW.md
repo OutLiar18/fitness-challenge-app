@@ -1,130 +1,94 @@
 # Champions Legacy Challenge — Architecture Overview
 
 Last updated: 1 August 2026  
-Current release: v0.10.0
+Current release: v0.11.0
 
-## Application structure
+## Protected application tree
 
 ```text
-Firebase Authentication
-        ↓
 PrivateRoute
-        ↓
-PlayerDataProvider + GlobalLibraryProvider + AnnouncementProvider
-        ↓
-Adaptive AppShell and lazy route navigation
-        ↓
-Route-level pages
-        ↓
-Reusable presentation components
-        ↓
-Domain, repository and administration services
-        ↓
-Cloud Firestore + Security Rules
-```
-
-## Protected route tree
-
-```text
-ProtectedApp
 └── PlayerDataProvider
     └── GlobalLibraryProvider
         └── AnnouncementProvider
-            └── AppShell
-            ├── /dashboard
-            ├── /log
-            ├── /progress
-            ├── /announcements
-            ├── /profile
-            ├── /admin
-            └── /future/:featureId
+            └── TeamProvider
+                └── LeagueProvider
+                    └── CoachProvider
+                        └── AppShell
 ```
 
-## Player data flow
+The protected providers reuse one authenticated player session and expose route-level state without placing scoring formulas in React components.
+
+## Routes
+
+- `/dashboard` — overview and next actions.
+- `/log` — factual activity entry and Journal.
+- `/progress` — goals, progression, achievements, records and timeline.
+- `/announcements` — published communication and read state.
+- `/profile` — identity, live team and account overview.
+- `/teams` — team creation, joining, roster and captain operations.
+- `/leagues` — seasonal creation, registration, lifecycle and standings.
+- `/coach` — transparent recommendations and private preferences.
+- `/admin` — trusted platform operations.
+
+## Core data flows
+
+### Personal activity
 
 ```text
-Firestore factual entries + user profile
-        ↓
-shared real-time subscriptions
-        ↓
-PlayerDataProvider
-        ↓
-points / statistics / progression services
-        ↓
-Dashboard, Progress, Profile and navigation
+challengeEntries → statistics / points / progression → player pages
 ```
 
-One protected app session creates one player profile subscription and one owner-scoped entry subscription.
-
-## Announcement data flow
+### Team accountability
 
 ```text
-published Firestore announcements
-        +
-bundled fallback release history
-        ↓
-announcement model merge and sort
-        ↓
-AnnouncementProvider
-        ↓
-Announcements page + navigation unread badges
+player entries + progression
+        ↓ pure weekly snapshot
+TeamProvider
+        ↓ owner-scoped member update
+team roster
 ```
 
-Read state is stored under the signed-in player and synchronises across devices.
+Team snapshots reuse the central Points Engine and do not become personal score authority.
 
-## Shared library data flow
+### League contribution
 
 ```text
-source-controlled baseline + published Firestore items
+active memberships + frozen league document
         ↓
-GlobalLibraryProvider
-        ↓
-Exercise, Cardio and Skill selectors
-        ↓
-entry stores selected published definition snapshot
+create activity entry
+        ↓ one Firestore batch
+challengeEntries/{entryId}
+leagueContributions/{leagueId_entryId}
+        ↓ pure consistency-v1 standings
+player and team ranking
 ```
 
-Approved suggestions require a separate versioned release before appearing in player forms.
+Deleting the source entry removes linked contribution documents in the same batch.
 
-## Administration flow
+### Legacy Coach
 
 ```text
-trusted administrator action
-        ↓
-administration service validation
-        ↓
-Firestore write batch
-        ├── business-object change
-        └── immutable audit event
-        ↓
-Security Rules verify role + getAfter(audit event)
+current and previous seven-day factual entries
+        ↓ pure coachModel rules
+summary + recommendations + evidence
 ```
 
-React visibility is only presentation. Firestore Security Rules remain authoritative.
+No external model or API receives player data.
 
 ## Domain boundaries
 
-- `constants/` — category, goal, progression, navigation, administration and content configuration.
-- `services/entries/` — factual activity persistence and orchestration.
-- `services/statistics/` — goals, totals and category contributions.
-- `services/progression/` — bonuses, streaks, experience points, achievements, records and timeline.
-- `services/announcements/` — pure announcement model, published reads and read-state writes.
-- `services/admin/` — privileged announcement, moderation, library release, role, error-resolution and audit operations.
-- `services/monitoring/` — pure error sanitization and optional client reporting.
-- `services/libraries/globalLibrary*` — shared published-library model and Firestore subscription.
-- `utils/displayFormatters` — complete player-facing measurement and reward labels.
-- `context/` — shared route-session state, never scoring formulas.
-- `components/` — presentation and interaction patterns.
-- `pages/` — route-level orchestration.
+- `services/teams/teamModel.js` — pure validation and weekly team snapshots.
+- `services/teams/teamService.js` — team Firestore subscriptions and atomic membership operations.
+- `services/leagues/leagueModel.js` — pure lifecycle, validation and standings.
+- `services/leagues/leagueService.js` — league subscriptions, audited lifecycle and registrations.
+- `services/coach/coachModel.js` — deterministic guidance and evidence.
+- `services/coach/coachService.js` — owner-scoped preference persistence.
+- `services/entries/entryRepository.js` — atomic entry and league-contribution persistence.
 
 ## Persistence principle
 
-Firestore stores factual activity, profile identity, live announcements, suggestion decisions and audit history. Competitive points, goal bonuses, streaks, experience points, records and timeline events remain derived until a documented versioned aggregation strategy is required.
+Store factual activity, membership, frozen league configuration, immutable contribution snapshots and trusted decisions. Derive personal progress, team summaries, league standings and Coach guidance.
 
-## Future requirements
+## Security boundary
 
-- Firestore Emulator Suite security tests.
-- Approved-suggestion publishing into versioned global libraries.
-- Paginated historical and administrative queries.
-- Immutable challenge configuration snapshots for seasons.
-- Server-side aggregation when scale requires it.
+React controls presentation. Firestore Rules enforce identity, role, membership, data shape, lifecycle, audit and immutability. Any future high-stakes competition requires trusted server-side score recalculation.

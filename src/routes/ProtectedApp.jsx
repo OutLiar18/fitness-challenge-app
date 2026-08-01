@@ -1,7 +1,10 @@
 import AppShell from "../components/layout/AppShell";
 import { AnnouncementProvider } from "../context/AnnouncementProvider";
+import { CoachProvider } from "../context/CoachProvider";
 import { GlobalLibraryProvider } from "../context/GlobalLibraryProvider";
+import { LeagueProvider } from "../context/LeagueProvider";
 import { PlayerDataProvider } from "../context/PlayerDataProvider";
+import { TeamProvider } from "../context/TeamProvider";
 import PrivateRoute from "./PrivateRoute";
 
 export default function ProtectedApp() {
@@ -10,7 +13,13 @@ export default function ProtectedApp() {
       <PlayerDataProvider>
         <GlobalLibraryProvider>
           <AnnouncementProvider>
-            <AppShell />
+            <TeamProvider>
+              <LeagueProvider>
+                <CoachProvider>
+                  <AppShell />
+                </CoachProvider>
+              </LeagueProvider>
+            </TeamProvider>
           </AnnouncementProvider>
         </GlobalLibraryProvider>
       </PlayerDataProvider>

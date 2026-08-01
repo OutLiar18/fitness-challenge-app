@@ -1,5 +1,41 @@
 # Champions Legacy Challenge — Release Notes
 
+## v0.11.0 — Community and Coaching Foundation
+
+Date: 1 August 2026
+
+### Teams
+
+- Added persistent one-team-per-player membership.
+- Added local emblems, team identity, invitation joining and roster summaries.
+- Added captain editing, atomic captain transfer and safe member leaving.
+- Reused factual entries and the central Points Engine rather than creating team-only logging.
+
+### Leagues
+
+- Added Draft, Registration, Active, Completed and Archived seasonal stages.
+- Added League Administrator scoped operations and audit history.
+- Added frozen `consistency-v1` rules using `points-v2`.
+- Added a 20-point daily activity cap and five-point participation bonus.
+- Added atomic entry-linked contribution snapshots and player/team standings.
+
+### Legacy Coach
+
+- Added optional local guidance based on current and previous seven-day entry periods.
+- Added player-controlled tone and focus.
+- Added explicit recommendation reasons and evidence.
+- Added private owner-scoped preferences without an external artificial-intelligence service.
+
+### Security and testing
+
+- Added team, league, membership, contribution and Coach preference rules.
+- Added atomic captain transfer validation and forward-only audited league transitions.
+- Expanded the domain target to 44 tests and Rules target to 12 tests.
+
+### Release status
+
+This release completes the requested community/coaching foundation before review. It remains pre-1.0.
+
 ## v0.10.0 — Pre-1.0 Release Hardening
 
 Date: 1 August 2026

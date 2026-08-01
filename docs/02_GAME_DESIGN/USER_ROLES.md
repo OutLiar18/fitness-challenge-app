@@ -4,76 +4,51 @@ Last updated: 1 August 2026
 
 ## Purpose
 
-Roles control trusted platform responsibilities. They do not change activity scoring, goal bonuses, experience points or personal progression.
+Roles control trusted responsibilities. They never change activity points, goal bonuses, experience points, achievements or league contribution formulas.
 
 ## Player
 
 Identifier: `user`
 
-A Player may:
+A Player may manage their profile identity, factual entries, personal library, announcement reads, Coach preferences, team membership and league registrations. Players may submit activity-library suggestions and view published content.
 
-- manage their own approved profile identity fields;
-- create and delete their own permitted activity entries;
-- manage their personal library;
-- submit Exercise, Cardio and Skill suggestions;
-- read published announcements;
-- manage their own announcement read status.
-
-A Player may not:
-
-- change their own role or team;
-- read draft or archived announcements;
-- review suggestions;
-- read other player profiles;
-- read audit history;
-- perform administrative writes.
+A Player may not change their own trusted role, review suggestions, manage another account, create league audit authority or alter league contribution snapshots.
 
 ## League Administrator
 
 Identifier: `leagueAdmin`
 
-This role is reserved for future league-scoped authority. Version 0.10.0 stores and presents the role but grants no additional Firestore permissions yet.
+A League Administrator may:
 
-Future permissions must be scoped to explicit league membership and must never inherit full platform authority automatically.
+- create a league Draft with a frozen supported ruleset;
+- become an explicitly assigned administrator of that league;
+- move that assigned league forward through Registration, Active, Completed and Archived stages;
+- create the matching league-scoped audit events.
+
+A League Administrator may not:
+
+- administer a league to which they are not assigned;
+- manage platform announcements, users, global libraries or client error reports;
+- grant roles;
+- modify league rules after creation;
+- receive competitive advantages.
 
 ## Platform Administrator
 
 Identifier: `admin`
 
-A Platform Administrator may:
+A Platform Administrator may perform platform administration, including announcements, moderation, global library releases, user role/team metadata, audit review, error resolution and all league operations.
 
-- read player profiles for administration;
-- create, edit, publish and archive announcements;
-- review pending suggestions;
-- update another player’s trusted role and team assignment;
-- read immutable audit history.
+Platform Administrators may not change their own role through the client, delete immutable audit history or receive competitive advantages.
 
-Platform Administrators may not:
+## Team Captain
 
-- change their own trusted role through the client;
-- delete activity history, announcements or audit records;
-- edit an already reviewed suggestion;
-- bypass the required audit event for privileged writes.
+Team captain is a team membership role, not a trusted platform role. It grants narrow authority over one team’s identity and captain transfer. It does not grant league or platform administration.
 
 ## Authorization source
 
-Platform Administrator authorization is accepted when either:
+Platform authority comes from a trusted Firebase custom claim or protected Firestore profile role. League operations additionally require explicit assignment in the league document. Team captain authority comes from the team and membership documents.
 
-- the Firebase authentication token contains a trusted `admin: true` custom claim; or
-- the authenticated player’s Firestore profile has `role: "admin"`, assigned through an already trusted process.
+## Principle
 
-The ordinary web client cannot create its own administrator role.
-
-## Separation from competition
-
-Administrative authority provides no competitive advantage:
-
-- no extra activity points;
-- no extra goal bonuses;
-- no experience-point multiplier;
-- no automatic achievements;
-- no leaderboard privilege.
-
-## Guiding principle
-
-Authority must be narrow, visible, auditable and unrelated to athletic ability or competitive score.
+Authority must be narrow, visible, auditable and unrelated to score.

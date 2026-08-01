@@ -1,59 +1,38 @@
 # Champions Legacy Challenge — Player Profile System
 
 Last updated: 1 August 2026  
-Current release: v0.10.0
+Current release: v0.11.0
 
 ## Purpose
 
-The player profile makes identity and personal growth visible without turning identity into a public comparison tool.
+The profile makes identity and personal growth visible without turning private activity into an uncontrolled public comparison system.
 
-## Implemented profile identity
+## Profile identity
 
-`/profile` allows the signed-in player to view:
+`/profile` displays the player’s display name, email, Legacy Avatar, trusted role, live team, joined date, level, title, points, entries and longest streak.
 
-- display name;
-- email;
-- approved Legacy Avatar;
-- role;
-- team assignment;
-- joined date;
-- level and title;
-- total points;
-- total entries;
-- longest streak.
-
-Players may edit only their display name and approved avatar. Email, role, team, ownership and join date remain protected.
+Players may edit only display name and an approved local avatar. Email, role, ownership and join date remain protected.
 
 ## Legacy Avatars
 
-The app includes a curated local catalogue. Firestore stores only an approved `avatarId`, avoiding media-storage costs, arbitrary external URLs, privacy problems and image moderation.
+Only an approved `avatarId` is stored. The artwork is bundled locally, avoiding uploaded-media cost, arbitrary external URLs and image moderation.
 
-Custom uploads remain deferred until storage, consent, moderation and cost rules are designed.
+## Team identity
 
-## Progress route
+The live team comes from `playerTeams/{userId}` rather than a freely editable profile string. Team name and emblem may appear in team and league experiences. Leaving a team never changes historical league snapshots.
 
-`/progress` displays:
+## Legacy Coach preferences
 
-- experience points and level progress;
-- current and longest streak;
-- shield status;
-- completed daily and weekly goals;
-- perfect days and weeks;
-- achievements;
-- personal records;
-- chronological progression timeline;
-- level titles.
+Private settings live at `users/{userId}/coach/preferences` and control enabled state, tone and focus. They do not change scoring or expose recommendations publicly.
 
 ## Trusted role presentation
 
-Profiles may display Player, League Administrator or Platform Administrator. Role labels communicate responsibility but do not award points, experience or achievements.
-
-Only a trusted administrative process may change roles.
+Profiles may display Player, League Administrator or Platform Administrator. Team captain is presented within the team experience and remains separate from trusted platform roles.
 
 ## Data principles
 
-- Profiles store identity and account facts.
-- Progress remains derived from factual entries.
-- Experience points and competitive points remain separate.
-- Future public profiles require explicit privacy controls.
-- Team and league identity must not expose private activity details by default.
+- Store identity and membership facts.
+- Derive progress from factual entries.
+- Keep competitive points separate from experience points.
+- Require explicit privacy design before public activity or league-history profiles.
+- Do not make custom image uploads available until storage, consent, moderation and cost rules exist.

@@ -1,15 +1,15 @@
 # Champions Legacy Challenge — Release Candidate Checklist
 
-Version: 0.10.0  
+Version: 0.11.0  
 Purpose: Provide evidence for a future v1.0 decision without declaring v1.0 complete
 
 ## Automated verification
 
 - [ ] `npm install` completes.
 - [ ] `npm run lint` passes.
-- [ ] `npm test` passes 37 domain tests.
+- [ ] `npm test` passes 44 domain tests.
 - [ ] `npm run build` succeeds.
-- [ ] `npm run test:rules` passes 7 emulator tests.
+- [ ] `npm run test:rules` passes 12 emulator tests.
 - [ ] `npm run check:release` succeeds.
 - [ ] `npm audit` is reviewed without forcing breaking dependency changes.
 
@@ -71,6 +71,36 @@ Purpose: Provide evidence for a future v1.0 decision without declaring v1.0 comp
 - [ ] Platform Administrators can resolve reports with notes.
 - [ ] Resolution creates an audit record.
 - [ ] Error context is restricted to a sanitised summary.
+
+## Teams
+
+- [ ] Team creation writes team, captain membership, player pointer and invitation atomically.
+- [ ] A player cannot join or create a second team.
+- [ ] Team roster weekly progress updates after factual activity.
+- [ ] A member cannot self-promote.
+- [ ] Captain transfer updates the team and both players atomically.
+- [ ] A non-captain can leave without losing personal history.
+- [ ] The current captain cannot leave before transfer.
+
+## Leagues
+
+- [ ] Only League Administrators or Platform Administrators can create a Draft.
+- [ ] League creation has a matching audit event and frozen ruleset.
+- [ ] Registration opens/closes with lifecycle status.
+- [ ] A player may join or withdraw only during Registration.
+- [ ] Active entries create league contributions without duplicate logging.
+- [ ] Daily cap and participation bonus are explainable in standings.
+- [ ] Stages cannot be skipped or reversed.
+- [ ] Deleting an entry removes its linked contributions.
+
+## Legacy Coach
+
+- [ ] Guidance compares the current and previous seven-day periods.
+- [ ] Recommendations show reasons and evidence.
+- [ ] Tone and focus settings persist.
+- [ ] Disabling guidance hides recommendations without changing entries.
+- [ ] Preferences are private to their owner.
+- [ ] Guidance remains non-diagnostic and does not alter score.
 
 ## Responsive and accessibility
 

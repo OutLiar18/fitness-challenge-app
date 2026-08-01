@@ -1,0 +1,32 @@
+.coach-page { width: 100%; }
+.coach-hero, .coach-preferences, .coach-evidence { padding: 24px; }
+.coach-hero { display: grid; align-items: center; gap: 24px; grid-template-columns: minmax(0, 1fr) auto; background: radial-gradient(circle at top right, rgba(121, 76, 190, 0.16), transparent 28rem), var(--surface); }
+.coach-hero blockquote { max-width: 760px; margin: 10px 0 0; color: var(--primary-strong); font-family: var(--font-accent); font-size: 1.2rem; font-style: italic; line-height: 1.6; }
+.coach-hero > span { font-size: 4rem; }
+.coach-metrics { display: grid; gap: 14px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.coach-metrics article { display: grid; gap: 5px; padding: 20px; }
+.coach-metrics article > strong { color: var(--primary); font-family: var(--font-display); font-size: 1.6rem; }
+.coach-metrics article > span:not(.coach-change) { color: var(--text-muted); }
+.coach-change { width: fit-content; margin-top: 4px; padding: 4px 7px; border-radius: 999px; font-size: 0.72rem; font-weight: 800; }
+.coach-change--positive { color: var(--success); background: var(--success-soft); }
+.coach-change--negative { color: var(--warning); background: var(--warning-soft); }
+.coach-change--neutral { color: var(--text-muted); background: var(--surface-strong); }
+.coach-recommendation-grid { display: grid; gap: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.coach-recommendation { position: relative; overflow: hidden; padding: 22px; }
+.coach-recommendation__number { position: absolute; top: -10px; right: 10px; color: var(--primary-soft); font-family: var(--font-display); font-size: 5rem; font-weight: 900; line-height: 1; }
+.coach-recommendation h3, .coach-recommendation p, .coach-recommendation details { position: relative; }
+.coach-recommendation details { padding-top: 10px; border-top: 1px solid var(--border); }
+.coach-recommendation summary { color: var(--primary); font-weight: 800; }
+.coach-recommendation details p { margin: 10px 0 0; color: var(--text-muted); }
+.coach-evidence { display: grid; gap: 24px; grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr); }
+.coach-evidence ul { display: grid; gap: 10px; padding: 0; margin: 0; list-style: none; }
+.coach-evidence li { display: flex; align-items: flex-start; gap: 9px; padding: 10px; border-radius: var(--radius-md); background: var(--surface-soft); }
+.coach-evidence li span { color: var(--success); font-weight: 900; }
+.coach-preferences { display: grid; gap: 20px; }
+.coach-toggle { display: grid; align-items: start; gap: 12px; padding: 16px; border: 2px solid var(--border); border-radius: var(--radius-md); background: var(--surface-soft); grid-template-columns: auto minmax(0, 1fr); }
+.coach-toggle input { width: 22px; min-height: 22px; margin-top: 2px; }
+.coach-toggle span { display: grid; gap: 3px; }
+.coach-toggle small { color: var(--text-muted); font-weight: 400; }
+.coach-preference-grid { display: grid; gap: 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 760px) { .coach-hero, .coach-evidence { grid-template-columns: 1fr; } .coach-metrics, .coach-recommendation-grid { grid-template-columns: 1fr; } .coach-hero > span { display: none; } }
+@media (max-width: 620px) { .coach-hero, .coach-preferences, .coach-evidence { padding: 18px; } .coach-preference-grid { grid-template-columns: 1fr; } }

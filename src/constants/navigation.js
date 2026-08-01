@@ -47,35 +47,35 @@ export const PRIMARY_NAV_ITEMS = Object.freeze([
   },
 ]);
 
-export const FUTURE_NAV_ITEMS = Object.freeze([
+export const SECONDARY_NAV_ITEMS = Object.freeze([
   {
     id: "teams",
     label: "Teams",
     icon: "🤝",
-    to: "/future/teams",
+    to: "/teams",
     tone: "green",
-    description: "Shared goals and team challenges.",
-    badge: "Preview",
+    description: "Shared identity, accountability and weekly team progress.",
   },
   {
     id: "leagues",
     label: "Leagues",
     icon: "🛡️",
-    to: "/future/leagues",
+    to: "/leagues",
     tone: "gold",
-    description: "Healthy seasonal competition.",
-    badge: "Preview",
+    description: "Consistency-weighted seasonal competition.",
   },
   {
     id: "coach",
     label: "Legacy Coach",
     icon: "✨",
-    to: "/future/coach",
+    to: "/coach",
     tone: "purple",
-    description: "Transparent, user-controlled guidance.",
-    badge: "Preview",
+    description: "Transparent guidance based on your own activity history.",
   },
 ]);
+
+// Retained as an alias so older tests and documentation links do not break.
+export const FUTURE_NAV_ITEMS = SECONDARY_NAV_ITEMS;
 
 export const ADMIN_NAV_ITEM = Object.freeze({
   id: "admin",
@@ -87,8 +87,8 @@ export const ADMIN_NAV_ITEM = Object.freeze({
   requiredRole: "admin",
 });
 
-// The mobile bar intentionally stays focused. Secondary and future areas live
-// behind More so the bar remains usable on 320 px screens.
+// The mobile bar intentionally stays focused. Community and account areas live
+// behind More so the bar remains usable on 320-pixel screens.
 export const MOBILE_NAV_ITEMS = Object.freeze(
   PRIMARY_NAV_ITEMS.filter((item) =>
     ["dashboard", "log", "progress", "announcements"].includes(item.id),
@@ -99,7 +99,7 @@ export function getNavigationItemByPath(pathname) {
   const normalizedPath = String(pathname || "").split("?")[0];
   const items = [
     ...PRIMARY_NAV_ITEMS,
-    ...FUTURE_NAV_ITEMS,
+    ...SECONDARY_NAV_ITEMS,
     ADMIN_NAV_ITEM,
   ];
 

@@ -7,43 +7,42 @@ Last updated: 1 August 2026
 - Firebase Authentication establishes identity.
 - Firestore Security Rules enforce authorization and data shape.
 - React visibility is not security.
-- Ordinary players cannot grant themselves trusted roles.
-- Privileged writes are audited in the same batch.
-- Factual activity entries remain owner-scoped and immutable after creation.
+- Trusted roles cannot be self-assigned.
+- Privileged league/platform changes require same-batch audit events.
+- Factual entries and league contributions are immutable after creation.
 
-## Trusted administration
+## Teams
 
-Platform Administrator access may come from:
+- A team may be created only when the player has no `playerTeams` pointer.
+- Team, captain member, player pointer and invitation must be created atomically.
+- Joining requires an active invitation and paired member/pointer documents.
+- Only the captain may edit team identity.
+- Captain transfer requires the team, both member roles and both player pointers to agree after the batch.
+- A member may update only their own bounded weekly snapshot.
+- A non-captain may leave only by deleting both membership documents together.
 
-- a trusted Firebase custom claim; or
-- a user profile role assigned through a trusted bootstrap or administrator process.
+## Leagues
 
-The client cannot self-promote. Administrators cannot change their own trusted role through the application.
+- Only a Platform Administrator or a profile with `leagueAdmin` may create a Draft.
+- The creator must be listed as an administrator and create a matching audit event and invitation in the same batch.
+- Only an assigned administrator may move a league forward one supported stage.
+- Rules, dates, mode and administrator list remain immutable through lifecycle transitions.
+- Registration requires an active league invitation.
+- League contribution creation requires an active league, active owner membership, matching identity/team snapshot, matching entry category/date and the frozen rules version.
+- Contribution updates are denied; deletion requires the source entry to be absent after the batch.
 
-## Versioned library security
+## Legacy Coach
 
-- Players read only `published` global items and releases.
-- Platform Administrators can read all publication states.
-- Publishing requires an approved suggestion, a release and linked audit records.
-- Archiving is the only supported published-item update.
-- Published items cannot be deleted from the client.
-- Releases are immutable.
+Coach preferences are readable and writable only by their owner. Allowed values and server timestamp are constrained. Recommendations are local derived data and create no shared Firestore document.
 
-## Error-report security
+## Platform systems
 
-- Only authenticated players can create reports.
-- The report `userId` must match `request.auth.uid`.
-- Field lengths and status are constrained.
-- Ordinary players cannot read the reports collection.
-- Platform Administrators can read reports and resolve open reports with an audit event.
-- Reports cannot be deleted from the client.
+Existing protections remain for profiles, announcements, moderation, versioned libraries, audit history and client error reports.
 
-## Announcement security
+## Trust boundary
 
-- Ordinary players read published announcements only.
-- Draft and archived announcements are administrator-only.
-- Announcement writes require a linked audit event.
+Security Rules cannot reproduce the full category scoring engine. League contribution points remain client-calculated and bounded. Friendly competition is supported; monetary or prize competition requires trusted server-side recalculation.
 
-## Security testing
+## Test requirement
 
-The Firestore Emulator and `@firebase/rules-unit-testing` verify high-risk access paths. Rule changes require emulator tests before deployment.
+`npm run test:rules` must pass all 12 v0.11.0 tests before deploying `firestore.rules`.

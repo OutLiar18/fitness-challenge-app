@@ -4,45 +4,36 @@ Last updated: 1 August 2026
 
 ## Current status
 
-There are no incomplete high-risk architecture migrations in v0.10.0.
+No incomplete destructive migration exists in v0.11.0. The new modules use additive collections and routes.
 
-## Completed in v0.10.0
+## Completed in v0.11.0
 
-- Approved-suggestion publication into versioned global libraries.
-- Published-library consumption in Exercise, Cardio and Skill forms.
-- Embedded published-definition snapshots for historical scoring stability.
-- Administrative user, audit and error-report pagination.
-- Environment-controlled client error reporting.
-- Firestore Emulator Security Rules test adoption.
-- Firebase Hosting preview and deployment configuration.
+- Structured preview routes migrated to real `/teams`, `/leagues` and `/coach` systems.
+- Entry persistence migrated to an atomic batch that may include league contribution snapshots.
+- Entry deletion migrated to remove linked league contributions in the same batch.
+- League Administrator changed from a reserved label to league-scoped operational authority.
+- Protected application providers extended with Team, League and Coach state.
 
 ## Controlled follow-up
 
+### Server-authoritative league scoring
+
+Status: Deferred until competitive stakes justify server infrastructure
+
+Recalculate and sign league contributions through a trusted backend before using leagues for prizes, money or high-stakes public competition.
+
 ### Historical entry pagination
 
-Status: Planned after release-candidate review
+Status: Planned after integrated review
 
-Replace the complete owner-entry subscription with a current-window subscription and paginated historical queries while preserving the repository interface.
+Replace the complete owner-entry subscription with current-window subscriptions and paginated history while preserving service interfaces.
 
-### Server-side administrative search
+### Team lifecycle history
 
-Status: Deferred until data volume requires it
+Status: Deferred
 
-Add intentionally indexed server queries or a dedicated search service. Do not simulate full search by repeatedly downloading all user or audit documents.
+Design team archiving and disbanding without losing roster history or orphaning league snapshots.
 
-### External observability
+## Closure rule
 
-Status: Optional future enhancement
-
-Consider an external monitoring provider only when first-party error reports prove insufficient. Any provider must be reviewed for privacy, cost, source-map handling and data retention.
-
-## Migration closure rule
-
-A future migration is complete only when:
-
-- the replacement is used by all callers;
-- the legacy implementation is removed;
-- domain and Security Rules tests pass;
-- the production build passes;
-- relevant documentation is updated;
-- live Firebase behavior is verified.
+A migration is complete only when all callers use it, obsolete code is removed, domain and Rules tests pass, the production build passes and documentation matches live behavior.

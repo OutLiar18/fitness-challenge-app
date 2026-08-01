@@ -1,29 +1,39 @@
 # Champions Legacy Challenge — Recent Session Summary
 
 Date: 1 August 2026  
-Release target: v0.10.0 pre-1.0 hardening
+Release target: v0.11.0 pre-1.0 community and coaching foundation
 
-## Session outcome
+## User direction
 
-The v0.9.0 administration foundation was extended into a reviewable release-candidate platform without declaring v1.0.
+The user chose not to begin full product review yet. Teams, Leagues and Legacy Coach must be completed and stabilised first. v0.11.0 remains pre-1.0.
 
-### Major results
+## Implemented
 
-- Added versioned publication of approved Exercise, Cardio and Skill suggestions.
-- Added shared Firestore library items and immutable release history.
-- Added live consumption of published items in player forms.
-- Embedded published definitions into entries for stable historical scoring.
-- Added archive behavior that affects future selection only.
-- Paginated user, audit and client-error administrative data.
-- Added optional first-party client error reporting and administrator resolution.
-- Added Firestore Emulator Security Rules tests.
-- Configured Firebase Hosting, preview channels, caching and security headers.
-- Added release-check scripts, deployment guidance and a full QA matrix.
-- Updated architecture, security, library, testing, roadmap and handover documentation.
+### Teams
 
-## Verification target
+- One persistent team per player.
+- Local storage-free emblems, team identity and invitations.
+- Roster weekly progress from factual entries.
+- Atomic team creation, joining, leaving and captain transfer.
 
-On the Windows development computer:
+### Leagues
+
+- Draft, Registration, Active, Completed and Archived lifecycle.
+- League Administrator and Platform Administrator operations.
+- Frozen `consistency-v1` and `points-v2` rules.
+- Daily 20-point raw activity cap plus five-point participation bonus.
+- Atomic entry and league contribution creation.
+- Player and team standings.
+- Audited creation and lifecycle transitions.
+
+### Legacy Coach
+
+- Local deterministic recommendations using current and previous seven-day entries.
+- Player-controlled enabled state, tone and focus.
+- Every recommendation exposes evidence and a reason.
+- No external model/API cost and no diagnostic claims.
+
+## Verification targets
 
 ```powershell
 npm install
@@ -35,11 +45,12 @@ npm audit
 
 Expected:
 
-- 37 domain tests.
-- 7 Firestore Rules tests.
+- 44 domain tests.
+- 12 Firestore Rules tests.
 - ESLint passes.
 - Production build passes.
+- Release-readiness check passes.
 
 ## Next action
 
-Deploy the updated rules, create a temporary Hosting preview channel, complete `RELEASE_CANDIDATE_CHECKLIST.md`, and collect requested changes. Do not create a v1.0 tag until the user explicitly approves it.
+Apply the v0.11.0 updater, run verification, deploy Firestore Rules, then test the community and coaching workflows in `NEXT_SESSION.md`. Do not create v1.0 or begin final review until these systems are stable.

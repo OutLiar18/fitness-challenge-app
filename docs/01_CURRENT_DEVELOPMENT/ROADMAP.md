@@ -6,82 +6,82 @@ Last updated: 1 August 2026
 
 Status: Complete
 
-- Authentication, profiles and ten activity categories.
-- Factual Firestore entries, validation and normalisation.
+- Authentication, profiles, factual entries and ten activity categories.
+- Validation, local calendar dates, libraries and suggestions.
 - Explainable Points Engine v2 and Running/Cardio cross-contribution.
-- Journal, local-safe dates, libraries and suggestions.
 
-## Phase 2 — Personal progression and experience
+## Phase 2 — Personal progression
 
 Status: Complete
 
 - Daily and weekly goals with moderate bonuses.
-- Forgiving streak and earned shield.
-- Experience points, levels, titles, achievements and personal records.
-- Chronological progress timeline.
-- Responsive multi-route application shell.
-- Built-in Legacy Avatars and secure profile editing.
+- Forgiving streak, shield, experience points, levels, achievements and records.
+- Progress timeline, responsive navigation and built-in Legacy Avatars.
 
-## Phase 3 — Secure administration and communication
+## Phase 3 — Administration and communication
 
 Status: Complete foundation
 
-- Trusted Platform Administrator authorization.
-- Live announcements and cross-device read status.
-- Suggestion review queues.
-- User role and team management foundation.
-- Immutable audit history.
-- Versioned publication of approved suggestions into shared libraries.
-- Archiving that preserves historical entry facts.
+- Live announcements and cross-device read state.
+- Trusted roles, moderation, audit history and versioned shared libraries.
+- Paginated administrative data and first-party error reporting.
 
-## Phase 4 — Pre-1.0 release hardening
+## Phase 4 — Release hardening
 
-Status: Implemented in v0.10.0; verification and user review next
+Status: Complete foundation
 
-- Paginated administrative users, audit events and error reports.
 - Firestore Emulator Security Rules tests.
-- Optional first-party client error monitoring.
-- Firebase Hosting preview and production configuration.
-- Repeatable release-check scripts.
-- Full responsive, accessibility, security and gameplay QA checklist.
+- Firebase Hosting preview configuration.
+- Repeatable release checks and QA documentation.
 
-Remaining before a v1.0 decision:
+## Phase 5 — Teams and seasonal leagues
 
-- Run all local and emulator checks on the development computer.
-- Deploy and test a preview channel.
-- Complete manual QA.
-- Fix verified defects and add regression tests.
-- Review bundle size and initial loading performance using real build output.
-- Obtain explicit user approval of the v1.0 scope.
+Status: Implemented in v0.11.0; integrated verification required
 
-## Phase 5 — Competition and community
+- One persistent team per player.
+- Storage-free team emblems, invitations, rosters and captain transfer.
+- Seasonal league Draft, Registration, Active, Completed and Archived stages.
+- Immutable `consistency-v1` rules and entry-linked contribution snapshots.
+- Individual and team standings that cap daily activity and reward participation.
+- League-scoped authority and audit records.
 
-Status: Structured preview only
+Deferred refinements:
 
-- Teams.
-- Leagues and seasons.
-- Leaderboards.
-- Challenge templates.
-- Social encouragement.
+- Team disbanding and archived team history.
+- Server-authoritative league score recalculation.
+- League history privacy settings.
+- Seasonal awards and trophy-cabinet integration.
+- Dispute and evidence review workflows.
 
-Competition must preserve consistency over natural athletic ability. League scoring must freeze an immutable versioned ruleset.
+## Phase 6 — Legacy Coach
 
-## Phase 6 — Intelligence and analytics
+Status: Implemented in v0.11.0; integrated verification required
 
-Status: Structured preview only
+- Optional local guidance.
+- Current-versus-previous-week comparison.
+- Explainable recommendations with evidence.
+- Player-controlled tone and focus.
 
-- Trend charts and weekly summaries.
-- Goal recommendations.
-- Training and habit insights.
-- Transparent, user-controlled Legacy Coach.
+Deferred refinements:
+
+- Longer-term trend charts.
+- User-approved goal planning.
+- More advanced but still transparent recommendation rules.
+
+## Remaining before v1.0
+
+- Pass v0.11.0 local, emulator and integration tests.
+- Conduct the user’s complete mobile and desktop review.
+- Implement requested corrections.
+- Add account deletion, personal-data export and privacy/support information.
+- Complete final accessibility, performance and release-candidate QA.
+- Obtain explicit user approval.
 
 ## Guardrails
 
-- Never duplicate scoring or progression logic in UI components.
-- Never trust a client-controlled role without Firestore enforcement.
-- Store facts; derive progress.
-- Audit every privileged change.
-- Version global libraries and future challenge rules.
-- Humour and easter eggs must remain optional, respectful and non-blocking.
-- Do not start live leagues before immutable challenge configuration exists.
-- Do not call the product v1.0 until the user explicitly approves it.
+- Never duplicate activity scoring in Teams, Leagues or UI components.
+- Store factual entries and immutable seasonal snapshots; derive standings.
+- Never let a client-controlled role bypass Firestore Rules.
+- Administrative authority never creates competitive points.
+- Legacy Coach must remain optional, explainable and non-diagnostic.
+- Do not call the product v1.0 until explicitly approved.

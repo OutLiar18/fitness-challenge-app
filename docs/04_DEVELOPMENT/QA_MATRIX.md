@@ -2,68 +2,49 @@
 
 Last updated: 1 August 2026
 
-## Browsers
+## Viewports and input
 
-Test the latest stable versions available on the development devices:
+Test 320 × 568 minimum mobile, common Android portrait, mobile landscape, tablet portrait/landscape, 1366 × 768 and 1920 × 1080. Cover keyboard, mouse, real or simulated touch, light/dark mode and reduced motion.
 
-- Google Chrome.
-- Microsoft Edge.
-- Firefox.
-- Safari when access to an Apple device is available.
+## Existing core workflows
 
-## Viewports
+- Authentication and protected routes.
+- Profile name/avatar.
+- Activity create/delete and Journal dates.
+- Goals, progression and announcements.
+- Administration, moderation, shared-library publication and error resolution.
 
-- 320 × 568 mobile minimum.
-- Common Android portrait.
-- Mobile landscape.
-- Tablet portrait and landscape.
-- 1366 × 768 desktop.
-- 1920 × 1080 desktop.
+## Team workflows
 
-## Themes and input
+- Create a team and verify local emblem, motto and code.
+- Join from another account and reject a second team.
+- Record activity and verify weekly roster update.
+- Reject member self-promotion.
+- Transfer captaincy and verify both roles/pointers.
+- Allow a member to leave; block current captain leave.
+- Check empty/loading/error states on mobile and desktop.
 
-- Light operating-system theme.
-- Dark operating-system theme.
-- Reduced motion.
-- Keyboard only.
-- Mouse.
-- Touch simulation and real touch device where available.
+## League workflows
 
-## Core workflows
+- Create as League Administrator and reject ordinary-player creation.
+- Open Registration, join and withdraw.
+- Activate and verify membership status.
+- Record one activity and verify personal plus league updates without duplicate entry.
+- Confirm daily cap and participation bonus in standings.
+- Confirm team snapshots remain the registration team.
+- Complete/archive in order and reject skipped/backward transitions.
+- Delete the source entry and confirm contribution removal.
 
-For each supported browser and at least one mobile and desktop viewport:
+## Legacy Coach workflows
 
-- Register, sign in, sign out and protected redirect.
-- Change profile name and Legacy Avatar.
-- Navigate every primary route.
-- Create and delete an activity entry.
-- Browse Journal dates.
-- Switch Daily and Weekly goals.
-- Open Progress and Announcements.
-- Mark announcements read and unread.
-
-## High-risk workflows
-
-Run on Chrome desktop and one mobile device:
-
-- Running eligibility boundaries.
-- Effective repetitions and workout goals.
-- Streak and shield dates.
-- Admin announcement publication.
-- Suggestion approval and rejection.
-- Global library release and archive.
-- Role and team update.
-- Error-report creation and resolution.
-- Paginated load-more controls.
+- Verify current/previous seven-day metrics.
+- Expand recommendation reasons and evidence.
+- Switch focus and tone.
+- Disable and re-enable guidance.
+- Refresh and verify preferences persist.
+- Confirm private preferences cannot be read from another account.
+- Review all language for non-diagnostic, non-judgmental wording.
 
 ## Evidence
 
-Record:
-
-- Browser and viewport.
-- Test date.
-- Passed workflow.
-- Screenshot for visual defects.
-- Console output for runtime defects.
-- Firestore document path for data defects.
-- Regression-test addition for each fixed logic defect.
+Record browser, viewport, date, workflow, screenshots, console output, Firestore path and any regression test added.

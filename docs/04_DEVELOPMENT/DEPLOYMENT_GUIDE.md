@@ -4,7 +4,7 @@ Last updated: 1 August 2026
 
 ## Hosting choice
 
-v0.10.0 is configured for Firebase Hosting because the application is a static Vite single-page application already using Firebase Authentication and Cloud Firestore.
+v0.11.0 is configured for Firebase Hosting because the application is a static Vite single-page application already using Firebase Authentication and Cloud Firestore.
 
 The existing Netlify `_redirects` file may remain for compatibility, but Firebase Hosting is the documented pre-1.0 preview path.
 

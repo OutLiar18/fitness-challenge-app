@@ -1,16 +1,18 @@
 import {
-  addDoc,
   collection,
-  deleteDoc,
   doc,
+  getDocs,
   onSnapshot,
   query,
   serverTimestamp,
   Timestamp,
   where,
+  writeBatch,
 } from "firebase/firestore";
 import { db } from "../../firebase";
+import { calculateEntryPoints } from "../points";
 import { normalizeChallengeDate } from "../dateService";
+import { isEntryWithinLeague } from "../leagues/leagueModel";
 
 function getCreatedAtMillis(entry) {
   if (typeof entry.createdAt?.toMillis === "function") {
@@ -27,7 +29,13 @@ function sortEntriesNewestFirst(entries) {
   );
 }
 
-export async function createEntry(userId, category, data, selectedDate) {
+export async function createEntry(
+  userId,
+  category,
+  data,
+  selectedDate,
+  leagueContexts = [],
+) {
   if (!userId) {
     throw new Error("A user is required to save an entry.");
   }
@@ -42,13 +50,52 @@ export async function createEntry(userId, category, data, selectedDate) {
     throw new Error("A valid challenge date is required.");
   }
 
-  return addDoc(collection(db, "challengeEntries"), {
+  const entryReference = doc(collection(db, "challengeEntries"));
+  const entry = {
+    id: entryReference.id,
+    userId,
+    category,
+    data,
+    challengeDate,
+  };
+  const activityPoints = calculateEntryPoints(entry);
+  const batch = writeBatch(db);
+
+  batch.set(entryReference, {
     userId,
     category,
     data,
     createdAt: serverTimestamp(),
     challengeDate: Timestamp.fromDate(challengeDate),
   });
+
+  leagueContexts
+    .filter(({ league }) => isEntryWithinLeague(entry, league))
+    .forEach(({ league, membership }) => {
+      const contributionReference = doc(
+        db,
+        "leagueContributions",
+        `${league.id}_${entryReference.id}`,
+      );
+
+      batch.set(contributionReference, {
+        leagueId: league.id,
+        entryId: entryReference.id,
+        userId,
+        displayName: membership.displayName || "Champion",
+        avatarId: membership.avatarId || "legacy-trophy",
+        teamId: membership.teamId || "",
+        teamName: membership.teamName || "Independent",
+        category,
+        challengeDate: Timestamp.fromDate(challengeDate),
+        activityPoints: Math.max(0, Math.round(activityPoints * 100) / 100),
+        rulesVersion: league.rulesVersion,
+        createdAt: serverTimestamp(),
+      });
+    });
+
+  await batch.commit();
+  return entryReference;
 }
 
 export function subscribeToEntries(userId, onUpdate, onError) {
@@ -81,7 +128,16 @@ export async function deleteEntry(entryId) {
     throw new Error("An entry ID is required.");
   }
 
-  await deleteDoc(doc(db, "challengeEntries", entryId));
+  const contributionSnapshot = await getDocs(
+    query(collection(db, "leagueContributions"), where("entryId", "==", entryId)),
+  );
+  const batch = writeBatch(db);
+
+  contributionSnapshot.docs.forEach((contributionDocument) => {
+    batch.delete(contributionDocument.ref);
+  });
+  batch.delete(doc(db, "challengeEntries", entryId));
+  await batch.commit();
 }
 
 export async function createExerciseSuggestion({
@@ -97,7 +153,9 @@ export async function createExerciseSuggestion({
     throw new Error("An exercise name is required.");
   }
 
-  return addDoc(collection(db, "exerciseSuggestions"), {
+  const reference = doc(collection(db, "exerciseSuggestions"));
+  const batch = writeBatch(db);
+  batch.set(reference, {
     submittedBy: userId,
     challengeEntryId,
     exerciseDefinition,
@@ -107,6 +165,8 @@ export async function createExerciseSuggestion({
     reviewedBy: null,
     rejectionReason: "",
   });
+  await batch.commit();
+  return reference;
 }
 
 export async function createLibrarySuggestion({
@@ -123,7 +183,9 @@ export async function createLibrarySuggestion({
     throw new Error("A valid library suggestion is required.");
   }
 
-  return addDoc(collection(db, "librarySuggestions"), {
+  const reference = doc(collection(db, "librarySuggestions"));
+  const batch = writeBatch(db);
+  batch.set(reference, {
     submittedBy: userId,
     challengeEntryId,
     itemType,
@@ -134,4 +196,6 @@ export async function createLibrarySuggestion({
     reviewedBy: null,
     rejectionReason: "",
   });
+  await batch.commit();
+  return reference;
 }

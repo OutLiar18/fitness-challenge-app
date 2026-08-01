@@ -1,5 +1,9 @@
 # Champions Legacy Challenge — Version History
 
+## 0.11.0
+
+Pre-1.0 community and coaching foundation: persistent Teams, immutable consistency-weighted seasonal Leagues, entry-linked standings and an optional transparent local Legacy Coach.
+
 ## 0.10.0
 
 Pre-1.0 release hardening: versioned community libraries, administrative pagination, first-party error reporting, Security Rules emulator tests and Firebase Hosting preview/deployment preparation. This version is intentionally awaiting user review before v1.0.
@@ -16,6 +20,7 @@ Version: 2.0
 
 | Version | Date | Milestone |
 |---------|------|-----------|
+| 0.11.0 | 1 August 2026 | Teams, consistency-weighted leagues and transparent Legacy Coach |
 | 0.9.0 | 1 August 2026 | Trusted administration, live announcements, moderation and immutable audit history |
 | 0.8.0 | 1 August 2026 | Legacy Avatars, secure profile editing and announcement read status |
 | 0.7.1 | 1 August 2026 | Adaptive desktop, tablet and mobile navigation polish |

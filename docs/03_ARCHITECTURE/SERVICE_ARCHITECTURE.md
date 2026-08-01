@@ -5,48 +5,46 @@ Last updated: 1 August 2026
 ## Layers
 
 ```text
-Configuration and source-controlled libraries
-                    ↓
+Configuration
+    ↓
 Pure domain models and validators
-                    ↓
-Firestore repositories and audited operations
-                    ↓
+    ↓
+Firestore repositories and audited services
+    ↓
 Providers and hooks
-                    ↓
-Reusable components and route pages
+    ↓
+Route pages and reusable components
 ```
 
-## New v0.10.0 services
+## Team services
 
-### Global library
+- `teamModel.js` — code normalization, validation and weekly snapshots.
+- `teamService.js` — subscriptions, create/join/edit/leave and atomic captain transfer.
+- `TeamProvider.jsx` — current membership, team, roster and bounded weekly synchronization.
 
-- `globalLibraryModel.js` — pure normalization, lookup, grouping and merging.
-- `globalLibraryService.js` — published Firestore subscription.
-- `GlobalLibraryProvider.jsx` — shared protected-route data source.
+## League services
 
-### Library publishing
+- `leagueModel.js` — input validation, lifecycle, date checks and consistency standings.
+- `leagueService.js` — visible/managed subscriptions, audited creation/transitions and registration.
+- `LeagueProvider.jsx` — league library, player memberships and manager capability.
+- `entryRepository.js` — creates/deletes league contributions with the source entry.
 
-- `libraryPublishingModel.js` — semantic-version validation and published-definition construction.
-- `libraryPublishingService.js` — audited release, item publication and archive batches.
+## Coach services
 
-### Error monitoring
+- `coachModel.js` — pure period comparison, recommendation selection and evidence.
+- `coachService.js` — private preference subscription and persistence.
+- `CoachProvider.jsx` — combines preferences with shared player entries.
 
-- `errorReportModel.js` — pure sanitization and fingerprinting.
-- `errorReporter.js` — environment-controlled console or Firestore reporting.
-- `errorReportService.js` — paginated administration and audited resolution.
+## Existing services
 
-### Administrative pagination
-
-- `getUserPage`
-- `getAuditEventPage`
-- `getErrorReportPage`
-
-`useAdminData` combines bounded pages with small real-time subscriptions.
+Points, statistics, progression, announcements, shared libraries, administration and monitoring remain separate domain boundaries.
 
 ## Guardrails
 
-- Pure models must not import Firebase configuration.
-- Firestore services must not contain UI rendering.
-- Components must not duplicate scoring or authorization rules.
-- Published definition snapshots must be used for historical scoring.
-- Privileged operations must commit audit events atomically.
+- Pure models do not import Firebase.
+- Firestore services do not render UI.
+- Components do not contain scoring or authorization formulas.
+- Team summaries reuse central point calculation.
+- League rules are frozen and standings use snapshots.
+- Privileged writes and audit events commit atomically.
+- Coach recommendations remain explainable and optional.

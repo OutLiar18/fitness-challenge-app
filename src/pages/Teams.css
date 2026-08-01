@@ -1,0 +1,38 @@
+.community-page { width: 100%; }
+.community-onboarding { display: grid; gap: 22px; grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr); }
+.community-form, .community-join, .team-hero, .team-roster, .community-guardrail { padding: 24px; }
+.community-form { display: grid; gap: 20px; }
+.community-form__grid { display: grid; gap: 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.community-join { align-content: start; display: grid; gap: 18px; }
+.community-join__icon { font-size: 3rem; }
+.community-code-row { display: grid; gap: 10px; }
+.community-code-input { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 1.15rem; font-weight: 850; letter-spacing: 0.12em; text-align: center; text-transform: uppercase; }
+.emblem-picker { min-width: 0; padding: 0; border: 0; }
+.emblem-picker legend { margin-bottom: 10px; font-weight: 800; }
+.emblem-picker > div { display: grid; gap: 10px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.emblem-option { display: grid; min-height: 92px; place-items: center; gap: 5px; padding: 12px 8px; border: 2px solid var(--border); border-radius: var(--radius-md); background: var(--surface-soft); text-align: center; transition: border-color var(--transition), transform var(--transition), background var(--transition); }
+.emblem-option:hover { transform: translateY(-1px); border-color: var(--primary); }
+.emblem-option--selected { border-color: var(--primary); background: var(--primary-soft); }
+.emblem-option span { font-size: 1.65rem; }
+.emblem-option strong { font-size: 0.78rem; }
+.team-hero { display: grid; align-items: center; gap: 22px; grid-template-columns: auto minmax(0, 1fr) auto; background: radial-gradient(circle at top left, var(--primary-soft), transparent 28rem), var(--surface); }
+.team-hero__emblem { display: grid; width: 94px; height: 94px; place-items: center; border: 2px solid var(--border); border-radius: 28px; background: var(--surface-raised); box-shadow: var(--shadow-lg); font-size: 3rem; }
+.team-hero blockquote { margin: 6px 0 10px; color: var(--primary); font-family: var(--font-accent); font-size: 1.15rem; font-style: italic; }
+.team-hero__actions { display: grid; gap: 10px; }
+.community-metrics { display: grid; gap: 14px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.community-metrics article { display: grid; gap: 5px; padding: 18px; }
+.community-metrics strong { color: var(--primary); font-family: var(--font-display); font-size: 1.35rem; }
+.community-metrics span { color: var(--text-muted); font-size: 0.83rem; }
+.community-section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 18px; }
+.community-section-heading > span { padding: 7px 10px; border-radius: 999px; color: var(--primary); background: var(--primary-soft); font-size: 0.78rem; font-weight: 800; }
+.team-roster__list { display: grid; gap: 10px; }
+.team-member { display: grid; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-soft); grid-template-columns: auto minmax(0, 1fr) auto; }
+.team-member__identity, .team-member__stats { display: grid; gap: 2px; }
+.team-member__identity span, .team-member__stats span { color: var(--text-muted); font-size: 0.78rem; }
+.team-member__stats { text-align: right; }
+.community-guardrail { display: flex; align-items: flex-start; gap: 16px; }
+.community-guardrail > span { font-size: 2rem; }
+@media (max-width: 900px) { .community-onboarding, .team-hero { grid-template-columns: 1fr; } .team-hero__actions { grid-template-columns: repeat(2, minmax(0, 1fr)); } .community-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 620px) { .community-form, .community-join, .team-hero, .team-roster, .community-guardrail { padding: 18px; } .community-form__grid, .team-hero__actions { grid-template-columns: 1fr; } .emblem-picker > div { grid-template-columns: repeat(2, minmax(0, 1fr)); } .community-metrics { grid-template-columns: 1fr 1fr; } .team-member { align-items: start; grid-template-columns: auto minmax(0, 1fr); } .team-member__stats { grid-column: 2; text-align: left; } }
+.captain-transfer { display: grid; gap: 16px; padding-top: 20px; border-top: 1px solid var(--border); grid-template-columns: minmax(0, 1fr) minmax(260px, 0.7fr); }
+@media (max-width: 720px) { .captain-transfer { grid-template-columns: 1fr; } }

@@ -3,7 +3,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import {
   ADMIN_NAV_ITEM,
-  FUTURE_NAV_ITEMS,
+  SECONDARY_NAV_ITEMS,
   MOBILE_NAV_ITEMS,
   PRIMARY_NAV_ITEMS,
   getNavigationItemByPath,
@@ -97,8 +97,8 @@ function MoreMenu({
       </div>
 
       <div className="app-more-panel__section">
-        <p>Coming next</p>
-        {FUTURE_NAV_ITEMS.map((item) => (
+        <p>Community and guidance</p>
+        {SECONDARY_NAV_ITEMS.map((item) => (
           <NavigationLink key={item.id} item={item} onNavigate={onNavigate} />
         ))}
       </div>
@@ -135,7 +135,7 @@ export default function AppShell() {
   const desktopMoreIsActive = Boolean(
     activeItem &&
       (activeItem.id === "admin" ||
-        FUTURE_NAV_ITEMS.some((item) => item.id === activeItem.id)),
+        SECONDARY_NAV_ITEMS.some((item) => item.id === activeItem.id)),
   );
   const mobileMoreIsActive = Boolean(
     activeItem &&

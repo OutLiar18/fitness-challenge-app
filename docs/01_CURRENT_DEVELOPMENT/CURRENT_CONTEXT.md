@@ -4,30 +4,30 @@ Last updated: 1 August 2026
 
 ## Current development phase
 
-Pre-1.0 release hardening and user review.
+**v0.11.0 — Community and Coaching Foundation**, still before v1.0.
 
-The application is intentionally versioned as **0.10.0**, not 1.0. The technical foundation is being made repeatable and testable before the final public-release scope is approved.
+The user explicitly chose to finish Teams, Leagues and Legacy Coach before beginning the full product review. The current priority is integration and correctness, not final visual approval or public release.
 
 ## Current priorities
 
-1. Run the complete local and emulator verification suite.
-2. Deploy updated Firestore Rules to the development Firebase project.
-3. Publish a temporary Firebase Hosting preview channel.
-4. Test all player and Platform Administrator workflows.
-5. Record visual, gameplay, wording and workflow changes requested during user review.
-6. Fix verified defects and add regression coverage.
+1. Verify 44 domain tests, 12 Firestore Rules tests, ESLint and the production build.
+2. Deploy the v0.11.0 Firestore Rules to the development project.
+3. Test team creation, joining, captain transfer and leaving.
+4. Test league creation, registration, activation, contribution scoring and completion.
+5. Test Legacy Coach preferences, evidence and recommendations.
+6. Record defects without naming the release v1.0.
 
 ## Recently completed
 
-- Versioned publishing of approved suggestions into shared libraries.
-- Real-time consumption of published Exercise, Cardio and Skill definitions.
-- Archiving without breaking historical entries.
-- Paginated users, audit history and error reports.
-- First-party, environment-controlled client error reporting.
-- Firestore Emulator Security Rules tests.
-- Firebase Hosting and preview-channel configuration.
-- Release-readiness scripts and QA documentation.
+- Persistent one-team-per-player membership.
+- Local team emblems and storage-free team identity.
+- Captain transfer and roster accountability.
+- Audited, forward-only league lifecycle.
+- Immutable consistency-weighted seasonal rules.
+- Entry-linked league contribution snapshots and leaderboards.
+- Optional, transparent, locally generated Legacy Coach guidance.
+- Expanded domain and Security Rules regression coverage.
 
 ## Guardrail
 
-Do not rename the release to v1.0, create a v1.0 Git tag or deploy a final public production release until the user has completed review and explicitly approved that milestone.
+Do not create a v1.0 tag or final production declaration. Teams, leagues and coaching must first pass integrated testing, followed by the user’s later full review and requested corrections.

@@ -1,87 +1,72 @@
 # Champions Legacy Challenge — Current State
 
-Version: 0.10.0  
+Version: 0.11.0  
 Last updated: 1 August 2026  
-Status: Pre-1.0 hardening complete; local release verification and user review required
+Status: Pre-1.0 community and coaching foundation implemented; local verification required
 
 ## Product state
 
-Champions Legacy Challenge has a complete single-player tracking, progression and administration foundation. v0.10.0 deliberately stops before v1.0 so the current product can be reviewed, tested and adjusted without implying final public-release approval.
+Champions Legacy Challenge now has complete personal tracking, progression, communication, administration, team, seasonal league and transparent coaching foundations. v0.11.0 remains deliberately pre-1.0 so all systems can be tested together and changed after user review.
 
-## Implemented in v0.10.0
+## Implemented in v0.11.0
 
-### Versioned shared libraries
+### Teams
 
-- Approved Exercise, Cardio and Skill suggestions can be selected for a release.
-- A Platform Administrator publishes no more than eight items per release.
-- Every release has a semantic version and release notes.
-- Published items appear in activity selectors in real time.
-- Published definitions are copied into factual entries so historical scoring remains stable.
-- Archiving removes an item from future selection without invalidating historical entries.
-- Suggestions retain approval and publication history.
-- Library releases, item publication and suggestion publication are audited.
+- A player may belong to one persistent team at a time.
+- Captains create a team with a local emblem, description, motto and eight-character invitation code.
+- Players join through the invitation code without uploading or hosting team media.
+- The roster displays each member’s current weekly factual activity points, active days, entry count and streak.
+- Captains may edit team identity and atomically transfer captaincy.
+- Non-captains may leave without affecting personal history.
+- Team progress is accountability information, not a separate scoring engine.
 
-### Administrative scalability
+### Leagues
 
-- User records load in pages of 25.
-- Audit records load in pages of 30.
-- Client error reports load in pages of 25.
-- Announcement, moderation and small library-release datasets remain live subscriptions.
-- Pagination prevents unlimited administrative reads as the platform grows.
+- League Administrators and Platform Administrators may create seasonal leagues.
+- Leagues move forward through Draft, Registration, Active, Completed and Archived stages.
+- Every league freezes the `consistency-v1` ruleset and `points-v2` scoring-engine version.
+- A player joins during Registration and records no duplicate activity.
+- The same factual entry creates an immutable league contribution snapshot while a league is Active.
+- Daily activity contribution is capped at 20 points and each active day earns a five-point participation bonus.
+- Player and team standings are derived from contribution snapshots.
+- League creation and lifecycle changes are audited.
 
-### Production error monitoring
+### Legacy Coach
 
-- Error reporting supports `off`, `console` and `firestore` modes.
-- React error-boundary failures, global browser errors and unhandled promise rejections are captured.
-- Reports are truncated, deduplicated per browser session and limited to authenticated players.
-- Platform Administrators can review and resolve reports with an audit event.
-- Error reporting never replaces browser testing or user feedback.
-
-### Security Rules tests
-
-- `@firebase/rules-unit-testing` and the Firestore Emulator are configured.
-- Tests cover trusted roles, published-versus-archived library access, sanitised error reports, audited library publication and draft-announcement privacy.
-- The emulator reads `firestore.rules` from `firebase.json`.
-- `npm run test:rules` is required before rules deployment.
-
-### Hosting and release preparation
-
-- Firebase Hosting serves `dist` with a single-page-app rewrite.
-- Static assets receive immutable caching.
-- Security-oriented response headers are configured.
-- Preview-channel and production deployment scripts are available.
-- A release-readiness script verifies the version and required release files.
-- A manual browser, responsive, security and administrative QA matrix is documented.
+- Guidance is generated locally without an external artificial-intelligence service or subscription cost.
+- The Coach compares the current seven-day period with the previous seven days.
+- Every recommendation includes an action, evidence and an explanation.
+- Players control whether guidance is enabled, its tone and its focus.
+- Coach preferences are private owner-scoped Firestore data.
+- The Coach does not diagnose health conditions or alter points, goals or league standings.
 
 ## Existing complete systems
 
-- Firebase Authentication and protected routes.
-- Ten factual activity categories and local-date-safe Journal.
-- Explainable activity scoring and Running/Cardio eligibility rules.
-- Daily and weekly goals with moderate bonuses.
-- Streaks, shield, experience points, levels, achievements and personal records.
-- Progress timeline and responsive application shell.
-- Built-in Legacy Avatars and constrained profile editing.
-- Live announcements, cross-device read status and audited administration.
+- Authentication, ten factual activity categories and local-calendar-safe Journal.
+- Explainable scoring, Running/Cardio rules and effective repetitions.
+- Goals, moderate bonuses, streaks, shield, experience points, levels, achievements and records.
+- Responsive navigation, profiles, built-in avatars and announcement read status.
+- Audited administration, moderation, versioned shared libraries and client error reporting.
+- Firestore Emulator tests and Firebase Hosting preview configuration.
 
-## Verification status
+## Verification targets
 
-- Domain test target: **37 tests**.
-- Firestore Rules emulator target: **7 tests**.
+- Domain tests: **44**.
+- Firestore Rules emulator tests: **12**.
 - ESLint and production build must pass on the Windows development computer.
-- `npm run check:release` must pass before a preview deployment is accepted.
-- Updated Firestore Rules must be deployed only after emulator tests pass.
+- `npm run check:release` must pass before deployment is accepted.
 
 ## Known limitations
 
-- v0.10.0 has not been approved as v1.0.
-- The first Platform Administrator must still be assigned through a trusted process.
-- Published community library items are stored in Firestore while the original built-in library remains source-controlled.
-- Error reporting is intentionally lightweight and does not provide source-map symbolication, session replay or external alerting.
-- Historical player entries are still subscribed as a complete owner-scoped collection.
-- Administrative text search searches loaded pages rather than the entire database.
-- Teams, leagues, social competition and the Legacy Coach remain future modules.
+- v0.11.0 is not approved as v1.0.
+- Team weekly snapshots are friendly accountability data derived and submitted by each member’s client; they are not suitable for prize competition.
+- League contribution facts are protected and tied to an entry, membership and frozen rules version, but authoritative server-side recalculation is deferred.
+- A captain must transfer captaincy before leaving; team deletion is intentionally unavailable.
+- League invitations are access codes, not high-security secrets.
+- League archive privacy controls and seasonal awards remain deferred.
+- Legacy Coach is deterministic guidance, not medical or professional advice.
+- Historical entry pagination and server-side administrative search remain future scale work.
 
 ## Immediate next step
 
-Run `NEXT_SESSION.md` and `RELEASE_CANDIDATE_CHECKLIST.md`, deploy a Firebase Hosting preview channel, review the complete application and record all requested changes before considering v1.0.
+Apply the v0.11.0 update, run all local and emulator checks, deploy updated Firestore Rules, and test the Teams, Leagues and Legacy Coach workflows in development. Do not declare v1.0 or begin final review until these systems are stable.

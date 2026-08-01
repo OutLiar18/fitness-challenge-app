@@ -29,7 +29,7 @@ export function validateLibraryVersion(value) {
     value: version,
     error: valid
       ? ""
-      : "Use a semantic version such as 0.10.0 or 0.10.0-preview.1.",
+      : "Use a semantic version such as 0.11.0 or 0.11.0-preview.1.",
   };
 }
 

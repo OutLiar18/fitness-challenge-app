@@ -1,14 +1,14 @@
 {
   "name": "champions-legacy",
   "private": true,
-  "version": "0.10.0",
+  "version": "0.11.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "node --import=./scripts/register-loader.mjs --test tests/domain.test.mjs tests/goals.test.mjs tests/progression.test.mjs tests/records.test.mjs tests/timeline.test.mjs tests/experience.test.mjs tests/profile-announcements.test.mjs tests/admin-platform.test.mjs",
+    "test": "node --import=./scripts/register-loader.mjs --test tests/domain.test.mjs tests/goals.test.mjs tests/progression.test.mjs tests/records.test.mjs tests/timeline.test.mjs tests/experience.test.mjs tests/profile-announcements.test.mjs tests/admin-platform.test.mjs tests/community-coach.test.mjs",
     "test:rules": "npx firebase-tools emulators:exec --project champions-legacy-rules-test --only firestore \"node --test tests/firestore.rules.test.mjs\"",
     "check": "npm run lint && npm test && npm run build",
     "check:release": "npm run check && npm run test:rules && node scripts/release-readiness.mjs",

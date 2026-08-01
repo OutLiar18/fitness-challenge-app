@@ -1,0 +1,35 @@
+.league-page { width: 100%; }
+.league-tools { display: grid; gap: 22px; grid-template-columns: minmax(280px, 0.65fr) minmax(0, 1.35fr); }
+.league-create, .league-join, .league-browser, .league-hero, .league-rules, .league-standings { padding: 24px; }
+.league-create { display: grid; gap: 18px; }
+.league-form-grid { display: grid; gap: 14px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.league-join { align-content: start; display: grid; gap: 16px; }
+.league-join > span { font-size: 2.8rem; }
+.league-browser__list { display: grid; gap: 10px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.league-card { display: grid; align-content: start; gap: 7px; min-height: 130px; padding: 16px; border: 2px solid var(--border); border-radius: var(--radius-md); color: var(--text); background: var(--surface-soft); text-align: left; transition: transform var(--transition), border-color var(--transition), background var(--transition); }
+.league-card:hover { transform: translateY(-1px); border-color: var(--primary); }
+.league-card--selected { border-color: var(--primary); background: var(--primary-soft); }
+.league-card small { color: var(--text-muted); }
+.league-card em { color: var(--success); font-size: 0.78rem; font-weight: 800; }
+.league-detail { display: grid; gap: 22px; }
+.league-hero { display: grid; align-items: center; gap: 22px; grid-template-columns: minmax(0, 1fr) auto; background: radial-gradient(circle at top right, var(--primary-soft), transparent 30rem), var(--surface); }
+.league-hero__actions { display: grid; gap: 10px; min-width: 220px; }
+.league-date-line { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; color: var(--text-muted); }
+.league-status { width: fit-content; padding: 5px 9px; border-radius: 999px; color: var(--primary); background: var(--primary-soft); font-size: 0.72rem; font-style: normal; font-weight: 850; text-transform: uppercase; letter-spacing: 0.05em; }
+.league-status--active { color: var(--success); background: var(--success-soft); }
+.league-status--completed, .league-status--archived { color: var(--text-muted); background: var(--surface-strong); }
+.league-status--draft { color: var(--warning); background: var(--warning-soft); }
+.league-membership-chip { padding: 9px 12px; border: 1px solid var(--success-border); border-radius: var(--radius-md); color: var(--success); background: var(--success-soft); font-weight: 800; text-transform: capitalize; }
+.league-rules { display: grid; gap: 24px; grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.6fr); }
+.league-rules dl { display: grid; gap: 8px; margin: 0; }
+.league-rules dl div { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.league-rules dt { color: var(--text-muted); }
+.league-rules dd { font-weight: 800; }
+.standings-table { display: grid; gap: 8px; }
+.standings-row { display: grid; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-soft); grid-template-columns: 38px auto minmax(0, 1fr) auto; }
+.standings-rank { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 50%; color: var(--primary); background: var(--primary-soft); }
+.standings-identity { display: grid; gap: 2px; }
+.standings-identity span { color: var(--text-muted); font-size: 0.78rem; }
+.standings-score { color: var(--primary); }
+@media (max-width: 980px) { .league-tools, .league-hero, .league-rules { grid-template-columns: 1fr; } .league-form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .league-browser__list { grid-template-columns: repeat(2, minmax(0, 1fr)); } .league-hero__actions { grid-template-columns: repeat(2, minmax(0, 1fr)); min-width: 0; } }
+@media (max-width: 620px) { .league-create, .league-join, .league-browser, .league-hero, .league-rules, .league-standings { padding: 18px; } .league-form-grid, .league-browser__list, .league-hero__actions { grid-template-columns: 1fr; } .standings-row { grid-template-columns: 32px auto minmax(0, 1fr); } .standings-score { grid-column: 3; } }

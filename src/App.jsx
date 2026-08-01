@@ -12,6 +12,9 @@ const Progress = lazy(() => import("./pages/Progress"));
 const Announcements = lazy(() => import("./pages/Announcements"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Admin = lazy(() => import("./pages/Admin"));
+const Teams = lazy(() => import("./pages/Teams"));
+const Leagues = lazy(() => import("./pages/Leagues"));
+const LegacyCoach = lazy(() => import("./pages/LegacyCoach"));
 const FutureFeature = lazy(() => import("./pages/FutureFeature"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -29,6 +32,9 @@ export default function App() {
           <Route path="/announcements" element={<Announcements />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/teams" element={<Teams />} />
+          <Route path="/leagues" element={<Leagues />} />
+          <Route path="/coach" element={<LegacyCoach />} />
           <Route path="/future/:featureId" element={<FutureFeature />} />
           <Route path="/app" element={<Navigate to="/dashboard" replace />} />
           <Route path="*" element={<NotFound />} />

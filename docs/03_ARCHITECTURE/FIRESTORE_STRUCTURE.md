@@ -2,65 +2,47 @@
 
 Last updated: 1 August 2026
 
-## Collections
+## Player and activity collections
 
-### `users/{userId}`
+- `users/{userId}` — identity and trusted role.
+  - `library/{itemId}` — personal library.
+  - `announcementReads/{announcementId}` — private cross-device read state.
+  - `coach/preferences` — private Legacy Coach settings.
+- `challengeEntries/{entryId}` — immutable owner-scoped factual activity.
 
-Profile identity, display name, avatar, trusted role and team assignment.
+## Teams
 
-Subcollections:
+- `teams/{teamId}` — team identity, captain and access code.
+  - `members/{userId}` — roster identity, role and weekly accountability snapshot.
+- `playerTeams/{userId}` — one-team membership pointer.
+- `teamInvites/{code}` — active code-to-team mapping.
 
-- `library/{itemId}` — personal Reading library.
-- `announcementReads/{announcementId}` — cross-device read state.
+## Leagues
 
-### `challengeEntries/{entryId}`
+- `leagues/{leagueId}` — frozen season configuration and lifecycle.
+- `leagueInvites/{code}` — registration state for an access code.
+- `leagueMemberships/{leagueId_userId}` — season identity/team snapshot and membership status.
+- `leagueContributions/{leagueId_entryId}` — immutable entry-linked activity contribution.
 
-Owner-scoped factual activity entries. Derived score, goals and progression are not permanently stored.
+## Communication and administration
 
-### `announcements/{announcementId}`
+- `announcements/{announcementId}` — draft, published and archived messages.
+- `exerciseSuggestions/{suggestionId}` — exercise moderation.
+- `librarySuggestions/{suggestionId}` — Cardio and Skill moderation.
+- `publishedLibraryItems/{itemId}` — shared definitions.
+- `libraryReleases/{releaseId}` — immutable publication releases.
+- `clientErrorReports/{reportId}` — sanitised client failures.
+- `auditEvents/{auditId}` — immutable privileged history.
 
-Draft, published and archived live announcements.
+## Index expectations
 
-### `exerciseSuggestions/{suggestionId}`
+Queries currently use simple equality, membership and array-contains constraints. Firebase may request composite indexes during real data testing; add only indexes required by confirmed query errors and document them.
 
-Exercise proposals with moderation and publication metadata.
+## Data rules
 
-### `librarySuggestions/{suggestionId}`
-
-Cardio and Skill proposals with moderation and publication metadata.
-
-### `publishedLibraryItems/{itemId}`
-
-Versioned shared Exercise, Cardio or Skill definitions.
-
-Important fields:
-
-- `itemType`
-- `name` and `normalizedName`
-- `definition`
-- `status`
-- `libraryVersion`
-- source suggestion and collection
-- release identifier
-- publication and archive timestamps
-- audit identifier
-
-### `libraryReleases/{releaseId}`
-
-Immutable release records containing version, notes, item identifiers, item count, publisher and publication time.
-
-### `clientErrorReports/{reportId}`
-
-Sanitised authenticated-client failures with open/resolved status and administrator resolution metadata.
-
-### `auditEvents/{auditId}`
-
-Immutable privileged-change history.
-
-## Data principles
-
-- Store facts and trusted administrative decisions.
-- Derive score and progression.
-- Embed published activity definitions in entries for historical stability.
-- Archive rather than delete published platform history.
-- Paginate administrative collections that can grow without bound.
+- Never store derived personal progression as authority.
+- Never allow a player to own two `playerTeams` documents.
+- Never mutate a league contribution after creation.
+- Never change a league ruleset after creation.
+- Delete linked league contributions when the source entry is deleted.
+- Archive trusted history instead of deleting it.

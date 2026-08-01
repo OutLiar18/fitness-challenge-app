@@ -16,3 +16,7 @@ Earlier architectural decisions are represented in the architecture documents an
 - `ADR-014-firestore-emulator-rule-tests.md` — requires repeatable Security Rules tests.
 - `ADR-015-first-party-error-monitoring-and-firebase-hosting.md` — defines pre-1.0 observability and deployment.
 
+
+- ADR-016 — Persistent Team Membership
+- ADR-017 — Immutable Consistency-Weighted Leagues
+- ADR-018 — Transparent Local Legacy Coach

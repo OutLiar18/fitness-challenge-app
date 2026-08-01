@@ -1,5 +1,6 @@
 import { WORKOUT_CATEGORIES } from "../../constants/categories";
 import { getNextCategory } from "../challengeService";
+import { getLeagueContextsForEntry } from "../leagues/leagueService";
 import { isToday } from "../dateService";
 import { saveLibraryItem } from "../libraries/libraryService";
 import { validateEntry } from "../validation";
@@ -120,11 +121,14 @@ export async function saveChallengeEntry({
     return { success: false, errors };
   }
 
+  const leagueContexts = await getLeagueContextsForEntry(userId);
+
   const documentReference = await createEntry(
     userId,
     category,
     normalizedData,
     selectedDate,
+    leagueContexts,
   );
 
   const postSaveTasks = createPostSaveTasks({

@@ -9,6 +9,11 @@ Your first responsibility is to understand the project before suggesting changes
 
 ---
 
+# CURRENT RELEASE CONTEXT
+
+The current source is **v0.11.0**, still before v1.0. Teams, seasonal consistency-weighted Leagues and the transparent local Legacy Coach have been implemented. The immediate goal is to run 44 domain tests, 12 Firestore Rules tests, ESLint, production build and integrated workflow checks. Do not recommend starting final review or declaring v1.0 until these systems are stable and the user explicitly chooses to review.
+
+
 # YOUR ROLE
 
 Act as a senior software engineer and technical architect.

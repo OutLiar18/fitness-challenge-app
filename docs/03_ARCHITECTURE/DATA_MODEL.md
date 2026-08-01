@@ -1,109 +1,73 @@
 # Champions Legacy Challenge — Data Model
 
 Last updated: 1 August 2026  
-Current release: v0.10.0
+Current release: v0.11.0
 
 ## Principle
 
-Store facts and trusted decisions. Derive progress.
+Store facts and trusted decisions. Derive progress and presentation.
 
-## Core entities
+## Existing core entities
 
-### Player profile
+- **Player profile** — permanent identity and trusted role metadata.
+- **Challenge entry** — immutable owner, category, factual data, creation time and local challenge date.
+- **Personal library item** — owner-scoped reusable content.
+- **Suggestion** — proposed library definition and moderation/publication history.
+- **Published library item/release** — versioned shared definition and immutable release history.
+- **Announcement/read record** — platform communication and private read state.
+- **Client error report** — sanitised authenticated failure and resolution state.
+- **Audit event** — immutable privileged-operation record.
 
-Permanent identity and trusted account metadata:
+## Team entities
 
-- Firebase user identifier;
-- first, last, full and display names;
-- email;
-- approved Legacy Avatar identifier;
-- role and team;
-- joined and profile-update timestamps;
-- audited administrative update metadata where applicable.
+### Team
 
-### Challenge entry
+Stores name, normalized name, description, motto, local emblem identifier, status, captain, invitation code and timestamps.
 
-One immutable factual activity record containing:
+### Team member
 
-- owner;
-- category;
-- category-specific factual data;
-- creation timestamp;
-- local-calendar challenge date.
+Stored under the team and contains user identity snapshot, team role, join data and the member’s current weekly accountability snapshot.
 
-### Personal library item
+### Player team pointer
 
-A reusable player-owned resource, currently used primarily for Reading.
+`playerTeams/{userId}` enforces one active team per player and provides fast profile/navigation lookup.
 
-### Suggestion
+### Team invitation
 
-A proposed Exercise, Cardio activity or Skill definition with:
+Maps an eight-character access code to an active team identity.
 
-- submitting player;
-- originating activity entry;
-- proposed definition;
-- pending, approved or rejected state;
-- reviewer and feedback metadata;
-- audit identifier after review;
-- publication state, global item identifier and library version after release.
+## League entities
 
-### Published global library item
+### League
 
-A versioned Exercise, Cardio or Skill definition approved for shared use. It records source suggestion, release, publication metadata, status and audit history.
+Stores identity, type, mode, lifecycle status, season dates, frozen rules version/ruleset, assigned administrator identifiers, access code and audited lifecycle timestamps.
 
-### Global library release
+### League membership
 
-An immutable set of published item identifiers with semantic version, notes, publisher and publication timestamp.
+Stores the player and team identity snapshot used for the season, participation role, lifecycle status and registration metadata.
 
-### Client error report
+### League contribution
 
-A sanitised authenticated-client failure with fingerprint, release, route, technical context and open/resolved state.
+An immutable snapshot linked to one challenge entry and one active league. It stores identity snapshot, category, challenge date, activity-point snapshot and rules version.
 
-### Announcement
+### League invitation
 
-A live platform message with content, type, status, authorship, publication date and audit identifier.
+Controls whether the access code accepts registration.
 
-### Announcement read record
+## Coach entity
 
-A player-owned marker that an announcement has been read.
-
-### Audit event
-
-An immutable record of a privileged operation containing actor, action, entity, summary, details and server timestamp.
+`users/{userId}/coach/preferences` stores only enabled state, tone, focus and server update timestamp. Recommendations are never persisted; they are derived from the player’s entries.
 
 ## Derived systems
 
-The following are recalculated from factual entries and versioned configuration:
+- personal points, goals, bonuses, streaks, experience, achievements, records and timeline;
+- team weekly summaries;
+- league player and team standings;
+- Legacy Coach comparisons, recommendations and evidence.
 
-- activity points;
-- daily and weekly goal progress;
-- goal and mission bonus points;
-- streaks and shield state;
-- experience points and levels;
-- achievements;
-- personal records;
-- progress timeline.
+## Historical stability
 
-## Relationships
-
-```text
-Player
-├── owns Profile
-├── owns Library Items
-├── owns Announcement Read Records
-├── creates Challenge Entries
-└── submits Suggestions
-
-Platform Administrator
-├── manages Announcements
-├── reviews Suggestions
-├── publishes versioned Global Library Releases
-├── archives Published Library Items
-├── resolves Client Error Reports
-├── manages another Player's trusted role/team
-└── creates immutable Audit Events with each privileged action
-```
-
-## Versioning requirement
-
-Future global libraries, challenges, leagues and seasons must record the configuration version used to produce competitive results. Historical results may not silently change when current rules change.
+- Published activity definitions are copied into entries.
+- League rules are frozen in the league document.
+- League identity and activity points are copied into contribution documents.
+- Completed history is archived rather than silently recalculated under new rules.

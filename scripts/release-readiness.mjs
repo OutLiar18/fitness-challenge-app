@@ -23,10 +23,10 @@ if (missingFiles.length > 0) {
     fs.readFileSync(path.join(projectRoot, "package.json"), "utf8"),
   );
 
-  if (packageData.version !== "0.10.0") {
-    console.error(`Expected package version 0.10.0, found ${packageData.version}.`);
+  if (packageData.version !== "0.11.0") {
+    console.error(`Expected package version 0.11.0, found ${packageData.version}.`);
     process.exitCode = 1;
   } else {
-    console.log("Release-readiness structure verified for v0.10.0.");
+    console.log("Release-readiness structure verified for v0.11.0.");
   }
 }

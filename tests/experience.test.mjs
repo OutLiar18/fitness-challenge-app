@@ -20,7 +20,9 @@ test("Navigation paths and identifiers remain unique", () => {
   assert.equal(new Set(paths).size, paths.length);
   assert.equal(getNavigationItemByPath("/log?category=water")?.id, "log");
   assert.equal(getNavigationItemByPath("/progress")?.id, "progress");
-  assert.equal(getNavigationItemByPath("/future/teams")?.id, "teams");
+  assert.equal(getNavigationItemByPath("/teams")?.id, "teams");
+  assert.equal(getNavigationItemByPath("/leagues")?.id, "leagues");
+  assert.equal(getNavigationItemByPath("/coach")?.id, "coach");
 });
 
 test("Mobile navigation is a valid subset of primary navigation", () => {
@@ -32,7 +34,7 @@ test("Mobile navigation is a valid subset of primary navigation", () => {
   assert.equal(MOBILE_NAV_ITEMS.some((item) => item.id === "profile"), false);
 });
 
-test("Every future navigation item has a structured feature preview", () => {
+test("Every community navigation item retains a structured product definition", () => {
   FUTURE_NAV_ITEMS.forEach((item) => {
     const feature = FUTURE_FEATURES[item.id];
 

@@ -201,7 +201,7 @@ export default function LibraryPublisher({
                   value={version}
                   required
                   maxLength={40}
-                  placeholder="0.10.0"
+                  placeholder="0.11.0"
                   onChange={(event) => setVersion(event.target.value)}
                 />
               </label>

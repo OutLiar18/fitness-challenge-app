@@ -6,6 +6,7 @@ import AvatarPicker from "../components/profile/AvatarPicker";
 import LegacyAvatar from "../components/profile/LegacyAvatar";
 import { DEFAULT_AVATAR_ID, getAvatarById } from "../constants/avatars";
 import usePlayerData from "../hooks/usePlayerData";
+import useTeam from "../hooks/useTeam";
 import {
   normalizeProfileUpdate,
   validateProfileUpdate,
@@ -171,6 +172,7 @@ function ProfileEditor({ profile, user }) {
 
 export default function Profile() {
   const { profile, user, entries, progression } = usePlayerData();
+  const { team } = useTeam();
 
   const displayName =
     profile?.displayName ||
@@ -186,7 +188,7 @@ export default function Profile() {
     ["Legacy Avatar", avatar.name],
     ["Email", profile?.email || user?.email || "Not available"],
     ["Role", formatRole(profile?.role)],
-    ["Team", profile?.team || "No team assigned"],
+    ["Team", team?.name || "No team joined"],
     ["Joined", formatTimestamp(profile?.joinedAt)],
   ];
 
@@ -278,11 +280,12 @@ export default function Profile() {
 
       <section className="profile-preferences card">
         <div>
-          <p>Coming later</p>
-          <h2>Privacy, accessibility and notification preferences</h2>
+          <p>Account controls</p>
+          <h2>Privacy, accessibility and account management</h2>
           <p>
-            These controls will be added only when their storage, defaults and
-            security rules are fully designed. No pretend switches that do nothing.
+            Legacy Coach preferences are available now. Remaining privacy,
+            accessibility and account-lifecycle controls will be added only when
+            their defaults and security rules are fully designed.
           </p>
         </div>
 
@@ -290,9 +293,9 @@ export default function Profile() {
           className="profile-preferences__chips"
           aria-label="Planned profile features"
         >
-          <span>Notification preferences</span>
           <span>Accessibility controls</span>
-          <span>Profile visibility</span>
+          <span>League-history visibility</span>
+          <span>Data export</span>
           <span>Account management</span>
         </div>
       </section>

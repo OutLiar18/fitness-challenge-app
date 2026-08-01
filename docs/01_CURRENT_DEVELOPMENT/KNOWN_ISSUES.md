@@ -2,32 +2,44 @@
 
 Last updated: 1 August 2026
 
-## Open release-candidate limitations
+## Community and league limitations
 
-### Historical entry subscription
+### Friendly team summaries
 
-The player-data provider still subscribes to the player’s complete activity history. This is acceptable for the current dataset but requires windowed queries and paginated history before large-scale use.
+Team roster progress is derived from factual entries but written by each member’s authenticated client. It is suitable for accountability and encouragement, not prize-bearing competition.
 
-### Administrative search scope
+### League score authority
 
-Players, audit history and error reports are paginated. Search operates on records already loaded into the browser rather than performing a server-side full-database search.
+Firestore Rules bind a contribution to an active membership, active league, matching entry identity and frozen rules version. Rules cannot independently recalculate every category’s point formula. Use friendly competition only until a trusted backend recalculates competitive score.
 
-### Lightweight error monitoring
+### Team lifecycle
 
-The first-party Firestore reporter provides sanitised error collection and resolution tracking, but it does not provide source-map symbolication, release health, alert routing, session replay or performance traces.
+A captain must transfer captaincy before leaving. Team deletion, disbanding and historical team archives are not yet available.
 
-### First administrator bootstrap
+### League access codes
 
-The first Platform Administrator must be assigned through a trusted Firebase Console or Admin SDK process. This is intentional and prevents self-promotion.
+League invitation codes control registration flow but are not designed as confidential secrets. Do not use them as proof of identity or authorization.
 
-### Built-in and published library split
+### League archives and awards
 
-Built-in library items remain source-controlled while community-published items live in Firestore. A future maintenance tool may migrate built-in definitions into the same versioned data model, but this is not required for the current release candidate.
+Completed standings remain readable, but privacy controls, seasonal awards and trophy-cabinet integration are deferred.
 
-### Remaining dependency advisory
+### Large league lifecycle transitions
 
-A React Router advisory may remain in `npm audit` because the affected React Server Components pathway is not used by this client-only Vite application. Do not use `npm audit fix --force` without reviewing the proposed downgrade and application impact.
+League status changes currently update all registered membership documents in one Firestore batch. This is suitable for the pre-1.0 friendly league size, but a trusted backend with paginated processing is required before supporting very large seasons.
 
-## Defect handling rule
+## Existing scale limitations
 
-Record verified defects here, add regression coverage where practical, and remove the issue only after the fix, tests, build and relevant manual workflow have passed.
+- PlayerDataProvider still subscribes to the player’s complete activity history.
+- Administrative search covers loaded pages rather than the full database.
+- First-party error reporting does not include source-map symbolication, session replay or external alert routing.
+- The first Platform Administrator still requires trusted bootstrap.
+- Built-in and Firestore-published library definitions remain split.
+
+## Dependency advisory
+
+A React Router advisory may remain in `npm audit`. The application is a client-only Vite app and does not use React Server Components actions, but the advisory must still be reviewed before production. Do not run `npm audit fix --force`.
+
+## Defect handling
+
+Record verified defects here, add regression coverage where practical, and remove them only after tests, build and the relevant manual workflow pass.

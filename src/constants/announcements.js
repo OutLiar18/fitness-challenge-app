@@ -1,5 +1,18 @@
 export const ANNOUNCEMENTS = Object.freeze([
   {
+    id: "v0-11-community-coaching",
+    type: "release",
+    icon: "🤝",
+    title: "Teams, leagues and Legacy Coach are ready",
+    summary:
+      "Build a team, enter a consistency-weighted seasonal league and receive transparent guidance based only on your own factual activity.",
+    body:
+      "Team progress reuses existing entries, league rules are frozen for each season, and every Legacy Coach recommendation explains the evidence behind it. These systems remain part of the pre-1.0 development cycle and will be reviewed before final release.",
+    publishedAt: "2026-08-01",
+    featured: true,
+    version: "0.11.0",
+  },
+  {
     id: "v0-10-release-hardening",
     type: "release",
     icon: "🧪",
@@ -9,7 +22,6 @@ export const ANNOUNCEMENTS = Object.freeze([
     body:
       "Platform Administrators can publish reviewed exercises, cardio activities and skills in deliberate releases. Error reporting, paginated operations and Firebase Hosting preview tools support the final review period before any v1.0 decision.",
     publishedAt: "2026-08-01",
-    featured: true,
     version: "0.10.0",
   },
   {

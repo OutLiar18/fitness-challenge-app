@@ -6,6 +6,13 @@ Version: 2.0
 
 ---
 
+# Current Implemented State — v0.11.0
+
+Champions Legacy Challenge currently includes personal tracking and progression, audited administration and announcements, versioned shared libraries, persistent teams, seasonal consistency-weighted leagues and a transparent local Legacy Coach.
+
+The product is still pre-1.0. The next task is to verify and stabilise Teams, Leagues and Legacy Coach before the user begins the full review. Read `RECENT_SESSION_SUMMARY.md`, `CURRENT_STATE.md` and `NEXT_SESSION.md` for exact details.
+
+
 # Purpose
 
 This document serves as the primary briefing for any AI assistant joining the Champions Legacy Challenge project.

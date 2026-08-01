@@ -33,7 +33,7 @@ npm run deploy:preview
 
 ## Pre-1.0 boundary
 
-v0.10.0 is a release candidate foundation, not v1.0. Do not create a v1.0 tag until the user explicitly approves the final visual, gameplay and operational scope.
+v0.11.0 is a release candidate foundation, not v1.0. Do not create a v1.0 tag until the user explicitly approves the final visual, gameplay and operational scope.
 
 ## Rule changes
 
