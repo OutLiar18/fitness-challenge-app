@@ -1,0 +1,86 @@
+.legacy-avatar {
+  --avatar-size: 48px;
+  position: relative;
+  display: inline-grid;
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  flex: 0 0 var(--avatar-size);
+  overflow: hidden;
+  place-items: center;
+  border: 2px solid color-mix(in srgb, var(--avatar-primary) 55%, #ffffff);
+  border-radius: 28%;
+  background:
+    radial-gradient(circle at 72% 20%, rgba(255, 255, 255, 0.65), transparent 24%),
+    linear-gradient(145deg, var(--avatar-secondary), var(--avatar-primary));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 3px 0 color-mix(in srgb, var(--avatar-primary) 75%, #000000),
+    0 10px 22px color-mix(in srgb, var(--avatar-primary) 24%, transparent);
+  isolation: isolate;
+}
+
+.legacy-avatar::after {
+  position: absolute;
+  width: 78%;
+  height: 78%;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 24%;
+  content: "";
+  transform: rotate(8deg);
+}
+
+.legacy-avatar__shine {
+  position: absolute;
+  top: -25%;
+  left: -35%;
+  width: 80%;
+  height: 145%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.38), transparent);
+  transform: rotate(24deg);
+}
+
+.legacy-avatar__symbol {
+  position: relative;
+  z-index: 1;
+  font-size: calc(var(--avatar-size) * 0.48);
+  line-height: 1;
+  filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.18));
+}
+
+.legacy-avatar--small {
+  --avatar-size: 38px;
+  border-radius: 12px;
+}
+
+.legacy-avatar--medium {
+  --avatar-size: 52px;
+  border-radius: 15px;
+}
+
+.legacy-avatar--large {
+  --avatar-size: 78px;
+  border-radius: 22px;
+}
+
+.legacy-avatar--hero {
+  --avatar-size: clamp(112px, 17vw, 156px);
+  border-width: 3px;
+  border-radius: 32px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    0 5px 0 color-mix(in srgb, var(--avatar-primary) 75%, #000000),
+    0 24px 48px color-mix(in srgb, var(--avatar-primary) 28%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .legacy-avatar {
+    transition:
+      transform var(--transition),
+      box-shadow var(--transition);
+  }
+
+  button:hover .legacy-avatar,
+  a:hover .legacy-avatar {
+    transform: translateY(-2px) rotate(-2deg);
+  }
+}

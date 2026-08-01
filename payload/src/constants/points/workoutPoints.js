@@ -1,0 +1,15 @@
+export const WORKOUT_POINTS = [
+  { min: 10, points: 1 },
+  { min: 31, points: 2 },
+  { min: 51, points: 3 },
+  { min: 76, points: 4 },
+  { min: 101, points: 5 },
+  { min: 121, points: 6 },
+  { min: 151, points: 7 },
+  { min: 181, points: 8 },
+  { min: 201, points: 9 },
+  { min: 231, points: 10 },
+  { min: 251, points: 14 },
+  { min: 351, points: 18 },
+  { min: 501, points: 22 },
+];
