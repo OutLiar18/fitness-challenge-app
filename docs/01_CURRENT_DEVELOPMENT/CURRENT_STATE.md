@@ -1,78 +1,87 @@
 # Champions Legacy Challenge — Current State
 
-Version: 0.9.0  
+Version: 0.10.0  
 Last updated: 1 August 2026  
-Status: Implementation complete; local build verification, administrator bootstrap and Firestore rules deployment required
+Status: Pre-1.0 hardening complete; local release verification and user review required
 
 ## Product state
 
-Champions Legacy Challenge now has a complete single-player tracking and progression foundation plus the first operational administration layer.
+Champions Legacy Challenge has a complete single-player tracking, progression and administration foundation. v0.10.0 deliberately stops before v1.0 so the current product can be reviewed, tested and adjusted without implying final public-release approval.
 
-## Implemented in v0.9.0
+## Implemented in v0.10.0
 
-### Live announcements
+### Versioned shared libraries
 
-- Published announcements are read from Cloud Firestore.
-- Bundled release notes remain available as a resilient fallback and import source.
-- Players see published announcements only.
-- Read status is stored under each player and synchronises across devices.
-- Filters, unread counts, mark-read, mark-unread and mark-all-read remain available.
+- Approved Exercise, Cardio and Skill suggestions can be selected for a release.
+- A Platform Administrator publishes no more than eight items per release.
+- Every release has a semantic version and release notes.
+- Published items appear in activity selectors in real time.
+- Published definitions are copied into factual entries so historical scoring remains stable.
+- Archiving removes an item from future selection without invalidating historical entries.
+- Suggestions retain approval and publication history.
+- Library releases, item publication and suggestion publication are audited.
 
-### Trusted administration
+### Administrative scalability
 
-Platform Administrators can:
+- User records load in pages of 25.
+- Audit records load in pages of 30.
+- Client error reports load in pages of 25.
+- Announcement, moderation and small library-release datasets remain live subscriptions.
+- Pagination prevents unlimited administrative reads as the platform grows.
 
-- create, edit, publish and archive announcements;
-- import bundled release history into Firestore;
-- review Exercise, Cardio and Skill suggestions;
-- approve or reject suggestions with respectful feedback;
-- manage another player’s trusted role and team assignment;
-- inspect immutable audit history.
+### Production error monitoring
 
-Ordinary players cannot promote themselves or access privileged data.
+- Error reporting supports `off`, `console` and `firestore` modes.
+- React error-boundary failures, global browser errors and unhandled promise rejections are captured.
+- Reports are truncated, deduplicated per browser session and limited to authenticated players.
+- Platform Administrators can review and resolve reports with an audit event.
+- Error reporting never replaces browser testing or user feedback.
 
-### Security and accountability
+### Security Rules tests
 
-- Administrative access may come from a trusted Firebase custom claim or a profile role assigned through a trusted process.
-- Every privileged announcement, moderation or role change is committed in the same Firestore batch as an audit event.
-- Audit events cannot be edited or deleted by the client.
-- Administrators cannot change their own trusted role from the application.
-- Public announcement queries expose only published content.
+- `@firebase/rules-unit-testing` and the Firestore Emulator are configured.
+- Tests cover trusted roles, published-versus-archived library access, sanitised error reports, audited library publication and draft-announcement privacy.
+- The emulator reads `firestore.rules` from `firebase.json`.
+- `npm run test:rules` is required before rules deployment.
 
-### Wording and typography
+### Hosting and release preparation
 
-- Central formatting expands player-facing measurements such as minutes, kilometres, millilitres, effective repetitions, points and experience points.
-- Navigation and headings consistently use “Champions Legacy Challenge”.
-- Operational text uses a clear professional typeface.
-- Display headings use a stronger identity typeface.
-- Quotations and milestone emphasis use a restrained decorative serif style.
-- Bold, italic and underlined emphasis is used selectively rather than decoratively everywhere.
+- Firebase Hosting serves `dist` with a single-page-app rewrite.
+- Static assets receive immutable caching.
+- Security-oriented response headers are configured.
+- Preview-channel and production deployment scripts are available.
+- A release-readiness script verifies the version and required release files.
+- A manual browser, responsive, security and administrative QA matrix is documented.
 
 ## Existing complete systems
 
 - Firebase Authentication and protected routes.
 - Ten factual activity categories and local-date-safe Journal.
-- Explainable activity scoring and Running/Cardio rules.
+- Explainable activity scoring and Running/Cardio eligibility rules.
 - Daily and weekly goals with moderate bonuses.
 - Streaks, shield, experience points, levels, achievements and personal records.
 - Progress timeline and responsive application shell.
 - Built-in Legacy Avatars and constrained profile editing.
+- Live announcements, cross-device read status and audited administration.
 
 ## Verification status
 
-- Automated domain and architecture tests: **33 passing** in the handover environment.
-- Relative import and static source checks are required before packaging.
-- Local ESLint and production build must run on the Windows development computer.
-- Updated Firestore rules must compile and deploy before live administration is used.
+- Domain test target: **37 tests**.
+- Firestore Rules emulator target: **7 tests**.
+- ESLint and production build must pass on the Windows development computer.
+- `npm run check:release` must pass before a preview deployment is accepted.
+- Updated Firestore Rules must be deployed only after emulator tests pass.
 
 ## Known limitations
 
-- The first Platform Administrator must be assigned outside the ordinary client application.
-- Approved suggestions are marked as approved but are not yet automatically published into global libraries.
-- User list and audit history are appropriate for the current scale but need pagination before large production usage.
-- Historical activity subscriptions still load the player’s complete entry history.
-- Custom avatar uploads remain intentionally unavailable.
+- v0.10.0 has not been approved as v1.0.
+- The first Platform Administrator must still be assigned through a trusted process.
+- Published community library items are stored in Firestore while the original built-in library remains source-controlled.
+- Error reporting is intentionally lightweight and does not provide source-map symbolication, session replay or external alerting.
+- Historical player entries are still subscribed as a complete owner-scoped collection.
+- Administrative text search searches loaded pages rather than the entire database.
+- Teams, leagues, social competition and the Legacy Coach remain future modules.
 
 ## Immediate next step
 
-Run the v0.9.0 verification sequence in `NEXT_SESSION.md`, bootstrap the first Platform Administrator, deploy the rules and manually verify each privileged workflow.
+Run `NEXT_SESSION.md` and `RELEASE_CANDIDATE_CHECKLIST.md`, deploy a Firebase Hosting preview channel, review the complete application and record all requested changes before considering v1.0.

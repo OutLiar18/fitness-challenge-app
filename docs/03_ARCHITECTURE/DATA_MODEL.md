@@ -1,7 +1,7 @@
 # Champions Legacy Challenge — Data Model
 
 Last updated: 1 August 2026  
-Current release: v0.9.0
+Current release: v0.10.0
 
 ## Principle
 
@@ -44,7 +44,20 @@ A proposed Exercise, Cardio activity or Skill definition with:
 - proposed definition;
 - pending, approved or rejected state;
 - reviewer and feedback metadata;
-- audit identifier after review.
+- audit identifier after review;
+- publication state, global item identifier and library version after release.
+
+### Published global library item
+
+A versioned Exercise, Cardio or Skill definition approved for shared use. It records source suggestion, release, publication metadata, status and audit history.
+
+### Global library release
+
+An immutable set of published item identifiers with semantic version, notes, publisher and publication timestamp.
+
+### Client error report
+
+A sanitised authenticated-client failure with fingerprint, release, route, technical context and open/resolved state.
 
 ### Announcement
 
@@ -84,6 +97,9 @@ Player
 Platform Administrator
 ├── manages Announcements
 ├── reviews Suggestions
+├── publishes versioned Global Library Releases
+├── archives Published Library Items
+├── resolves Client Error Reports
 ├── manages another Player's trusted role/team
 └── creates immutable Audit Events with each privileged action
 ```

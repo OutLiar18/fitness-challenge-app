@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   CARDIO_ENVIRONMENT_OPTIONS,
   CARDIO_EQUIPMENT_OPTIONS,
@@ -8,6 +9,8 @@ import {
   getCardioActivity,
   getGroupedCardioActivities,
 } from "../../services/libraries/cardioLibraryService";
+import useGlobalLibrary from "../../hooks/useGlobalLibrary";
+import { groupCardioLibraryItems } from "../../services/libraries/globalLibraryModel";
 import DurationPicker from "../common/DurationPicker";
 import FormField from "../common/Form/FormField";
 import NumberInput from "../common/Form/NumberInput";
@@ -15,7 +18,6 @@ import TextArea from "../common/Form/TextArea";
 import SmartSelect from "../common/Selector/SmartSelect";
 import "./FormSections.css";
 
-const ACTIVITY_OPTIONS = getGroupedCardioActivities();
 
 function createCustomActivityDefinition(name) {
   return {
@@ -29,17 +31,35 @@ function createCustomActivityDefinition(name) {
 }
 
 export default function CardioForm({ formData, setFormData, readOnly = false }) {
+  const { cardioActivities, findItem } = useGlobalLibrary();
+  const activityOptions = useMemo(
+    () =>
+      groupCardioLibraryItems(
+        getGroupedCardioActivities(),
+        cardioActivities,
+      ),
+    [cardioActivities],
+  );
+
   function updateActivity(value, selectionDetails = {}) {
     const customActivity = selectionDetails.isCustom === true;
+
+    const publishedItem = customActivity
+      ? null
+      : findItem("cardio", value);
 
     setFormData((currentData) => ({
       ...currentData,
       activity: value,
-      source: customActivity ? "custom" : "library",
+      source: customActivity
+        ? "custom"
+        : publishedItem
+          ? "published"
+          : "library",
       suggestionStatus: customActivity ? "pending" : "",
       activityDefinition: customActivity
         ? createCustomActivityDefinition(value)
-        : getCardioActivity(value),
+        : publishedItem?.definition ?? getCardioActivity(value),
     }));
   }
 
@@ -66,7 +86,7 @@ export default function CardioForm({ formData, setFormData, readOnly = false }) 
         label="Activity"
         required
         value={formData.activity ?? ""}
-        options={ACTIVITY_OPTIONS}
+        options={activityOptions}
         disabled={readOnly}
         allowCustom
         customOptionLabel="Suggest new activity"

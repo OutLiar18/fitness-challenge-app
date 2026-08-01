@@ -1,7 +1,7 @@
 # Champions Legacy Challenge — Component Architecture
 
 Last updated: 1 August 2026  
-Current release: v0.9.0
+Current release: v0.10.0
 
 ## Layout
 
@@ -28,8 +28,10 @@ Route pages may compose hooks and services. They must not contain scoring formul
 - `AdminOverview` — operational counts and status.
 - `AnnouncementManager` — draft, publish, edit, archive and import workflows.
 - `SuggestionModeration` — pending, approved and rejected review queues.
-- `UserManagement` — role and team administration for other users.
-- `AuditLog` — searchable immutable privileged history.
+- `LibraryPublisher` — selection, versioned release, published item and archive workflows.
+- `UserManagement` — paginated role and team administration for other users.
+- `ErrorReports` — paginated sanitised client-failure review and resolution.
+- `AuditLog` — paginated immutable privileged history.
 
 ## Presentation language
 

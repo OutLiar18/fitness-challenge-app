@@ -1,29 +1,47 @@
+import { useMemo } from "react";
 import {
   SKILL_AREA_OPTIONS,
   SKILL_TAG_OPTIONS,
 } from "../../constants/libraries/skillMetaDataLibrary";
 import { getSkillNames } from "../../services/libraries/skillLibraryService";
+import useGlobalLibrary from "../../hooks/useGlobalLibrary";
+import { mergeLibraryNames } from "../../services/libraries/globalLibraryModel";
 import DurationPicker from "../common/DurationPicker";
 import MultiSelect from "../common/Selector/MultiSelect";
 import SmartSelect from "../common/Selector/SmartSelect";
 import "./FormSections.css";
 
-const SKILL_OPTIONS = getSkillNames();
 
 function createCustomSkillDefinition(name) {
   return { name, area: "", tags: [] };
 }
 
 export default function SkillForm({ formData, setFormData, readOnly = false }) {
+  const { skills, findItem } = useGlobalLibrary();
+  const skillOptions = useMemo(
+    () => mergeLibraryNames(getSkillNames(), skills),
+    [skills],
+  );
+
   function updateSkill(value, selectionDetails = {}) {
     const customSkill = selectionDetails.isCustom === true;
+
+    const publishedItem = customSkill
+      ? null
+      : findItem("skill", value);
 
     setFormData((currentData) => ({
       ...currentData,
       skill: value,
-      source: customSkill ? "custom" : "library",
+      source: customSkill
+        ? "custom"
+        : publishedItem
+          ? "published"
+          : "library",
       suggestionStatus: customSkill ? "pending" : "",
-      skillDefinition: customSkill ? createCustomSkillDefinition(value) : null,
+      skillDefinition: customSkill
+        ? createCustomSkillDefinition(value)
+        : publishedItem?.definition ?? null,
     }));
   }
 
@@ -44,7 +62,7 @@ export default function SkillForm({ formData, setFormData, readOnly = false }) {
         label="Skill"
         required
         value={formData.skill ?? ""}
-        options={SKILL_OPTIONS}
+        options={skillOptions}
         disabled={readOnly}
         allowCustom
         customOptionLabel="Suggest new skill"

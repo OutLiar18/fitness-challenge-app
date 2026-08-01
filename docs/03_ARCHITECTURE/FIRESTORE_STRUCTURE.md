@@ -1,127 +1,66 @@
 # Champions Legacy Challenge — Firestore Structure
 
-Last updated: 1 August 2026  
-Current release: v0.9.0
+Last updated: 1 August 2026
 
-## Design principles
-
-- Store factual activity data.
-- Derive scores and progression through versioned services.
-- Give every document a clear owner or trusted authority.
-- Use immutable history for activities and privileged audit events.
-- Keep administrative writes atomic with their audit records.
-
-## Implemented collections
+## Collections
 
 ### `users/{userId}`
 
-Stores profile and trusted account metadata:
+Profile identity, display name, avatar, trusted role and team assignment.
 
-- identity fields;
-- approved `avatarId`;
-- `role` and `team`;
-- joined and profile-update timestamps;
-- administrative update metadata when applicable.
+Subcollections:
 
-Owners may edit only approved identity fields. Platform Administrators may read profiles and update another user’s role/team through the audited workflow.
-
-### `users/{userId}/library/{itemId}`
-
-Stores reusable player-owned resources such as books.
-
-### `users/{userId}/announcementReads/{announcementId}`
-
-Stores cross-device announcement read status:
-
-```text
-announcementId
-readAt
-```
+- `library/{itemId}` — personal Reading library.
+- `announcementReads/{announcementId}` — cross-device read state.
 
 ### `challengeEntries/{entryId}`
 
-Stores one factual activity entry:
-
-```text
-userId
-category
-data
-createdAt
-challengeDate
-```
-
-One Running activity remains one document even though it contributes to Running and Cardio calculations.
-
-### `exerciseSuggestions/{suggestionId}`
-
-Stores custom Exercise proposals and review metadata.
-
-### `librarySuggestions/{suggestionId}`
-
-Stores custom Cardio and Skill proposals and review metadata.
+Owner-scoped factual activity entries. Derived score, goals and progression are not permanently stored.
 
 ### `announcements/{announcementId}`
 
-Stores live announcement content:
+Draft, published and archived live announcements.
 
-```text
-title
-summary
-body
-type
-icon
-status
-featured
-version
-createdAt
-createdBy
-updatedAt
-updatedBy
-publishedAt
-lastAuditId
-```
+### `exerciseSuggestions/{suggestionId}`
 
-Public player queries must filter to `status == "published"`.
+Exercise proposals with moderation and publication metadata.
+
+### `librarySuggestions/{suggestionId}`
+
+Cardio and Skill proposals with moderation and publication metadata.
+
+### `publishedLibraryItems/{itemId}`
+
+Versioned shared Exercise, Cardio or Skill definitions.
+
+Important fields:
+
+- `itemType`
+- `name` and `normalizedName`
+- `definition`
+- `status`
+- `libraryVersion`
+- source suggestion and collection
+- release identifier
+- publication and archive timestamps
+- audit identifier
+
+### `libraryReleases/{releaseId}`
+
+Immutable release records containing version, notes, item identifiers, item count, publisher and publication time.
+
+### `clientErrorReports/{reportId}`
+
+Sanitised authenticated-client failures with open/resolved status and administrator resolution metadata.
 
 ### `auditEvents/{auditId}`
 
-Stores immutable privileged-operation history:
+Immutable privileged-change history.
 
-```text
-actorId
-action
-entityType
-entityId
-summary
-details
-createdAt
-```
+## Data principles
 
-## Derived values
-
-The following remain derived and are not stored as mutable player totals:
-
-- activity points;
-- goal and streak bonus points;
-- experience points;
-- levels;
-- streaks and shield status;
-- achievements;
-- personal records;
-- progress timeline.
-
-## Future collections
-
-Potential future structures include:
-
-```text
-globalLibraries/
-challengeConfigurations/
-leagues/
-teams/
-teamMembers/
-seasonSnapshots/
-notifications/
-```
-
-These collections must not be activated until ownership, versioning, audit and query requirements are documented.
+- Store facts and trusted administrative decisions.
+- Derive score and progression.
+- Embed published activity definitions in entries for historical stability.
+- Archive rather than delete published platform history.
+- Paginate administrative collections that can grow without bound.

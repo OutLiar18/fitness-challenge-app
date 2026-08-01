@@ -125,7 +125,8 @@ Backend
 
 Hosting
 
-- Netlify
+- Firebase Hosting preview channels and production hosting
+- Netlify-compatible redirects remain available as a fallback
 
 Repository
 

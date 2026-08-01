@@ -15,6 +15,21 @@ import {
   validateAnnouncement,
 } from "../src/services/announcements/announcementModel.js";
 import {
+  buildPublishedLibraryItem,
+  createLibraryReleaseId,
+  getPublishableSuggestions,
+  validateLibraryReleaseDraft,
+  validateLibraryVersion,
+} from "../src/services/admin/libraryPublishingModel.js";
+import {
+  mergeLibraryNames,
+  normalizePublishedLibraryItem,
+} from "../src/services/libraries/globalLibraryModel.js";
+import {
+  createErrorFingerprint,
+  sanitizeErrorReport,
+} from "../src/services/monitoring/errorReportModel.js";
+import {
   formatExperiencePoints,
   formatKilometres,
   formatMeasurement,
@@ -119,4 +134,107 @@ test("Player-facing formatters use complete measurement names", () => {
   assert.equal(formatExperiencePoints(1), "1 experience point");
   assert.equal(formatExperiencePoints(25), "25 experience points");
   assert.equal(formatPaceLong(660), "11:00 per kilometre");
+});
+
+
+test("Approved suggestions become versioned shared library definitions", () => {
+  const suggestion = {
+    id: "exercise-one",
+    kind: "exercise",
+    collectionName: "exerciseSuggestions",
+    status: "approved",
+    definition: {
+      name: "Ring Support Hold",
+      category: "upperBody",
+      exerciseType: "hold",
+      proposedTier: 3,
+      equipment: "Gymnastic Rings",
+      movementPattern: "Static Support",
+      primaryMuscles: ["Shoulders", "Triceps"],
+      secondaryMuscles: ["Chest"],
+    },
+  };
+
+  const item = buildPublishedLibraryItem(suggestion, "0.10.0");
+
+  assert.equal(item.itemType, "exercise");
+  assert.equal(item.itemId, "exercise_ring-support-hold");
+  assert.equal(item.definition.exerciseType, "hold");
+  assert.equal(item.definition.difficulty.tier, 3);
+  assert.equal(item.definition.difficulty.multiplier, 1.2);
+  assert.equal(item.libraryVersion, "0.10.0");
+});
+
+test("Only approved unpublished suggestions enter a release candidate list", () => {
+  const suggestions = [
+    { id: "one", status: "pending" },
+    { id: "two", status: "approved", publicationStatus: "unpublished" },
+    { id: "three", status: "approved", publicationStatus: "published" },
+  ];
+
+  assert.deepEqual(
+    getPublishableSuggestions(suggestions).map((item) => item.id),
+    ["two"],
+  );
+  assert.equal(validateLibraryVersion("0.10.0").valid, true);
+  assert.equal(createLibraryReleaseId("0.10.0-preview.1"), "release_0.10.0-preview.1");
+  assert.equal(validateLibraryVersion("release ten").valid, false);
+
+  const draft = validateLibraryReleaseDraft({
+    version: "0.10.1",
+    notes: "Publishes one reviewed shared skill.",
+    suggestions: [suggestions[1]],
+  });
+  const invalidDraft = validateLibraryReleaseDraft({
+    version: "release ten",
+    notes: "Too short",
+    suggestions: [],
+  });
+
+  assert.equal(draft.valid, true);
+  assert.equal(invalidDraft.valid, false);
+  assert.ok(invalidDraft.errors.length >= 3);
+});
+
+test("Published library items merge with built-in options without duplicates", () => {
+  const published = normalizePublishedLibraryItem({
+    id: "skill_conflict-resolution",
+    itemType: "skill",
+    status: "published",
+    definition: {
+      name: "Conflict Resolution",
+      area: "Communication",
+      tags: ["Communication"],
+    },
+  });
+
+  assert.deepEqual(
+    mergeLibraryNames(["Chess", "Conflict Resolution"], [published]),
+    ["Chess", "Conflict Resolution"],
+  );
+});
+
+test("Client error reports are sanitised and produce stable fingerprints", () => {
+  const error = new TypeError("A component failed");
+  const fingerprint = createErrorFingerprint(error, "test");
+  const report = sanitizeErrorReport({
+    error,
+    source: "test",
+    context: { safe: true },
+  });
+
+  assert.equal(report.name, "TypeError");
+  assert.equal(report.message, "A component failed");
+  assert.equal(report.fingerprint, fingerprint);
+  assert.equal(report.releaseVersion, "0.10.0");
+  assert.ok(report.context.summary.includes("safe"));
+
+  const circularContext = {};
+  circularContext.self = circularContext;
+  const circularReport = sanitizeErrorReport({
+    error: new Error("Circular context"),
+    context: circularContext,
+  });
+
+  assert.match(circularReport.context.summary, /could not be serialised safely/i);
 });

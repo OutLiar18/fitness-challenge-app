@@ -119,6 +119,11 @@ function SuggestionCard({ suggestion, actorId, notify }) {
             {suggestion.status === "approved" ? "Approved" : "Rejected"} by {suggestion.reviewedBy || "an administrator"}
           </strong>
           {suggestion.rejectionReason && <p>{suggestion.rejectionReason}</p>}
+          {suggestion.publicationStatus === "published" && (
+            <p>
+              Published to the shared library in release {suggestion.libraryVersion}.
+            </p>
+          )}
         </div>
       )}
     </article>

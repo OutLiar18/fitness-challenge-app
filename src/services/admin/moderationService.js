@@ -29,6 +29,11 @@ function normalizeSuggestion(kind, suggestionDocument) {
     reviewedBy: data.reviewedBy ?? null,
     rejectionReason: data.rejectionReason ?? "",
     lastAuditId: data.lastAuditId ?? "",
+    publicationStatus: data.publicationStatus ?? "unpublished",
+    publishedAt: data.publishedAt ?? null,
+    publishedBy: data.publishedBy ?? "",
+    publishedLibraryItemId: data.publishedLibraryItemId ?? "",
+    libraryVersion: data.libraryVersion ?? "",
   };
 }
 

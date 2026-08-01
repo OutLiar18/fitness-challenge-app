@@ -15,7 +15,12 @@ function formatDate(value) {
     : "Pending server timestamp";
 }
 
-export default function AuditLog({ auditEvents }) {
+export default function AuditLog({
+  auditEvents,
+  hasMore = false,
+  loadingMore = false,
+  onLoadMore,
+}) {
   const [search, setSearch] = useState("");
   const normalizedSearch = search.trim().toLowerCase();
   const filtered = useMemo(
@@ -70,6 +75,17 @@ export default function AuditLog({ auditEvents }) {
           ))
         )}
       </div>
+
+      {hasMore && (
+        <button
+          className="button button--secondary admin-load-more"
+          type="button"
+          disabled={loadingMore}
+          onClick={onLoadMore}
+        >
+          {loadingMore ? "Loading more audit records…" : "Load more audit records"}
+        </button>
+      )}
     </section>
   );
 }

@@ -350,6 +350,219 @@ service cloud.firestore {
         && request.resource.data.readAt == request.time;
     }
 
+
+    function validSuggestionPublish(entityType, suggestionId) {
+      return resource.data.status == "approved"
+        && resource.data.get("publicationStatus", "unpublished") != "published"
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          "publicationStatus",
+          "publishedAt",
+          "publishedBy",
+          "publishedLibraryItemId",
+          "libraryVersion",
+          "lastAuditId"
+        ])
+        && request.resource.data.publicationStatus == "published"
+        && request.resource.data.publishedAt == request.time
+        && request.resource.data.publishedBy == request.auth.uid
+        && request.resource.data.publishedLibraryItemId is string
+        && request.resource.data.publishedLibraryItemId.size() >= 3
+        && request.resource.data.publishedLibraryItemId.size() <= 160
+        && request.resource.data.libraryVersion is string
+        && request.resource.data.libraryVersion.size() >= 5
+        && request.resource.data.libraryVersion.size() <= 40
+        && request.resource.data.lastAuditId is string
+        && validAuditAfter(
+          request.resource.data.lastAuditId,
+          entityType,
+          suggestionId
+        );
+    }
+
+    function validPublishedLibraryItemCreate(itemId) {
+      return request.resource.data.keys().hasOnly([
+          "itemType",
+          "name",
+          "normalizedName",
+          "definition",
+          "status",
+          "libraryVersion",
+          "sourceSuggestionId",
+          "sourceCollection",
+          "releaseId",
+          "createdAt",
+          "createdBy",
+          "updatedAt",
+          "updatedBy",
+          "publishedAt",
+          "archivedAt",
+          "lastAuditId"
+        ])
+        && request.resource.data.itemType in ["exercise", "cardio", "skill"]
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 2
+        && request.resource.data.name.size() <= 120
+        && request.resource.data.normalizedName is string
+        && request.resource.data.normalizedName.size() >= 2
+        && request.resource.data.normalizedName.size() <= 140
+        && request.resource.data.definition is map
+        && request.resource.data.status == "published"
+        && request.resource.data.libraryVersion is string
+        && request.resource.data.libraryVersion.size() >= 5
+        && request.resource.data.libraryVersion.size() <= 40
+        && request.resource.data.sourceSuggestionId is string
+        && request.resource.data.sourceSuggestionId.size() >= 1
+        && request.resource.data.sourceCollection in [
+          "exerciseSuggestions",
+          "librarySuggestions"
+        ]
+        && request.resource.data.releaseId is string
+        && request.resource.data.releaseId.size() >= 1
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == request.auth.uid
+        && request.resource.data.publishedAt == request.time
+        && request.resource.data.archivedAt == null
+        && request.resource.data.lastAuditId is string
+        && validAuditAfter(
+          request.resource.data.lastAuditId,
+          "publishedLibraryItem",
+          itemId
+        );
+    }
+
+    function validPublishedLibraryItemArchive(itemId) {
+      return resource.data.status == "published"
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          "status",
+          "updatedAt",
+          "updatedBy",
+          "archivedAt",
+          "lastAuditId"
+        ])
+        && request.resource.data.status == "archived"
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == request.auth.uid
+        && request.resource.data.archivedAt == request.time
+        && request.resource.data.lastAuditId is string
+        && validAuditAfter(
+          request.resource.data.lastAuditId,
+          "publishedLibraryItem",
+          itemId
+        );
+    }
+
+    function validLibraryReleaseCreate(releaseId) {
+      return request.resource.data.keys().hasOnly([
+          "version",
+          "notes",
+          "status",
+          "itemIds",
+          "itemCount",
+          "createdAt",
+          "createdBy",
+          "publishedAt",
+          "lastAuditId"
+        ])
+        && request.resource.data.version is string
+        && request.resource.data.version.size() >= 5
+        && request.resource.data.version.size() <= 40
+        && request.resource.data.notes is string
+        && request.resource.data.notes.size() >= 10
+        && request.resource.data.notes.size() <= 1000
+        && request.resource.data.status == "published"
+        && request.resource.data.itemIds is list
+        && request.resource.data.itemIds.size() >= 1
+        && request.resource.data.itemIds.size() <= 8
+        && request.resource.data.itemCount is int
+        && request.resource.data.itemCount == request.resource.data.itemIds.size()
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.publishedAt == request.time
+        && request.resource.data.lastAuditId is string
+        && validAuditAfter(
+          request.resource.data.lastAuditId,
+          "libraryRelease",
+          releaseId
+        );
+    }
+
+    function validClientErrorReportCreate() {
+      return request.resource.data.keys().hasOnly([
+          "name",
+          "message",
+          "stack",
+          "source",
+          "route",
+          "releaseVersion",
+          "context",
+          "userAgent",
+          "occurredAt",
+          "fingerprint",
+          "userId",
+          "status",
+          "reportedAt",
+          "resolvedAt",
+          "resolvedBy",
+          "resolutionNote",
+          "lastAuditId"
+        ])
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.name is string
+        && request.resource.data.name.size() <= 100
+        && request.resource.data.message is string
+        && request.resource.data.message.size() >= 1
+        && request.resource.data.message.size() <= 600
+        && request.resource.data.stack is string
+        && request.resource.data.stack.size() <= 4000
+        && request.resource.data.source is string
+        && request.resource.data.source.size() <= 120
+        && request.resource.data.route is string
+        && request.resource.data.route.size() <= 300
+        && request.resource.data.releaseVersion is string
+        && request.resource.data.releaseVersion.size() <= 40
+        && request.resource.data.context is map
+        && request.resource.data.context.keys().hasOnly(["summary"])
+        && request.resource.data.context.summary is string
+        && request.resource.data.context.summary.size() <= 1000
+        && request.resource.data.userAgent is string
+        && request.resource.data.userAgent.size() <= 500
+        && request.resource.data.occurredAt is timestamp
+        && request.resource.data.fingerprint is string
+        && request.resource.data.fingerprint.size() >= 3
+        && request.resource.data.fingerprint.size() <= 500
+        && request.resource.data.status == "open"
+        && request.resource.data.reportedAt == request.time
+        && request.resource.data.resolvedAt == null
+        && request.resource.data.resolvedBy == ""
+        && request.resource.data.resolutionNote == ""
+        && request.resource.data.lastAuditId == "";
+    }
+
+    function validClientErrorReportResolve(reportId) {
+      return resource.data.status == "open"
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          "status",
+          "resolvedAt",
+          "resolvedBy",
+          "resolutionNote",
+          "lastAuditId"
+        ])
+        && request.resource.data.status == "resolved"
+        && request.resource.data.resolvedAt == request.time
+        && request.resource.data.resolvedBy == request.auth.uid
+        && request.resource.data.resolutionNote is string
+        && request.resource.data.resolutionNote.size() >= 4
+        && request.resource.data.resolutionNote.size() <= 500
+        && request.resource.data.lastAuditId is string
+        && validAuditAfter(
+          request.resource.data.lastAuditId,
+          "clientErrorReport",
+          reportId
+        );
+    }
+
     match /users/{userId} {
       allow create: if isOwner(userId) && validUserProfile(userId);
       allow read: if isOwner(userId) || isPlatformAdmin();
@@ -400,7 +613,10 @@ service cloud.firestore {
       allow read: if isPlatformAdmin()
         || (signedIn() && resource.data.submittedBy == request.auth.uid);
       allow update: if isPlatformAdmin()
-        && validSuggestionReview("exerciseSuggestions", suggestionId);
+        && (
+          validSuggestionReview("exerciseSuggestions", suggestionId)
+          || validSuggestionPublish("exerciseSuggestions", suggestionId)
+        );
       allow delete: if false;
     }
 
@@ -409,7 +625,36 @@ service cloud.firestore {
       allow read: if isPlatformAdmin()
         || (signedIn() && resource.data.submittedBy == request.auth.uid);
       allow update: if isPlatformAdmin()
-        && validSuggestionReview("librarySuggestions", suggestionId);
+        && (
+          validSuggestionReview("librarySuggestions", suggestionId)
+          || validSuggestionPublish("librarySuggestions", suggestionId)
+        );
+      allow delete: if false;
+    }
+
+    match /publishedLibraryItems/{itemId} {
+      allow read: if isPlatformAdmin()
+        || (signedIn() && resource.data.status == "published");
+      allow create: if isPlatformAdmin()
+        && validPublishedLibraryItemCreate(itemId);
+      allow update: if isPlatformAdmin()
+        && validPublishedLibraryItemArchive(itemId);
+      allow delete: if false;
+    }
+
+    match /libraryReleases/{releaseId} {
+      allow read: if isPlatformAdmin()
+        || (signedIn() && resource.data.status == "published");
+      allow create: if isPlatformAdmin()
+        && validLibraryReleaseCreate(releaseId);
+      allow update, delete: if false;
+    }
+
+    match /clientErrorReports/{reportId} {
+      allow create: if signedIn() && validClientErrorReportCreate();
+      allow read: if isPlatformAdmin();
+      allow update: if isPlatformAdmin()
+        && validClientErrorReportResolve(reportId);
       allow delete: if false;
     }
 

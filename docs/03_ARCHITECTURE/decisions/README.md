@@ -11,3 +11,8 @@ Current ADRs:
 - ADR-012 — Audited Client Administration.
 
 Earlier architectural decisions are represented in the architecture documents and Git history. Future major decisions should receive individual ADR files before implementation.
+
+- `ADR-013-versioned-global-libraries.md` — separates suggestion approval from versioned publication.
+- `ADR-014-firestore-emulator-rule-tests.md` — requires repeatable Security Rules tests.
+- `ADR-015-first-party-error-monitoring-and-firebase-hosting.md` — defines pre-1.0 observability and deployment.
+

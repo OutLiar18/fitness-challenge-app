@@ -32,7 +32,7 @@ A Player may not:
 
 Identifier: `leagueAdmin`
 
-This role is reserved for future league-scoped authority. Version 0.9.0 stores and presents the role but grants no additional Firestore permissions yet.
+This role is reserved for future league-scoped authority. Version 0.10.0 stores and presents the role but grants no additional Firestore permissions yet.
 
 Future permissions must be scoped to explicit league membership and must never inherit full platform authority automatically.
 

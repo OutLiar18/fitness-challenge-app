@@ -1,108 +1,49 @@
 # Champions Legacy Challenge — Security Model
 
-Last updated: 1 August 2026  
-Current release: v0.9.0
+Last updated: 1 August 2026
 
-## Security boundaries
+## Principles
 
-Champions Legacy Challenge uses three complementary boundaries:
+- Firebase Authentication establishes identity.
+- Firestore Security Rules enforce authorization and data shape.
+- React visibility is not security.
+- Ordinary players cannot grant themselves trusted roles.
+- Privileged writes are audited in the same batch.
+- Factual activity entries remain owner-scoped and immutable after creation.
 
-1. Firebase Authentication identifies the signed-in account.
-2. Firestore Security Rules authorize every client read and write.
-3. React route and navigation checks improve user experience but are never treated as the security boundary.
+## Trusted administration
 
-## Player ownership
+Platform Administrator access may come from:
 
-- A player may read their own profile, entries, personal library and announcement read documents.
-- Challenge entries are immutable after creation and may only be deleted by their owner.
-- Profile editing is restricted to `displayName`, `avatarId` and `profileUpdatedAt`.
-- Email, role, team, ownership and join date cannot be changed by the owning player.
+- a trusted Firebase custom claim; or
+- a user profile role assigned through a trusted bootstrap or administrator process.
 
-## Platform Administrator authorization
+The client cannot self-promote. Administrators cannot change their own trusted role through the application.
 
-`isPlatformAdmin()` accepts either:
+## Versioned library security
 
-- a trusted Firebase custom claim `admin == true`; or
-- the authenticated user profile role `admin`.
+- Players read only `published` global items and releases.
+- Platform Administrators can read all publication states.
+- Publishing requires an approved suggestion, a release and linked audit records.
+- Archiving is the only supported published-item update.
+- Published items cannot be deleted from the client.
+- Releases are immutable.
 
-The first administrator must be bootstrapped through the Firebase Console or Firebase Admin SDK. No ordinary client flow can promote the signed-in user.
+## Error-report security
 
-## Privileged write pattern
+- Only authenticated players can create reports.
+- The report `userId` must match `request.auth.uid`.
+- Field lengths and status are constrained.
+- Ordinary players cannot read the reports collection.
+- Platform Administrators can read reports and resolve open reports with an audit event.
+- Reports cannot be deleted from the client.
 
-Every privileged write uses a Firestore batch containing:
+## Announcement security
 
-- the business-object change; and
-- a new immutable document in `auditEvents`.
+- Ordinary players read published announcements only.
+- Draft and archived announcements are administrator-only.
+- Announcement writes require a linked audit event.
 
-The changed document stores `lastAuditId`. Rules use `getAfter()` to verify that the matching audit event exists in the same atomic request and identifies:
+## Security testing
 
-- the authenticated actor;
-- the entity type;
-- the entity identifier;
-- the current server request time.
-
-## Announcements
-
-Ordinary signed-in players may read only documents where `status == "published"`.
-
-Platform Administrators may:
-
-- create announcements;
-- edit announcements;
-- transition drafts or archived messages to published;
-- archive published messages.
-
-Announcements cannot be deleted by the client. Creation and update require matching audit events.
-
-## Suggestion moderation
-
-- Players may create only pending suggestions they own.
-- Players may read their own suggestions.
-- Platform Administrators may read all suggestions.
-- Only a pending suggestion may transition to `approved` or `rejected`.
-- Rejection requires a reason of at least four characters.
-- Review metadata and an audit identifier are required.
-- Reviewed suggestions cannot be reviewed again from the client.
-
-## User administration
-
-A Platform Administrator may update another user’s:
-
-- `role`;
-- `team`;
-- administrative timestamp and actor fields;
-- audit identifier.
-
-The administrator may not use this client workflow on their own account. Profile ownership and account identity fields remain unchanged.
-
-## Audit history
-
-Audit events:
-
-- are readable only by Platform Administrators;
-- may be created only by Platform Administrators;
-- must identify actor, action, entity and summary;
-- cannot be updated or deleted by the client.
-
-## Announcement read state
-
-Each player owns:
-
-```text
-users/{userId}/announcementReads/{announcementId}
-```
-
-The document identifier and stored `announcementId` must match. The server controls `readAt`.
-
-## Secrets
-
-- Firebase web configuration remains in `.env` and is not an administrative secret.
-- Service-account credentials and Firebase Admin SDK credentials must never enter the frontend repository.
-- `.env` must remain ignored by Git.
-
-## Remaining security work
-
-- Add Firestore Emulator Suite rule tests.
-- Add backend-supported operator bootstrap for production.
-- Add scoped league permissions before activating League Administrators.
-- Add rate limits or backend moderation controls if public scale requires them.
+The Firestore Emulator and `@firebase/rules-unit-testing` verify high-risk access paths. Rule changes require emulator tests before deployment.

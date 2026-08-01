@@ -1,4 +1,5 @@
 import { Component } from "react";
+import { reportClientError } from "../../services/monitoring/errorReporter";
 
 export default class ErrorBoundary extends Component {
   constructor(props) {
@@ -11,7 +12,11 @@ export default class ErrorBoundary extends Component {
   }
 
   componentDidCatch(error, information) {
-    console.error("Uncaught application error:", error, information);
+    void reportClientError({
+      error,
+      source: "react.error-boundary",
+      context: { componentStack: information?.componentStack ?? "" },
+    });
   }
 
   render() {

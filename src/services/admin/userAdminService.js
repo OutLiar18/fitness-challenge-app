@@ -1,8 +1,12 @@
 import {
   collection,
   doc,
-  onSnapshot,
+  getDocs,
+  limit,
+  orderBy,
+  query,
   serverTimestamp,
+  startAfter,
   writeBatch,
 } from "firebase/firestore";
 
@@ -18,21 +22,31 @@ function sortUsers(users = []) {
   });
 }
 
-export function subscribeToUsers(onUpdate, onError) {
-  return onSnapshot(
-    collection(db, "users"),
-    (snapshot) => {
-      onUpdate?.(
-        sortUsers(
-          snapshot.docs.map((userDocument) => ({
-            id: userDocument.id,
-            ...userDocument.data(),
-          })),
-        ),
-      );
-    },
-    onError,
+export async function getUserPage({
+  cursor = null,
+  pageSize = 25,
+} = {}) {
+  const constraints = [orderBy("displayName"), limit(pageSize)];
+
+  if (cursor) {
+    constraints.splice(1, 0, startAfter(cursor));
+  }
+
+  const snapshot = await getDocs(
+    query(collection(db, "users"), ...constraints),
   );
+  const items = sortUsers(
+    snapshot.docs.map((userDocument) => ({
+      id: userDocument.id,
+      ...userDocument.data(),
+    })),
+  );
+
+  return {
+    items,
+    cursor: snapshot.docs.at(-1) ?? null,
+    hasMore: snapshot.docs.length === pageSize,
+  };
 }
 
 export async function updateUserAdministration({

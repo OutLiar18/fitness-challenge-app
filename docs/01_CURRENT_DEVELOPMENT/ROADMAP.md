@@ -11,24 +11,7 @@ Status: Complete
 - Explainable Points Engine v2 and Running/Cardio cross-contribution.
 - Journal, local-safe dates, libraries and suggestions.
 
-## Phase 2 — Release confidence
-
-Status: Ongoing discipline
-
-Completed:
-
-- Firestore rules deployment workflow.
-- Domain tests and safe dependency review.
-- Route-level lazy loading.
-- Shared player-data and announcement providers.
-
-Remaining:
-
-- Error-monitoring strategy.
-- Historical aggregation and pagination.
-- Repeatable browser and Firestore emulator testing.
-
-## Phase 3 — Personal progression and experience
+## Phase 2 — Personal progression and experience
 
 Status: Complete
 
@@ -39,25 +22,37 @@ Status: Complete
 - Responsive multi-route application shell.
 - Built-in Legacy Avatars and secure profile editing.
 
-## Phase 4 — Secure administration and moderation
+## Phase 3 — Secure administration and communication
 
-Status: Operational foundation complete in v0.9.0
-
-Complete:
+Status: Complete foundation
 
 - Trusted Platform Administrator authorization.
-- Live announcement publishing and archiving.
-- Cross-device announcement read status.
+- Live announcements and cross-device read status.
 - Suggestion review queues.
 - User role and team management foundation.
 - Immutable audit history.
+- Versioned publication of approved suggestions into shared libraries.
+- Archiving that preserves historical entry facts.
 
-Next:
+## Phase 4 — Pre-1.0 release hardening
 
-- Publish approved suggestions into versioned global libraries.
-- Add paginated administrative queries.
-- Add Firestore emulator rule tests.
-- Add versioned challenge configuration and release approval workflow.
+Status: Implemented in v0.10.0; verification and user review next
+
+- Paginated administrative users, audit events and error reports.
+- Firestore Emulator Security Rules tests.
+- Optional first-party client error monitoring.
+- Firebase Hosting preview and production configuration.
+- Repeatable release-check scripts.
+- Full responsive, accessibility, security and gameplay QA checklist.
+
+Remaining before a v1.0 decision:
+
+- Run all local and emulator checks on the development computer.
+- Deploy and test a preview channel.
+- Complete manual QA.
+- Fix verified defects and add regression tests.
+- Review bundle size and initial loading performance using real build output.
+- Obtain explicit user approval of the v1.0 scope.
 
 ## Phase 5 — Competition and community
 
@@ -86,5 +81,7 @@ Status: Structured preview only
 - Never trust a client-controlled role without Firestore enforcement.
 - Store facts; derive progress.
 - Audit every privileged change.
+- Version global libraries and future challenge rules.
 - Humour and easter eggs must remain optional, respectful and non-blocking.
 - Do not start live leagues before immutable challenge configuration exists.
+- Do not call the product v1.0 until the user explicitly approves it.

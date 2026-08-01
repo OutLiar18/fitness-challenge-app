@@ -1,72 +1,52 @@
 # Champions Legacy Challenge — Service Architecture
 
-Last updated: 1 August 2026  
-Current release: v0.9.0
+Last updated: 1 August 2026
 
-## Entries
+## Layers
 
-- `entryRepository` owns Firestore entry reads and writes.
-- `entryManager` orchestrates normalisation, validation, saving and suggestion creation.
-- `normalizer` converts form input into factual entry data.
+```text
+Configuration and source-controlled libraries
+                    ↓
+Pure domain models and validators
+                    ↓
+Firestore repositories and audited operations
+                    ↓
+Providers and hooks
+                    ↓
+Reusable components and route pages
+```
 
-## Points and statistics
+## New v0.10.0 services
 
-- Points services calculate explainable activity scores.
-- Running eligibility is central and never removes Cardio credit.
-- Statistics consume the same category and goal configuration.
-- Player-facing measurement names are produced by `displayFormatters`, not recreated in components.
+### Global library
 
-## Progression
+- `globalLibraryModel.js` — pure normalization, lookup, grouping and merging.
+- `globalLibraryService.js` — published Firestore subscription.
+- `GlobalLibraryProvider.jsx` — shared protected-route data source.
 
-- `goalBonusService`
-- `streakService`
-- `xpService`
-- `achievementService`
-- `personalRecordService`
-- `timelineService`
-- `progressionService` aggregate facade
+### Library publishing
 
-Progression remains derived from entries and versioned configuration.
+- `libraryPublishingModel.js` — semantic-version validation and published-definition construction.
+- `libraryPublishingService.js` — audited release, item publication and archive batches.
 
-## Profiles
+### Error monitoring
 
-- `profileService` normalises and validates editable identity values.
-- `userRepository` owns profile subscription and constrained update writes.
-- Legacy Avatars are local application resources referenced by identifier.
+- `errorReportModel.js` — pure sanitization and fingerprinting.
+- `errorReporter.js` — environment-controlled console or Firestore reporting.
+- `errorReportService.js` — paginated administration and audited resolution.
 
-## Announcements
+### Administrative pagination
 
-- `announcementModel` owns pure normalisation, validation, sorting, merging and filtering.
-- `announcementService` owns published Firestore subscriptions, bundled fallback merging and player read-state writes.
-- `AnnouncementProvider` exposes one shared live announcement state to protected routes.
+- `getUserPage`
+- `getAuditEventPage`
+- `getErrorReportPage`
 
-## Administration
+`useAdminData` combines bounded pages with small real-time subscriptions.
 
-- `announcementAdminService` owns announcement creation, editing, publishing, archiving and bundled-history import.
-- `moderationService` owns suggestion subscriptions and audited review decisions.
-- `userAdminService` owns audited trusted-role and team changes.
-- `auditService` creates audit writes and subscribes to immutable history.
-- `useAdminData` composes the live administration subscriptions.
+## Guardrails
 
-Privileged services use Firestore batches so the business change and audit event commit together.
-
-## Shared application data
-
-`PlayerDataProvider` exposes:
-
-- authenticated user and token claims;
-- live profile;
-- owner-scoped entries;
-- derived progression summary;
-- Platform Administrator status;
-- loading and recoverable error state.
-
-Contexts expose state and orchestration boundaries. They do not contain scoring formulas.
-
-## Future service requirements
-
-- A global-library publishing service for approved suggestions.
-- Paginated administration repositories.
-- Versioned challenge-configuration publishing.
-- League- and team-scoped permission services.
-- Browser-level error monitoring and telemetry with privacy controls.
+- Pure models must not import Firebase configuration.
+- Firestore services must not contain UI rendering.
+- Components must not duplicate scoring or authorization rules.
+- Published definition snapshots must be used for historical scoring.
+- Privileged operations must commit audit events atomically.

@@ -5,7 +5,7 @@ import { updateUserAdministration } from "../../services/admin/userAdminService"
 import { formatNumber } from "../../utils/displayFormatters";
 import LegacyAvatar from "../profile/LegacyAvatar";
 
-function UserAccessRow({ player, actorId, notify }) {
+function UserAccessRow({ player, actorId, notify, onUpdated }) {
   const [role, setRole] = useState(player.role || "user");
   const [team, setTeam] = useState(player.team || "");
   const [saving, setSaving] = useState(false);
@@ -23,6 +23,7 @@ function UserAccessRow({ player, actorId, notify }) {
         actorId,
       });
       notify(`Trusted access was updated for ${player.displayName || player.email}.`);
+      onUpdated?.(player.id, { role, team });
     } catch (error) {
       notify(error.message || "The player account could not be updated.", "error");
     } finally {
@@ -83,7 +84,15 @@ function UserAccessRow({ player, actorId, notify }) {
   );
 }
 
-export default function UserManagement({ users, actorId, notify }) {
+export default function UserManagement({
+  users,
+  actorId,
+  notify,
+  hasMore = false,
+  loadingMore = false,
+  onLoadMore,
+  onUpdated,
+}) {
   const [search, setSearch] = useState("");
   const normalizedSearch = search.trim().toLowerCase();
   const filteredUsers = useMemo(
@@ -115,11 +124,11 @@ export default function UserManagement({ users, actorId, notify }) {
             Administrative roles represent responsibility, not status. Every role change is recorded in the audit history.
           </p>
         </div>
-        <strong>{formatNumber(users.length, { whole: true })} registered players</strong>
+        <strong>{formatNumber(users.length, { whole: true })} loaded players</strong>
       </div>
 
       <label className="admin-search card">
-        <span>Search players</span>
+        <span>Search loaded players</span>
         <input
           type="search"
           value={search}
@@ -138,10 +147,22 @@ export default function UserManagement({ users, actorId, notify }) {
               player={player}
               actorId={actorId}
               notify={notify}
+              onUpdated={onUpdated}
             />
           ))
         )}
       </div>
+
+      {hasMore && (
+        <button
+          className="button button--secondary admin-load-more"
+          type="button"
+          disabled={loadingMore}
+          onClick={onLoadMore}
+        >
+          {loadingMore ? "Loading more players…" : "Load more players"}
+        </button>
+      )}
     </section>
   );
 }

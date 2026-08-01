@@ -1,7 +1,7 @@
 # Champions Legacy Challenge — Architecture Overview
 
 Last updated: 1 August 2026  
-Current release: v0.9.0
+Current release: v0.10.0
 
 ## Application structure
 
@@ -10,7 +10,7 @@ Firebase Authentication
         ↓
 PrivateRoute
         ↓
-PlayerDataProvider + AnnouncementProvider
+PlayerDataProvider + GlobalLibraryProvider + AnnouncementProvider
         ↓
 Adaptive AppShell and lazy route navigation
         ↓
@@ -28,8 +28,9 @@ Cloud Firestore + Security Rules
 ```text
 ProtectedApp
 └── PlayerDataProvider
-    └── AnnouncementProvider
-        └── AppShell
+    └── GlobalLibraryProvider
+        └── AnnouncementProvider
+            └── AppShell
             ├── /dashboard
             ├── /log
             ├── /progress
@@ -71,6 +72,20 @@ Announcements page + navigation unread badges
 
 Read state is stored under the signed-in player and synchronises across devices.
 
+## Shared library data flow
+
+```text
+source-controlled baseline + published Firestore items
+        ↓
+GlobalLibraryProvider
+        ↓
+Exercise, Cardio and Skill selectors
+        ↓
+entry stores selected published definition snapshot
+```
+
+Approved suggestions require a separate versioned release before appearing in player forms.
+
 ## Administration flow
 
 ```text
@@ -94,7 +109,9 @@ React visibility is only presentation. Firestore Security Rules remain authorita
 - `services/statistics/` — goals, totals and category contributions.
 - `services/progression/` — bonuses, streaks, experience points, achievements, records and timeline.
 - `services/announcements/` — pure announcement model, published reads and read-state writes.
-- `services/admin/` — privileged announcement, moderation, role and audit operations.
+- `services/admin/` — privileged announcement, moderation, library release, role, error-resolution and audit operations.
+- `services/monitoring/` — pure error sanitization and optional client reporting.
+- `services/libraries/globalLibrary*` — shared published-library model and Firestore subscription.
 - `utils/displayFormatters` — complete player-facing measurement and reward labels.
 - `context/` — shared route-session state, never scoring formulas.
 - `components/` — presentation and interaction patterns.

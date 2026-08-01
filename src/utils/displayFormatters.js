@@ -1,8 +1,10 @@
-const numberFormatter = new Intl.NumberFormat(undefined, {
+const DISPLAY_LOCALE = "en-GB";
+
+const numberFormatter = new Intl.NumberFormat(DISPLAY_LOCALE, {
   maximumFractionDigits: 2,
 });
 
-const wholeNumberFormatter = new Intl.NumberFormat(undefined, {
+const wholeNumberFormatter = new Intl.NumberFormat(DISPLAY_LOCALE, {
   maximumFractionDigits: 0,
 });
 
@@ -33,7 +35,9 @@ export function formatNumber(value, { whole = false } = {}) {
     return "0";
   }
 
-  return (whole ? wholeNumberFormatter : numberFormatter).format(number);
+  const formatter = whole ? wholeNumberFormatter : numberFormatter;
+
+  return formatter.format(number);
 }
 
 export function pluralize(value, singular, plural = `${singular}s`) {
@@ -41,7 +45,10 @@ export function pluralize(value, singular, plural = `${singular}s`) {
 }
 
 export function getUnitLabel(unit, value = 2) {
-  const normalizedUnit = String(unit ?? "").trim().toLowerCase();
+  const normalizedUnit = String(unit ?? "")
+    .trim()
+    .toLowerCase();
+
   const labels = UNIT_LABELS[normalizedUnit];
 
   if (!labels) {
@@ -59,15 +66,15 @@ export function formatMeasurement(value, unit, options = {}) {
 }
 
 export function formatPoints(value) {
-  return formatMeasurement(value, "points", { whole: true });
+  return formatMeasurement(value, "points", {
+    whole: true,
+  });
 }
 
 export function formatExperiencePoints(value) {
-  return `${formatNumber(value, { whole: true })} experience ${pluralize(
-    value,
-    "point",
-    "points",
-  )}`;
+  return `${formatNumber(value, {
+    whole: true,
+  })} experience ${pluralize(value, "point", "points")}`;
 }
 
 export function formatKilometres(value) {
@@ -75,7 +82,9 @@ export function formatKilometres(value) {
 }
 
 export function formatMillilitres(value) {
-  return formatMeasurement(value, "ml", { whole: true });
+  return formatMeasurement(value, "ml", {
+    whole: true,
+  });
 }
 
 export function formatMinutes(value) {
@@ -83,7 +92,11 @@ export function formatMinutes(value) {
 }
 
 export function formatPaceLong(secondsPerKilometre) {
-  const totalSeconds = Math.max(0, Math.round(Number(secondsPerKilometre) || 0));
+  const totalSeconds = Math.max(
+    0,
+    Math.round(Number(secondsPerKilometre) || 0),
+  );
+
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
 

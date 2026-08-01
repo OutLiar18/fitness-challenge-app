@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import useGlobalLibrary from "../../hooks/useGlobalLibrary";
 import {
   DIFFICULTY_OPTIONS,
   EQUIPMENT_OPTIONS,
@@ -9,6 +10,7 @@ import {
   getExercise,
   getExerciseNamesByCategory,
 } from "../../services/libraries/exerciseLibraryService";
+import { mergeLibraryNames } from "../../services/libraries/globalLibraryModel";
 import NumberInput from "../common/Form/NumberInput";
 import MultiSelect from "../common/Selector/MultiSelect";
 import SmartSelect from "../common/Selector/SmartSelect";
@@ -52,13 +54,13 @@ function normalizeSet(set = {}) {
 }
 
 function normalizeExercise(exercise = {}) {
-  const custom =
-    exercise.source === "custom" || Boolean(exercise.exerciseDefinition);
+  const custom = exercise.source === "custom";
+  const published = exercise.source === "published";
 
   if (Array.isArray(exercise.sets)) {
     return {
       exercise: exercise.exercise ?? "",
-      source: exercise.source || (custom ? "custom" : "library"),
+      source: exercise.source || (custom ? "custom" : published ? "published" : "library"),
       exerciseDefinition: exercise.exerciseDefinition ?? null,
       suggestionStatus:
         exercise.suggestionStatus || (custom ? "pending" : ""),
@@ -73,7 +75,7 @@ function normalizeExercise(exercise = {}) {
 
   return {
     exercise: exercise.exercise ?? "",
-    source: exercise.source || (custom ? "custom" : "library"),
+    source: exercise.source || (custom ? "custom" : published ? "published" : "library"),
     exerciseDefinition: exercise.exerciseDefinition ?? null,
     suggestionStatus: exercise.suggestionStatus || (custom ? "pending" : ""),
     sets: Array.from({ length: numberOfSets }, () =>
@@ -93,7 +95,7 @@ function getExercises(formData = {}) {
 }
 
 function getExerciseType(exercise) {
-  if (exercise.source === "custom") {
+  if (["custom", "published"].includes(exercise.source)) {
     return exercise.exerciseDefinition?.exerciseType ?? "";
   }
 
@@ -106,9 +108,23 @@ export default function WorkoutForm({
   setFormData,
   readOnly = false,
 }) {
+  const { exercises: publishedExercises, findItem } = useGlobalLibrary();
+
+  const categoryPublishedExercises = useMemo(
+    () =>
+      publishedExercises.filter(
+        (item) => item.definition?.category === category,
+      ),
+    [category, publishedExercises],
+  );
+
   const exerciseOptions = useMemo(
-    () => getExerciseNamesByCategory(category),
-    [category],
+    () =>
+      mergeLibraryNames(
+        getExerciseNamesByCategory(category),
+        categoryPublishedExercises,
+      ),
+    [category, categoryPublishedExercises],
   );
   const exercises = getExercises(formData);
 
@@ -141,15 +157,16 @@ export default function WorkoutForm({
           };
         }
 
-        const definition = getExercise(value);
+        const publishedItem = findItem("exercise", value);
+        const definition = publishedItem?.definition ?? getExercise(value);
         const hold = definition?.exerciseType === "hold";
 
         return {
           ...exercise,
           exercise: value,
-          source: "library",
+          source: publishedItem ? "published" : "library",
           suggestionStatus: "",
-          exerciseDefinition: null,
+          exerciseDefinition: publishedItem ? definition : null,
           sets: exercise.sets.map((set) => ({
             ...set,
             reps: hold ? "" : set.reps,

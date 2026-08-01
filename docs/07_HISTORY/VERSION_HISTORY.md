@@ -1,3 +1,9 @@
+# Champions Legacy Challenge — Version History
+
+## 0.10.0
+
+Pre-1.0 release hardening: versioned community libraries, administrative pagination, first-party error reporting, Security Rules emulator tests and Firebase Hosting preview/deployment preparation. This version is intentionally awaiting user review before v1.0.
+
 # Champions Legacy Challenge
 
 # Version History

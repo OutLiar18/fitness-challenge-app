@@ -1,5 +1,18 @@
 export const ANNOUNCEMENTS = Object.freeze([
   {
+    id: "v0-10-release-hardening",
+    type: "release",
+    icon: "🧪",
+    title: "Pre-release hardening and shared library releases",
+    summary:
+      "Approved community suggestions can now enter versioned shared libraries, while emulator tests and preview deployments strengthen release confidence.",
+    body:
+      "Platform Administrators can publish reviewed exercises, cardio activities and skills in deliberate releases. Error reporting, paginated operations and Firebase Hosting preview tools support the final review period before any v1.0 decision.",
+    publishedAt: "2026-08-01",
+    featured: true,
+    version: "0.10.0",
+  },
+  {
     id: "v0-9-live-administration",
     type: "release",
     icon: "🛡️",
@@ -9,7 +22,7 @@ export const ANNOUNCEMENTS = Object.freeze([
     body:
       "Announcement read status now follows players across devices. Administrative changes are protected by Firestore rules and recorded in audit events so authority remains transparent and accountable.",
     publishedAt: "2026-08-01",
-    featured: true,
+    featured: false,
     version: "0.9.0",
   },
   {

@@ -1,11 +1,12 @@
 import {
   collection,
   doc,
+  getDocs,
   limit,
-  onSnapshot,
   orderBy,
   query,
   serverTimestamp,
+  startAfter,
 } from "firebase/firestore";
 
 import { db } from "../../firebase";
@@ -36,23 +37,26 @@ export function addAuditWrite(
   return auditReference;
 }
 
-export function subscribeToAuditEvents(onUpdate, onError, maximum = 100) {
-  const auditQuery = query(
-    collection(db, "auditEvents"),
-    orderBy("createdAt", "desc"),
-    limit(maximum),
+export async function getAuditEventPage({
+  cursor = null,
+  pageSize = 30,
+} = {}) {
+  const constraints = [orderBy("createdAt", "desc"), limit(pageSize)];
+
+  if (cursor) {
+    constraints.splice(1, 0, startAfter(cursor));
+  }
+
+  const snapshot = await getDocs(
+    query(collection(db, "auditEvents"), ...constraints),
   );
 
-  return onSnapshot(
-    auditQuery,
-    (snapshot) => {
-      onUpdate?.(
-        snapshot.docs.map((auditDocument) => ({
-          id: auditDocument.id,
-          ...auditDocument.data(),
-        })),
-      );
-    },
-    onError,
-  );
+  return {
+    items: snapshot.docs.map((auditDocument) => ({
+      id: auditDocument.id,
+      ...auditDocument.data(),
+    })),
+    cursor: snapshot.docs.at(-1) ?? null,
+    hasMore: snapshot.docs.length === pageSize,
+  };
 }

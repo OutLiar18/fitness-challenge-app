@@ -10,22 +10,32 @@ function resolveExerciseMetadata(exercise = {}) {
     return libraryExercise;
   }
 
-  const customDefinition = exercise.exerciseDefinition;
+  const embeddedDefinition = exercise.exerciseDefinition;
 
-  if (!customDefinition || exercise.source !== "custom") {
+  if (
+    !embeddedDefinition ||
+    !["custom", "published"].includes(exercise.source)
+  ) {
     return null;
   }
 
-  const difficulty = DIFFICULTY[`TIER_${Number(customDefinition.proposedTier)}`];
+  const difficultyTier = Number(
+    embeddedDefinition.tier ||
+      embeddedDefinition.difficulty?.tier ||
+      embeddedDefinition.proposedTier,
+  );
+  const difficulty =
+    DIFFICULTY[`TIER_${difficultyTier}`] ??
+    embeddedDefinition.difficulty;
 
   if (!difficulty) {
     return null;
   }
 
   return {
-    exerciseType: customDefinition.exerciseType,
+    exerciseType: embeddedDefinition.exerciseType,
     difficulty,
-    secondsPerRep: Number(customDefinition.secondsPerRep) || 10,
+    secondsPerRep: Number(embeddedDefinition.secondsPerRep) || 10,
   };
 }
 

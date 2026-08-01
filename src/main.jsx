@@ -2,9 +2,12 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
+import { installGlobalErrorMonitoring } from "./services/monitoring/errorReporter";
 import ErrorBoundary from "./components/common/ErrorBoundary";
 import { AuthProvider } from "./context/AuthProvider";
 import "./index.css";
+
+installGlobalErrorMonitoring();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

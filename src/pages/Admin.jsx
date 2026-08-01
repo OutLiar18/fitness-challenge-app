@@ -3,6 +3,8 @@ import { useState } from "react";
 import AdminOverview from "../components/admin/AdminOverview";
 import AnnouncementManager from "../components/admin/AnnouncementManager";
 import AuditLog from "../components/admin/AuditLog";
+import ErrorReports from "../components/admin/ErrorReports";
+import LibraryPublisher from "../components/admin/LibraryPublisher";
 import SuggestionModeration from "../components/admin/SuggestionModeration";
 import UserManagement from "../components/admin/UserManagement";
 import Toast from "../components/common/Toast/Toast";
@@ -16,7 +18,9 @@ const ADMIN_TABS = Object.freeze([
   { id: "overview", label: "Overview", icon: "🧭" },
   { id: "announcements", label: "Announcements", icon: "📣" },
   { id: "suggestions", label: "Suggestions", icon: "🧾" },
+  { id: "library", label: "Library releases", icon: "📚" },
   { id: "users", label: "Players and roles", icon: "👥" },
+  { id: "errors", label: "Error reports", icon: "🚨" },
   { id: "audit", label: "Audit history", icon: "🕵️" },
 ]);
 
@@ -47,17 +51,52 @@ export default function Admin() {
           />
         );
 
+      case "library":
+        return (
+          <LibraryPublisher
+            suggestions={adminData.suggestions}
+            libraryItems={adminData.libraryItems}
+            releases={adminData.libraryReleases}
+            actorId={user?.uid}
+            notify={showToast}
+          />
+        );
+
       case "users":
         return (
           <UserManagement
             users={adminData.users}
             actorId={user?.uid}
             notify={showToast}
+            hasMore={adminData.usersPage.hasMore}
+            loadingMore={adminData.usersPage.loading}
+            onLoadMore={adminData.loadMoreUsers}
+            onUpdated={adminData.markUserUpdated}
+          />
+        );
+
+      case "errors":
+        return (
+          <ErrorReports
+            reports={adminData.errorReports}
+            hasMore={adminData.errorPage.hasMore}
+            loadingMore={adminData.errorPage.loading}
+            onLoadMore={adminData.loadMoreErrorReports}
+            onResolved={adminData.markErrorResolved}
+            actorId={user?.uid}
+            notify={showToast}
           />
         );
 
       case "audit":
-        return <AuditLog auditEvents={adminData.auditEvents} />;
+        return (
+          <AuditLog
+            auditEvents={adminData.auditEvents}
+            hasMore={adminData.auditPage.hasMore}
+            loadingMore={adminData.auditPage.loading}
+            onLoadMore={adminData.loadMoreAuditEvents}
+          />
+        );
 
       default:
         return (
@@ -66,6 +105,8 @@ export default function Admin() {
             suggestions={adminData.suggestions}
             users={adminData.users}
             auditEvents={adminData.auditEvents}
+            libraryItems={adminData.libraryItems}
+            errorReports={adminData.errorReports}
           />
         );
     }

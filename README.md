@@ -1,21 +1,25 @@
 # Champions Legacy Challenge
 
-Champions Legacy Challenge is a gamified personal-development platform built with React, Vite, Firebase Authentication and Cloud Firestore.
+Version: **0.10.0**  
+Status: **Pre-1.0 release hardening**
 
-Current version: **0.9.0**
+Champions Legacy Challenge is a gamified personal-development platform that rewards consistent, factual progress across fitness, reading, nutrition, movement and skill development.
 
-## Current experience
+## Current capabilities
 
-- Adaptive desktop, tablet and mobile navigation.
-- Dedicated Dashboard, Log & Journal, Progress, Announcements and Profile workspaces.
-- Ten factual activity categories with explainable scoring.
+- Firebase email-and-password authentication and protected routes.
+- Ten configurable activity categories.
+- Explainable activity points, Running/Cardio cross-contribution and effective repetitions.
 - Daily and weekly goals with moderate completion bonuses.
-- Streaks, an earned streak shield, experience points, levels, achievements, personal records and a chronological timeline.
-- Built-in Legacy Avatars without paid media storage.
-- Firestore-backed announcements with cross-device read status.
-- Secure Platform Administration for announcement publishing, suggestion review, trusted role management and immutable audit history.
-- Central player-facing formatters that use complete measurement names rather than unexplained abbreviations.
-- Professional body typography, distinctive display headings and restrained decorative emphasis for quotations and milestone content.
+- Streaks, an earned shield, experience points, levels, achievements and personal records.
+- Responsive desktop, tablet and mobile navigation.
+- Built-in Legacy Avatars and constrained profile editing.
+- Live announcements with cross-device read status.
+- Trusted, audited administration.
+- Versioned publishing of approved community suggestions into shared global libraries.
+- Optional first-party client error reporting.
+- Automated domain tests and Firestore Emulator Security Rules tests.
+- Firebase Hosting preview and production deployment configuration.
 
 ## Local setup
 
@@ -26,37 +30,74 @@ npm run check
 npm run dev
 ```
 
-Restore the real Firebase values inside `.env`. Never commit `.env`.
+Add the real Firebase web configuration to `.env` before starting the app.
 
-## Required verification
-
-Before committing or releasing:
+## Verification commands
 
 ```powershell
 npm run check
+npm run test:rules
+npm run check:release
 npm audit
 ```
 
-Do not run `npm audit fix --force` without reviewing the dependency consequences.
+- `npm run check` runs ESLint, the domain test suite and a production build.
+- `npm run test:rules` starts the Firestore Emulator, runs Security Rules tests and shuts the emulator down.
+- `npm run check:release` performs both checks and verifies release structure.
+- Do not run `npm audit fix --force` without reviewing dependency consequences.
 
-## Firebase deployment
+The Firestore Emulator requires Java. The release scripts invoke the Firebase CLI through `npx firebase-tools`, while `npm install` adds the Security Rules testing package.
 
-Version 0.9.0 changes Firestore permissions and introduces live administration collections. Deploy the rules after local verification:
+## Deployment preparation
+
+Create a seven-day preview channel:
 
 ```powershell
-npx firebase-tools deploy --only firestore:rules --project fitnesschallengeapp-9e87f
+npm run deploy:preview
 ```
 
-The first Platform Administrator must be assigned through a trusted Firebase Console or Firebase Admin SDK process. Ordinary players cannot promote themselves.
+Deploy Firestore Rules only:
 
-## Main routes
+```powershell
+npm run deploy:rules
+```
 
-- `/dashboard` — overview, goals, score and momentum.
-- `/log` — category logging and date-based journal.
-- `/progress` — progression, records, achievements and timeline.
-- `/announcements` — live platform announcements and read status.
-- `/profile` — player identity and account overview.
-- `/admin` — trusted announcement, moderation, role and audit tools.
-- `/future/teams`, `/future/leagues`, `/future/coach` — future-module previews.
+After the release-candidate checklist has passed, deploy Hosting only:
 
-Project documentation lives in `docs/` and is part of the software.
+```powershell
+npm run deploy:hosting
+```
+
+The combined production command is intentionally explicit:
+
+```powershell
+npm run deploy:production
+```
+
+Do not use the production command until the user has reviewed v0.10.0 and approved the final v1.0 scope.
+
+## Production error reporting
+
+Set one of the following in `.env`:
+
+```text
+VITE_ERROR_REPORTING_MODE=off
+VITE_ERROR_REPORTING_MODE=console
+VITE_ERROR_REPORTING_MODE=firestore
+```
+
+`firestore` stores sanitised reports from authenticated players in `clientErrorReports`. Platform Administrators can review and resolve them from Administration. Full form values, passwords and Firebase credentials are never intentionally included.
+
+## Documentation
+
+Start with:
+
+- `docs/06_CHAT_HANDOVER/CHAT_BRIEFING.md`
+- `docs/06_CHAT_HANDOVER/RECENT_SESSION_SUMMARY.md`
+- `docs/01_CURRENT_DEVELOPMENT/CURRENT_STATE.md`
+- `docs/01_CURRENT_DEVELOPMENT/NEXT_SESSION.md`
+- `docs/01_CURRENT_DEVELOPMENT/RELEASE_CANDIDATE_CHECKLIST.md`
+
+## Release boundary
+
+v0.10.0 is **not** v1.0. It prepares the application for user review, defect correction, preview deployment and final release decisions.

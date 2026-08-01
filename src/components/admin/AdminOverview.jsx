@@ -5,6 +5,8 @@ export default function AdminOverview({
   suggestions,
   users,
   auditEvents,
+  libraryItems = [],
+  errorReports = [],
 }) {
   const pendingSuggestions = suggestions.filter(
     (suggestion) => suggestion.status === "pending",
@@ -14,6 +16,12 @@ export default function AdminOverview({
   ).length;
   const administrators = users.filter(
     (player) => player.role === "admin",
+  ).length;
+  const publishedLibraryItems = libraryItems.filter(
+    (item) => item.status === "published",
+  ).length;
+  const openErrors = errorReports.filter(
+    (report) => report.status === "open",
   ).length;
 
   const metrics = [
@@ -48,6 +56,20 @@ export default function AdminOverview({
         "Platform Administrator",
         "Platform Administrators",
       ),
+    },
+    {
+      icon: "📚",
+      value: publishedLibraryItems,
+      label: pluralize(
+        publishedLibraryItems,
+        "published library item",
+        "published library items",
+      ),
+    },
+    {
+      icon: "🚨",
+      value: openErrors,
+      label: pluralize(openErrors, "open error report", "open error reports"),
     },
   ];
 

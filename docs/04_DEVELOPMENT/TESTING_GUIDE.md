@@ -2,65 +2,81 @@
 
 Last updated: 1 August 2026
 
-## Required command
+## Test layers
+
+### Domain tests
+
+Run:
+
+```powershell
+npm test
+```
+
+Target for v0.10.0: **37 passing tests**.
+
+Coverage includes:
+
+- Running eligibility and Cardio cross-contribution.
+- Workout effective repetitions.
+- Daily and weekly goals and bonuses.
+- Streaks, shields, experience points, achievements and records.
+- Timeline and navigation integrity.
+- Profiles and announcements.
+- Administration models, complete measurement wording, versioned library definitions and error-report sanitization.
+
+### Firestore Security Rules tests
+
+Run:
+
+```powershell
+npm run test:rules
+```
+
+Target for v0.10.0: **7 passing tests**.
+
+Coverage includes:
+
+- Published-versus-archived global library reads.
+- Self-role-change denial.
+- Authenticated sanitised error-report creation.
+- Audited administrator library publication.
+- Draft-announcement privacy.
+- Audited error-report resolution.
+- Immutable global-library release history.
+
+The Firebase CLI launches and shuts down the Firestore Emulator automatically.
+
+### Lint and build
+
+```powershell
+npm run lint
+npm run build
+```
+
+### Standard check
 
 ```powershell
 npm run check
 ```
 
-This runs:
+Runs ESLint, domain tests and the production build.
 
-1. ESLint.
-2. Node domain and architecture tests.
-3. Vite production build.
+### Release check
 
-## Automated suites in v0.9.0
+```powershell
+npm run check:release
+```
 
-- `domain.test.mjs` — points, validation, Running/Cardio and dates.
-- `goals.test.mjs` — daily and weekly goal rules.
-- `progression.test.mjs` — bonuses, streaks, experience points and achievements.
-- `records.test.mjs` — personal records.
-- `timeline.test.mjs` — grouped chronological progression events.
-- `experience.test.mjs` — navigation integrity, future previews and motivation determinism.
-- `profile-announcements.test.mjs` — Legacy Avatars, profile validation and announcement filters.
-- `admin-platform.test.mjs` — trusted identifiers, announcement validation and merging, plus complete player-facing measurement wording.
-
-Expected total: **33 tests**.
-
-## Manual player checks
-
-- Authenticate and refresh every protected route.
-- Navigate desktop, tablet and mobile structures.
-- Save and delete entries.
-- Confirm date locking and local-date preservation.
-- Compare Dashboard and Progress totals.
-- Confirm player-facing units use complete words.
-- Confirm announcement read state synchronises across browsers.
-
-## Manual administration checks
-
-- Verify a normal player cannot load privileged Firestore data.
-- Create and publish an announcement.
-- Archive a published announcement.
-- Review an Exercise suggestion.
-- Review a Cardio or Skill suggestion.
-- Change another player’s role and team.
-- Confirm every privileged write creates a matching audit event.
-- Confirm audit documents cannot be edited or deleted.
-
-## Security-rule testing direction
-
-Add Firebase Emulator Suite tests before production scale. Tests should cover:
-
-- player ownership;
-- profile-field restrictions;
-- draft-announcement privacy;
-- administrator authorization;
-- required audit events;
-- suggestion state transitions;
-- self-role-change denial;
-- audit immutability.
+Runs the standard check, Firestore Rules tests and release-structure verification.
 
 ## Defect rule
 
-Every reproducible domain or security defect should receive a regression test. UI-only defects should receive a documented manual test until a browser test framework is intentionally adopted.
+For each verified logic or security defect:
+
+1. Reproduce it.
+2. Add a failing regression test where practical.
+3. Apply the smallest maintainable fix.
+4. Run the relevant focused test.
+5. Run `npm run check`.
+6. Run `npm run test:rules` for any Security Rules or privileged-write change.
+7. Update documentation.

@@ -1,3 +1,40 @@
+# Champions Legacy Challenge — Changelog
+
+## 0.10.0 — Pre-1.0 Release Hardening
+
+Date: 1 August 2026
+
+### Added
+
+- Versioned global library releases for approved Exercise, Cardio and Skill suggestions.
+- Published-library provider and live player-form integration.
+- Embedded published definitions for historical scoring stability.
+- Library-item archiving and immutable release records.
+- Paginated administrative users, audit events and client error reports.
+- Environment-controlled first-party client error reporting.
+- Firestore Emulator Security Rules tests.
+- Firebase Hosting preview and production configuration.
+- Release-readiness script, QA matrix and candidate checklist.
+
+### Changed
+
+- Administrative queries no longer download unlimited user and audit collections.
+- Approved suggestions require a separate deliberate publication step.
+- Release verification now includes Security Rules tests.
+- Global-library releases use deterministic identifiers so a semantic version cannot be published twice.
+- Error-report context is serialised defensively and restricted to a sanitised summary.
+
+### Fixed
+
+- Restored Tier 5 custom-workout scoring when a normalised empty tier previously masked the proposed difficulty tier.
+- Failed client-error writes can be retried during the same browser session.
+
+### Security
+
+- Added audited library publication and archive rules.
+- Added authenticated, sanitised client error creation rules.
+- Added audited error-resolution rules.
+
 # Champions Legacy Challenge
 
 # Changelog

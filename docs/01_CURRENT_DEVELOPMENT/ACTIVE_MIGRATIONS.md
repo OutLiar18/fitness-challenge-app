@@ -4,37 +4,45 @@ Last updated: 1 August 2026
 
 ## Current status
 
-No incomplete source-code architecture migration is active.
+There are no incomplete high-risk architecture migrations in v0.10.0.
 
-## Controlled rollout
+## Completed in v0.10.0
 
-### Bundled announcements to Firestore
+- Approved-suggestion publication into versioned global libraries.
+- Published-library consumption in Exercise, Cardio and Skill forms.
+- Embedded published-definition snapshots for historical scoring stability.
+- Administrative user, audit and error-report pagination.
+- Environment-controlled client error reporting.
+- Firestore Emulator Security Rules test adoption.
+- Firebase Hosting preview and deployment configuration.
 
-Status: Implementation complete; administrator import and live verification required.
+## Controlled follow-up
 
-Bundled announcements remain a fallback. A Platform Administrator can import them into the live `announcements` collection without duplicating existing identifiers.
+### Historical entry pagination
 
-### Announcement read status
+Status: Planned after release-candidate review
 
-Status: Migrates automatically.
+Replace the complete owner-entry subscription with a current-window subscription and paginated historical queries while preserving the repository interface.
 
-Legacy browser-local read identifiers are copied to `users/{userId}/announcementReads` and then removed from local storage. Firestore becomes authoritative.
+### Server-side administrative search
 
-### Trusted administration
+Status: Deferred until data volume requires it
 
-Status: Implementation complete; bootstrap and rules deployment required.
+Add intentionally indexed server queries or a dedicated search service. Do not simulate full search by repeatedly downloading all user or audit documents.
 
-The first Platform Administrator must be assigned outside the client. Afterward, the in-app Administration workspace can manage other trusted roles while recording audit events.
+### External observability
+
+Status: Optional future enhancement
+
+Consider an external monitoring provider only when first-party error reports prove insufficient. Any provider must be reviewed for privacy, cost, source-map handling and data retention.
 
 ## Migration closure rule
 
-The v0.9 rollout is closed only when:
+A future migration is complete only when:
 
-- all thirty-three tests, lint and production build pass;
-- Firestore rules compile and deploy;
-- the first Platform Administrator can open Administration;
-- live announcements publish and archive correctly;
-- cross-device read state is verified;
-- moderation and role changes create immutable audit events;
-- ordinary players cannot read drafts or privileged collections;
-- documentation is committed with the implementation.
+- the replacement is used by all callers;
+- the legacy implementation is removed;
+- domain and Security Rules tests pass;
+- the production build passes;
+- relevant documentation is updated;
+- live Firebase behavior is verified.

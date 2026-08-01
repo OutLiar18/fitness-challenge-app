@@ -1,26 +1,33 @@
 # Champions Legacy Challenge — Current Context
 
+Last updated: 1 August 2026
+
 ## Current development phase
 
-Trusted Administration and Live Announcements — v0.9.0
+Pre-1.0 release hardening and user review.
+
+The application is intentionally versioned as **0.10.0**, not 1.0. The technical foundation is being made repeatable and testable before the final public-release scope is approved.
 
 ## Current priorities
 
-- Complete local lint, tests and production build.
-- Bootstrap the first Platform Administrator through a trusted Firebase process.
-- Deploy and verify the updated Firestore rules.
-- Test live announcement publishing and cross-device read status.
-- Test moderation, user-role changes and immutable audit events.
+1. Run the complete local and emulator verification suite.
+2. Deploy updated Firestore Rules to the development Firebase project.
+3. Publish a temporary Firebase Hosting preview channel.
+4. Test all player and Platform Administrator workflows.
+5. Record visual, gameplay, wording and workflow changes requested during user review.
+6. Fix verified defects and add regression coverage.
 
-## Architectural direction
+## Recently completed
 
-- Privileged actions must be enforced by Firestore rules, not hidden buttons alone.
-- Every privileged write must create an immutable audit event in the same batch.
-- Announcements use Firestore as the live source and bundled release notes as fallback history.
-- Profiles store approved avatar identifiers, never uploaded media bytes or arbitrary URLs.
-- Player-facing wording uses central formatters so abbreviated measurements cannot spread through UI components.
-- Scoring and progression remain fully separate from administration and presentation.
+- Versioned publishing of approved suggestions into shared libraries.
+- Real-time consumption of published Exercise, Cardio and Skill definitions.
+- Archiving without breaking historical entries.
+- Paginated users, audit history and error reports.
+- First-party, environment-controlled client error reporting.
+- Firestore Emulator Security Rules tests.
+- Firebase Hosting and preview-channel configuration.
+- Release-readiness scripts and QA documentation.
 
-## Following phase
+## Guardrail
 
-After v0.9.0 release verification, complete global-library publishing for approved suggestions and design versioned challenge configuration before beginning live teams, leagues or competitive leaderboards.
+Do not rename the release to v1.0, create a v1.0 Git tag or deploy a final public production release until the user has completed review and explicitly approved that milestone.

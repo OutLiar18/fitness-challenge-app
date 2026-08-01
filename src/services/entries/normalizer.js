@@ -174,6 +174,7 @@ function normalizeCardioEntry(data = {}) {
   const activity = normalizeText(data.activity);
 
   const customActivity = data.source === "custom";
+  const publishedActivity = data.source === "published";
 
   const activityDefinition = customActivity
     ? normalizeCustomCardioDefinition(data.activityDefinition, activity)
@@ -189,7 +190,7 @@ function normalizeCardioEntry(data = {}) {
   return {
     activity,
 
-    source: customActivity ? "custom" : "library",
+    source: customActivity ? "custom" : publishedActivity ? "published" : "library",
 
     suggestionStatus: customActivity ? "pending" : "",
 
@@ -209,16 +210,18 @@ function normalizeCardioEntry(data = {}) {
 function normalizeSkillEntry(data = {}) {
   const duration = getNormalizedDuration(data);
 
-  const customSkill = data.source === "custom" || Boolean(data.skillDefinition);
+  const customSkill = data.source === "custom";
+  const publishedSkill = data.source === "published";
+  const hasDefinition = customSkill || publishedSkill;
 
   return {
     skill: normalizeText(data.skill),
 
-    source: customSkill ? "custom" : "library",
+    source: customSkill ? "custom" : publishedSkill ? "published" : "library",
 
     suggestionStatus: customSkill ? "pending" : "",
 
-    skillDefinition: customSkill
+    skillDefinition: hasDefinition
       ? {
           name: normalizeText(data.skillDefinition?.name || data.skill),
 
@@ -306,6 +309,27 @@ function normalizeExerciseDefinition(
         : "";
     })(),
 
+    tier: (() => {
+      const tier = Number(definition.tier ?? definition.difficulty?.tier);
+
+      return Number.isInteger(tier) && tier >= 1 && tier <= 5
+        ? tier
+        : "";
+    })(),
+
+    difficulty: definition.difficulty
+      ? {
+          tier: Number(definition.difficulty.tier) || 1,
+          name: normalizeText(definition.difficulty.name),
+          multiplier: Number(definition.difficulty.multiplier) || 1,
+        }
+      : null,
+
+    secondsPerRep:
+      Number(definition.secondsPerRep) > 0
+        ? Number(definition.secondsPerRep)
+        : 10,
+
     equipment: normalizeText(definition.equipment),
 
     movementPattern: normalizeText(definition.movementPattern),
@@ -323,19 +347,20 @@ function normalizeExerciseDefinition(
 function normalizeWorkoutExercise(exercise = {}, category) {
   const name = normalizeText(exercise.exercise);
 
-  const customExercise =
-    exercise.source === "custom" || Boolean(exercise.exerciseDefinition);
+  const customExercise = exercise.source === "custom";
+  const publishedExercise = exercise.source === "published";
+  const hasDefinition = customExercise || publishedExercise;
 
-  const exerciseDefinition = customExercise
+  const exerciseDefinition = hasDefinition
     ? normalizeExerciseDefinition(exercise.exerciseDefinition, name, category)
     : null;
 
-  const exerciseType = customExercise ? exerciseDefinition.exerciseType : "";
+  const exerciseType = hasDefinition ? exerciseDefinition.exerciseType : "";
 
   return {
     exercise: name,
 
-    source: customExercise ? "custom" : "library",
+    source: customExercise ? "custom" : publishedExercise ? "published" : "library",
 
     exerciseDefinition,
 

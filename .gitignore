@@ -10,3 +10,5 @@ Thumbs.db
 *.rar
 package.before-audit-fix.json
 package-lock.before-audit-fix.json
+.firebase/
+firestore-export/

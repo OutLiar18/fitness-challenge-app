@@ -1,11 +1,16 @@
 import { getExercise, isHoldExercise } from "../libraries/exerciseLibraryService";
 
 function isCustomExercise(exercise) {
-  return exercise?.source === "custom" || Boolean(exercise?.exerciseDefinition);
+  return exercise?.source === "custom";
+}
+
+function hasEmbeddedDefinition(exercise) {
+  return ["custom", "published"].includes(exercise?.source) &&
+    Boolean(exercise?.exerciseDefinition);
 }
 
 function getExerciseType(exercise) {
-  if (isCustomExercise(exercise)) {
+  if (hasEmbeddedDefinition(exercise)) {
     return exercise.exerciseDefinition?.exerciseType || "";
   }
 
@@ -43,8 +48,9 @@ export function validateWorkoutEntry(data = {}) {
 
     const libraryExercise = getExercise(name);
     const customExercise = isCustomExercise(exercise);
+    const publishedExercise = exercise?.source === "published";
 
-    if (!libraryExercise && !customExercise) {
+    if (!libraryExercise && !customExercise && !publishedExercise) {
       errors.push(
         `Exercise ${exerciseNumber}: select an existing exercise or use “Suggest new exercise”.`,
       );
@@ -101,6 +107,29 @@ export function validateWorkoutEntry(data = {}) {
       ) {
         errors.push(
           `Exercise ${exerciseNumber}: add at least one primary muscle.`,
+        );
+      }
+    }
+
+    if (publishedExercise) {
+      const definition = exercise.exerciseDefinition || {};
+      const tier = Number(definition.tier ?? definition.difficulty?.tier);
+
+      if (definition.name?.trim() !== name) {
+        errors.push(
+          `Exercise ${exerciseNumber}: the published exercise name is invalid.`,
+        );
+      }
+
+      if (!["repetition", "hold"].includes(definition.exerciseType)) {
+        errors.push(
+          `Exercise ${exerciseNumber}: the published tracking method is invalid.`,
+        );
+      }
+
+      if (!Number.isInteger(tier) || tier < 1 || tier > 5) {
+        errors.push(
+          `Exercise ${exerciseNumber}: the published difficulty is invalid.`,
         );
       }
     }

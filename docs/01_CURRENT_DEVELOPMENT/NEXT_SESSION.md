@@ -1,51 +1,67 @@
 # Champions Legacy Challenge — Next Session
 
-Version target: 0.9.0  
-Objective: Verify and release trusted administration and live announcements
+Version target: 0.10.0  
+Objective: Verify the pre-1.0 release candidate and collect user-requested changes
 
 ## Required sequence
 
-1. Confirm `.env` remains present and ignored.
-2. Run `npm install`.
-3. Run `npm run check`; expect **33 passing tests**.
-4. Run `npm audit`; do not use `--force`.
-5. Deploy `firestore.rules` to `fitnesschallengeapp-9e87f`.
-6. Bootstrap the first Platform Administrator using `ADMIN_BOOTSTRAP.md`.
-7. Sign out and sign in again, then run `npm run dev`.
+1. Confirm `.env` exists and remains ignored by Git.
+2. Run `npm install` to install Firebase Emulator testing dependencies.
+3. Run `npm run check`; expect **37 passing domain tests**.
+4. Run `npm run test:rules`; expect **7 passing Firestore Rules tests**.
+5. Run `npm run check:release`.
+6. Run `npm audit`; do not use `--force`.
+7. Deploy Firestore Rules to `fitnesschallengeapp-9e87f`.
+8. Create a temporary Hosting preview channel.
+9. Complete the release-candidate checklist.
+10. Record desired changes before any v1.0 decision.
 
-## Player checks
+## Commands
 
-- Existing entries, goals, score and progression remain unchanged.
-- Measurements display complete words rather than short forms.
-- Profile avatar and display-name editing still work.
-- Published announcements appear for ordinary players.
-- Read status persists after refresh and on a second browser after signing in.
-- Draft and archived announcements remain hidden from ordinary players.
+```powershell
+npm install
+npm run check
+npm run test:rules
+npm run check:release
+npm audit
+npm run deploy:rules
+npm run deploy:preview
+```
 
-## Administration checks
+## Shared-library checks
 
-- A normal player cannot access administrative data or actions.
-- A Platform Administrator can create a draft announcement.
-- Publishing makes the announcement visible to ordinary players.
-- Archiving removes it from the ordinary player view without deleting history.
-- Exercise and library suggestions appear in the review queue.
-- Approval and rejection create audit events.
-- Rejection requires respectful feedback.
-- Changing another player’s role or team creates an audit event.
-- An administrator cannot change their own trusted role in the application.
-- Audit events cannot be edited or deleted.
+- Approve a new Exercise, Cardio activity or Skill suggestion.
+- Confirm approval alone does not publish it.
+- Select the approved suggestion in Library Releases.
+- Publish it under version `0.10.0` with release notes.
+- Confirm it appears in the correct player selector without refreshing.
+- Save an entry using the published item.
+- Confirm scoring, goals and Journal details remain correct.
+- Archive the item.
+- Confirm it disappears from future selection while the historical entry still displays and scores correctly.
 
-## Responsive and presentation checks
+## Error-report checks
 
-- Verify 320-pixel mobile, tablet and desktop layouts.
-- Confirm headings, body text, quotations and emphasis remain readable in light and dark themes.
-- Confirm underlines are used only for deliberate emphasis and links.
-- Confirm keyboard navigation and visible focus states.
+- Set `VITE_ERROR_REPORTING_MODE=firestore` in the local `.env`.
+- Trigger a harmless test error in development only.
+- Confirm a sanitised report appears in Administration.
+- Resolve it with a note.
+- Confirm an immutable audit record is created.
+- Return the mode to the desired production setting.
 
-## Release
+## Pagination checks
+
+- Confirm Players and Roles loads the first page.
+- Confirm Load More appends records without duplicates.
+- Confirm Audit History and Error Reports use the same pattern.
+- Confirm searches accurately describe that they search loaded records.
+
+## Release boundary
+
+Do not create a `v1.0.0` tag. A suitable commit is:
 
 ```powershell
 git add -A
-git commit -m "feat: add trusted administration and live announcements"
-git tag v0.9.0
+git commit -m "feat: harden pre-release administration and deployment"
+git tag v0.10.0
 ```

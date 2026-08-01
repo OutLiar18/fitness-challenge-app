@@ -309,8 +309,14 @@ Determine which documentation requires updating.
 Load:
 
 ```
+01_CURRENT_DEVELOPMENT/
+├── RELEASE_CANDIDATE_CHECKLIST.md
+
 04_DEVELOPMENT/
 ├── RELEASE_PROCESS.md
+├── DEPLOYMENT_GUIDE.md
+├── QA_MATRIX.md
+├── ERROR_MONITORING.md
 
 07_HISTORY/
 ├── CHANGELOG.md
@@ -319,7 +325,7 @@ Load:
 
 Purpose:
 
-Ensure releases remain well documented.
+Verify code, Security Rules, preview hosting, error monitoring and manual QA before approving a release.
 
 ---
 
