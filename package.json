@@ -13,8 +13,8 @@
     "check": "npm run lint && npm test && npm run build",
     "check:release": "npm run check && npm run test:rules && node scripts/release-readiness.mjs",
     "deploy:rules": "npx firebase-tools deploy --only firestore:rules --project fitnesschallengeapp-9e87f",
-    "deploy:preview": "npm run build && npx firebase-tools hosting:channel:deploy preview --expires 7d --project fitnesschallengeapp-9e87f",
-    "deploy:hosting": "npm run build && npx firebase-tools deploy --only hosting --project fitnesschallengeapp-9e87f",
+    "deploy:preview": "npm run build && npx firebase-tools hosting:channel:deploy review --only app --expires 7d --project fitnesschallengeapp-9e87f",
+    "deploy:hosting": "npm run build && npx firebase-tools deploy --only hosting:app --project fitnesschallengeapp-9e87f",
     "deploy:production": "npm run check:release && npx firebase-tools deploy --only firestore:rules,hosting --project fitnesschallengeapp-9e87f"
   },
   "dependencies": {

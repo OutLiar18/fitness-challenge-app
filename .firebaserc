@@ -1,5 +1,15 @@
 {
   "projects": {
     "default": "fitnesschallengeapp-9e87f"
-  }
+  },
+  "targets": {
+    "fitnesschallengeapp-9e87f": {
+      "hosting": {
+        "app": [
+          "champions-legacy-challenge"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }
