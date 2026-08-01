@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 import "./ProgressionCard.css";
 
 function formatNumber(value) {
@@ -22,25 +24,34 @@ function getStreakMessage(streak) {
 
 export default function ProgressionCard({ progression }) {
   const { xp, streak, achievements, score } = progression;
+
   const recentAchievements = achievements.unlocked.slice(-3).reverse();
 
   return (
-    <section className="progression-card card" aria-labelledby="progression-title">
+    <section
+      className="progression-card card"
+      aria-labelledby="progression-title"
+    >
       <div className="progression-card__header">
         <div>
           <p>Personal progression</p>
+
           <h2 id="progression-title">
             Level {xp.level} · {xp.title}
           </h2>
         </div>
 
-        <span className="progression-card__level" aria-label={`Level ${xp.level}`}>
+        <span
+          className="progression-card__level"
+          aria-label={`Level ${xp.level}`}
+        >
           {xp.level}
         </span>
       </div>
 
       <div className="progression-card__xp-summary">
         <span>{formatNumber(xp.xpIntoLevel)} XP</span>
+
         <span>{formatNumber(xp.xpForNextLevel)} XP</span>
       </div>
 
@@ -52,7 +63,11 @@ export default function ProgressionCard({ progression }) {
         aria-valuemax="100"
         aria-valuenow={xp.percentage}
       >
-        <span style={{ width: `${xp.percentage}%` }} />
+        <span
+          style={{
+            width: `${xp.percentage}%`,
+          }}
+        />
       </div>
 
       <p className="progression-card__next-level">
@@ -81,6 +96,7 @@ export default function ProgressionCard({ progression }) {
 
       <div className="progression-card__streak-status">
         <span aria-hidden="true">🛡️</span>
+
         <div>
           <strong>
             {streak.shieldAvailable > 0
@@ -89,6 +105,7 @@ export default function ProgressionCard({ progression }) {
                   streak.daysUntilShield === 1 ? "" : "s"
                 } to next shield`}
           </strong>
+
           <p>{getStreakMessage(streak)}</p>
         </div>
       </div>
@@ -96,6 +113,7 @@ export default function ProgressionCard({ progression }) {
       <div className="progression-card__achievements">
         <div className="progression-card__achievements-header">
           <strong>Achievements</strong>
+
           <span>
             {achievements.unlockedCount}/{achievements.total}
           </span>
@@ -110,12 +128,20 @@ export default function ProgressionCard({ progression }) {
             {recentAchievements.map((achievement) => (
               <li key={achievement.id} title={achievement.description}>
                 <span aria-hidden="true">{achievement.emoji}</span>
+
                 <span>{achievement.name}</span>
               </li>
             ))}
           </ul>
         )}
       </div>
+
+      <Link
+        className="button button--secondary progression-card__action"
+        to="/progress"
+      >
+        View full progress
+      </Link>
     </section>
   );
 }

@@ -7,26 +7,37 @@ import {
 } from "../statistics/activityTotals";
 import { getEntriesOnOrBefore } from "../statistics/filters";
 import { getAchievementSummary } from "./achievementService";
+import { getPersonalRecordSummary } from "./personalRecordService";
 import { getPointBonusSummary } from "./pointBonusService";
 import { getXpSummary } from "./xpService";
 
-export function getProgressionSummary(entries = [], referenceDate = new Date()) {
+export function getProgressionSummary(
+  entries = [],
+  referenceDate = new Date(),
+) {
   const eligibleEntries = getEntriesOnOrBefore(entries, referenceDate);
+
   const bonuses = getPointBonusSummary(eligibleEntries, referenceDate);
+
   const xp = getXpSummary(
     eligibleEntries,
     bonuses.goalBonuses.events,
     bonuses.streak.milestoneEvents,
   );
+
   const activityPoints = getActivityPoints(eligibleEntries);
+
   const todayActivityPoints = getTodayActivityPoints(
     eligibleEntries,
     referenceDate,
   );
+
   const todayKey = getLocalDateKey(normalizeChallengeDate(referenceDate));
+
   const todayXp = xp.events
     .filter((event) => event.earnedDateKey === todayKey)
     .reduce((total, event) => total + event.xp, 0);
+
   const achievements = getAchievementSummary({
     entryCount: eligibleEntries.length,
     completedDailyGoals: bonuses.goalBonuses.completedDailyGoals,
@@ -36,11 +47,17 @@ export function getProgressionSummary(entries = [], referenceDate = new Date()) 
     level: xp.level,
   });
 
+  const personalRecords = getPersonalRecordSummary(
+    eligibleEntries,
+    bonuses.events,
+  );
+
   return {
     rulesets: {
       goals: GOAL_RULESET_VERSION,
       progression: PROGRESSION_RULESET_VERSION,
     },
+
     score: {
       activityPoints,
       bonusPoints: bonuses.totalPoints,
@@ -49,13 +66,17 @@ export function getProgressionSummary(entries = [], referenceDate = new Date()) 
       todayBonusPoints: bonuses.todayPoints,
       todayPoints: todayActivityPoints + bonuses.todayPoints,
     },
+
     bonuses,
     streak: bonuses.streak,
+
     xp: {
       ...xp,
       todayXp,
     },
+
     achievements,
+
     records: {
       longestStreak: bonuses.streak.longestStreak,
       successfulDays: bonuses.streak.successfulDays,
@@ -63,6 +84,7 @@ export function getProgressionSummary(entries = [], referenceDate = new Date()) 
       completedWeeklyGoals: bonuses.goalBonuses.completedWeeklyGoals,
       perfectDays: bonuses.goalBonuses.perfectDays,
       perfectWeeks: bonuses.goalBonuses.perfectWeeks,
+      personal: personalRecords,
     },
   };
 }
