@@ -1,72 +1,68 @@
 # Champions Legacy Challenge — Current State
 
-Version: 0.11.0  
-Last updated: 1 August 2026  
-Status: Pre-1.0 community and coaching foundation implemented; local verification required
+Version: 0.13.1  
+Last updated: 2 August 2026  
+Status: Pre-1.0 rule and scoring reference implemented; Windows verification and integrated review pending
 
 ## Product state
 
-Champions Legacy Challenge now has complete personal tracking, progression, communication, administration, team, seasonal league and transparent coaching foundations. v0.11.0 remains deliberately pre-1.0 so all systems can be tested together and changed after user review.
+The pre-review platform now includes personal tracking, progression, communication, administration, Teams, seasonal Leagues, Legacy Coach, a searchable Challenge Rulebook and a public Points Guide.
 
-## Implemented in v0.11.0
+## Added in v0.13.1
 
-### Teams
+### Challenge Rulebook
 
-- A player may belong to one persistent team at a time.
-- Captains create a team with a local emblem, description, motto and eight-character invitation code.
-- Players join through the invitation code without uploading or hosting team media.
-- The roster displays each member’s current weekly factual activity points, active days, entry count and streak.
-- Captains may edit team identity and atomically transfer captaincy.
-- Non-captains may leave without affecting personal history.
-- Team progress is accountability information, not a separate scoring engine.
+- Protected `/rules` route available through the More menu and cross-linked from the Points Guide.
+- Search, status filters, jump links and accessible accordion sections prevent a wall of text.
+- Every rule has a stable identifier and may reference its 2025 source rule.
+- Rules are separated into current platform rules, season options and inactive legacy mechanics.
+- Current daily and weekly targets are rendered from `GOAL_CONFIGURATIONS`.
+- The original challenge wording is retained where it remains accurate.
+- App-specific integrity, privacy, account security, safety and league-history rules were added.
+- Pocket Week, random Houses, Power Plays, Transfer Market, Buddy Bonuses, photo bonuses and Five Fires are clearly marked inactive rather than falsely promised.
 
-### Leagues
+### Points Guide
 
-- League Administrators and Platform Administrators may create seasonal leagues.
-- Leagues move forward through Draft, Registration, Active, Completed and Archived stages.
-- Every league freezes the `consistency-v1` ruleset and `points-v2` scoring-engine version.
-- A player joins during Registration and records no duplicate activity.
-- The same factual entry creates an immutable league contribution snapshot while a league is Active.
-- Daily activity contribution is capped at 20 points and each active day earns a five-point participation bonus.
-- Player and team standings are derived from contribution snapshots.
-- League creation and lifecycle changes are audited.
+- Protected `/points-guide` route available through the More menu and Rulebook action.
+- Category scoring ladders are generated from the actual Water, Steps, Reading, Skill, Cardio, Running and workout constants.
+- Zero-point ranges are shown explicitly.
+- Fruit uses the live five-points-per-whole-serving formula.
+- Running eligibility, automatic Cardio contribution, difficulty multipliers, visible goal bonuses and league-day scoring are shown.
+- Hidden progression surprises and non-competitive experience rewards are intentionally omitted.
 
-### Legacy Coach
+### Architecture and quality
 
-- Guidance is generated locally without an external artificial-intelligence service or subscription cost.
-- The Coach compares the current seven-day period with the previous seven days.
-- Every recommendation includes an action, evidence and an explanation.
-- Players control whether guidance is enabled, its tone and its focus.
-- Coach preferences are private owner-scoped Firestore data.
-- The Coach does not diagnose health conditions or alter points, goals or league standings.
+- Rulebook filtering and scoring-guide generation live outside React components.
+- Navigation identifiers and reference routes are regression tested.
+- Current release metadata, error reports, library publishing defaults and bundled announcements align with v0.13.1.
 
 ## Existing complete systems
 
-- Authentication, ten factual activity categories and local-calendar-safe Journal.
-- Explainable scoring, Running/Cardio rules and effective repetitions.
-- Goals, moderate bonuses, streaks, shield, experience points, levels, achievements and records.
-- Responsive navigation, profiles, built-in avatars and announcement read status.
-- Audited administration, moderation, versioned shared libraries and client error reporting.
-- Firestore Emulator tests and Firebase Hosting preview configuration.
+- Authentication, profiles, Legacy Avatars and protected routes.
+- Ten factual activity categories, central validation and local-calendar-safe Journal.
+- Points Engine v2, Running/Cardio cross-contribution and Effective Repetitions.
+- Goals, moderate bonuses, streaks, shields, experience points, levels, achievements, records and timeline.
+- Live announcements, trusted administration, moderation, immutable audit events and versioned shared libraries.
+- Teams, consistency-weighted Leagues and transparent local Legacy Coach.
+- First-party error reporting and branded Firebase Hosting.
+- v0.12 integrity, security, accessibility and recovery hardening.
 
 ## Verification targets
 
-- Domain tests: **44**.
-- Firestore Rules emulator tests: **12**.
+- Domain tests: **54**.
+- Firestore Rules Emulator tests: **15**.
 - ESLint and production build must pass on the Windows development computer.
-- `npm run check:release` must pass before deployment is accepted.
+- `npm run check:release` must confirm v0.13.1 and the branded Hosting target.
 
 ## Known limitations
 
-- v0.11.0 is not approved as v1.0.
-- Team weekly snapshots are friendly accountability data derived and submitted by each member’s client; they are not suitable for prize competition.
-- League contribution facts are protected and tied to an entry, membership and frozen rules version, but authoritative server-side recalculation is deferred.
-- A captain must transfer captaincy before leaving; team deletion is intentionally unavailable.
-- League invitations are access codes, not high-security secrets.
-- League archive privacy controls and seasonal awards remain deferred.
-- Legacy Coach is deterministic guidance, not medical or professional advice.
-- Historical entry pagination and server-side administrative search remain future scale work.
+- This release is not approved as v1.0.
+- The app does not yet upload or adjudicate evidence.
+- Legacy Pocket Week, Power Play, Transfer Market, Buddy Bonus and side-quest mechanics are inactive.
+- Rules are bundled and versioned in source; administrator-authored season rule packs are future work.
+- Teams and Leagues retain the trust and scale boundaries listed in `KNOWN_ISSUES.md`.
+- Account deletion, personal-data export, privacy/support information and first-use onboarding remain pre-v1.0 work.
 
 ## Immediate next step
 
-Apply the v0.11.0 update, run all local and emulator checks, deploy updated Firestore Rules, and test the Teams, Leagues and Legacy Coach workflows in development. Do not declare v1.0 or begin final review until these systems are stable.
+Apply v0.13.1, complete any outstanding v0.12 league-capacity migration check, run all automated verification, deploy Hosting, and then perform the user’s complete functional and visual review. Do not declare v1.0.

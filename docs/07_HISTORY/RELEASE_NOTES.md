@@ -1,5 +1,72 @@
 # Champions Legacy Challenge — Release Notes
 
+## v0.13.1 — Rulebook Installation and League Verification Hotfix
+
+Date: 2 August 2026
+
+- Corrects the updater path-nesting defect that prevented the new reference pages from entering the active build.
+- Restores all 54 domain tests and all 15 current Firestore Rules tests.
+- Removes seven React Hook dependency warnings without changing behaviour.
+- Adds structural checks that prevent nested `src`, `tests`, `docs`, `public` or `scripts` folders from passing release readiness.
+
+This remains a pre-v1.0 build.
+
+## v0.13.0 — Rulebook and Points Reference
+
+Date: 2 August 2026
+
+### Challenge Rulebook
+
+- Searchable, collapsible sections replace the original wall-of-text format.
+- Players can separate current rules, optional season rules and inactive 2025 mechanics.
+- Current targets come directly from the goal configuration.
+- Original wording and rule numbers remain visible where appropriate.
+
+### Points Guide
+
+- Visual score ladders come directly from the live scoring constants.
+- Every category shows its zero-point and point-earning ranges.
+- Running eligibility, Cardio cross-contribution, difficulty, visible goal bonuses and league scoring are included.
+- Hidden progression surprises remain undisclosed.
+
+### Release status
+
+This remains a pre-v1.0 build for verification and user review.
+
+## v0.12.0 — Pre-review Hardening and Polish
+
+Date: 1 August 2026
+
+### Integrity and security
+
+- Added category-shaped recent challenge-entry validation in Firestore Rules.
+- Required duration totals to match their hour, minute and second fields.
+- Restricted entry-linked contribution lookups to the authenticated player’s own snapshots.
+- Blocked invitation collection enumeration while retaining known-code lookup.
+- Added transactionally paired league membership and participant counts with a 200-player limit.
+- Preserved completed and archived league contribution history after personal-entry deletion.
+- Normalized stale team snapshots to the current week.
+
+### Reliability and accessibility
+
+- Keyed Team and League subscription state to the active user and scope.
+- Aligned Platform Administrator league controls with Firestore authority.
+- Added skip navigation and focus-managed More dialog behavior.
+- Added clipboard fallback and one-time stale deployment chunk recovery.
+- Added Vite vendor code grouping for production build verification.
+- Prevented repeated team-leave and league-withdraw submissions while writes are in progress.
+- Replaced unpredictable validation jokes with clear category-specific guidance.
+
+### Deployment and verification
+
+- Added branded Hosting target validation to release-readiness checks.
+- Expanded the domain target to 47 tests and Rules target to 15 tests.
+- Documented the existing-league participant capacity field check.
+
+### Release status
+
+This is the hardened pre-review build. It remains deliberately pre-1.0.
+
 ## v0.11.0 — Community and Coaching Foundation
 
 Date: 1 August 2026

@@ -1,5 +1,5 @@
 .future-status,
-.future-joke {
+.future-note {
   display: flex;
   align-items: flex-start;
   gap: 14px;
@@ -12,12 +12,12 @@
 }
 
 .future-status > span,
-.future-joke > span {
+.future-note > span {
   font-size: 1.35rem;
 }
 
 .future-status p,
-.future-joke p {
+.future-note p {
   margin: 4px 0 0;
   color: var(--text-muted);
 }
@@ -87,7 +87,7 @@
   line-height: 1.6;
 }
 
-.future-joke {
+.future-note {
   border-style: dashed;
 }
 

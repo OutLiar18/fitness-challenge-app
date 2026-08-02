@@ -1,3 +1,80 @@
+# v0.13.1 — Rulebook Installation and League Verification Hotfix
+
+Date: 2 August 2026
+
+## Fixed
+
+- Replaced managed source directories during updates instead of nesting them under paths such as `src/src`.
+- Restored the complete v0.13 Rulebook, Points Guide and 54-test domain suite to the active application tree.
+- Replaced stale v0.11 Firestore Rules fixtures with the 15-test hardened league and entry suite.
+- Stabilised empty subscription arrays so React memo dependencies no longer change on every render.
+- Added release-readiness checks that reject nested managed source directories.
+
+## Unchanged
+
+- No points, goals, player records, league standings or Firestore data shapes changed in this patch.
+- The product remains pre-v1.0.
+
+---
+
+# v0.13.0 — Rulebook and Points Reference
+
+Date: 2 August 2026
+
+## Added
+
+- Searchable in-app Challenge Rulebook with current, season and inactive classifications.
+- Legacy 2025 rule-source references, dynamic goals, jump navigation and accessible accordions.
+- Public Points Guide generated from live scoring constants.
+- Zero-point ranges, difficulty scale, public formulas, visible goal bonuses and league-day score.
+- ADR-020 and seven reference-system regression tests.
+
+## Changed
+
+- Added platform-specific integrity, privacy, safety and conduct rules.
+- Clarified which 2025 mechanics are unsupported and award no points.
+- Aligned release metadata, bundled announcements and administrative version defaults with v0.13.0.
+
+## Fixed
+
+- Prevented the old 2025 points chart from becoming a second calculation source.
+- Resolved the 2025 avocado contradiction through the confirmed culinary-fruit definition.
+
+---
+
+# v0.12.0 — Pre-review Hardening and Polish
+
+Date: 1 August 2026
+
+## Added
+
+- Category-shaped and recent-date Firestore Rules for challenge entries.
+- Consistent duration-field validation and owner-scoped contribution lookup.
+- Direct-get-only invitation privacy for Teams and Leagues.
+- Transactional league capacity with `participantCount` and `participantLimit`.
+- Permanent final league contribution history.
+- Accessible skip link and focus-managed More dialog.
+- Stale production chunk recovery and vendor code grouping.
+- ADR-019 for the hardening decisions.
+
+## Changed
+
+- Team summaries ignore stale previous-week snapshots.
+- Team and League provider state is keyed to active user/scope.
+- Platform Administrator league controls now match Rules authority.
+- Active source-entry deletion removes active league contributions only.
+- Release verification targets the branded Firebase Hosting site.
+- Professional wording, deterministic validation guidance and damaged-membership recovery states were refined.
+- Team leaving and league withdrawal now block repeated submissions while writes are pending.
+
+## Verification
+
+- Domain target: 47 tests.
+- Firestore Rules target: 15 tests.
+- Windows ESLint, build, Emulator and release checks remain authoritative.
+
+---
+
 # Champions Legacy Challenge — Changelog
 
 ## 0.10.0 — Pre-1.0 Release Hardening

@@ -1,54 +1,16 @@
-const categoryMessages = {
-  water: [
-    "💧 Your water bottle can't be imaginary.",
-    "🥤 Even camels have to start somewhere.",
-  ],
-
-  fruit: [
-    "🍎 Invisible fruit has zero vitamins.",
-    "🍌 Bananas don't peel themselves.",
-  ],
-
-  reading: [
-    "📚 Reading through osmosis doesn't count.",
-    "🤓 Even speed readers need a few minutes.",
-  ],
-
-  running: [
-    "🏃 Unless you ran in another dimension...",
-    "👟 Running in your imagination doesn't count.",
-  ],
-
-  upperBody: ["💪 Your muscles know what happened."],
-
-  lowerBody: ["🦵 Leg day skipped itself again?"],
-
-  core: ["🔥 Your abs are waiting..."],
-
-  cardio: ["❤️ Your heart wants some attention."],
-
-  skill: ["🎯 Greatness starts with one session."],
-
-  steps: ["👣 Standing still is an interesting strategy."],
-};
-
-const legendaryMessages = [
-  "🏆 Achievement Unlocked: Professional Button Clicker.",
-  "🤖 The validation goblins found something missing.",
-  "🦖 Even dinosaurs filled in their forms... probably.",
-];
+const CATEGORY_MESSAGES = Object.freeze({
+  water: "Enter the amount of water before saving.",
+  fruit: "Choose a fruit and enter the number of servings.",
+  reading: "Add the book details and a valid reading duration.",
+  running: "Enter both a valid distance and running duration.",
+  upperBody: "Add at least one complete upper-body exercise set.",
+  lowerBody: "Add at least one complete lower-body exercise set.",
+  core: "Add at least one complete core exercise set.",
+  cardio: "Choose an activity and enter a valid cardio duration.",
+  skill: "Choose a skill and enter a valid practice duration.",
+  steps: "Enter a valid whole-number step count.",
+});
 
 export function getValidationMessage(categoryId) {
-  // 1% chance of a legendary message
-  if (Math.random() < 0.01) {
-    return legendaryMessages[
-      Math.floor(Math.random() * legendaryMessages.length)
-    ];
-  }
-
-  const messages = categoryMessages[categoryId] ?? [
-    "Please complete the required fields.",
-  ];
-
-  return messages[Math.floor(Math.random() * messages.length)];
+  return CATEGORY_MESSAGES[categoryId] || "Review the highlighted fields before saving.";
 }

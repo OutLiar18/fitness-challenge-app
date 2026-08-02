@@ -6,6 +6,7 @@ import PageHeader from "../components/layout/PageHeader";
 import LegacyAvatar from "../components/profile/LegacyAvatar";
 import {
   LEAGUE_MODES,
+  LEAGUE_PARTICIPANT_LIMIT,
   LEAGUE_TYPES,
 } from "../constants/leagues";
 import useLeagues from "../hooks/useLeagues";
@@ -15,6 +16,7 @@ import useToast from "../hooks/useToast";
 import { formatDateInputValue, parseDateInputValue, toDate } from "../services/dateService";
 import {
   calculateLeagueStandings,
+  canManageLeague,
   getLeagueStatusLabel,
 } from "../services/leagues/leagueModel";
 import {
@@ -25,8 +27,11 @@ import {
   subscribeToLeagueMemberships,
   transitionLeague,
 } from "../services/leagues/leagueService";
+import { copyTextToClipboard } from "../utils/clipboard";
 import { formatNumber, formatPoints, pluralize } from "../utils/displayFormatters";
 import "./Leagues.css";
+
+const EMPTY_ITEMS = Object.freeze([]);
 
 const dateFormatter = new Intl.DateTimeFormat("en-ZA", {
   day: "numeric",
@@ -37,6 +42,23 @@ const dateFormatter = new Intl.DateTimeFormat("en-ZA", {
 function formatDate(value) {
   const date = toDate(value);
   return date ? dateFormatter.format(date) : "Date unavailable";
+}
+
+function getMembershipStatusLabel(status) {
+  return {
+    registered: "Registered",
+    active: "Active participant",
+    completed: "Season completed",
+  }[status] ?? "Participant";
+}
+
+function getStandingsStateLabel(status) {
+  return {
+    registration: "Registration",
+    active: "Live",
+    completed: "Final",
+    archived: "Archived",
+  }[status] ?? "Not started";
 }
 
 function LeagueCreationForm({ actorId, notify }) {
@@ -148,7 +170,16 @@ function JoinLeagueForm({ userId, profile, playerTeam, notify }) {
       </div>
       <div className="community-code-row">
         <label className="sr-only" htmlFor="league-code">League invitation code</label>
-        <input id="league-code" className="community-code-input" maxLength={8} placeholder="ABCD2345" value={code} onChange={(event) => setCode(event.target.value.toUpperCase())} />
+        <input
+          id="league-code"
+          className="community-code-input"
+          inputMode="text"
+          autoComplete="off"
+          maxLength={8}
+          placeholder="ABCD2345"
+          value={code}
+          onChange={(event) => setCode(event.target.value.toUpperCase())}
+        />
         <button className="button button--secondary" type="submit" disabled={joining}>{joining ? "Registering…" : "Join league"}</button>
       </div>
     </form>
@@ -161,9 +192,9 @@ function StandingsTable({ rows, kind }) {
   }
 
   return (
-    <div className="standings-table" role="table" aria-label={`${kind} standings`}>
+    <div className="standings-table" role="list" aria-label={`${kind} standings`}>
       {rows.map((row) => (
-        <article className="standings-row" role="row" key={kind === "team" ? row.teamId || row.teamName : row.userId}>
+        <article className="standings-row" role="listitem" key={kind === "team" ? row.teamId || row.teamName : row.userId}>
           <strong className="standings-rank">{row.rank}</strong>
           {kind === "player" && <LegacyAvatar avatarId={row.avatarId} size="small" decorative />}
           <div className="standings-identity">
@@ -181,11 +212,18 @@ function StandingsTable({ rows, kind }) {
   );
 }
 
-function LeagueDetail({ league, membership, canManage, userId, notify }) {
-  const [members, setMembers] = useState([]);
-  const [contributions, setContributions] = useState([]);
-  const [working, setWorking] = useState(false);
-  const isManager = canManage && league.administratorIds?.includes(userId);
+function LeagueDetail({ league, membership, canManage, isPlatformAdmin, userId, notify }) {
+  const [memberState, setMemberState] = useState({
+    leagueId: "",
+    items: [],
+  });
+  const [contributionState, setContributionState] = useState({
+    leagueId: "",
+    items: [],
+  });
+  const [workingAction, setWorkingAction] = useState("");
+  const isManager = canManage &&
+    canManageLeague(league, userId, isPlatformAdmin);
   const canViewStandings = Boolean(membership || isManager);
 
   useEffect(() => {
@@ -195,12 +233,12 @@ function LeagueDetail({ league, membership, canManage, userId, notify }) {
 
     const unsubscribeMembers = subscribeToLeagueMemberships(
       league.id,
-      setMembers,
+      (items) => setMemberState({ leagueId: league.id, items }),
       (error) => notify(error.message || "League members could not be loaded.", "error"),
     );
     const unsubscribeContributions = subscribeToLeagueContributions(
       league.id,
-      setContributions,
+      (items) => setContributionState({ leagueId: league.id, items }),
       (error) => notify(error.message || "League standings could not be loaded.", "error"),
     );
 
@@ -210,6 +248,14 @@ function LeagueDetail({ league, membership, canManage, userId, notify }) {
     };
   }, [canViewStandings, league.id, notify]);
 
+  const members =
+    canViewStandings && memberState.leagueId === league.id
+      ? memberState.items
+      : EMPTY_ITEMS;
+  const contributions =
+    canViewStandings && contributionState.leagueId === league.id
+      ? contributionState.items
+      : EMPTY_ITEMS;
   const standings = useMemo(
     () => calculateLeagueStandings(contributions, members, league.ruleset),
     [contributions, league.ruleset, members],
@@ -220,13 +266,14 @@ function LeagueDetail({ league, membership, canManage, userId, notify }) {
     active: "completed",
     completed: "archived",
   }[league.status];
+  const standingsState = getStandingsStateLabel(league.status);
 
   async function handleTransition() {
-    if (!nextStatus || !window.confirm(`Change this league to ${getLeagueStatusLabel(nextStatus)}?`)) {
+    if (workingAction || !nextStatus || !window.confirm(`Change this league to ${getLeagueStatusLabel(nextStatus)}?`)) {
       return;
     }
 
-    setWorking(true);
+    setWorkingAction("transition");
     try {
       await transitionLeague({ league, nextStatus, actorId: userId });
       notify(`League changed to ${getLeagueStatusLabel(nextStatus)}.`, "success");
@@ -234,20 +281,23 @@ function LeagueDetail({ league, membership, canManage, userId, notify }) {
       console.error(error);
       notify(error.message || "The league status could not be changed.", "error");
     } finally {
-      setWorking(false);
+      setWorkingAction("");
     }
   }
 
   async function handleWithdraw() {
-    if (!window.confirm("Withdraw this league registration?")) {
+    if (workingAction || !window.confirm("Withdraw this league registration?")) {
       return;
     }
+    setWorkingAction("withdraw");
     try {
       await leaveLeagueRegistration({ leagueId: league.id, userId });
       notify("League registration withdrawn.", "success");
     } catch (error) {
       console.error(error);
       notify(error.message || "Registration could not be withdrawn.", "error");
+    } finally {
+      setWorkingAction("");
     }
   }
 
@@ -262,10 +312,39 @@ function LeagueDetail({ league, membership, canManage, userId, notify }) {
           <div className="league-date-line"><strong>{formatDate(league.startDate)}</strong><span aria-hidden="true">→</span><strong>{formatDate(league.endDate)}</strong></div>
         </div>
         <div className="league-hero__actions">
-          {membership && <span className="league-membership-chip">✓ {membership.status}</span>}
-          {isManager && league.inviteCode && <button className="button button--secondary" type="button" onClick={() => navigator.clipboard.writeText(league.inviteCode).then(() => notify("League invitation code copied.", "success"))}>Copy invitation code</button>}
-          {isManager && nextStatus && <button className="button button--primary" type="button" disabled={working} onClick={handleTransition}>{working ? "Updating league…" : `Move to ${getLeagueStatusLabel(nextStatus)}`}</button>}
-          {membership?.status === "registered" && <button className="button button--danger" type="button" onClick={handleWithdraw}>Withdraw registration</button>}
+          {membership && (
+            <span className="league-membership-chip">
+              ✓ {getMembershipStatusLabel(membership.status)}
+            </span>
+          )}
+          {isManager && league.inviteCode && (
+            <button
+              className="button button--secondary"
+              type="button"
+              onClick={async () => {
+                try {
+                  await copyTextToClipboard(league.inviteCode);
+                  notify("League invitation code copied.", "success");
+                } catch (error) {
+                  console.error(error);
+                  notify(`Invitation code: ${league.inviteCode}`, "info");
+                }
+              }}
+            >
+              Copy invitation code
+            </button>
+          )}
+          {isManager && nextStatus && <button className="button button--primary" type="button" disabled={Boolean(workingAction)} onClick={handleTransition}>{workingAction === "transition" ? "Updating league…" : `Move to ${getLeagueStatusLabel(nextStatus)}`}</button>}
+          {membership?.status === "registered" && (
+            <button
+              className="button button--danger"
+              type="button"
+              disabled={Boolean(workingAction)}
+              onClick={handleWithdraw}
+            >
+              {workingAction === "withdraw" ? "Withdrawing…" : "Withdraw registration"}
+            </button>
+          )}
         </div>
       </section>
 
@@ -279,20 +358,27 @@ function LeagueDetail({ league, membership, canManage, userId, notify }) {
           <div><dt>Scoring engine</dt><dd>{league.ruleset?.scoringEngineVersion}</dd></div>
           <div><dt>Rules version</dt><dd>{league.rulesVersion}</dd></div>
           <div><dt>Standings</dt><dd>{league.mode === "team" ? "Team and individual" : "Individual"}</dd></div>
-          <div><dt>Participants</dt><dd>{formatNumber(members.length, { whole: true })}</dd></div>
+          <div>
+            <dt>Participants</dt>
+            <dd>
+              {formatNumber(league.participantCount ?? members.length, { whole: true })}
+              {" of "}
+              {formatNumber(league.participantLimit ?? LEAGUE_PARTICIPANT_LIMIT, { whole: true })}
+            </dd>
+          </div>
         </dl>
       </section>
 
       {canViewStandings ? (
         <>
           <section className="league-standings card">
-            <div className="community-section-heading"><div><p className="section-kicker">Season table</p><h2>Individual standings</h2></div><span>Live</span></div>
+            <div className="community-section-heading"><div><p className="section-kicker">Season table</p><h2>Individual standings</h2></div><span>{standingsState}</span></div>
             <StandingsTable rows={standings.players} kind="player" />
           </section>
 
           {league.mode === "team" && (
             <section className="league-standings card">
-              <div className="community-section-heading"><div><p className="section-kicker">Team competition</p><h2>Team standings</h2></div><span>Live</span></div>
+              <div className="community-section-heading"><div><p className="section-kicker">Team competition</p><h2>Team standings</h2></div><span>{standingsState}</span></div>
               <StandingsTable rows={standings.teams} kind="team" />
             </section>
           )}
@@ -312,9 +398,9 @@ function LeagueDetail({ league, membership, canManage, userId, notify }) {
 }
 
 export default function Leagues() {
-  const { user, profile } = usePlayerData();
+  const { user, profile, isPlatformAdmin } = usePlayerData();
   const { membership: playerTeam } = useTeam();
-  const { leagues, memberships, error, canManageLeagues } = useLeagues();
+  const { leagues, memberships, loading, error, canManageLeagues } = useLeagues();
   const { toast, showToast, dismissToast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedId = searchParams.get("league") || memberships[0]?.leagueId || leagues[0]?.id || "";
@@ -339,7 +425,9 @@ export default function Leagues() {
 
       <section className="league-browser card">
         <div className="community-section-heading"><div><p className="section-kicker">League library</p><h2>Choose a season</h2></div><span>{leagues.length} {pluralize(leagues.length, "league", "leagues")}</span></div>
-        {leagues.length === 0 ? (
+        {loading ? (
+          <div className="empty-state">Loading leagues…</div>
+        ) : leagues.length === 0 ? (
           <div className="empty-state">No leagues are available yet.</div>
         ) : (
           <div className="league-browser__list">
@@ -358,7 +446,17 @@ export default function Leagues() {
         )}
       </section>
 
-      {selectedLeague && <LeagueDetail key={selectedLeague.id} league={selectedLeague} membership={selectedMembership} canManage={canManageLeagues} userId={user?.uid} notify={showToast} />}
+      {selectedLeague && (
+        <LeagueDetail
+          key={selectedLeague.id}
+          league={selectedLeague}
+          membership={selectedMembership}
+          canManage={canManageLeagues}
+          isPlatformAdmin={isPlatformAdmin}
+          userId={user?.uid}
+          notify={showToast}
+        />
+      )}
 
       <Toast message={toast?.message} type={toast?.type} onDismiss={dismissToast} />
     </div>

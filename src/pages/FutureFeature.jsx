@@ -62,11 +62,12 @@ export default function FutureFeature() {
         </section>
       </div>
 
-      <section className="future-joke card">
+      <section className="future-note card">
         <span aria-hidden="true">🔮</span>
         <p>
-          The roadmap has been consulted. It responded with a dramatic fog effect
-          and asked us to finish the foundations first.
+          This capability remains part of the long-term product direction. It will
+          be introduced only when its data, permissions and user experience can be
+          implemented without weakening the current foundations.
         </p>
       </section>
     </div>

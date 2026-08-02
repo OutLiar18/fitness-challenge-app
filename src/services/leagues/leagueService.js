@@ -5,6 +5,7 @@ import {
   getDocs,
   onSnapshot,
   query,
+  runTransaction,
   serverTimestamp,
   Timestamp,
   where,
@@ -12,7 +13,10 @@ import {
 } from "firebase/firestore";
 
 import { DEFAULT_AVATAR_ID } from "../../constants/avatars";
-import { LEAGUE_STATUSES } from "../../constants/leagues";
+import {
+  LEAGUE_PARTICIPANT_LIMIT,
+  LEAGUE_STATUSES,
+} from "../../constants/leagues";
 import { db } from "../../firebase";
 import { addAuditWrite } from "../admin/auditService";
 import { createTeamInviteCode, normalizeTeamCode } from "../teams/teamModel";
@@ -146,6 +150,8 @@ export async function createLeague({ actorId, input }) {
     rulesVersion: validation.value.ruleset.version,
     ruleset: validation.value.ruleset,
     administratorIds: [actorId],
+    participantCount: 0,
+    participantLimit: LEAGUE_PARTICIPANT_LIMIT,
     inviteCode,
     createdAt: serverTimestamp(),
     createdBy: actorId,
@@ -174,6 +180,16 @@ export async function createLeague({ actorId, input }) {
 export async function transitionLeague({ league, nextStatus, actorId }) {
   if (!league?.id || !canTransitionLeague(league.status, nextStatus)) {
     throw new Error("That league status change is not permitted.");
+  }
+
+  const membershipSnapshot = await getDocs(
+    query(collection(db, "leagueMemberships"), where("leagueId", "==", league.id)),
+  );
+
+  if (membershipSnapshot.size > LEAGUE_PARTICIPANT_LIMIT) {
+    throw new Error(
+      `This league exceeds the supported ${LEAGUE_PARTICIPANT_LIMIT}-participant limit.`,
+    );
   }
 
   const batch = writeBatch(db);
@@ -215,10 +231,6 @@ export async function transitionLeague({ league, nextStatus, actorId }) {
     updatedBy: actorId,
   });
 
-  const membershipSnapshot = await getDocs(
-    query(collection(db, "leagueMemberships"), where("leagueId", "==", league.id)),
-  );
-
   membershipSnapshot.docs.forEach((membershipDocument) => {
     batch.update(membershipDocument.ref, {
       status:
@@ -236,66 +248,119 @@ export async function transitionLeague({ league, nextStatus, actorId }) {
 }
 
 export async function joinLeague({ userId, profile, playerTeam, code }) {
+  if (!userId) {
+    throw new Error("Sign in before joining a league.");
+  }
+
   const inviteCode = normalizeTeamCode(code);
   if (inviteCode.length !== 8) {
     throw new Error("Enter the complete 8-character league invitation code.");
   }
 
-  const inviteSnapshot = await getDoc(doc(db, "leagueInvites", inviteCode));
-  if (!inviteSnapshot.exists() || inviteSnapshot.data().status !== "active") {
-    throw new Error("That league invitation is unavailable or registration is closed.");
-  }
+  return runTransaction(db, async (transaction) => {
+    const inviteReference = doc(db, "leagueInvites", inviteCode);
+    const inviteSnapshot = await transaction.get(inviteReference);
 
-  const invite = inviteSnapshot.data();
-  const leagueSnapshot = await getDoc(doc(db, "leagues", invite.leagueId));
-  if (!leagueSnapshot.exists() || leagueSnapshot.data().status !== LEAGUE_STATUSES.REGISTRATION) {
-    throw new Error("This league is not accepting registrations.");
-  }
+    if (!inviteSnapshot.exists() || inviteSnapshot.data().status !== "active") {
+      throw new Error("That league invitation is unavailable or registration is closed.");
+    }
 
-  const league = leagueSnapshot.data();
-  if (league.mode === "team" && !playerTeam?.teamId) {
-    throw new Error("Join a team before registering for this team league.");
-  }
+    const invite = inviteSnapshot.data();
+    const leagueReference = doc(db, "leagues", invite.leagueId);
+    const membershipReference = doc(
+      db,
+      "leagueMemberships",
+      `${invite.leagueId}_${userId}`,
+    );
+    const [leagueSnapshot, existingMembership] = await Promise.all([
+      transaction.get(leagueReference),
+      transaction.get(membershipReference),
+    ]);
 
-  const membershipReference = doc(
-    db,
-    "leagueMemberships",
-    `${invite.leagueId}_${userId}`,
-  );
-  const existingMembership = await getDoc(membershipReference);
-  if (existingMembership.exists()) {
-    throw new Error("You are already registered for this league.");
-  }
+    if (
+      !leagueSnapshot.exists() ||
+      leagueSnapshot.data().status !== LEAGUE_STATUSES.REGISTRATION
+    ) {
+      throw new Error("This league is not accepting registrations.");
+    }
 
-  const batch = writeBatch(db);
-  batch.set(membershipReference, {
-    leagueId: invite.leagueId,
-    userId,
-    displayName: profile?.displayName || profile?.fullName || "Champion",
-    avatarId: profile?.avatarId || DEFAULT_AVATAR_ID,
-    teamId: playerTeam?.teamId || "",
-    teamName: playerTeam?.teamName || "Independent",
-    role: "participant",
-    status: "registered",
-    inviteCode,
-    joinedAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
+    if (existingMembership.exists()) {
+      throw new Error("You are already registered for this league.");
+    }
+
+    const league = leagueSnapshot.data();
+    if (league.mode === "team" && !playerTeam?.teamId) {
+      throw new Error("Join a team before registering for this team league.");
+    }
+
+    const participantLimit = Number(
+      league.participantLimit ?? LEAGUE_PARTICIPANT_LIMIT,
+    );
+    const participantCount = Number(league.participantCount ?? 0);
+
+    if (participantCount >= participantLimit) {
+      throw new Error(
+        `This league has reached its ${participantLimit}-participant limit.`,
+      );
+    }
+
+    transaction.set(membershipReference, {
+      leagueId: invite.leagueId,
+      userId,
+      displayName: profile?.displayName || profile?.fullName || "Champion",
+      avatarId: profile?.avatarId || DEFAULT_AVATAR_ID,
+      teamId: playerTeam?.teamId || "",
+      teamName: playerTeam?.teamName || "Independent",
+      role: "participant",
+      status: "registered",
+      inviteCode,
+      joinedAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+
+    transaction.update(leagueReference, {
+      participantCount: participantCount + 1,
+      participantLimit,
+      updatedAt: serverTimestamp(),
+      updatedBy: userId,
+    });
+
+    return invite.leagueId;
   });
-  await batch.commit();
-  return invite.leagueId;
 }
 
 export async function leaveLeagueRegistration({ leagueId, userId }) {
-  const membershipReference = doc(db, "leagueMemberships", `${leagueId}_${userId}`);
-  const snapshot = await getDoc(membershipReference);
-
-  if (!snapshot.exists() || snapshot.data().status !== "registered") {
-    throw new Error("Only a registration-stage membership can be withdrawn.");
+  if (!leagueId || !userId) {
+    throw new Error("A valid league registration is required.");
   }
 
-  const batch = writeBatch(db);
-  batch.delete(membershipReference);
-  await batch.commit();
+  return runTransaction(db, async (transaction) => {
+    const leagueReference = doc(db, "leagues", leagueId);
+    const membershipReference = doc(db, "leagueMemberships", `${leagueId}_${userId}`);
+    const [leagueSnapshot, membershipSnapshot] = await Promise.all([
+      transaction.get(leagueReference),
+      transaction.get(membershipReference),
+    ]);
+
+    if (!leagueSnapshot.exists() || leagueSnapshot.data().status !== LEAGUE_STATUSES.REGISTRATION) {
+      throw new Error("Registration is no longer open for this league.");
+    }
+
+    if (!membershipSnapshot.exists() || membershipSnapshot.data().status !== "registered") {
+      throw new Error("Only a registration-stage membership can be withdrawn.");
+    }
+
+    const participantCount = Number(leagueSnapshot.data().participantCount ?? 0);
+    transaction.delete(membershipReference);
+    transaction.update(leagueReference, {
+      participantCount: Math.max(0, participantCount - 1),
+      participantLimit: Number(
+        leagueSnapshot.data().participantLimit ?? LEAGUE_PARTICIPANT_LIMIT,
+      ),
+      updatedAt: serverTimestamp(),
+      updatedBy: userId,
+    });
+  });
 }
 
 export async function getLeagueContextsForEntry(userId) {
@@ -313,7 +378,10 @@ export async function getLeagueContextsForEntry(userId) {
   const contexts = await Promise.all(
     activeMemberships.map(async (membership) => {
       const leagueSnapshot = await getDoc(doc(db, "leagues", membership.leagueId));
-      if (!leagueSnapshot.exists() || leagueSnapshot.data().status !== LEAGUE_STATUSES.ACTIVE) {
+      if (
+        !leagueSnapshot.exists() ||
+        leagueSnapshot.data().status !== LEAGUE_STATUSES.ACTIVE
+      ) {
         return null;
       }
 

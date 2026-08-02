@@ -1,7 +1,7 @@
 # Champions Legacy Challenge — Player Profile System
 
 Last updated: 1 August 2026  
-Current release: v0.11.0
+Current release: v0.13.1
 
 ## Purpose
 

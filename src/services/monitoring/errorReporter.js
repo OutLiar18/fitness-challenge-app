@@ -8,6 +8,8 @@ import { auth, db } from "../../firebase";
 import { sanitizeErrorReport } from "./errorReportModel";
 
 const reportedFingerprints = new Set();
+const MONITORING_KEY = "__championsLegacyErrorMonitoring";
+const PRELOAD_RELOAD_KEY = "champions-legacy:preload-recovery";
 
 function getReportingMode() {
   const configuredMode = String(
@@ -76,6 +78,10 @@ export function installGlobalErrorMonitoring() {
     return () => {};
   }
 
+  if (window[MONITORING_KEY]?.cleanup) {
+    return window[MONITORING_KEY].cleanup;
+  }
+
   function handleWindowError(event) {
     void reportClientError({
       error: event.error ?? event.message,
@@ -95,14 +101,42 @@ export function installGlobalErrorMonitoring() {
     });
   }
 
+  function handlePreloadError(event) {
+    event.preventDefault();
+
+    void reportClientError({
+      error: event.payload ?? "A deployed application chunk could not be loaded.",
+      source: "vite.preload-error",
+    });
+
+    if (!import.meta.env.PROD) {
+      return;
+    }
+
+    const alreadyRetried = window.sessionStorage.getItem(PRELOAD_RELOAD_KEY);
+
+    if (!alreadyRetried) {
+      window.sessionStorage.setItem(PRELOAD_RELOAD_KEY, "1");
+      window.location.reload();
+    }
+  }
+
   window.addEventListener("error", handleWindowError);
   window.addEventListener("unhandledrejection", handleUnhandledRejection);
+  window.addEventListener("vite:preloadError", handlePreloadError);
 
-  return () => {
+  const recoveryTimeout = window.setTimeout(() => {
+    window.sessionStorage.removeItem(PRELOAD_RELOAD_KEY);
+  }, 5000);
+
+  const cleanup = () => {
+    window.clearTimeout(recoveryTimeout);
     window.removeEventListener("error", handleWindowError);
-    window.removeEventListener(
-      "unhandledrejection",
-      handleUnhandledRejection,
-    );
+    window.removeEventListener("unhandledrejection", handleUnhandledRejection);
+    window.removeEventListener("vite:preloadError", handlePreloadError);
+    delete window[MONITORING_KEY];
   };
+
+  window[MONITORING_KEY] = { cleanup };
+  return cleanup;
 }

@@ -1,6 +1,7 @@
 # Champions Legacy Challenge — Firestore Structure
 
-Last updated: 1 August 2026
+Last updated: 1 August 2026  
+Current release: v0.13.1
 
 ## Player and activity collections
 
@@ -8,21 +9,23 @@ Last updated: 1 August 2026
   - `library/{itemId}` — personal library.
   - `announcementReads/{announcementId}` — private cross-device read state.
   - `coach/preferences` — private Legacy Coach settings.
-- `challengeEntries/{entryId}` — immutable owner-scoped factual activity.
+- `challengeEntries/{entryId}` — owner-scoped factual activity; immutable after creation and deletable only during the recent edit window.
 
 ## Teams
 
-- `teams/{teamId}` — team identity, captain and access code.
-  - `members/{userId}` — roster identity, role and weekly accountability snapshot.
+- `teams/{teamId}` — identity, captain, `memberCount` and invitation code.
+  - `members/{userId}` — roster identity, role and current-week accountability snapshot.
 - `playerTeams/{userId}` — one-team membership pointer.
-- `teamInvites/{code}` — active code-to-team mapping.
+- `teamInvites/{code}` — known-code mapping; direct get only, no collection listing.
 
 ## Leagues
 
-- `leagues/{leagueId}` — frozen season configuration and lifecycle.
-- `leagueInvites/{code}` — registration state for an access code.
+- `leagues/{leagueId}` — frozen season configuration, lifecycle, `participantCount` and `participantLimit`.
+- `leagueInvites/{code}` — known-code registration mapping; direct get only, no collection listing.
 - `leagueMemberships/{leagueId_userId}` — season identity/team snapshot and membership status.
 - `leagueContributions/{leagueId_entryId}` — immutable entry-linked activity contribution.
+
+Active contribution snapshots may be removed with a recent source entry. Completed/archived contribution snapshots remain permanent.
 
 ## Communication and administration
 
@@ -36,13 +39,14 @@ Last updated: 1 August 2026
 
 ## Index expectations
 
-Queries currently use simple equality, membership and array-contains constraints. Firebase may request composite indexes during real data testing; add only indexes required by confirmed query errors and document them.
+Queries currently use simple equality, membership and array-contains constraints. Add composite indexes only in response to a confirmed Firebase query error and document the requirement.
 
 ## Data rules
 
-- Never store derived personal progression as authority.
-- Never allow a player to own two `playerTeams` documents.
+- Store factual activity and trusted decisions; derive personal progression.
+- Never allow a player to own two active `playerTeams` pointers.
+- Keep team and league counts paired with membership writes.
 - Never mutate a league contribution after creation.
 - Never change a league ruleset after creation.
-- Delete linked league contributions when the source entry is deleted.
+- Preserve completed/archived league history.
 - Archive trusted history instead of deleting it.

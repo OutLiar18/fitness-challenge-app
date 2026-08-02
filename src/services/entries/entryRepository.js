@@ -1,6 +1,7 @@
 import {
   collection,
   doc,
+  getDoc,
   getDocs,
   onSnapshot,
   query,
@@ -123,19 +124,50 @@ export function subscribeToEntries(userId, onUpdate, onError) {
   );
 }
 
-export async function deleteEntry(entryId) {
+export async function deleteEntry(entryId, userId) {
   if (!entryId) {
     throw new Error("An entry ID is required.");
   }
 
+  if (!userId) {
+    throw new Error("A user is required to delete an entry.");
+  }
+
   const contributionSnapshot = await getDocs(
-    query(collection(db, "leagueContributions"), where("entryId", "==", entryId)),
+    query(
+      collection(db, "leagueContributions"),
+      where("entryId", "==", entryId),
+      where("userId", "==", userId),
+    ),
+  );
+  const uniqueLeagueIds = [
+    ...new Set(
+      contributionSnapshot.docs
+        .map((contributionDocument) => contributionDocument.data().leagueId)
+        .filter(Boolean),
+    ),
+  ];
+  const leagueStatuses = new Map(
+    await Promise.all(
+      uniqueLeagueIds.map(async (leagueId) => {
+        const leagueSnapshot = await getDoc(doc(db, "leagues", leagueId));
+        return [
+          leagueId,
+          leagueSnapshot.exists() ? leagueSnapshot.data().status : "",
+        ];
+      }),
+    ),
   );
   const batch = writeBatch(db);
 
   contributionSnapshot.docs.forEach((contributionDocument) => {
-    batch.delete(contributionDocument.ref);
+    const contribution = contributionDocument.data();
+
+    if (leagueStatuses.get(contribution.leagueId) === "active") {
+      batch.delete(contributionDocument.ref);
+    }
   });
+
   batch.delete(doc(db, "challengeEntries", entryId));
   await batch.commit();
 }

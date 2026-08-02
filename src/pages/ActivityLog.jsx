@@ -103,7 +103,7 @@ function ActivityLogWorkspace({ categoryId, onCategoryChange }) {
       }
 
       showToast(
-        result.warning || "Entry saved. The journal has receipts.",
+        result.warning || "Entry saved successfully.",
         result.warning ? "warning" : "success",
         result.warning ? 5000 : undefined,
       );
@@ -132,8 +132,8 @@ function ActivityLogWorkspace({ categoryId, onCategoryChange }) {
     }
 
     try {
-      await deleteEntry(entryId);
-      showToast("Entry deleted. The database has agreed to forget.");
+      await deleteEntry(entryId, user?.uid);
+      showToast("Entry deleted successfully.");
     } catch (error) {
       console.error(error);
       showToast(
@@ -155,8 +155,8 @@ function ActivityLogWorkspace({ categoryId, onCategoryChange }) {
       <div className="activity-page__hint card">
         <span aria-hidden="true">🧠</span>
         <p>
-          <strong>Honesty bonus:</strong> not an actual bonus—just the reason
-          your progress remains useful.
+          <strong>Accurate entries matter.</strong> Honest records keep your
+          statistics, coaching and long-term progress genuinely useful.
         </p>
       </div>
 

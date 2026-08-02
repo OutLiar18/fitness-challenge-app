@@ -74,6 +74,26 @@ export const SECONDARY_NAV_ITEMS = Object.freeze([
   },
 ]);
 
+
+export const REFERENCE_NAV_ITEMS = Object.freeze([
+  {
+    id: "rules",
+    label: "Challenge Rulebook",
+    icon: "📜",
+    to: "/rules",
+    tone: "blue",
+    description: "Current rules, season options and retired challenge mechanics.",
+  },
+  {
+    id: "points-guide",
+    label: "Points Guide",
+    icon: "📊",
+    to: "/points-guide",
+    tone: "cyan",
+    description: "Simple scoring ladders, public formulas and visible bonuses.",
+  },
+]);
+
 // Retained as an alias so older tests and documentation links do not break.
 export const FUTURE_NAV_ITEMS = SECONDARY_NAV_ITEMS;
 
@@ -100,6 +120,7 @@ export function getNavigationItemByPath(pathname) {
   const items = [
     ...PRIMARY_NAV_ITEMS,
     ...SECONDARY_NAV_ITEMS,
+    ...REFERENCE_NAV_ITEMS,
     ADMIN_NAV_ITEM,
   ];
 

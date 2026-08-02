@@ -1,7 +1,7 @@
 # Champions Legacy Challenge — Component Architecture
 
 Last updated: 1 August 2026  
-Current release: v0.11.0
+Current release: v0.13.1
 
 ## Layout
 
@@ -50,3 +50,11 @@ Current release: v0.11.0
 - Strong weight marks actions/results; italics mark reflection; underlining remains for links/active controls.
 - Loading, empty, error and success states must remain clear.
 - No page duplicates points, league formulas or security logic.
+
+## v0.13.1 Reference System
+
+- `Rulebook.jsx` renders dynamic goals, search/filter controls, jump navigation and accessible rule accordions.
+- `PointsGuide.jsx` renders category selection, score ladders, formulas, difficulty, visible bonuses and league scoring.
+- Both routes are lazy loaded and available from the shared More navigation.
+- Page components receive generated models and do not own scoring rules.
+

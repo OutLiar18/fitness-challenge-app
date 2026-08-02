@@ -1,20 +1,18 @@
 # Champions Legacy Challenge — Next Session
 
-Version target: 0.11.0  
-Objective: Verify and stabilise Teams, Leagues and Legacy Coach before review
+Version target: 0.13.1  
+Objective: Verify the official Rulebook and Points Guide before the full review
+
+## Before deploying Rules
+
+The v0.13 feature itself adds no Firestore collections or Rules. However, if the v0.12 Rules have not yet been deployed, inspect every existing `leagues` document and confirm:
+
+- `participantLimit` is the number `200`.
+- `participantCount` equals the matching `leagueMemberships` count.
+
+No league documents means no migration action.
 
 ## Required sequence
-
-1. Confirm `.env` remains present and ignored by Git.
-2. Run `npm install`.
-3. Run `npm run check`; expect **44 passing domain tests**.
-4. Run `npm run test:rules`; expect **12 passing Firestore Rules tests**.
-5. Run `npm run check:release`.
-6. Run `npm audit`; do not use `--force`.
-7. Deploy the updated Firestore Rules.
-8. Start the development server and complete the community/coaching checks below.
-
-## Commands
 
 ```powershell
 npm install
@@ -22,46 +20,48 @@ npm run check
 npm run test:rules
 npm run check:release
 npm audit
-npm run deploy:rules
+npm run deploy:hosting
 npm run dev
 ```
 
-## Team checks
+Run `npm run deploy:rules` first only when the v0.12 hardened Rules are not already live.
 
-- Create a team and confirm the invitation code and local emblem appear.
-- Join from a second account.
-- Confirm one player cannot join or create a second team.
-- Record activity and confirm the member’s weekly roster summary updates.
-- Confirm a member cannot make themselves captain.
-- Transfer captaincy and confirm both accounts update.
-- Confirm the former captain may now leave while the current captain may not.
+Expected results:
 
-## League checks
+- 54 domain tests pass.
+- 15 Firestore Security Rules tests pass.
+- ESLint passes.
+- Production build passes.
+- Release readiness confirms v0.13.1 and Hosting target `app`.
 
-- Assign a test account the `leagueAdmin` role through trusted administration.
-- Create a Draft league and inspect the frozen rules explanation.
-- Open Registration and join from player accounts.
-- Confirm registration may be withdrawn only before activation.
-- Activate the league, record activity once, and confirm personal and league progress update together.
-- Confirm the daily cap and participation bonus produce understandable standings.
-- Complete and archive the league in order; confirm stages cannot be skipped.
+Do not run `npm audit fix --force`.
 
-## Legacy Coach checks
+## Focused checks
 
-- Confirm recommendations use only current and previous seven-day entry periods.
-- Expand every “Why this was suggested” explanation.
-- Change tone and focus, refresh, and confirm preferences persist.
-- Disable guidance and confirm recommendations hide without deleting activity.
-- Confirm another account cannot read the player’s Coach preferences.
+### Rulebook
+
+- `/rules` opens from desktop and mobile More navigation.
+- Current rules are the default view.
+- Search finds rules by text and 2025 rule number.
+- Current, season and inactive filters remain distinct.
+- Expand all, collapse all, jump links and browser back/forward work.
+- Current goal values match Dashboard and Progress.
+- Inactive legacy mechanics cannot be mistaken for active features.
+
+### Points Guide
+
+- Every activity category is selectable.
+- Zero-point ranges and earning ranges match the live scoring engine.
+- Running eligibility and automatic Cardio contribution are clear.
+- Difficulty multipliers, visible goal bonuses and league scoring display correctly.
+- Streak milestone and achievement rewards are not disclosed.
+
+### Regression
+
+- Activity scoring, Teams, Leagues, Legacy Coach, Announcements and Administration still work.
+- Direct refreshes on `/rules` and `/points-guide` work on Firebase Hosting.
+- Mobile layouts have no horizontal overflow.
 
 ## Release boundary
 
-A suitable commit is:
-
-```powershell
-git add -A
-git commit -m "feat: add teams leagues and transparent Legacy Coach"
-git tag v0.11.0
-```
-
-Do not create a `v1.0.0` tag.
+After verification, commit and tag v0.13.1. The next phase is the user’s full review and targeted corrections, still before v1.0.

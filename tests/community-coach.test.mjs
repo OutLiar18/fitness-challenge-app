@@ -1,17 +1,24 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { DEFAULT_LEAGUE_RULESET, LEAGUE_STATUSES } from "../src/constants/leagues.js";
+import {
+  DEFAULT_LEAGUE_RULESET,
+  LEAGUE_PARTICIPANT_LIMIT,
+  LEAGUE_STATUSES,
+} from "../src/constants/leagues.js";
 import { TEAM_MEMBER_LIMIT } from "../src/constants/teams.js";
 import { createCoachReport, normalizeCoachPreferences } from "../src/services/coach/coachModel.js";
 import {
   calculateLeagueStandings,
+  canManageLeague,
   canTransitionLeague,
   validateLeagueInput,
 } from "../src/services/leagues/leagueModel.js";
 import {
   calculateTeamMemberSnapshot,
   createTeamInviteCode,
+  getCurrentTeamMemberSnapshot,
+  getTeamSummary,
   normalizeTeamCode,
   validateTeamInput,
 } from "../src/services/teams/teamModel.js";
@@ -63,6 +70,50 @@ test("Team weekly snapshots reuse factual entry points", () => {
   assert.equal(snapshot.entriesRecorded, 2);
   assert.equal(snapshot.currentStreak, 4);
   assert.ok(snapshot.weeklyPoints > 0);
+});
+
+
+test("Team summaries ignore progress snapshots from an earlier week", () => {
+  const referenceDate = new Date(2026, 7, 3, 12);
+  const currentWeekKey = "2026-08-03";
+  const members = [
+    {
+      userId: "current",
+      weeklyKey: currentWeekKey,
+      weeklyPoints: 12.5,
+      activeDays: 2,
+      entriesRecorded: 3,
+    },
+    {
+      userId: "stale",
+      weeklyKey: "2026-07-27",
+      weeklyPoints: 99,
+      activeDays: 7,
+      entriesRecorded: 40,
+    },
+  ];
+
+  const staleSnapshot = getCurrentTeamMemberSnapshot(members[1], referenceDate);
+  const summary = getTeamSummary(members, referenceDate);
+
+  assert.equal(staleSnapshot.weeklyPoints, 0);
+  assert.equal(staleSnapshot.activeDays, 0);
+  assert.equal(summary.weeklyPoints, 12.5);
+  assert.equal(summary.activeDays, 2);
+  assert.equal(summary.entriesRecorded, 3);
+});
+
+test("League participant limit stays below lifecycle batch capacity", () => {
+  assert.equal(LEAGUE_PARTICIPANT_LIMIT, 200);
+  assert.ok(LEAGUE_PARTICIPANT_LIMIT < 497);
+});
+
+test("Platform Administrators can manage every league while scoped administrators cannot", () => {
+  const league = { administratorIds: ["league-admin"] };
+
+  assert.equal(canManageLeague(league, "platform-admin", true), true);
+  assert.equal(canManageLeague(league, "league-admin", false), true);
+  assert.equal(canManageLeague(league, "other-player", false), false);
 });
 
 test("League lifecycle only moves forward one audited stage at a time", () => {

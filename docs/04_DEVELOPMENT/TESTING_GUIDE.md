@@ -1,53 +1,47 @@
 # Champions Legacy Challenge — Testing Guide
 
-Last updated: 1 August 2026
+Last updated: 2 August 2026
 
-## Domain tests
+## Domain suite
 
 ```powershell
 npm test
 ```
 
-v0.11.0 target: **44 passing tests**.
+v0.13.1 target: **54 passing tests**.
 
-Coverage includes existing scoring, goals, progression, navigation, profiles, announcements and administration plus:
+Coverage includes scoring, goals, progression, records, navigation, profiles, announcements, administration, libraries, monitoring, Teams, Leagues, Legacy Coach, Rulebook filtering and generated Points Guide data.
 
-- team invitation normalization and identity validation;
-- weekly team snapshots using factual entry points;
-- forward-only league lifecycle;
-- frozen league rules;
-- consistency standings with daily cap and participation bonus;
-- Legacy Coach evidence, preferences and optional state.
-
-## Firestore Security Rules tests
+## Firestore Security Rules
 
 ```powershell
 npm run test:rules
 ```
 
-v0.11.0 target: **12 passing tests**.
+v0.13.1 target: **15 passing tests**. The Rulebook and Points Guide are bundled read-only references and add no Firestore permissions.
 
-Coverage includes the previous seven tests plus:
+Permission-denied output is expected for `assertFails` cases.
 
-- atomic team creation/joining, self-promotion denial and captain transfer;
-- owner-private Legacy Coach preferences;
-- authorised and audited league Draft creation;
-- forward-only audited league lifecycle;
-- entry-linked active league contribution integrity.
-
-Expected permission-denied logs are normal for `assertFails` cases.
-
-## Full checks
+## Full verification
 
 ```powershell
 npm run check
+npm run test:rules
 npm run check:release
 npm audit
 ```
 
 - `check` runs ESLint, domain tests and production build.
-- `check:release` additionally runs Rules tests and release-structure verification.
+- `check:release` verifies the version, announcement and branded Hosting target.
 - Do not run `npm audit fix --force`.
+
+## Reference-page manual tests
+
+- Search and filter Rulebook rules by text and legacy number.
+- Verify accordion keyboard behaviour, jump navigation and empty states.
+- Compare displayed goals with Dashboard/Progress.
+- Compare every Points Guide range with the scoring engine.
+- Test direct-route refreshes and 320-pixel layouts.
 
 ## Defect rule
 

@@ -68,7 +68,7 @@ function ProfileEditor({ profile, user }) {
     if (!changed) {
       setStatus({
         type: "info",
-        message: "No changes to save. Your profile is already looking heroic.",
+        message: "No changes to save. Your profile is already up to date.",
       });
       return;
     }
@@ -80,7 +80,7 @@ function ProfileEditor({ profile, user }) {
       await updateUserProfile(user.uid, result.value);
       setStatus({
         type: "success",
-        message: "Profile updated. The trophy has approved your new identity.",
+        message: "Profile updated successfully.",
       });
     } catch (error) {
       console.error(error);
@@ -280,23 +280,24 @@ export default function Profile() {
 
       <section className="profile-preferences card">
         <div>
-          <p>Account controls</p>
-          <h2>Privacy, accessibility and account management</h2>
+          <p>Account protections</p>
+          <h2>Your identity and permissions stay separate</h2>
           <p>
-            Legacy Coach preferences are available now. Remaining privacy,
-            accessibility and account-lifecycle controls will be added only when
-            their defaults and security rules are fully designed.
+            Changing your display name or avatar cannot change your email,
+            trusted role, team membership or competitive history. Legacy Coach
+            preferences remain private to your account, while completed league
+            results keep their original seasonal record.
           </p>
         </div>
 
         <div
           className="profile-preferences__chips"
-          aria-label="Planned profile features"
+          aria-label="Current account protections"
         >
-          <span>Accessibility controls</span>
-          <span>League-history visibility</span>
-          <span>Data export</span>
-          <span>Account management</span>
+          <span>Protected role</span>
+          <span>Private coach settings</span>
+          <span>Immutable league history</span>
+          <span>Local built-in avatars</span>
         </div>
       </section>
 

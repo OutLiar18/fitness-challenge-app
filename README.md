@@ -1,22 +1,22 @@
 # Champions Legacy Challenge
 
-Version: **0.11.0**  
-Status: **Pre-1.0 community and coaching foundation**
+Version: **0.13.1**  
+Status: **Pre-1.0 reference system complete; verification and user review pending**
 
 Champions Legacy Challenge is a gamified personal-development platform that rewards consistent, factual progress across fitness, reading, nutrition, movement and skill development.
 
 ## Current capabilities
 
-- Firebase email-and-password authentication and protected routes.
-- Ten factual activity categories with explainable scoring.
+- Firebase authentication, protected routes and branded Firebase Hosting.
+- Ten factual activity categories with central, explainable scoring.
 - Daily and weekly goals, streaks, experience points, achievements and records.
 - Responsive Dashboard, Log & Journal, Progress, Announcements and Profile areas.
-- Built-in Legacy Avatars and constrained profile editing.
-- Trusted administration, audited announcements, moderation and shared libraries.
-- Persistent teams with local emblems, invitation codes, rosters and weekly accountability.
-- Seasonal leagues with immutable `consistency-v1` rules, player and team standings, and forward-only lifecycle stages.
-- Transparent, optional Legacy Coach recommendations generated locally from the player’s own entries.
-- First-party error reporting, Firestore Emulator tests and Firebase Hosting configuration.
+- Searchable in-app Challenge Rulebook with current rules, season options and inactive 2025 mechanics.
+- Public Points Guide generated from the live scoring constants.
+- Storage-free Legacy Avatars and constrained profile editing.
+- Trusted administration, audited announcements, moderation and versioned shared libraries.
+- Persistent Teams, seasonal consistency-weighted Leagues and transparent local Legacy Coach guidance.
+- First-party error reporting, Firestore Emulator tests and deployment recovery.
 
 ## Local setup
 
@@ -27,9 +27,9 @@ npm run check
 npm run dev
 ```
 
-Add the real Firebase web configuration to `.env` before starting the app.
+Add the Firebase web configuration to `.env` before starting the app.
 
-## Verification commands
+## Verification
 
 ```powershell
 npm run check
@@ -38,23 +38,24 @@ npm run check:release
 npm audit
 ```
 
-Expected v0.11.0 verification:
+Expected v0.13.1 verification:
 
-- 44 domain tests.
-- 12 Firestore Security Rules tests.
-- ESLint and production build pass.
-- Release-readiness structure passes.
+- 54 domain tests.
+- 15 Firestore Security Rules tests.
+- ESLint and the production build pass.
+- Release-readiness and branded Hosting target checks pass.
 
-Do not run `npm audit fix --force` without reviewing breaking dependency changes. The Firestore Emulator requires Java 21.
+Do not run `npm audit fix --force`. The Firestore Emulator requires Java 21.
 
 ## Deployment
 
 ```powershell
 npm run deploy:rules
 npm run deploy:preview
+npm run deploy:hosting
 ```
 
-Do not run `npm run deploy:production` until the user has reviewed the complete pre-1.0 product and explicitly approved a v1.0 release.
+The branded site is `https://champions-legacy-challenge.web.app`. Do not run the combined production script until the user approves it.
 
 ## Documentation
 
@@ -68,4 +69,4 @@ Start with:
 
 ## Release boundary
 
-v0.11.0 is **not** v1.0. Teams, leagues and Legacy Coach are implemented for integrated testing and later review, not declared final.
+v0.13.1 is **not** v1.0. It adds the official player-facing rules and scoring references before the full product review.

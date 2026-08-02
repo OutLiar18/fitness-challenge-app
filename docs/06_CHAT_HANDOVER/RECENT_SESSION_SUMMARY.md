@@ -1,37 +1,22 @@
 # Champions Legacy Challenge — Recent Session Summary
 
-Date: 1 August 2026  
-Release target: v0.11.0 pre-1.0 community and coaching foundation
+Date: 2 August 2026  
+Release target: v0.13.1 Rulebook and Points Reference
 
 ## User direction
 
-The user chose not to begin full product review yet. Teams, Leagues and Legacy Coach must be completed and stabilised first. v0.11.0 remains pre-1.0.
+The user supplied the original 2025 14-page Rule Book and one-page Points Guidelines. They requested accessible in-app references, preservation of original wording where appropriate, clear handling of unsupported mechanics, and no v1.0 declaration.
 
 ## Implemented
 
-### Teams
-
-- One persistent team per player.
-- Local storage-free emblems, team identity and invitations.
-- Roster weekly progress from factual entries.
-- Atomic team creation, joining, leaving and captain transfer.
-
-### Leagues
-
-- Draft, Registration, Active, Completed and Archived lifecycle.
-- League Administrator and Platform Administrator operations.
-- Frozen `consistency-v1` and `points-v2` rules.
-- Daily 20-point raw activity cap plus five-point participation bonus.
-- Atomic entry and league contribution creation.
-- Player and team standings.
-- Audited creation and lifecycle transitions.
-
-### Legacy Coach
-
-- Local deterministic recommendations using current and previous seven-day entries.
-- Player-controlled enabled state, tone and focus.
-- Every recommendation exposes evidence and a reason.
-- No external model/API cost and no diagnostic claims.
+- Searchable `/rules` page with status filters, accordion sections, jump navigation and dynamic current goals.
+- Stable rule identifiers and 2025 rule-number source references.
+- Current, season-option and inactive legacy classifications.
+- Added platform integrity, privacy, safety, respectful-conduct and account-security rules.
+- Marked Pocket Week, Houses, Power Plays, Transfer Market, Buddy Bonus, photo bonuses, WhatsApp administration and Five Fires inactive.
+- Added `/points-guide` with category selector, visual scoring ladders, zero-point ranges, public formulas, difficulty scale, visible goal bonuses and league scoring.
+- Generated the guide from live Points Engine constants rather than copying the obsolete 2025 table.
+- Added navigation, announcement, release metadata, ADR-020 and regression coverage.
 
 ## Verification targets
 
@@ -45,12 +30,15 @@ npm audit
 
 Expected:
 
-- 44 domain tests.
-- 12 Firestore Rules tests.
-- ESLint passes.
-- Production build passes.
-- Release-readiness check passes.
+- 54 domain tests.
+- 15 Firestore Rules tests.
+- ESLint and production build pass.
+- Release readiness confirms v0.13.1 and Hosting target `app`.
+
+## Important boundary
+
+The new pages do not add Firestore collections or permissions. Existing v0.12 league-capacity migration and Rules deployment requirements still apply when that baseline has not already been deployed.
 
 ## Next action
 
-Apply the v0.11.0 updater, run verification, deploy Firestore Rules, then test the community and coaching workflows in `NEXT_SESSION.md`. Do not create v1.0 or begin final review until these systems are stable.
+Apply v0.13.1, run verification, deploy the branded Hosting build and begin the user’s complete review. Do not create v1.0.

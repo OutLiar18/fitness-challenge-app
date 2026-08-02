@@ -226,7 +226,7 @@ test("Client error reports are sanitised and produce stable fingerprints", () =>
   assert.equal(report.name, "TypeError");
   assert.equal(report.message, "A component failed");
   assert.equal(report.fingerprint, fingerprint);
-  assert.equal(report.releaseVersion, "0.11.0");
+  assert.equal(report.releaseVersion, "0.13.1");
   assert.ok(report.context.summary.includes("safe"));
 
   const circularContext = {};

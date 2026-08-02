@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import {
   ADMIN_NAV_ITEM,
   SECONDARY_NAV_ITEMS,
+  REFERENCE_NAV_ITEMS,
   MOBILE_NAV_ITEMS,
   PRIMARY_NAV_ITEMS,
   getNavigationItemByPath,
@@ -67,6 +68,7 @@ function ShellStat({ icon, value, label }) {
 }
 
 function MoreMenu({
+  dialogRef,
   isAdmin,
   displayName,
   avatarId,
@@ -74,7 +76,15 @@ function MoreMenu({
   onLogout,
 }) {
   return (
-    <div className="app-more-panel" role="dialog" aria-label="More navigation">
+    <div
+      ref={dialogRef}
+      id="app-more-menu"
+      className="app-more-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-label="More navigation"
+      tabIndex={-1}
+    >
       <div className="app-more-panel__header">
         <LegacyAvatar avatarId={avatarId} size="medium" decorative />
 
@@ -99,6 +109,13 @@ function MoreMenu({
       <div className="app-more-panel__section">
         <p>Community and guidance</p>
         {SECONDARY_NAV_ITEMS.map((item) => (
+          <NavigationLink key={item.id} item={item} onNavigate={onNavigate} />
+        ))}
+      </div>
+
+      <div className="app-more-panel__section">
+        <p>Challenge reference</p>
+        {REFERENCE_NAV_ITEMS.map((item) => (
           <NavigationLink key={item.id} item={item} onNavigate={onNavigate} />
         ))}
       </div>
@@ -129,13 +146,18 @@ export default function AppShell() {
   const [moreOpen, setMoreOpen] = useState(false);
   const [brandClicks, setBrandClicks] = useState(0);
   const [secretMessage, setSecretMessage] = useState("");
+  const dialogRef = useRef(null);
+  const desktopMoreButtonRef = useRef(null);
+  const mobileMoreButtonRef = useRef(null);
+  const activeMoreButtonRef = useRef(null);
 
   const displayName = getDisplayName(profile, user);
   const activeItem = getNavigationItemByPath(location.pathname);
   const desktopMoreIsActive = Boolean(
     activeItem &&
       (activeItem.id === "admin" ||
-        SECONDARY_NAV_ITEMS.some((item) => item.id === activeItem.id)),
+        SECONDARY_NAV_ITEMS.some((item) => item.id === activeItem.id) ||
+        REFERENCE_NAV_ITEMS.some((item) => item.id === activeItem.id)),
   );
   const mobileMoreIsActive = Boolean(
     activeItem &&
@@ -152,21 +174,73 @@ export default function AppShell() {
   }, [secretMessage]);
 
   useEffect(() => {
+    if (!moreOpen) {
+      return undefined;
+    }
+
+    const dialog = dialogRef.current;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const focusable = dialog?.querySelectorAll(
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    );
+    focusable?.[0]?.focus();
+
     function handleKeyDown(event) {
       if (event.key === "Escape") {
+        event.preventDefault();
         setMoreOpen(false);
+        return;
+      }
+
+      if (event.key !== "Tab" || !dialog) {
+        return;
+      }
+
+      const currentFocusable = [...dialog.querySelectorAll(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      )];
+
+      if (currentFocusable.length === 0) {
+        event.preventDefault();
+        dialog.focus();
+        return;
+      }
+
+      const first = currentFocusable[0];
+      const last = currentFocusable[currentFocusable.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
       }
     }
 
     document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, []);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+      activeMoreButtonRef.current?.focus();
+    };
+  }, [moreOpen]);
 
   function closeMoreMenu() {
     setMoreOpen(false);
   }
 
+  function toggleMoreMenu(trigger) {
+    activeMoreButtonRef.current = trigger;
+    setMoreOpen((current) => !current);
+  }
+
   function handleBrandClick() {
+    navigate("/dashboard");
+
     const nextClicks = brandClicks + 1;
     setBrandClicks(nextClicks);
 
@@ -187,8 +261,7 @@ export default function AppShell() {
     } catch (logoutError) {
       console.error(logoutError);
       setSecretMessage(
-        logoutError.message ||
-          "The exit door got confused. Please try again.",
+        logoutError.message || "Sign-out failed. Please try again.",
       );
     }
   }
@@ -216,12 +289,16 @@ export default function AppShell() {
 
   return (
     <div className="app-shell">
+      <a className="app-skip-link" href="#main-content">
+        Skip to main content
+      </a>
+
       <aside className="app-sidebar" aria-label="Application navigation">
         <button
           className="app-brand"
           type="button"
           onClick={handleBrandClick}
-          aria-label="Champions Legacy Challenge. Click repeatedly for absolutely no reason."
+          aria-label="Go to the Champions Legacy Challenge dashboard"
         >
           <span className="app-brand__mark" aria-hidden="true">
             🏆
@@ -254,6 +331,7 @@ export default function AppShell() {
           ))}
 
           <button
+            ref={desktopMoreButtonRef}
             className={`app-nav__link app-nav__link--more${
               moreOpen || desktopMoreIsActive
                 ? " app-nav__link--active"
@@ -262,7 +340,8 @@ export default function AppShell() {
             type="button"
             aria-expanded={moreOpen}
             aria-haspopup="dialog"
-            onClick={() => setMoreOpen((current) => !current)}
+            aria-controls="app-more-menu"
+            onClick={() => toggleMoreMenu(desktopMoreButtonRef.current)}
           >
             <span className="app-nav__icon" aria-hidden="true">
               •••
@@ -299,7 +378,7 @@ export default function AppShell() {
               className="app-mobile-header__brand"
               type="button"
               onClick={handleBrandClick}
-              aria-label="Champions Legacy Challenge"
+              aria-label="Go to the Champions Legacy Challenge dashboard"
             >
               <span aria-hidden="true">🏆</span>
             </button>
@@ -320,7 +399,7 @@ export default function AppShell() {
           </div>
         </header>
 
-        <main className="app-content" id="main-content">
+        <main className="app-content" id="main-content" tabIndex={-1}>
           {error && (
             <div
               className="inline-alert inline-alert--danger app-content__error"
@@ -364,6 +443,7 @@ export default function AppShell() {
         ))}
 
         <button
+          ref={mobileMoreButtonRef}
           className={`app-mobile-nav__link app-mobile-nav__more${
             moreOpen || mobileMoreIsActive
               ? " app-mobile-nav__link--active"
@@ -372,7 +452,8 @@ export default function AppShell() {
           type="button"
           aria-expanded={moreOpen}
           aria-haspopup="dialog"
-          onClick={() => setMoreOpen((current) => !current)}
+          aria-controls="app-more-menu"
+          onClick={() => toggleMoreMenu(mobileMoreButtonRef.current)}
         >
           <span aria-hidden="true">•••</span>
           <small>More</small>
@@ -389,6 +470,7 @@ export default function AppShell() {
           />
 
           <MoreMenu
+            dialogRef={dialogRef}
             isAdmin={isPlatformAdmin}
             displayName={displayName}
             avatarId={profile?.avatarId}

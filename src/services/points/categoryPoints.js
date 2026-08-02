@@ -5,7 +5,7 @@ import {
 } from "../../constants/points/categoryScoring";
 import { getScoreFromTable } from "./utils";
 
-const FRUIT_POINTS_PER_SERVING = 5;
+export const FRUIT_POINTS_PER_SERVING = 5;
 
 const BONUS_CATEGORY_MAP = {
   running: ["cardio"],

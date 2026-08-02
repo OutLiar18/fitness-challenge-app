@@ -8,11 +8,17 @@ import {
   FUTURE_NAV_ITEMS,
   MOBILE_NAV_ITEMS,
   PRIMARY_NAV_ITEMS,
+  REFERENCE_NAV_ITEMS,
   getNavigationItemByPath,
 } from "../src/constants/navigation.js";
 
 test("Navigation paths and identifiers remain unique", () => {
-  const items = [...PRIMARY_NAV_ITEMS, ...FUTURE_NAV_ITEMS, ADMIN_NAV_ITEM];
+  const items = [
+    ...PRIMARY_NAV_ITEMS,
+    ...FUTURE_NAV_ITEMS,
+    ...REFERENCE_NAV_ITEMS,
+    ADMIN_NAV_ITEM,
+  ];
   const ids = items.map((item) => item.id);
   const paths = items.map((item) => item.to);
 

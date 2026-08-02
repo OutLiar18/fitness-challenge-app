@@ -33,7 +33,7 @@ Stages cannot be skipped or reversed.
 
 ## Frozen rules
 
-Every v0.11.0 league stores `consistency-v1`:
+Every league created from v0.11.0 onward stores `consistency-v1`:
 
 - scoring engine: `points-v2`;
 - included categories: all ten factual activity categories;

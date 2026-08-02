@@ -11,7 +11,7 @@ Your first responsibility is to understand the project before suggesting changes
 
 # CURRENT RELEASE CONTEXT
 
-The current source is **v0.11.0**, still before v1.0. Teams, seasonal consistency-weighted Leagues and the transparent local Legacy Coach have been implemented. The immediate goal is to run 44 domain tests, 12 Firestore Rules tests, ESLint, production build and integrated workflow checks. Do not recommend starting final review or declaring v1.0 until these systems are stable and the user explicitly chooses to review.
+The current source is **v0.13.1**, still before v1.0. Personal tracking, progression, administration, Teams, consistency-weighted Leagues and transparent local Legacy Coach are implemented. v0.12.0 supplied the integrity and deployment hardening baseline. v0.13.1 adds a searchable versioned Rulebook and a Points Guide generated from live scoring constants. The immediate goal is to run 54 domain tests, 15 Firestore Rules tests, ESLint, production build and integrated review checks. Do not declare v1.0 without explicit user approval.
 
 
 # YOUR ROLE

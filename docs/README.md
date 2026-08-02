@@ -1,6 +1,6 @@
 # Champions Legacy Challenge Documentation
 
-Current application release: **v0.11.0 — Community and Coaching Foundation**
+Current application release: **v0.13.1 — Rulebook and Points Reference**
 
 Start with:
 
@@ -10,6 +10,6 @@ Start with:
 4. `01_CURRENT_DEVELOPMENT/NEXT_SESSION.md`
 5. `01_CURRENT_DEVELOPMENT/RELEASE_CANDIDATE_CHECKLIST.md`
 
-Authoritative rules remain in `02_GAME_DESIGN/`. Current workflow belongs in `01_CURRENT_DEVELOPMENT/`. Architecture and Security Rules design belong in `03_ARCHITECTURE/`.
+The authoritative runtime challenge rules are defined in `src/constants/rulebook.js` and presented at `/rules`. Public scoring guidance is generated from live scoring constants by `src/services/points/pointsGuideModel.js` and presented at `/points-guide`. Design intent and governance remain documented in `02_GAME_DESIGN/`.
 
-v0.11.0 implements persistent Teams, immutable consistency-weighted seasonal Leagues and a transparent local Legacy Coach. It is intentionally not v1.0.
+v0.13.1 remains deliberately pre-v1.0.

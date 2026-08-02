@@ -16,6 +16,11 @@ function cleanText(value, maximumLength = 120) {
     .slice(0, maximumLength);
 }
 
+function toNonNegativeNumber(value) {
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : 0;
+}
+
 export function createTeamInviteCode(random = Math.random) {
   return Array.from({ length: 8 }, () => {
     const index = Math.floor(random() * TEAM_CODE_ALPHABET.length);
@@ -86,21 +91,45 @@ export function calculateTeamMemberSnapshot(
   };
 }
 
-export function getTeamSummary(members = []) {
-  const currentWeekMembers = members.filter((member) => member.weeklyKey);
+export function getCurrentTeamMemberSnapshot(
+  member = {},
+  referenceDate = new Date(),
+) {
+  const currentWeekKey = getTeamWeekKey(referenceDate);
+  const isCurrentWeek = member.weeklyKey === currentWeekKey;
+
+  return {
+    ...member,
+    weeklyKey: currentWeekKey,
+    weeklyPoints: isCurrentWeek
+      ? toNonNegativeNumber(member.weeklyPoints)
+      : 0,
+    activeDays: isCurrentWeek
+      ? Math.round(toNonNegativeNumber(member.activeDays))
+      : 0,
+    entriesRecorded: isCurrentWeek
+      ? Math.round(toNonNegativeNumber(member.entriesRecorded))
+      : 0,
+  };
+}
+
+export function getTeamSummary(members = [], referenceDate = new Date()) {
+  const currentWeekMembers = members.map((member) =>
+    getCurrentTeamMemberSnapshot(member, referenceDate),
+  );
 
   return {
     memberCount: members.length,
     weeklyPoints: currentWeekMembers.reduce(
-      (total, member) => total + Number(member.weeklyPoints ?? 0),
+      (total, member) => total + member.weeklyPoints,
       0,
     ),
     activeDays: currentWeekMembers.reduce(
-      (total, member) => total + Number(member.activeDays ?? 0),
+      (total, member) => total + member.activeDays,
       0,
     ),
     entriesRecorded: currentWeekMembers.reduce(
-      (total, member) => total + Number(member.entriesRecorded ?? 0),
+      (total, member) => total + member.entriesRecorded,
       0,
     ),
     remainingPlaces: Math.max(0, TEAM_MEMBER_LIMIT - members.length),

@@ -27,7 +27,7 @@ Route pages and reusable components
 - `leagueModel.js` — input validation, lifecycle, date checks and consistency standings.
 - `leagueService.js` — visible/managed subscriptions, audited creation/transitions and registration.
 - `LeagueProvider.jsx` — league library, player memberships and manager capability.
-- `entryRepository.js` — creates/deletes league contributions with the source entry.
+- `entryRepository.js` — creates contribution snapshots with source entries and deletes only the authenticated player’s active-league snapshots when a recent entry is removed.
 
 ## Coach services
 
@@ -48,3 +48,11 @@ Points, statistics, progression, announcements, shared libraries, administration
 - League rules are frozen and standings use snapshots.
 - Privileged writes and audit events commit atomically.
 - Coach recommendations remain explainable and optional.
+
+## v0.13.1 Reference System
+
+- `rulebookModel.js` performs status/search filtering and summary calculations.
+- `pointsGuideModel.js` transforms live scoring constants into complete player-facing ranges.
+- `categoryPoints.js` exports the Fruit per-serving value used by both calculation and guide generation.
+- No Firestore service is required because both references are bundled, read-only and release-versioned.
+

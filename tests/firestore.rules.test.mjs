@@ -1,3 +1,4 @@
+import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { after, before, beforeEach, test } from "node:test";
@@ -9,11 +10,16 @@ import {
 } from "@firebase/rules-unit-testing";
 import {
   Timestamp,
+  collection,
+  deleteDoc,
   doc,
   getDoc,
+  getDocs,
+  query,
   serverTimestamp,
   setDoc,
   updateDoc,
+  where,
   writeBatch,
 } from "firebase/firestore";
 
@@ -592,6 +598,8 @@ test("league drafts require an authorised operator and a matching audit event", 
         ],
       },
       administratorIds: [actorId],
+      participantCount: 0,
+      participantLimit: 200,
       inviteCode,
       createdAt: serverTimestamp(),
       createdBy: actorId,
@@ -647,6 +655,8 @@ test("league lifecycle changes move forward one stage and remain audited", async
         ],
       },
       administratorIds: ["admin-one"],
+      participantCount: 0,
+      participantLimit: 200,
       inviteCode: "LIFECYCL",
       createdAt: Timestamp.now(),
       createdBy: "admin-one",
@@ -712,8 +722,10 @@ test("league lifecycle changes move forward one stage and remain audited", async
   await assertSucceeds(validBatch.commit());
 
   const playerFirestore = playerContext("player-one").firestore();
-  await assertSucceeds(
-    setDoc(doc(playerFirestore, "leagueMemberships", "league-lifecycle_player-one"), {
+  const joinLeagueBatch = writeBatch(playerFirestore);
+  joinLeagueBatch.set(
+    doc(playerFirestore, "leagueMemberships", "league-lifecycle_player-one"),
+    {
       leagueId: "league-lifecycle",
       userId: "player-one",
       displayName: "Test Player",
@@ -725,12 +737,21 @@ test("league lifecycle changes move forward one stage and remain audited", async
       inviteCode: "LIFECYCL",
       joinedAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
-    }),
+    },
   );
+  joinLeagueBatch.update(doc(playerFirestore, "leagues", "league-lifecycle"), {
+    participantCount: 1,
+    participantLimit: 200,
+    updatedAt: serverTimestamp(),
+    updatedBy: "player-one",
+  });
+  await assertSucceeds(joinLeagueBatch.commit());
 
   const falseTeamFirestore = playerContext("player-two").firestore();
-  await assertFails(
-    setDoc(doc(falseTeamFirestore, "leagueMemberships", "league-lifecycle_player-two"), {
+  const invalidJoinBatch = writeBatch(falseTeamFirestore);
+  invalidJoinBatch.set(
+    doc(falseTeamFirestore, "leagueMemberships", "league-lifecycle_player-two"),
+    {
       leagueId: "league-lifecycle",
       userId: "player-two",
       displayName: "Test Player",
@@ -742,8 +763,48 @@ test("league lifecycle changes move forward one stage and remain audited", async
       inviteCode: "LIFECYCL",
       joinedAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
-    }),
+    },
   );
+  invalidJoinBatch.update(doc(falseTeamFirestore, "leagues", "league-lifecycle"), {
+    participantCount: 2,
+    participantLimit: 200,
+    updatedAt: serverTimestamp(),
+    updatedBy: "player-two",
+  });
+  await assertFails(invalidJoinBatch.commit());
+
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await updateDoc(doc(context.firestore(), "leagues", "league-lifecycle"), {
+      participantCount: 200,
+      participantLimit: 200,
+    });
+  });
+
+  const overflowFirestore = playerContext("player-three").firestore();
+  const overflowBatch = writeBatch(overflowFirestore);
+  overflowBatch.set(
+    doc(overflowFirestore, "leagueMemberships", "league-lifecycle_player-three"),
+    {
+      leagueId: "league-lifecycle",
+      userId: "player-three",
+      displayName: "Third Player",
+      avatarId: "legacy-trophy",
+      teamId: "",
+      teamName: "Independent",
+      role: "participant",
+      status: "registered",
+      inviteCode: "LIFECYCL",
+      joinedAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    },
+  );
+  overflowBatch.update(doc(overflowFirestore, "leagues", "league-lifecycle"), {
+    participantCount: 201,
+    participantLimit: 200,
+    updatedAt: serverTimestamp(),
+    updatedBy: "player-three",
+  });
+  await assertFails(overflowBatch.commit());
 });
 
 test("league contributions must match an active membership and the entry written with them", async () => {
@@ -756,8 +817,8 @@ test("league contributions must match an active membership and the entry written
       type: "Community",
       mode: "individual",
       status: "active",
-      startDate: Timestamp.fromDate(new Date("2026-08-01T00:00:00.000Z")),
-      endDate: Timestamp.fromDate(new Date("2026-08-31T00:00:00.000Z")),
+      startDate: Timestamp.fromMillis(Date.now() - 7 * 24 * 60 * 60 * 1000),
+      endDate: Timestamp.fromMillis(Date.now() + 7 * 24 * 60 * 60 * 1000),
       rulesVersion: "consistency-v1",
       ruleset: {
         version: "consistency-v1",
@@ -770,6 +831,8 @@ test("league contributions must match an active membership and the entry written
         ],
       },
       administratorIds: ["admin-one"],
+      participantCount: 1,
+      participantLimit: 200,
       inviteCode: "ACTIVEAA",
       createdAt: Timestamp.now(),
       createdBy: "admin-one",
@@ -796,7 +859,7 @@ test("league contributions must match an active membership and the entry written
   });
 
   const firestore = playerContext("player-one").firestore();
-  const challengeDate = Timestamp.fromDate(new Date("2026-08-12T12:00:00.000Z"));
+  const challengeDate = Timestamp.now();
   const validBatch = writeBatch(firestore);
   validBatch.set(doc(firestore, "challengeEntries", "league-entry-one"), {
     userId: "player-one",
@@ -820,12 +883,46 @@ test("league contributions must match an active membership and the entry written
     createdAt: serverTimestamp(),
   });
   await assertSucceeds(validBatch.commit());
+  await assertSucceeds(
+    getDoc(
+      doc(firestore, "leagueContributions", "league-active_league-entry-one"),
+    ),
+  );
+  await assertSucceeds(
+    getDocs(
+      query(
+        collection(firestore, "leagueContributions"),
+        where("entryId", "==", "league-entry-one"),
+        where("userId", "==", "player-one"),
+      ),
+    ),
+  );
+  await assertFails(
+    getDoc(
+      doc(
+        playerContext("player-two").firestore(),
+        "leagueContributions",
+        "league-active_league-entry-one",
+      ),
+    ),
+  );
 
   const invalidBatch = writeBatch(firestore);
   invalidBatch.set(doc(firestore, "challengeEntries", "league-entry-two"), {
     userId: "player-one",
     category: "reading",
-    data: { duration: 30 },
+    data: {
+      hours: 0,
+      minutes: 30,
+      seconds: 0,
+      totalSeconds: 1800,
+      totalMinutes: 30,
+      title: "A Valid Reading Entry",
+      author: "",
+      totalPages: "",
+      reflection: "",
+      completed: false,
+    },
     createdAt: serverTimestamp(),
     challengeDate,
   });
@@ -845,3 +942,181 @@ test("league contributions must match an active membership and the entry written
   });
   await assertFails(invalidBatch.commit());
 });
+
+test("invitation codes can be resolved directly but cannot be enumerated", async () => {
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "teamInvites", "PRIVATE1"), {
+      teamId: "team-private",
+      teamName: "Private Team",
+      emblemId: "legacy-banner",
+      status: "active",
+      createdAt: Timestamp.now(),
+      createdBy: "player-one",
+      updatedAt: Timestamp.now(),
+      updatedBy: "player-one",
+    });
+    await setDoc(doc(firestore, "leagueInvites", "PRIVATE2"), {
+      leagueId: "league-private",
+      leagueName: "Private League",
+      status: "active",
+      createdAt: Timestamp.now(),
+      createdBy: "admin-one",
+      updatedAt: Timestamp.now(),
+      updatedBy: "admin-one",
+    });
+  });
+
+  const firestore = playerContext().firestore();
+  const teamInvite = await assertSucceeds(
+    getDoc(doc(firestore, "teamInvites", "PRIVATE1")),
+  );
+  const leagueInvite = await assertSucceeds(
+    getDoc(doc(firestore, "leagueInvites", "PRIVATE2")),
+  );
+  assert.equal(teamInvite.exists(), true);
+  assert.equal(leagueInvite.exists(), true);
+  await assertFails(getDocs(collection(firestore, "teamInvites")));
+  await assertFails(getDocs(collection(firestore, "leagueInvites")));
+});
+
+test("challenge entries require recent dates and category-shaped data", async () => {
+  const firestore = playerContext().firestore();
+
+  await assertSucceeds(
+    setDoc(doc(firestore, "challengeEntries", "recent-water"), {
+      userId: "player-one",
+      category: "water",
+      data: { amount: 750 },
+      createdAt: serverTimestamp(),
+      challengeDate: Timestamp.now(),
+    }),
+  );
+
+  await assertFails(
+    setDoc(doc(firestore, "challengeEntries", "backdated-water"), {
+      userId: "player-one",
+      category: "water",
+      data: { amount: 750 },
+      createdAt: serverTimestamp(),
+      challengeDate: Timestamp.fromMillis(
+        Date.now() - 10 * 24 * 60 * 60 * 1000,
+      ),
+    }),
+  );
+
+  await assertFails(
+    setDoc(doc(firestore, "challengeEntries", "malformed-water"), {
+      userId: "player-one",
+      category: "water",
+      data: { amount: "a lot" },
+      createdAt: serverTimestamp(),
+      challengeDate: Timestamp.now(),
+    }),
+  );
+
+  await assertFails(
+    setDoc(doc(firestore, "challengeEntries", "inconsistent-duration"), {
+      userId: "player-one",
+      category: "reading",
+      data: {
+        hours: 0,
+        minutes: 30,
+        seconds: 0,
+        totalSeconds: 60,
+        totalMinutes: 1,
+        title: "Inconsistent Duration",
+        author: "",
+        totalPages: "",
+        reflection: "",
+        completed: false,
+      },
+      createdAt: serverTimestamp(),
+      challengeDate: Timestamp.now(),
+    }),
+  );
+});
+
+test("completed league contributions remain after a recent personal entry is deleted", async () => {
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", "league-completed"), {
+      name: "Completed League",
+      normalizedName: "completed league",
+      description: "A completed league that preserves its final contribution history.",
+      type: "Community",
+      mode: "individual",
+      status: "completed",
+      startDate: Timestamp.fromMillis(Date.now() - 7 * 24 * 60 * 60 * 1000),
+      endDate: Timestamp.fromMillis(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      rulesVersion: "consistency-v1",
+      ruleset: {
+        version: "consistency-v1",
+        scoringEngineVersion: "points-v2",
+        dailyActivityCap: 20,
+        dailyParticipationBonus: 5,
+        includedCategories: [
+          "water", "fruit", "reading", "running", "upperBody",
+          "lowerBody", "core", "cardio", "skill", "steps",
+        ],
+      },
+      administratorIds: ["admin-one"],
+      participantCount: 1,
+      participantLimit: 200,
+      inviteCode: "DONECODE",
+      createdAt: Timestamp.now(),
+      createdBy: "admin-one",
+      updatedAt: Timestamp.now(),
+      updatedBy: "admin-one",
+      activatedAt: Timestamp.now(),
+      completedAt: Timestamp.now(),
+      archivedAt: null,
+      lastAuditId: "completed-audit",
+    });
+    await setDoc(doc(firestore, "leagueMemberships", "league-completed_player-one"), {
+      leagueId: "league-completed",
+      userId: "player-one",
+      displayName: "Test Player",
+      avatarId: "legacy-trophy",
+      teamId: "",
+      teamName: "Independent",
+      role: "participant",
+      status: "completed",
+      inviteCode: "DONECODE",
+      joinedAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
+    });
+    await setDoc(doc(firestore, "challengeEntries", "completed-entry"), {
+      userId: "player-one",
+      category: "water",
+      data: { amount: 1000 },
+      createdAt: Timestamp.now(),
+      challengeDate: Timestamp.now(),
+    });
+    await setDoc(doc(firestore, "leagueContributions", "league-completed_completed-entry"), {
+      leagueId: "league-completed",
+      entryId: "completed-entry",
+      userId: "player-one",
+      displayName: "Test Player",
+      avatarId: "legacy-trophy",
+      teamId: "",
+      teamName: "Independent",
+      category: "water",
+      challengeDate: Timestamp.now(),
+      activityPoints: 4,
+      rulesVersion: "consistency-v1",
+      createdAt: Timestamp.now(),
+    });
+  });
+
+  const firestore = playerContext().firestore();
+  await assertSucceeds(deleteDoc(doc(firestore, "challengeEntries", "completed-entry")));
+  const contribution = await assertSucceeds(
+    getDoc(doc(firestore, "leagueContributions", "league-completed_completed-entry")),
+  );
+  assert.equal(contribution.exists(), true);
+  await assertFails(
+    deleteDoc(doc(firestore, "leagueContributions", "league-completed_completed-entry")),
+  );
+});
+

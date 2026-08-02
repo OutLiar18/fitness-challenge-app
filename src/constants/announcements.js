@@ -1,5 +1,44 @@
 export const ANNOUNCEMENTS = Object.freeze([
   {
+    id: "v0-13-1-rulebook-installation-hotfix",
+    type: "release",
+    icon: "🧰",
+    title: "The Rulebook release has been stabilised",
+    summary:
+      "The pre-review reference release now installs cleanly, validates all current league fixtures and keeps React memo dependencies stable.",
+    body:
+      "This patch replaces managed source folders instead of nesting them, restores the complete 54-test domain suite and aligns the 15 Firestore Rules fixtures with the hardened league model. No challenge scoring or player data has been changed.",
+    publishedAt: "2026-08-02",
+    featured: true,
+    version: "0.13.1",
+  },
+  {
+    id: "v0-13-rulebook-points-guide",
+    type: "release",
+    icon: "📜",
+    title: "The Rulebook and Points Guide are now in the app",
+    summary:
+      "Players can search the current challenge rules, distinguish inactive 2025 mechanics and inspect every public scoring ladder from one accessible reference area.",
+    body:
+      "The Rulebook preserves the original challenge spirit while clearly separating current rules, season options and unsupported legacy mechanics. The Points Guide is generated from the live scoring constants, including activity thresholds, difficulty multipliers, visible goal bonuses and league-day scoring. Hidden progression surprises remain intentionally undisclosed.",
+    publishedAt: "2026-08-02",
+    featured: false,
+    version: "0.13.0",
+  },
+  {
+    id: "v0-12-pre-review-hardening",
+    type: "release",
+    icon: "🧭",
+    title: "Pre-review hardening is complete",
+    summary:
+      "Security boundaries, community data integrity, accessibility, deployment targeting and recovery behaviour have been strengthened before the full product review.",
+    body:
+      "Invitation codes can no longer be enumerated, league capacity is enforced transactionally, completed season contributions remain permanent, stale weekly team totals are ignored, navigation accessibility is stronger and production chunk-loading failures can recover safely. This remains a pre-1.0 release for integrated review and further refinement.",
+    publishedAt: "2026-08-01",
+    featured: false,
+    version: "0.12.0",
+  },
+  {
     id: "v0-11-community-coaching",
     type: "release",
     icon: "🤝",
@@ -9,7 +48,7 @@ export const ANNOUNCEMENTS = Object.freeze([
     body:
       "Team progress reuses existing entries, league rules are frozen for each season, and every Legacy Coach recommendation explains the evidence behind it. These systems remain part of the pre-1.0 development cycle and will be reviewed before final release.",
     publishedAt: "2026-08-01",
-    featured: true,
+    featured: false,
     version: "0.11.0",
   },
   {
@@ -77,7 +116,7 @@ export const ANNOUNCEMENTS = Object.freeze([
     id: "honest-logging",
     type: "community",
     icon: "🧭",
-    title: "A reminder from the suspiciously serious trophy",
+    title: "Honest progress matters more than impressive data",
     summary:
       "Champions Legacy Challenge rewards honest effort—not impressive-looking data.",
     body:

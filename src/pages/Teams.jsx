@@ -14,12 +14,16 @@ import {
   transferTeamCaptain,
   updateTeam,
 } from "../services/teams/teamService";
-import { getTeamSummary } from "../services/teams/teamModel";
+import {
+  getCurrentTeamMemberSnapshot,
+  getTeamSummary,
+} from "../services/teams/teamModel";
 import {
   formatNumber,
   formatPoints,
   pluralize,
 } from "../utils/displayFormatters";
+import { copyTextToClipboard } from "../utils/clipboard";
 import "./Teams.css";
 
 const EMPTY_TEAM_FORM = Object.freeze({
@@ -171,7 +175,10 @@ function JoinTeamForm({ profile, userId, notify }) {
 }
 
 function TeamRoster({ members }) {
-  const sortedMembers = [...members].sort(
+  const currentMembers = members.map((member) =>
+    getCurrentTeamMemberSnapshot(member),
+  );
+  const sortedMembers = [...currentMembers].sort(
     (first, second) =>
       (first.role === "captain" ? -1 : 0) - (second.role === "captain" ? -1 : 0) ||
       Number(second.weeklyPoints ?? 0) - Number(first.weeklyPoints ?? 0) ||
@@ -223,7 +230,7 @@ function TeamDashboard({ team, membership, members, userId, notify }) {
 
   async function copyCode() {
     try {
-      await navigator.clipboard.writeText(team.inviteCode);
+      await copyTextToClipboard(team.inviteCode);
       notify("Team invitation code copied.", "success");
     } catch (error) {
       console.error(error);
@@ -277,16 +284,19 @@ function TeamDashboard({ team, membership, members, userId, notify }) {
   }
 
   async function handleLeave() {
-    if (!window.confirm("Leave this team? Your personal progress will remain unchanged.")) {
+    if (saving || !window.confirm("Leave this team? Your personal progress will remain unchanged.")) {
       return;
     }
 
+    setSaving(true);
     try {
       await leaveTeam({ teamId: team.id, userId, role: membership.role });
       notify("You left the team. Your personal legacy is unchanged.", "success");
     } catch (error) {
       console.error(error);
       notify(error.message || "The team could not be left.", "error");
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -303,11 +313,34 @@ function TeamDashboard({ team, membership, members, userId, notify }) {
         <div className="team-hero__actions">
           <button className="button button--primary" type="button" onClick={copyCode}>Copy invitation code</button>
           {isCaptain && (
-            <button className="button button--secondary" type="button" onClick={() => setEditing((current) => !current)}>
+            <button
+              className="button button--secondary"
+              type="button"
+              onClick={() => {
+                if (!editing) {
+                  setForm({
+                    name: team.name,
+                    description: team.description,
+                    motto: team.motto,
+                    emblemId: team.emblemId,
+                  });
+                }
+                setEditing((current) => !current);
+              }}
+            >
               {editing ? "Close editor" : "Edit team"}
             </button>
           )}
-          {!isCaptain && <button className="button button--danger" type="button" onClick={handleLeave}>Leave team</button>}
+          {!isCaptain && (
+            <button
+              className="button button--danger"
+              type="button"
+              disabled={saving}
+              onClick={handleLeave}
+            >
+              {saving ? "Leaving team…" : "Leave team"}
+            </button>
+          )}
         </div>
       </section>
 
@@ -331,18 +364,43 @@ function TeamDashboard({ team, membership, members, userId, notify }) {
           <h2>Refine the team identity</h2>
           <div className="form-field">
             <label htmlFor="edit-team-description">Team description</label>
-            <textarea id="edit-team-description" value={form.description} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} />
+            <textarea
+              id="edit-team-description"
+              minLength={10}
+              maxLength={240}
+              required
+              value={form.description}
+              onChange={(event) =>
+                setForm((current) => ({ ...current, description: event.target.value }))
+              }
+            />
           </div>
           <div className="form-field">
             <label htmlFor="edit-team-motto">Team motto</label>
-            <input id="edit-team-motto" value={form.motto} onChange={(event) => setForm((current) => ({ ...current, motto: event.target.value }))} />
+            <input
+              id="edit-team-motto"
+              minLength={3}
+              maxLength={90}
+              required
+              value={form.motto}
+              onChange={(event) =>
+                setForm((current) => ({ ...current, motto: event.target.value }))
+              }
+            />
           </div>
           <fieldset className="emblem-picker">
             <legend>Team emblem</legend>
             <div>
               {TEAM_EMBLEMS.map((option) => (
                 <label key={option.id} className={form.emblemId === option.id ? "emblem-option emblem-option--selected" : "emblem-option"}>
-                  <input className="sr-only" type="radio" checked={form.emblemId === option.id} onChange={() => setForm((current) => ({ ...current, emblemId: option.id }))} />
+                  <input
+                    className="sr-only"
+                    type="radio"
+                    name="edit-team-emblem"
+                    value={option.id}
+                    checked={form.emblemId === option.id}
+                    onChange={() => setForm((current) => ({ ...current, emblemId: option.id }))}
+                  />
                   <span aria-hidden="true">{option.symbol}</span>
                   <strong>{option.name}</strong>
                 </label>
@@ -405,6 +463,10 @@ export default function Teams() {
 
       {loading ? (
         <section className="empty-state">Loading your team…</section>
+      ) : membership && !team ? (
+        <section className="inline-alert inline-alert--danger" role="alert">
+          Your team membership exists, but the team record could not be loaded. Refresh the page; if the problem remains, ask a Platform Administrator to inspect the team record before creating or joining another team.
+        </section>
       ) : membership && team ? (
         <TeamDashboard team={team} membership={membership} members={members} userId={user?.uid} notify={showToast} />
       ) : (

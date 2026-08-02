@@ -1,67 +1,47 @@
 # Champions Legacy Challenge — Data Model
 
 Last updated: 1 August 2026  
-Current release: v0.11.0
+Current release: v0.13.1
 
 ## Principle
 
 Store facts and trusted decisions. Derive progress and presentation.
 
-## Existing core entities
+## Core entities
 
 - **Player profile** — permanent identity and trusted role metadata.
-- **Challenge entry** — immutable owner, category, factual data, creation time and local challenge date.
-- **Personal library item** — owner-scoped reusable content.
-- **Suggestion** — proposed library definition and moderation/publication history.
-- **Published library item/release** — versioned shared definition and immutable release history.
+- **Challenge entry** — owner, category, category-shaped factual data, server creation time and local challenge date.
+- **Personal/shared library records** — reusable definitions with versioned publication history.
 - **Announcement/read record** — platform communication and private read state.
 - **Client error report** — sanitised authenticated failure and resolution state.
 - **Audit event** — immutable privileged-operation record.
 
 ## Team entities
 
-### Team
+- **Team** — identity, local emblem, captain, member count and invite code.
+- **Team member** — identity snapshot, role and current-week accountability snapshot.
+- **Player team pointer** — one active team per player.
+- **Team invitation** — known-code lookup; not listable.
 
-Stores name, normalized name, description, motto, local emblem identifier, status, captain, invitation code and timestamps.
-
-### Team member
-
-Stored under the team and contains user identity snapshot, team role, join data and the member’s current weekly accountability snapshot.
-
-### Player team pointer
-
-`playerTeams/{userId}` enforces one active team per player and provides fast profile/navigation lookup.
-
-### Team invitation
-
-Maps an eight-character access code to an active team identity.
+Stale weekly member values are normalised to zero when their `weeklyKey` is not the current week.
 
 ## League entities
 
-### League
+- **League** — identity, mode, lifecycle, dates, frozen rules, administrators, participant count/limit and access code.
+- **Membership** — season identity/team snapshot and status.
+- **Contribution** — immutable entry-linked identity/category/date/point/rules snapshot.
+- **Invitation** — known-code registration state; not listable.
 
-Stores identity, type, mode, lifecycle status, season dates, frozen rules version/ruleset, assigned administrator identifiers, access code and audited lifecycle timestamps.
-
-### League membership
-
-Stores the player and team identity snapshot used for the season, participation role, lifecycle status and registration metadata.
-
-### League contribution
-
-An immutable snapshot linked to one challenge entry and one active league. It stores identity snapshot, category, challenge date, activity-point snapshot and rules version.
-
-### League invitation
-
-Controls whether the access code accepts registration.
+Registration count and membership changes are paired transactionally. Active contributions follow recent source-entry deletion; completed/archived contributions remain permanent.
 
 ## Coach entity
 
-`users/{userId}/coach/preferences` stores only enabled state, tone, focus and server update timestamp. Recommendations are never persisted; they are derived from the player’s entries.
+`users/{userId}/coach/preferences` stores only enabled state, tone, focus and server update timestamp. Recommendations are derived and not persisted.
 
 ## Derived systems
 
 - personal points, goals, bonuses, streaks, experience, achievements, records and timeline;
-- team weekly summaries;
+- current-week team summaries;
 - league player and team standings;
 - Legacy Coach comparisons, recommendations and evidence.
 
@@ -69,5 +49,5 @@ Controls whether the access code accepts registration.
 
 - Published activity definitions are copied into entries.
 - League rules are frozen in the league document.
-- League identity and activity points are copied into contribution documents.
-- Completed history is archived rather than silently recalculated under new rules.
+- League identity and activity points are copied into contributions.
+- Completed seasonal history is not silently recalculated or deleted.

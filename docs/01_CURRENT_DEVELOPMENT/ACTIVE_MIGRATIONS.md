@@ -2,38 +2,42 @@
 
 Last updated: 1 August 2026
 
-## Current status
+## Required v0.12.0 league-capacity check
 
-No incomplete destructive migration exists in v0.11.0. The new modules use additive collections and routes.
+v0.12.0 adds transactionally enforced league capacity fields.
 
-## Completed in v0.11.0
+Before deploying the new Rules, inspect every existing `leagues/{leagueId}` document:
 
-- Structured preview routes migrated to real `/teams`, `/leagues` and `/coach` systems.
-- Entry persistence migrated to an atomic batch that may include league contribution snapshots.
-- Entry deletion migrated to remove linked league contributions in the same batch.
-- League Administrator changed from a reserved label to league-scoped operational authority.
-- Protected application providers extended with Team, League and Coach state.
+- Add or confirm `participantLimit: 200`.
+- Set `participantCount` to the actual number of `leagueMemberships` documents for that league.
 
-## Controlled follow-up
+New leagues receive these fields automatically. If no league documents exist, no migration is required.
+
+Do not guess a populated league’s participant count. Count its membership documents first.
+
+## Completed in v0.12.0
+
+- Team summaries moved to current-week-aware normalization.
+- League joins and withdrawals moved to transactions with paired participant counts.
+- Entry deletion now preserves completed/archived league history while removing active contributions.
+- Invite access changed from listable reads to known-code document reads only.
+- Provider state moved to user/scope-keyed subscriptions.
+- Production deployment targeting moved fully to branded Hosting target `app`.
+
+## Deferred controlled migrations
 
 ### Server-authoritative league scoring
 
-Status: Deferred until competitive stakes justify server infrastructure
-
-Recalculate and sign league contributions through a trusted backend before using leagues for prizes, money or high-stakes public competition.
+Required before money, prizes or high-stakes public ranking. Use trusted backend recalculation and signed contribution results.
 
 ### Historical entry pagination
-
-Status: Planned after integrated review
 
 Replace the complete owner-entry subscription with current-window subscriptions and paginated history while preserving service interfaces.
 
 ### Team lifecycle history
 
-Status: Deferred
-
-Design team archiving and disbanding without losing roster history or orphaning league snapshots.
+Design disbanding and archiving without losing roster history or orphaning league snapshots.
 
 ## Closure rule
 
-A migration is complete only when all callers use it, obsolete code is removed, domain and Rules tests pass, the production build passes and documentation matches live behavior.
+A migration is complete only when all callers use it, obsolete code is removed, domain and Rules tests pass, the production build passes and documentation matches live behaviour.

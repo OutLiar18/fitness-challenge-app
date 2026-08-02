@@ -60,6 +60,13 @@ export function canTransitionLeague(currentStatus, nextStatus) {
   return LEAGUE_TRANSITIONS[currentStatus]?.includes(nextStatus) ?? false;
 }
 
+export function canManageLeague(league, userId, isPlatformAdmin = false) {
+  return Boolean(
+    isPlatformAdmin ||
+      (userId && league?.administratorIds?.includes(userId)),
+  );
+}
+
 export function getLeagueStatusLabel(status) {
   return {
     draft: "Draft",

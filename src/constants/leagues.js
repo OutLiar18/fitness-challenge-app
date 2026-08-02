@@ -21,6 +21,8 @@ export const LEAGUE_MODES = Object.freeze([
   { id: "team", label: "Team and individual standings" },
 ]);
 
+export const LEAGUE_PARTICIPANT_LIMIT = 200;
+
 export const LEAGUE_RULESET_VERSION = "consistency-v1";
 export const DEFAULT_LEAGUE_RULESET = Object.freeze({
   version: LEAGUE_RULESET_VERSION,

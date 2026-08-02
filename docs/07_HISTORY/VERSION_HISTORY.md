@@ -1,5 +1,17 @@
 # Champions Legacy Challenge — Version History
 
+## 0.13.1
+
+Hotfix for clean source replacement, complete rule/reference installation and current league Rules verification.
+
+## 0.13.0
+
+Searchable versioned Rulebook and public Points Guide generated from the live goals and scoring engine.
+
+## 0.12.0
+
+Pre-review hardening: recent category-shaped entries, private invite lookup, current-week team integrity, transactional league capacity, permanent final standings, scoped provider state, accessibility and branded deployment recovery.
+
 ## 0.11.0
 
 Pre-1.0 community and coaching foundation: persistent Teams, immutable consistency-weighted seasonal Leagues, entry-linked standings and an optional transparent local Legacy Coach.
@@ -20,6 +32,9 @@ Version: 2.0
 
 | Version | Date | Milestone |
 |---------|------|-----------|
+| 0.13.1 | 2 August 2026 | Rulebook installation and league verification hotfix |
+| 0.13.0 | 2 August 2026 | Searchable Rulebook and generated public Points Guide |
+| 0.12.0 | 1 August 2026 | Pre-review integrity, security, accessibility and deployment hardening |
 | 0.11.0 | 1 August 2026 | Teams, consistency-weighted leagues and transparent Legacy Coach |
 | 0.9.0 | 1 August 2026 | Trusted administration, live announcements, moderation and immutable audit history |
 | 0.8.0 | 1 August 2026 | Legacy Avatars, secure profile editing and announcement read status |

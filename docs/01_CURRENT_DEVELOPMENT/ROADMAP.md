@@ -1,87 +1,66 @@
 # Champions Legacy Challenge — Roadmap
 
-Last updated: 1 August 2026
+Last updated: 2 August 2026
 
-## Phase 1 — Core tracking platform
+## Completed foundations
 
-Status: Complete
+### Phase 1 — Core tracking
 
-- Authentication, profiles, factual entries and ten activity categories.
-- Validation, local calendar dates, libraries and suggestions.
-- Explainable Points Engine v2 and Running/Cardio cross-contribution.
+Authentication, profiles, factual entries, ten activity categories, validation, local dates, libraries, suggestions and Points Engine v2.
 
-## Phase 2 — Personal progression
+### Phase 2 — Personal progression
 
-Status: Complete
+Goals, moderate bonuses, streak/shield, experience points, levels, achievements, records, timeline, responsive navigation and Legacy Avatars.
 
-- Daily and weekly goals with moderate bonuses.
-- Forgiving streak, shield, experience points, levels, achievements and records.
-- Progress timeline, responsive navigation and built-in Legacy Avatars.
+### Phase 3 — Administration and communication
 
-## Phase 3 — Administration and communication
+Live announcements, trusted roles, moderation, audit history, versioned shared libraries, pagination and first-party error reporting.
 
-Status: Complete foundation
+### Phase 4 — Teams, Leagues and Legacy Coach
 
-- Live announcements and cross-device read state.
-- Trusted roles, moderation, audit history and versioned shared libraries.
-- Paginated administrative data and first-party error reporting.
+Persistent Teams, captain transfer, seasonal `consistency-v1` Leagues, entry-linked standings and transparent local coaching.
 
-## Phase 4 — Release hardening
+### Phase 5 — Pre-review hardening
 
-Status: Complete foundation
+v0.12.0 added entry-shape security, invite privacy, team-week integrity, transactional league capacity, permanent final standings, accessibility and branded deployment recovery.
 
-- Firestore Emulator Security Rules tests.
-- Firebase Hosting preview configuration.
-- Repeatable release checks and QA documentation.
+### Phase 6 — Official player reference
 
-## Phase 5 — Teams and seasonal leagues
+Status: **Implemented in v0.13.1; Windows and integrated verification required**
 
-Status: Implemented in v0.11.0; integrated verification required
-
-- One persistent team per player.
-- Storage-free team emblems, invitations, rosters and captain transfer.
-- Seasonal league Draft, Registration, Active, Completed and Archived stages.
-- Immutable `consistency-v1` rules and entry-linked contribution snapshots.
-- Individual and team standings that cap daily activity and reward participation.
-- League-scoped authority and audit records.
-
-Deferred refinements:
-
-- Team disbanding and archived team history.
-- Server-authoritative league score recalculation.
-- League history privacy settings.
-- Seasonal awards and trophy-cabinet integration.
-- Dispute and evidence review workflows.
-
-## Phase 6 — Legacy Coach
-
-Status: Implemented in v0.11.0; integrated verification required
-
-- Optional local guidance.
-- Current-versus-previous-week comparison.
-- Explainable recommendations with evidence.
-- Player-controlled tone and focus.
-
-Deferred refinements:
-
-- Longer-term trend charts.
-- User-approved goal planning.
-- More advanced but still transparent recommendation rules.
+- Searchable in-app Rulebook.
+- Current, season-option and inactive-rule separation.
+- Original 2025 rule-source mapping.
+- Dynamic current goal table.
+- Points Guide generated from live scoring constants.
+- Explicit zero-point ranges, public formulas, difficulty multipliers and visible bonuses.
+- Hidden progression rewards excluded from the guide.
 
 ## Remaining before v1.0
 
-- Pass v0.11.0 local, emulator and integration tests.
-- Conduct the user’s complete mobile and desktop review.
-- Implement requested corrections.
-- Add account deletion, personal-data export and privacy/support information.
-- Complete final accessibility, performance and release-candidate QA.
-- Obtain explicit user approval.
+1. Pass v0.13.1 local, Emulator, Hosting and integrated checks.
+2. Conduct the user’s complete mobile and desktop review.
+3. Implement review corrections in one or more pre-1.0 releases.
+4. Add account deletion, personal-data export, privacy/support information and first-use onboarding.
+5. Complete final accessibility, performance, dependency and release-candidate QA.
+6. Obtain explicit user approval before naming or tagging v1.0.
+
+## Candidate future rule systems
+
+These are not committed features until separately designed and approved:
+
+- Evidence attachments and administrator adjudication.
+- Administrator-authored season rule packs and effective dates.
+- Pocket Week or activity banking.
+- Power Play voting and category multipliers.
+- Buddy Bonus group verification.
+- Transfer-market game mechanics.
+- Side quests, season awards and trophy-cabinet integration.
 
 ## Guardrails
 
-- Never duplicate activity scoring in Teams, Leagues or UI components.
-- Store factual entries and immutable seasonal snapshots; derive standings.
-- Never let a client-controlled role bypass Firestore Rules.
-- Administrative authority never creates competitive points.
-- Legacy Coach must remain optional, explainable and non-diagnostic.
+- Runtime scoring constants, not documentation tables, remain the calculation source of truth.
+- Public guides must be generated from those constants where practical.
+- Inactive mechanics must never imply points or functionality.
+- Never duplicate scoring in Teams, Leagues or UI components.
 - Do not call the product v1.0 until explicitly approved.

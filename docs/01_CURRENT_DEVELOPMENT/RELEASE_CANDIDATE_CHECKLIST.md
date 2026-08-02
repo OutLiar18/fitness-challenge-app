@@ -1,134 +1,62 @@
 # Champions Legacy Challenge — Release Candidate Checklist
 
-Version: 0.11.0  
-Purpose: Provide evidence for a future v1.0 decision without declaring v1.0 complete
+Version: 0.13.1  
+Purpose: Verify the official player-reference release without declaring v1.0
 
-## Automated verification
+## Migration and automated verification
 
+- [ ] Outstanding v0.12 league-capacity migration is complete when existing leagues are present.
 - [ ] `npm install` completes.
 - [ ] `npm run lint` passes.
-- [ ] `npm test` passes 44 domain tests.
+- [ ] `npm test` passes 54 domain tests.
 - [ ] `npm run build` succeeds.
-- [ ] `npm run test:rules` passes 12 emulator tests.
-- [ ] `npm run check:release` succeeds.
-- [ ] `npm audit` is reviewed without forcing breaking dependency changes.
+- [ ] `npm run test:rules` passes 15 Emulator tests.
+- [ ] `npm run check:release` confirms v0.13.1 and Hosting target `app`.
+- [ ] `npm audit` is reviewed without forced breaking changes.
 
-## Authentication and profile
+## Rulebook
 
-- [ ] Register a test player.
-- [ ] Profile document is created safely.
-- [ ] Sign out and sign in.
-- [ ] Protected redirects work.
-- [ ] Display-name and Legacy Avatar changes persist.
-- [ ] A player cannot modify their own trusted role.
+- [ ] `/rules` is reachable through desktop and mobile More navigation.
+- [ ] Current rules are shown by default.
+- [ ] Search finds text and legacy rule numbers.
+- [ ] Current, season and inactive filters are accurate.
+- [ ] Accordions, jump links, expand all and collapse all are keyboard usable.
+- [ ] Daily and weekly goals match the live goal configuration.
+- [ ] Changed rules explain why the 2025 wording no longer applies.
+- [ ] Inactive mechanics clearly state that they award no points.
 
-## Activity tracking
+## Points Guide
 
-- [ ] Every category accepts valid input.
-- [ ] Invalid input produces useful wording.
-- [ ] Entries appear in the Journal in real time.
-- [ ] Today and yesterday remain editable.
-- [ ] Older days remain read-only.
-- [ ] Local calendar dates never shift.
-- [ ] Deletion removes all derived progress.
+- [ ] `/points-guide` is reachable and cross-linked with the Rulebook.
+- [ ] Water, Fruit, Reading, Skill, Cardio, Running, Steps and Workouts appear.
+- [ ] Every table includes its zero-point range.
+- [ ] Thresholds match the central scoring constants.
+- [ ] Running qualification and Tier 3 Cardio contribution are accurate.
+- [ ] Difficulty multipliers, goal bonuses and league-day score are accurate.
+- [ ] Hidden streak/achievement progression rewards are omitted.
 
-## Scoring and progression
+## Core regression
 
-- [ ] Running under 3 kilometres earns no Running points but retains Cardio credit.
-- [ ] Running slower than 11:00 per kilometre earns no Running points but retains Cardio credit.
-- [ ] Qualifying Running earns both contributions from one Firestore entry.
-- [ ] Effective repetitions and workout goals remain accurate.
-- [ ] Daily and weekly goal bonuses remain moderate.
-- [ ] Streak, shield, experience points, achievements and records remain consistent.
+- [ ] Authentication, profiles and protected redirects work.
+- [ ] Valid activity entries score correctly; malformed entries are rejected.
+- [ ] Today/yesterday editability and local dates remain correct.
+- [ ] Goals, progression, records and timeline agree.
+- [ ] Announcements, moderation, audit history and library publication work.
+- [ ] Teams, captain transfer, league registration/lifecycle and Legacy Coach work.
+- [ ] Completed league history remains immutable.
 
-## Announcements and administration
+## Accessibility and Hosting
 
-- [ ] Ordinary players see only published announcements.
-- [ ] Cross-device read status synchronises.
-- [ ] Platform Administrator access is enforced by Firestore Rules.
-- [ ] Announcement changes create audit records.
-- [ ] Suggestion approval and rejection work.
-- [ ] Role and team changes work for another player only.
-- [ ] Audit records cannot be edited or deleted.
-
-## Versioned global libraries
-
-- [ ] Approved suggestions remain unpublished until deliberately released.
-- [ ] A release requires a semantic version.
-- [ ] A semantic release version cannot be published twice.
-- [ ] No more than eight items can be published in one release.
-- [ ] Published options appear live in the correct forms.
-- [ ] Published definitions are stored with entries.
-- [ ] Archiving affects future selection only.
-- [ ] Release, item and suggestion publication audits exist.
-
-## Error monitoring
-
-- [ ] `console` mode logs without Firestore writes.
-- [ ] `firestore` mode writes only for authenticated players.
-- [ ] Duplicate reports are suppressed within a browser session.
-- [ ] Reports contain no form values, credentials or tokens.
-- [ ] Platform Administrators can resolve reports with notes.
-- [ ] Resolution creates an audit record.
-- [ ] Error context is restricted to a sanitised summary.
-
-## Teams
-
-- [ ] Team creation writes team, captain membership, player pointer and invitation atomically.
-- [ ] A player cannot join or create a second team.
-- [ ] Team roster weekly progress updates after factual activity.
-- [ ] A member cannot self-promote.
-- [ ] Captain transfer updates the team and both players atomically.
-- [ ] A non-captain can leave without losing personal history.
-- [ ] The current captain cannot leave before transfer.
-
-## Leagues
-
-- [ ] Only League Administrators or Platform Administrators can create a Draft.
-- [ ] League creation has a matching audit event and frozen ruleset.
-- [ ] Registration opens/closes with lifecycle status.
-- [ ] A player may join or withdraw only during Registration.
-- [ ] Active entries create league contributions without duplicate logging.
-- [ ] Daily cap and participation bonus are explainable in standings.
-- [ ] Stages cannot be skipped or reversed.
-- [ ] Deleting an entry removes its linked contributions.
-
-## Legacy Coach
-
-- [ ] Guidance compares the current and previous seven-day periods.
-- [ ] Recommendations show reasons and evidence.
-- [ ] Tone and focus settings persist.
-- [ ] Disabling guidance hides recommendations without changing entries.
-- [ ] Preferences are private to their owner.
-- [ ] Guidance remains non-diagnostic and does not alter score.
-
-## Responsive and accessibility
-
-- [ ] 320-pixel mobile layout.
-- [ ] Typical mobile portrait and landscape.
-- [ ] Tablet icon rail.
-- [ ] Desktop labelled sidebar.
-- [ ] Keyboard-only navigation and forms.
-- [ ] Visible focus states.
-- [ ] Light and dark operating-system themes.
-- [ ] Reduced motion.
-- [ ] Screen-reader labels for icon-only controls.
-
-## Preview deployment
-
-- [ ] `npm run deploy:preview` succeeds.
-- [ ] Direct links to nested routes load correctly.
-- [ ] Authentication works on the preview domain.
-- [ ] Firestore requests use the intended Firebase project.
-- [ ] Response headers are present.
-- [ ] Static assets cache correctly.
+- [ ] 320-pixel mobile, tablet and desktop layouts pass.
+- [ ] Keyboard-only navigation, visible focus and reduced motion pass.
+- [ ] Light and dark mode pass.
+- [ ] Direct refreshes on `/rules` and `/points-guide` work.
+- [ ] `npm run deploy:hosting` publishes to `champions-legacy-challenge.web.app`.
 - [ ] No unexpected console errors remain.
 
-## User review
+## Review boundary
 
-- [ ] Visual changes requested by the user are documented.
-- [ ] Gameplay-rule changes are documented before implementation.
-- [ ] Missing or confusing workflows are recorded.
-- [ ] v1.0 scope is explicitly approved or deferred.
+- [ ] User-requested corrections are recorded after verification.
+- [ ] v1.0 remains unapproved until explicit confirmation.
 
-A completed checklist supports a v1.0 decision. It does not automatically create one.
+Completing this checklist supports review; it does not create v1.0.

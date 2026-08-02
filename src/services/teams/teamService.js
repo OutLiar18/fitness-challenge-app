@@ -268,7 +268,10 @@ export async function syncTeamMemberProgress({
     displayName: displayName || "Champion",
     avatarId: avatarId || DEFAULT_AVATAR_ID,
     weeklyKey: snapshot.weeklyKey,
-    weeklyPoints: Math.max(0, Math.round(Number(snapshot.weeklyPoints) || 0)),
+    weeklyPoints: Math.max(
+      0,
+      Math.round((Number(snapshot.weeklyPoints) || 0) * 100) / 100,
+    ),
     activeDays: Math.max(0, Math.round(Number(snapshot.activeDays) || 0)),
     entriesRecorded: Math.max(0, Math.round(Number(snapshot.entriesRecorded) || 0)),
     currentStreak: Math.max(0, Math.round(Number(snapshot.currentStreak) || 0)),

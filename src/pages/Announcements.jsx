@@ -128,7 +128,7 @@ export default function Announcements() {
       <PageHeader
         eyebrow="Challenge communications"
         title="Announcements"
-        description="Release notes, challenge notices and useful messages from a trophy with entirely reasonable confidence."
+        description="Release notes, challenge notices and important product updates in one place."
         icon="📣"
         actions={
           unreadCount > 0 ? (

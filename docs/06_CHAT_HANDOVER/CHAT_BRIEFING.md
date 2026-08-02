@@ -6,12 +6,11 @@ Version: 2.0
 
 ---
 
-# Current Implemented State — v0.11.0
+# Current Implemented State — v0.13.1
 
-Champions Legacy Challenge currently includes personal tracking and progression, audited administration and announcements, versioned shared libraries, persistent teams, seasonal consistency-weighted leagues and a transparent local Legacy Coach.
+Champions Legacy Challenge includes personal tracking and progression, audited administration and announcements, versioned libraries, persistent Teams, seasonal Leagues, transparent Legacy Coach, a searchable in-app Rulebook and a generated Points Guide.
 
-The product is still pre-1.0. The next task is to verify and stabilise Teams, Leagues and Legacy Coach before the user begins the full review. Read `RECENT_SESSION_SUMMARY.md`, `CURRENT_STATE.md` and `NEXT_SESSION.md` for exact details.
-
+v0.13.1 converts the original 2025 external rule and scoring documents into accurate player references. Rules are labelled current, season option or inactive; goals and scoring ladders derive from live configuration. The product remains pre-1.0. Read `RECENT_SESSION_SUMMARY.md`, `CURRENT_STATE.md`, `ACTIVE_MIGRATIONS.md` and `NEXT_SESSION.md` before implementation.
 
 # Purpose
 
