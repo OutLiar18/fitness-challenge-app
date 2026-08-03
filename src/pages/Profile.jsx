@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
+import WorkspaceTabs, {
+  WorkspacePanel,
+} from "../components/common/WorkspaceTabs";
 import PageHeader from "../components/layout/PageHeader";
 import AvatarPicker from "../components/profile/AvatarPicker";
 import LegacyAvatar from "../components/profile/LegacyAvatar";
@@ -19,6 +22,27 @@ import {
   pluralize,
 } from "../utils/displayFormatters";
 import "./Profile.css";
+
+const PROFILE_TABS = Object.freeze([
+  {
+    id: "overview",
+    label: "Overview",
+    icon: "⚡",
+    description: "Account details and current legacy",
+  },
+  {
+    id: "personalise",
+    label: "Personalise",
+    icon: "🎨",
+    description: "Change your display name and Legacy Avatar",
+  },
+  {
+    id: "protections",
+    label: "Protections",
+    icon: "🔐",
+    description: "How identity, permissions and history stay safe",
+  },
+]);
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
   day: "numeric",
@@ -172,6 +196,7 @@ function ProfileEditor({ profile, user }) {
 
 export default function Profile() {
   const { profile, user, entries, progression } = usePlayerData();
+  const [activeTab, setActiveTab] = useState("overview");
   const { leagues, memberships } = useLeagues();
   const currentMembership = memberships.find((item) => item.status === "active")
     || memberships.find((item) => item.status === "registered")
@@ -232,91 +257,105 @@ export default function Profile() {
         </div>
       </section>
 
-      <ProfileEditor profile={profile} user={user} />
+      <WorkspaceTabs
+        idPrefix="profile"
+        label="Profile sections"
+        tabs={PROFILE_TABS}
+        activeId={activeTab}
+        onChange={setActiveTab}
+      />
 
-      <div className="profile-grid">
-        <section className="profile-card card" aria-labelledby="account-title">
-          <div className="profile-card__header">
-            <span aria-hidden="true">🪪</span>
-            <div>
-              <p>Account</p>
-              <h2 id="account-title">Player details</h2>
-            </div>
-          </div>
-
-          <dl className="profile-details">
-            {accountDetails.map(([label, value]) => (
-              <div key={label}>
-                <dt>{label}</dt>
-                <dd>{value}</dd>
+      <WorkspacePanel id="overview" activeId={activeTab} idPrefix="profile">
+        <div className="profile-grid">
+          <section className="profile-card card" aria-labelledby="account-title">
+            <div className="profile-card__header">
+              <span aria-hidden="true">🪪</span>
+              <div>
+                <p>Account</p>
+                <h2 id="account-title">Player details</h2>
               </div>
-            ))}
-          </dl>
-        </section>
-
-        <section className="profile-card card" aria-labelledby="snapshot-title">
-          <div className="profile-card__header">
-            <span aria-hidden="true">⚡</span>
-            <div>
-              <p>Snapshot</p>
-              <h2 id="snapshot-title">Current legacy</h2>
             </div>
+
+            <dl className="profile-details">
+              {accountDetails.map(([label, value]) => (
+                <div key={label}>
+                  <dt>{label}</dt>
+                  <dd>{value}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+
+          <section className="profile-card card" aria-labelledby="snapshot-title">
+            <div className="profile-card__header">
+              <span aria-hidden="true">⚡</span>
+              <div>
+                <p>Snapshot</p>
+                <h2 id="snapshot-title">Current legacy</h2>
+              </div>
+            </div>
+
+            <div className="profile-metrics">
+              <article>
+                <strong>Level {progression.xp.level}</strong>
+                <span>{progression.xp.title}</span>
+              </article>
+              <article>
+                <strong>{formatNumber(progression.score.totalPoints, { whole: true })}</strong>
+                <span>Total points</span>
+              </article>
+              <article>
+                <strong>{formatNumber(entryCount, { whole: true })}</strong>
+                <span>{pluralize(entryCount, "entry recorded", "entries recorded")}</span>
+              </article>
+              <article>
+                <strong>{progression.streak.longestStreak}</strong>
+                <span>Longest streak</span>
+              </article>
+            </div>
+          </section>
+        </div>
+      </WorkspacePanel>
+
+      <WorkspacePanel id="personalise" activeId={activeTab} idPrefix="profile">
+        <ProfileEditor profile={profile} user={user} />
+      </WorkspacePanel>
+
+      <WorkspacePanel id="protections" activeId={activeTab} idPrefix="profile">
+        <section className="profile-preferences card">
+          <div>
+            <p>Account protections</p>
+            <h2>Your identity and permissions stay separate</h2>
+            <p>
+              Changing your display name or avatar cannot change your email,
+              trusted role, season membership or competitive history. Legacy Coach
+              preferences remain private to your account, while completed league
+              results keep their original seasonal record.
+            </p>
           </div>
 
-          <div className="profile-metrics">
-            <article>
-              <strong>Level {progression.xp.level}</strong>
-              <span>{progression.xp.title}</span>
-            </article>
-            <article>
-              <strong>{formatNumber(progression.score.totalPoints, { whole: true })}</strong>
-              <span>Total points</span>
-            </article>
-            <article>
-              <strong>{formatNumber(entryCount, { whole: true })}</strong>
-              <span>{pluralize(entryCount, "entry recorded", "entries recorded")}</span>
-            </article>
-            <article>
-              <strong>{progression.streak.longestStreak}</strong>
-              <span>Longest streak</span>
-            </article>
+          <div
+            className="profile-preferences__chips"
+            aria-label="Current account protections"
+          >
+            <span>Protected role</span>
+            <span>Private coach settings</span>
+            <span>Immutable league history</span>
+            <span>Local built-in avatars</span>
           </div>
         </section>
-      </div>
 
-      <section className="profile-preferences card">
-        <div>
-          <p>Account protections</p>
-          <h2>Your identity and permissions stay separate</h2>
-          <p>
-            Changing your display name or avatar cannot change your email,
-            trusted role, season membership or competitive history. Legacy Coach
-            preferences remain private to your account, while completed league
-            results keep their original seasonal record.
-          </p>
-        </div>
-
-        <div
-          className="profile-preferences__chips"
-          aria-label="Current account protections"
-        >
-          <span>Protected role</span>
-          <span>Private coach settings</span>
-          <span>Immutable league history</span>
-          <span>Local built-in avatars</span>
-        </div>
-      </section>
-
-      <section className="profile-easter-egg card">
-        <span aria-hidden="true">🕵️</span>
-        <div>
-          <strong>Classified player intelligence</strong>
-          <p>
-            The avatar is decorative. The actual superpower remains showing up
-            when motivation has mysteriously left the group chat.
-          </p>
-        </div>
-      </section>
+        <section className="profile-easter-egg card">
+          <span aria-hidden="true">🕵️</span>
+          <div>
+            <strong>Classified player intelligence</strong>
+            <p>
+              The avatar is decorative. The actual superpower remains showing up
+              when motivation has mysteriously left the group chat.
+            </p>
+          </div>
+        </section>
+      </WorkspacePanel>
     </div>
   );
 }

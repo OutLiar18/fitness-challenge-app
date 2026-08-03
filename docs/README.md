@@ -1,6 +1,8 @@
 # Champions Legacy Challenge Documentation
 
-Current source target: **v0.15.0 — Navigation, Inbox, Analytics and C.H.A.O.S. Readiness**
+Current source: **v0.16.0 — Progressive Disclosure and Page Breathing Room**  
+Current production: **v0.16.0**  
+Status: **Automated release gates passed and Firebase Hosting deployment complete; pre-v1.0**
 
 Start with:
 
@@ -14,7 +16,8 @@ Key current ADRs:
 
 - ADR-021 — Season-scoped Houses and Pocket Week.
 - ADR-022 — Consolidated Navigation, Inbox and Derived Analytics.
+- ADR-023 — Progressive Disclosure for Dense Route Workspaces.
 
 Older Team and navigation ADRs remain historical records and may be explicitly superseded. Do not use standalone v0.5 documentation as current implementation truth.
 
-v0.15.0 remains pre-v1.0.
+v0.16.0 remains pre-v1.0. The complete manual functional, responsive, dark-mode and accessibility review is deliberately deferred until the final pre-v1.0 stage.

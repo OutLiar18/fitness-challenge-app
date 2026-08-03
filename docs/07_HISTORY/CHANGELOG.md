@@ -1,3 +1,41 @@
+# v0.16.0 — Progressive Disclosure and Page Breathing Room
+
+Date: 3 August 2026  
+Status: Verified and deployed to production; pre-v1.0
+
+## Shared interaction pattern
+
+- Added reusable `WorkspaceTabs` and `WorkspacePanel` components for dense route-level content.
+- Added desktop Arrow-key, Home/End and focus movement support.
+- Added a labelled native section selector for small screens.
+- Added reduced-motion handling and pure active-section fallback helpers.
+
+## Page refinement
+
+- Progress now defaults to Overview and separates Achievements, Records, Timeline and Level Journey.
+- Activity Log separates logging and Journal.
+- Analytics separates Trends, Consistency, Category Balance and Insights.
+- Profile, Legacy Coach and Points Guide use focused section workspaces.
+- Seasons separates Browse, Join and Create; selected seasons separate Overview, Standings and Honours.
+- Houses separates player-facing overview, roster, leadership, roster turn and authorised management while retaining visible C.H.A.O.S. readiness.
+- Pocket Week uses phase-aware Store, Wallet and Guide sections.
+- Administration uses the shared full-width workspace instead of an internal vertical navigation column.
+- Dashboard, Inbox and Rulebook retain their more appropriate existing patterns.
+
+## Architecture, testing and cleanup
+
+- Added `services/ui/workspaceModel.js` and two regression tests.
+- Added ADR-023.
+- Static audit found no unresolved imports, unreferenced source modules or unreferenced stylesheets.
+- ESLint and 68 domain tests passed in the packaging environment.
+- Authoritative Windows verification passed the Vite production build, all 25 Firestore Rules tests and release-readiness for Hosting target `app`.
+- Firebase Hosting deployed 60 frontend files successfully to the branded production site.
+- Firestore Rules were unchanged and were not redeployed.
+- The full manual integrated review remains deferred until the final pre-v1.0 stage.
+- No Firestore, Security Rule, scoring or season-history changes were introduced.
+
+---
+
 # v0.15.0 — Navigation, Inbox, Analytics and C.H.A.O.S. Readiness
 
 Date: 3 August 2026

@@ -138,3 +138,13 @@
     grid-template-columns: 1fr;
   }
 }
+
+.league-tools--single {
+  grid-template-columns: minmax(0, 880px);
+  justify-content: center;
+}
+
+.league-detail {
+  display: grid;
+  gap: 18px;
+}

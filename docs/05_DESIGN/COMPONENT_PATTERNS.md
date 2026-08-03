@@ -274,3 +274,46 @@ Show every condition, its current state and a recovery action. A disabled primar
 ## Personal Analytics
 
 Charts require text labels, tooltips or accessible names. Analytics should offer context and reflection without changing scoring or creating shame-based prompts.
+
+---
+
+# Route Workspace Switcher
+
+Use `WorkspaceTabs` for major peer sections inside a dense route.
+
+## Required structure
+
+1. Page header.
+2. Optional compact summary or selection control that applies to every section.
+3. Workspace switcher.
+4. One active `WorkspacePanel`.
+
+## Metadata
+
+Every tab requires:
+
+- a stable identifier;
+- a concise label;
+- a meaningful icon used decoratively;
+- a short description;
+- an optional count or readiness badge.
+
+Badges supplement the label; they never replace it.
+
+## Behaviour
+
+- The most useful calm section is active by default.
+- Desktop uses the shared tablist and keyboard model.
+- Small screens use the shared native select presentation.
+- Dynamic tabs must resolve unavailable active identifiers safely.
+- Critical actions hidden in another section require a visible callout or clear status link.
+- Do not place a second route-navigation sidebar inside the page when the workspace switcher is sufficient.
+
+## Avoid
+
+- tabs for two tiny paragraphs;
+- tabs whose labels are vague (`More`, `Other`, `Stuff`);
+- using tabs as a substitute for a real workflow stepper;
+- nested generic tablists;
+- moving business logic into tab components;
+- rendering scoring differently depending on the active section.

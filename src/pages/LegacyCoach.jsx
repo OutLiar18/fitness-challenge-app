@@ -1,6 +1,9 @@
 import { useState } from "react";
 
 import Toast from "../components/common/Toast/Toast";
+import WorkspaceTabs, {
+  WorkspacePanel,
+} from "../components/common/WorkspaceTabs";
 import PageHeader from "../components/layout/PageHeader";
 import { COACH_FOCUSES, COACH_TONES } from "../constants/coach";
 import useCoach from "../hooks/useCoach";
@@ -9,6 +12,27 @@ import useToast from "../hooks/useToast";
 import { saveCoachPreferences } from "../services/coach/coachService";
 import { formatNumber, formatPoints, pluralize } from "../utils/displayFormatters";
 import "./LegacyCoach.css";
+
+const COACH_TABS = Object.freeze([
+  {
+    id: "recommendations",
+    label: "Recommendations",
+    icon: "🧭",
+    description: "Practical next actions with clear reasons",
+  },
+  {
+    id: "evidence",
+    label: "Evidence",
+    icon: "🔎",
+    description: "What the coach used and what it never assumes",
+  },
+  {
+    id: "preferences",
+    label: "Preferences",
+    icon: "⚙️",
+    description: "Control tone, focus and whether guidance appears",
+  },
+]);
 
 function ChangeValue({ value, unit }) {
   const numericValue = Number(value ?? 0);
@@ -84,6 +108,9 @@ export default function LegacyCoach() {
   const { user } = usePlayerData();
   const { preferences, report, error } = useCoach();
   const { toast, showToast, dismissToast } = useToast();
+  const [activeTab, setActiveTab] = useState(
+    preferences.enabled ? "recommendations" : "preferences",
+  );
 
   return (
     <div className="coach-page page-stack">
@@ -123,51 +150,73 @@ export default function LegacyCoach() {
         </article>
       </section>
 
-      {preferences.enabled && (
-        <section className="coach-recommendations">
-          <div className="community-section-heading">
-            <div><p className="section-kicker">Next actions</p><h2>Recommendations with reasons</h2></div>
-            <span>{report.recommendations.length} suggestions</span>
-          </div>
-          <div className="coach-recommendation-grid">
-            {report.recommendations.map((recommendation, index) => (
-              <article className="coach-recommendation card" key={recommendation.id}>
-                <span className="coach-recommendation__number">{index + 1}</span>
-                <p className="section-kicker">{recommendation.category}</p>
-                <h3>{recommendation.title}</h3>
-                <p><strong>Try this:</strong> {recommendation.action}</p>
-                <details>
-                  <summary>Why this was suggested</summary>
-                  <p>{recommendation.reason}</p>
-                </details>
-              </article>
-            ))}
-          </div>
-        </section>
-      )}
-
-      <section className="coach-evidence card">
-        <div>
-          <p className="section-kicker">Evidence used</p>
-          <h2>No hidden judgement</h2>
-          <p>Legacy Coach uses only your own factual entries from the current and previous 7-day periods. It does not diagnose health conditions, claim certainty or send data to an external artificial-intelligence service.</p>
-        </div>
-        <ul>
-          {report.evidence.map((item) => <li key={item}><span aria-hidden="true">✓</span>{item}</li>)}
-        </ul>
-      </section>
-
-      <CoachPreferences
-        key={`${preferences.enabled}-${preferences.tone}-${preferences.focus}`}
-        userId={user?.uid}
-        preferences={preferences}
-        notify={showToast}
+      <WorkspaceTabs
+        idPrefix="coach"
+        label="Legacy Coach sections"
+        tabs={COACH_TABS.map((tab) =>
+          tab.id === "recommendations"
+            ? { ...tab, badge: report.recommendations.length }
+            : tab,
+        )}
+        activeId={activeTab}
+        onChange={setActiveTab}
       />
 
-      <section className="community-guardrail card">
-        <span aria-hidden="true">🌱</span>
-        <div><p className="section-kicker">Human first</p><h2>Advice, not authority</h2><p><em>Legacy Coach should help you notice patterns—not replace your judgement, a qualified professional or the reality of your circumstances.</em></p></div>
-      </section>
+      <WorkspacePanel id="recommendations" activeId={activeTab} idPrefix="coach">
+        {preferences.enabled ? (
+          <section className="coach-recommendations">
+            <div className="community-section-heading">
+              <div><p className="section-kicker">Next actions</p><h2>Recommendations with reasons</h2></div>
+              <span>{report.recommendations.length} suggestions</span>
+            </div>
+            <div className="coach-recommendation-grid">
+              {report.recommendations.map((recommendation, index) => (
+                <article className="coach-recommendation card" key={recommendation.id}>
+                  <span className="coach-recommendation__number">{index + 1}</span>
+                  <p className="section-kicker">{recommendation.category}</p>
+                  <h3>{recommendation.title}</h3>
+                  <p><strong>Try this:</strong> {recommendation.action}</p>
+                  <details>
+                    <summary>Why this was suggested</summary>
+                    <p>{recommendation.reason}</p>
+                  </details>
+                </article>
+              ))}
+            </div>
+          </section>
+        ) : (
+          <section className="empty-state card">
+            Guidance is paused. Open Preferences to enable Legacy Coach again.
+          </section>
+        )}
+      </WorkspacePanel>
+
+      <WorkspacePanel id="evidence" activeId={activeTab} idPrefix="coach">
+        <section className="coach-evidence card">
+          <div>
+            <p className="section-kicker">Evidence used</p>
+            <h2>No hidden judgement</h2>
+            <p>Legacy Coach uses only your own factual entries from the current and previous 7-day periods. It does not diagnose health conditions, claim certainty or send data to an external artificial-intelligence service.</p>
+          </div>
+          <ul>
+            {report.evidence.map((item) => <li key={item}><span aria-hidden="true">✓</span>{item}</li>)}
+          </ul>
+        </section>
+
+        <section className="community-guardrail card">
+          <span aria-hidden="true">🌱</span>
+          <div><p className="section-kicker">Human first</p><h2>Advice, not authority</h2><p><em>Legacy Coach should help you notice patterns—not replace your judgement, a qualified professional or the reality of your circumstances.</em></p></div>
+        </section>
+      </WorkspacePanel>
+
+      <WorkspacePanel id="preferences" activeId={activeTab} idPrefix="coach">
+        <CoachPreferences
+          key={`${preferences.enabled}-${preferences.tone}-${preferences.focus}`}
+          userId={user?.uid}
+          preferences={preferences}
+          notify={showToast}
+        />
+      </WorkspacePanel>
 
       <Toast message={toast?.message} type={toast?.type} onDismiss={dismissToast} />
     </div>

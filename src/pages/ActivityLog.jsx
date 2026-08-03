@@ -3,6 +3,9 @@ import { useSearchParams } from "react-router-dom";
 
 import CategoryGrid from "../components/categories/CategoryGrid";
 import Toast from "../components/common/Toast/Toast";
+import WorkspaceTabs, {
+  WorkspacePanel,
+} from "../components/common/WorkspaceTabs";
 import EntryForm from "../components/entries/EntryForm";
 import Journal from "../components/journal/Journal";
 import PageHeader from "../components/layout/PageHeader";
@@ -26,6 +29,21 @@ function getSafeCategoryId(value) {
   return getCategory(value)?.id ?? "water";
 }
 
+const ACTIVITY_TABS = Object.freeze([
+  {
+    id: "log",
+    label: "Log activity",
+    icon: "✍️",
+    description: "Choose a category and record the facts",
+  },
+  {
+    id: "journal",
+    label: "Journal",
+    icon: "📖",
+    description: "Review and manage entries by date",
+  },
+]);
+
 function ActivityLogWorkspace({ categoryId, onCategoryChange }) {
   const { user, entries, loading } = usePlayerData();
   const { toast, showToast, dismissToast } = useToast();
@@ -37,6 +55,7 @@ function ActivityLogWorkspace({ categoryId, onCategoryChange }) {
   );
   const [formErrors, setFormErrors] = useState([]);
   const [saving, setSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState("log");
 
   const readOnly = !isEditableDate(selectedDate);
 
@@ -160,32 +179,44 @@ function ActivityLogWorkspace({ categoryId, onCategoryChange }) {
         </p>
       </div>
 
-      <div className="activity-workspace">
-        <CategoryGrid
-          selected={categoryId}
-          onSelect={handleCategorySelect}
-        />
-
-        <EntryForm
-          userId={user?.uid}
-          type={categoryId}
-          formData={formData}
-          setFormData={setFormData}
-          onSave={handleSaveEntry}
-          saving={saving}
-          readOnly={readOnly}
-          errors={formErrors}
-        />
-      </div>
-
-      <Journal
-        entries={selectedEntries}
-        selectedDate={selectedDate}
-        setSelectedDate={setSelectedDate}
-        onDelete={handleDeleteEntry}
-        readOnly={readOnly}
-        loading={loading}
+      <WorkspaceTabs
+        idPrefix="activity"
+        label="Activity log sections"
+        tabs={ACTIVITY_TABS}
+        activeId={activeTab}
+        onChange={setActiveTab}
       />
+
+      <WorkspacePanel id="log" activeId={activeTab} idPrefix="activity">
+        <div className="activity-workspace">
+          <CategoryGrid
+            selected={categoryId}
+            onSelect={handleCategorySelect}
+          />
+
+          <EntryForm
+            userId={user?.uid}
+            type={categoryId}
+            formData={formData}
+            setFormData={setFormData}
+            onSave={handleSaveEntry}
+            saving={saving}
+            readOnly={readOnly}
+            errors={formErrors}
+          />
+        </div>
+      </WorkspacePanel>
+
+      <WorkspacePanel id="journal" activeId={activeTab} idPrefix="activity">
+        <Journal
+          entries={selectedEntries}
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+          onDelete={handleDeleteEntry}
+          readOnly={readOnly}
+          loading={loading}
+        />
+      </WorkspacePanel>
 
       <Toast
         message={toast?.message}

@@ -1,11 +1,16 @@
-This chat continues the long-term Champions Legacy Challenge project.
+This chat continues development of Champions Legacy Challenge.
 
-Current source target: v0.15.0, still pre-v1.0. v0.14.0 is the currently deployed production release until v0.15.0 passes Windows verification and deployment approval.
+Read these project files first and treat them as the current source of truth:
+1. docs/06_CHAT_HANDOVER/CHAT_BRIEFING.md
+2. docs/06_CHAT_HANDOVER/RECENT_SESSION_SUMMARY.md
+3. docs/01_CURRENT_DEVELOPMENT/CURRENT_STATE.md
+4. docs/01_CURRENT_DEVELOPMENT/ACTIVE_MIGRATIONS.md
+5. docs/01_CURRENT_DEVELOPMENT/NEXT_SESSION.md
+6. docs/01_CURRENT_DEVELOPMENT/KNOWN_ISSUES.md
+7. ADR-021, ADR-022 and ADR-023
 
-Act as senior software engineer and technical architect. Read CHAT_BRIEFING.md, RECENT_SESSION_SUMMARY.md, CURRENT_STATE.md, ACTIVE_MIGRATIONS.md, NEXT_SESSION.md and KNOWN_ISSUES.md before work. Read ADR-021 and ADR-022 for season competition and navigation/analytics decisions.
+Current production is v0.16.0. It introduces shared progressive-disclosure workspaces across dense pages and changes presentation only: no scoring, Firestore shape or Security Rule changes.
 
-v0.15.0 adds grouped adaptive navigation, removes duplicate desktop Profile navigation, combines public announcements and private season notifications into one Inbox presentation layer, adds derived Personal Analytics that reuses the Points Engine, exposes C.H.A.O.S. prerequisites during Draft/Registration, and redirects legacy Teams/Leagues/Announcements/Notifications URLs to current routes.
+Windows verification passed clean lint, 68 domain tests, the Vite build, 25 Firestore Rules tests and release-readiness. Firebase Hosting deployed 60 files successfully. The remaining immediate action is documentation synchronisation and a clean v0.16.0 Git commit. Do not use npm audit fix --force. Do not call or tag v1.0 without explicit approval.
 
-Pocket Week is one seven-day pre-season window. Permanent Teams remain retired. Do not invent Power Plays, Diamonds, full Transfer Market, Buddy Bonuses, Five Fires or late-season twists. Do not declare v1.0.
-
-Required next sequence: apply updater outside project; run npm install, npm run check, npm run test:rules with Java 21, npm run check:release and npm audit; expect 66 domain tests and 25 Rules tests; fix only verified failures; update documentation; do not deploy until all gates pass; never run npm audit fix --force.
+Keep instructions practical for a beginner: 2–3 actions at a time, complete replacement files for substantial edits, and update documentation with behaviour changes.

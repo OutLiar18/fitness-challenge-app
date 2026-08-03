@@ -361,3 +361,19 @@ It is about removing unnecessary barriers so that every player has the opportuni
 - Inbox tabs remain keyboard-operable and preserve visible focus.
 - Analytics charts provide accessible names and textual values; heatmap intensity is never the only source of information.
 - C.H.A.O.S. completion states include symbols and full wording.
+
+---
+
+# Route Workspace Accessibility
+
+The shared workspace pattern must preserve the following:
+
+- Desktop tabs use `role="tablist"`, `role="tab"` and `role="tabpanel"` relationships.
+- The selected tab exposes `aria-selected="true"` and remains in the normal Tab sequence.
+- Arrow Left/Right and Arrow Up/Down move between tabs; Home and End jump to the first and last tab.
+- Focus moves with keyboard selection and remains visibly styled.
+- Mobile uses a visible label and native `<select>` rather than a custom listbox.
+- Icons are decorative; labels and descriptions carry the meaning.
+- Count/status badges are never the only communication of state.
+- Panel entrance motion is removed under `prefers-reduced-motion: reduce`.
+- Dynamic role or season-phase changes must fall back to an available section rather than leaving an empty page.

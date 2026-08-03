@@ -16,3 +16,4 @@ Accepted decisions are permanent historical records. Superseding a decision requ
 - ADR-019 — Pre-review Integrity and Deployment Hardening.
 - ADR-020 — Versioned Rulebook and Generated Points Guide.
 - ADR-022 — Consolidated Navigation, Inbox and Derived Analytics.
+- ADR-023 — Progressive Disclosure for Dense Route Workspaces.

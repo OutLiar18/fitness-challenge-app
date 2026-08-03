@@ -1,7 +1,7 @@
 # Champions Legacy Challenge — Security Model
 
 Last updated: 3 August 2026  
-Current release target: v0.15.0
+Current release target: v0.16.0
 
 ## Principles
 

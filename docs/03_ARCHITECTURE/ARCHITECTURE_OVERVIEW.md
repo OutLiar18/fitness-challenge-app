@@ -1,6 +1,6 @@
 # Champions Legacy Challenge — Architecture Overview
 
-Current release target: v0.15.0
+Current release target: v0.16.0
 
 ## Layers
 

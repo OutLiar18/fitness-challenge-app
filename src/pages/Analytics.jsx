@@ -1,6 +1,9 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
+import WorkspaceTabs, {
+  WorkspacePanel,
+} from "../components/common/WorkspaceTabs";
 import PageHeader from "../components/layout/PageHeader";
 import usePlayerData from "../hooks/usePlayerData";
 import {
@@ -13,6 +16,33 @@ import {
   pluralize,
 } from "../utils/displayFormatters";
 import "./Analytics.css";
+
+const ANALYTICS_TABS = Object.freeze([
+  {
+    id: "trends",
+    label: "Trends",
+    icon: "📈",
+    description: "Weekly activity momentum",
+  },
+  {
+    id: "consistency",
+    label: "Consistency",
+    icon: "🗓️",
+    description: "Your latest 28 days at a glance",
+  },
+  {
+    id: "categories",
+    label: "Category balance",
+    icon: "⚖️",
+    description: "How your activity is distributed",
+  },
+  {
+    id: "insights",
+    label: "Insights",
+    icon: "🔎",
+    description: "Transparent observations from your data",
+  },
+]);
 
 const shortDateFormatter = new Intl.DateTimeFormat(undefined, {
   day: "numeric",
@@ -54,6 +84,7 @@ function SummaryCard({ icon, value, label, detail }) {
 export default function Analytics() {
   const { entries } = usePlayerData();
   const [rangeWeeks, setRangeWeeks] = useState(8);
+  const [activeTab, setActiveTab] = useState("trends");
   const analytics = useMemo(
     () => getPersonalAnalytics(entries, { rangeWeeks }),
     [entries, rangeWeeks],
@@ -69,7 +100,11 @@ export default function Analytics() {
         title="Personal analytics"
         description="See patterns in your factual activity history without turning every day into a judgement. Analytics explain what happened; they do not change Points or Experience Points."
         icon="📈"
-        actions={<Link className="button button--secondary" to="/progress">Back to progress</Link>}
+        actions={
+          <Link className="button button--secondary" to="/progress">
+            Back to progress
+          </Link>
+        }
       />
 
       <section className="analytics-toolbar card">
@@ -118,7 +153,15 @@ export default function Analytics() {
         />
       </section>
 
-      <section className="analytics-grid analytics-grid--wide">
+      <WorkspaceTabs
+        idPrefix="analytics"
+        label="Analytics sections"
+        tabs={ANALYTICS_TABS}
+        activeId={activeTab}
+        onChange={setActiveTab}
+      />
+
+      <WorkspacePanel id="trends" activeId={activeTab} idPrefix="analytics">
         <article className="analytics-section card" aria-labelledby="weekly-trend-title">
           <div className="analytics-section__header">
             <div>
@@ -144,7 +187,9 @@ export default function Analytics() {
             ))}
           </div>
         </article>
+      </WorkspacePanel>
 
+      <WorkspacePanel id="consistency" activeId={activeTab} idPrefix="analytics">
         <article className="analytics-section card" aria-labelledby="consistency-title">
           <div className="analytics-section__header">
             <div>
@@ -176,9 +221,9 @@ export default function Analytics() {
             <span>Quiet</span><i /><i /><i /><i /><span>More active</span>
           </div>
         </article>
-      </section>
+      </WorkspacePanel>
 
-      <section className="analytics-grid">
+      <WorkspacePanel id="categories" activeId={activeTab} idPrefix="analytics">
         <article className="analytics-section card" aria-labelledby="category-balance-title">
           <div className="analytics-section__header">
             <div>
@@ -208,7 +253,9 @@ export default function Analytics() {
             </div>
           )}
         </article>
+      </WorkspacePanel>
 
+      <WorkspacePanel id="insights" activeId={activeTab} idPrefix="analytics">
         <article className="analytics-section card" aria-labelledby="analytics-insights-title">
           <div className="analytics-section__header">
             <div>
@@ -229,18 +276,18 @@ export default function Analytics() {
             ))}
           </div>
         </article>
-      </section>
 
-      <section className="analytics-integrity card">
-        <span aria-hidden="true">🔎</span>
-        <div>
-          <p className="section-kicker">Explainable by design</p>
-          <h2>Analytics reuse the Points Engine</h2>
-          <p>
-            The page reads the same factual entries and point breakdowns used elsewhere. Running still contributes to both Running and Cardio where eligible; no scoring rule is duplicated inside the interface.
-          </p>
-        </div>
-      </section>
+        <section className="analytics-integrity card">
+          <span aria-hidden="true">🔎</span>
+          <div>
+            <p className="section-kicker">Explainable by design</p>
+            <h2>Analytics reuse the Points Engine</h2>
+            <p>
+              The page reads the same factual entries and point breakdowns used elsewhere. Running still contributes to both Running and Cardio where eligible; no scoring rule is duplicated inside the interface.
+            </p>
+          </div>
+        </section>
+      </WorkspacePanel>
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import Toast from "../components/common/Toast/Toast";
+import WorkspaceTabs, { WorkspacePanel } from "../components/common/WorkspaceTabs";
 import PageHeader from "../components/layout/PageHeader";
 import LegacyAvatar from "../components/profile/LegacyAvatar";
 import {
@@ -34,6 +35,7 @@ import {
   subscribeToLeagueMemberships,
 } from "../services/leagues/leagueService";
 import { canManageLeague } from "../services/leagues/leagueModel";
+import { resolveWorkspaceTab } from "../services/ui/workspaceModel";
 import { pluralize } from "../utils/displayFormatters";
 import "./Houses.css";
 
@@ -369,6 +371,7 @@ export default function Houses() {
   const [selectedHouseId, setSelectedHouseId] = useState("");
   const [working, setWorking] = useState(false);
   const [editingHouseId, setEditingHouseId] = useState("");
+  const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
     const leagueId = league?.id;
@@ -402,11 +405,73 @@ export default function Houses() {
   const elections = electionsState.leagueId === league?.id ? electionsState.items : [];
   const membership = myMemberships.find((item) => item.leagueId === league?.id) || null;
   const currentHouse = houses.find((item) => item.id === membership?.currentHouseId) || null;
-  const selectedHouse = houses.find((item) => item.id === selectedHouseId) || currentHouse || houses[0] || null;
+  const selectedHouse = houses.find((item) => item.id === selectedHouseId)
+    || currentHouse
+    || houses[0]
+    || null;
   const selectedMembers = members.filter((item) => item.currentHouseId === selectedHouse?.id);
   const editingHouse = houses.find((item) => item.id === editingHouseId) || null;
-  const manager = Boolean(league && canManageLeagues && canManageLeague(league, user?.uid, isPlatformAdmin));
+  const manager = Boolean(
+    league
+    && canManageLeagues
+    && canManageLeague(league, user?.uid, isPlatformAdmin),
+  );
   const chaosReadiness = getChaosReadiness({ league, houses, memberships: members });
+  const completedChaosChecks = chaosReadiness.checks.filter((check) => check.complete).length;
+  const chaosSummary = chaosReadiness.eligible
+    ? "Every prerequisite is complete. The one-time balanced assignment is ready to run."
+    : `${completedChaosChecks} of ${chaosReadiness.checks.length} prerequisites are complete.`;
+  const preSeasonManagement = manager && ["draft", "registration"].includes(league?.status);
+  const canUseRosterTurn = Boolean(
+    league?.status === "active"
+    && (manager || (currentHouse && isHouseLeader(currentHouse, user?.uid))),
+  );
+  const tabs = [
+    {
+      id: "overview",
+      label: "Overview",
+      icon: "🏰",
+      description: "House identities and season context",
+      badge: houses.length,
+    },
+    ...(selectedHouse
+      ? [
+          {
+            id: "roster",
+            label: "Roster",
+            icon: "🛡️",
+            description: `Players representing ${selectedHouse.name}`,
+            badge: selectedMembers.length,
+          },
+          {
+            id: "leadership",
+            label: "Leadership",
+            icon: "👑",
+            description: "Weekly captain and vice-captain voting",
+          },
+        ]
+      : []),
+    ...(canUseRosterTurn
+      ? [{
+          id: "roster-turn",
+          label: "Roster turn",
+          icon: "🔄",
+          description: "Complete the weekly balanced swap",
+        }]
+      : []),
+    ...(preSeasonManagement
+      ? [{
+          id: "manage",
+          label: "Manage",
+          icon: "⚙️",
+          description: "Build Houses and prepare C.H.A.O.S.",
+          badge: chaosReadiness.eligible ? "Ready" : completedChaosChecks,
+        }]
+      : []),
+  ];
+  const resolvedActiveTab = resolveWorkspaceTab(tabs, activeTab)?.id ?? "overview";
+
+
 
   async function handleCreateHouse(input) {
     setWorking(true);
@@ -437,17 +502,37 @@ export default function Houses() {
   }
 
   async function handleChaos() {
-    if (!window.confirm("Activate C.H.A.O.S.? Every registered player will be assigned fairly and notified. This cannot be repeated for the season.")) return;
+    const confirmed = window.confirm(
+      "Activate C.H.A.O.S.? Every registered player will be assigned fairly and notified. This cannot be repeated for the season.",
+    );
+    if (!confirmed) return;
+
     setWorking(true);
     try {
       await activateChaos({ league, houses, memberships: members, actorId: user.uid });
-      showToast("C.H.A.O.S. activated. The Houses have claimed their players.", "success", 6000);
+      showToast(
+        "C.H.A.O.S. activated. The Houses have claimed their players.",
+        "success",
+        6000,
+      );
     } catch (error) {
       console.error(error);
       showToast(error.message || "C.H.A.O.S. could not be activated.", "error");
     } finally {
       setWorking(false);
     }
+  }
+
+  function selectSeason(nextLeagueId) {
+    setSearchParams({ league: nextLeagueId }, { replace: true });
+    setSelectedHouseId("");
+    setEditingHouseId("");
+    setActiveTab("overview");
+  }
+
+  function editHouse(houseId) {
+    setEditingHouseId(houseId);
+    setActiveTab("manage");
   }
 
   return (
@@ -457,89 +542,347 @@ export default function Houses() {
         title="Houses"
         description="Every House belongs to one season. Individual points remain personal, while every new contribution also strengthens the House you represent at that moment."
         icon="🏰"
-        actions={<Link className="button button--secondary" to={league ? `/pocket?league=${league.id}` : "/pocket"}>Open Pocket Week</Link>}
+        actions={(
+          <Link
+            className="button button--secondary"
+            to={league ? `/pocket?league=${league.id}` : "/pocket"}
+          >
+            Open Pocket Week
+          </Link>
+        )}
       />
 
       <section className="season-selector card">
         <label htmlFor="house-season">Season</label>
-        <select id="house-season" value={selectedId} onChange={(event) => setSearchParams({ league: event.target.value }, { replace: true })}>
+        <select
+          id="house-season"
+          value={selectedId}
+          onChange={(event) => selectSeason(event.target.value)}
+        >
           <option value="">Choose a House season</option>
-          {seasonLeagues.map((item) => <option key={item.id} value={item.id}>{item.name} · {item.theme}</option>)}
+          {seasonLeagues.map((item) => (
+            <option key={item.id} value={item.id}>
+              {item.name} · {item.theme}
+            </option>
+          ))}
         </select>
       </section>
 
       {!league ? (
-        <section className="empty-state card">No House season is available yet. A League or Platform Administrator must create one first.</section>
+        <section className="empty-state card">
+          No House season is available yet. A League or Platform Administrator must create one first.
+        </section>
       ) : (
         <>
           <section className="season-banner card">
-            <div><p className="section-kicker">{league.theme}</p><h2>{league.name}</h2><p>{league.description}</p></div>
-            <div className="season-banner__status"><strong>{houses.length} of {league.houseCount} Houses</strong><span>{league.chaosStatus === "activated" ? "C.H.A.O.S. activated" : "Awaiting C.H.A.O.S."}</span></div>
+            <div>
+              <p className="section-kicker">{league.theme}</p>
+              <h2>{league.name}</h2>
+              <p>{league.description}</p>
+            </div>
+            <div className="season-banner__status">
+              <strong>{houses.length} of {league.houseCount} Houses</strong>
+              <span>
+                {league.chaosStatus === "activated"
+                  ? "C.H.A.O.S. activated"
+                  : "Awaiting C.H.A.O.S."}
+              </span>
+            </div>
           </section>
 
-          {manager && league.status === "draft" && houses.length < Number(league.houseCount) && (
-            <section className="house-builder card"><div><p className="section-kicker">House forge</p><h2>Create the season identities</h2><p>Build exactly {league.houseCount} Houses before registration closes. Names, symbols and colours may follow the season theme—or intentionally rebel against it.</p></div><HouseIdentityForm submitLabel="Create House" busy={working} onSubmit={handleCreateHouse} /></section>
-          )}
+          <WorkspaceTabs
+            tabs={tabs}
+            activeId={resolvedActiveTab}
+            onChange={setActiveTab}
+            label="House workspace"
+            idPrefix={`houses-${league.id}`}
+          />
 
-          {manager && editingHouse && (
-            <section className="house-builder card"><div><p className="section-kicker">House refinement</p><h2>Edit the banner</h2></div><HouseIdentityForm key={editingHouse.id} initial={editingHouse} submitLabel="Save House" busy={working} onSubmit={handleUpdateHouse} /></section>
-          )}
-
-          {manager && ["draft", "registration"].includes(league.status) && (
-            <section className="chaos-console card" aria-labelledby="chaos-console-title">
-              <div className="chaos-console__sigil" aria-hidden="true">C.H.A.O.S.</div>
-              <div className="chaos-console__content">
-                <p className="section-kicker">Citizens Handpicked for Assignment via Operational Sorting</p>
-                <h2 id="chaos-console-title">C.H.A.O.S. readiness</h2>
-                <p>The opening assignment is seeded, balanced and permanent in season history. Every registered player receives a private House notification.</p>
-                <ul className="chaos-checklist" aria-label="C.H.A.O.S. prerequisites">
-                  {chaosReadiness.checks.map((check) => (
-                    <li key={check.id} className={check.complete ? "chaos-checklist__item chaos-checklist__item--complete" : "chaos-checklist__item"}>
-                      <span aria-hidden="true">{check.complete ? "✓" : "○"}</span>
-                      <div><strong>{check.label}</strong><small>{check.detail}</small></div>
-                    </li>
-                  ))}
-                </ul>
-                {!chaosReadiness.registrationOpen && (
-                  <Link className="button button--secondary" to={`/seasons?league=${league.id}`}>Open season controls</Link>
-                )}
-              </div>
-              <div className="chaos-console__action">
-                <button className="button button--danger" type="button" disabled={working || !chaosReadiness.eligible} onClick={handleChaos}>
-                  {working ? "Destiny is calculating…" : "Activate C.H.A.O.S."}
+          <WorkspacePanel
+            id="overview"
+            activeId={resolvedActiveTab}
+            idPrefix={`houses-${league.id}`}
+          >
+            {preSeasonManagement && (
+              <section className="house-management-callout card">
+                <div className="house-management-callout__icon" aria-hidden="true">
+                  {chaosReadiness.eligible ? "✓" : "⚙️"}
+                </div>
+                <div>
+                  <p className="section-kicker">Season setup</p>
+                  <h2>
+                    {chaosReadiness.eligible
+                      ? "C.H.A.O.S. is ready"
+                      : "House setup is still in progress"}
+                  </h2>
+                  <p>
+                    {chaosSummary}
+                  </p>
+                </div>
+                <button
+                  className="button button--secondary"
+                  type="button"
+                  onClick={() => setActiveTab("manage")}
+                >
+                  Open management
                 </button>
-                {!chaosReadiness.eligible && <small>Complete every prerequisite to unlock assignment.</small>}
+              </section>
+            )}
+
+            {houses.length > 0 ? (
+              <section className="house-grid" aria-label="Season Houses">
+                {houses.map((house) => {
+                  const houseMembers = members.filter(
+                    (item) => item.currentHouseId === house.id,
+                  );
+                  return (
+                    <HouseCard
+                      key={house.id}
+                      house={house}
+                      members={houseMembers}
+                      selected={selectedHouse?.id === house.id}
+                      onSelect={() => setSelectedHouseId(house.id)}
+                    />
+                  );
+                })}
+              </section>
+            ) : (
+              <section className="house-empty card">
+                <span aria-hidden="true">🏗️</span>
+                <div>
+                  <p className="section-kicker">No Houses yet</p>
+                  <h2>The season identities still need to be forged</h2>
+                  <p>
+                    Houses appear here once an authorised administrator creates them for this season.
+                  </p>
+                </div>
+                {preSeasonManagement && (
+                  <button
+                    className="button button--primary"
+                    type="button"
+                    onClick={() => setActiveTab("manage")}
+                  >
+                    Create the first House
+                  </button>
+                )}
+              </section>
+            )}
+
+            {selectedHouse && (
+              <section
+                className="house-identity card"
+                style={{ "--house-accent": getHouseAccent(selectedHouse.accentId).value }}
+              >
+                <span aria-hidden="true">
+                  {getHouseEmblem(selectedHouse.emblemId).symbol}
+                </span>
+                <div>
+                  <p className="section-kicker">Selected House</p>
+                  <h2>{selectedHouse.name}</h2>
+                  <blockquote>“{selectedHouse.motto}”</blockquote>
+                  <p>{selectedHouse.description}</p>
+                </div>
+                <div className="house-overview-actions">
+                  <button
+                    className="button button--secondary"
+                    type="button"
+                    onClick={() => setActiveTab("roster")}
+                  >
+                    View roster
+                  </button>
+                  <button
+                    className="button button--secondary"
+                    type="button"
+                    onClick={() => setActiveTab("leadership")}
+                  >
+                    Leadership
+                  </button>
+                  {preSeasonManagement && (
+                    <button
+                      className="button button--ghost"
+                      type="button"
+                      onClick={() => editHouse(selectedHouse.id)}
+                    >
+                      Edit identity
+                    </button>
+                  )}
+                </div>
+              </section>
+            )}
+
+            <section className="season-integrity card">
+              <span aria-hidden="true">🧭</span>
+              <div>
+                <p className="section-kicker">Historical integrity</p>
+                <h2>Your old House keeps what you earned there</h2>
+                <p>
+                  A roster move changes only future House contributions. Individual points remain yours,
+                  and completed contribution snapshots are never rewritten to make the past look different.
+                </p>
               </div>
             </section>
-          )}
-
-          <section className="house-grid" aria-label="Season Houses">
-            {houses.map((house) => {
-              const houseMembers = members.filter((item) => item.currentHouseId === house.id);
-              return <HouseCard key={house.id} house={house} members={houseMembers} selected={selectedHouse?.id === house.id} onSelect={() => setSelectedHouseId(house.id)} />;
-            })}
-          </section>
+          </WorkspacePanel>
 
           {selectedHouse && (
-            <>
-              <section className="house-identity card" style={{ "--house-accent": getHouseAccent(selectedHouse.accentId).value }}>
-                <span aria-hidden="true">{getHouseEmblem(selectedHouse.emblemId).symbol}</span>
-                <div><p className="section-kicker">Selected House</p><h2>{selectedHouse.name}</h2><blockquote>“{selectedHouse.motto}”</blockquote><p>{selectedHouse.description}</p></div>
-                {manager && ["draft", "registration"].includes(league.status) && <button className="button button--secondary" type="button" onClick={() => setEditingHouseId(selectedHouse.id)}>Edit identity</button>}
-              </section>
+            <WorkspacePanel
+              id="roster"
+              activeId={resolvedActiveTab}
+              idPrefix={`houses-${league.id}`}
+            >
               <HouseRoster house={selectedHouse} members={selectedMembers} />
-              <LeadershipPanel key={`${league.id}:${selectedHouse.id}`} league={league} house={selectedHouse} members={selectedMembers} membership={membership} elections={elections} manager={manager} actorId={user?.uid} notify={showToast} />
-            </>
+            </WorkspacePanel>
           )}
 
-          <RosterSwapPanel key={league.id} league={league} houses={houses} members={members} actorId={user?.uid} manager={manager} currentHouse={currentHouse} notify={showToast} />
+          {selectedHouse && (
+            <WorkspacePanel
+              id="leadership"
+              activeId={resolvedActiveTab}
+              idPrefix={`houses-${league.id}`}
+            >
+              <LeadershipPanel
+                key={`${league.id}:${selectedHouse.id}`}
+                league={league}
+                house={selectedHouse}
+                members={selectedMembers}
+                membership={membership}
+                elections={elections}
+                manager={manager}
+                actorId={user?.uid}
+                notify={showToast}
+              />
+            </WorkspacePanel>
+          )}
 
-          <section className="season-integrity card">
-            <span aria-hidden="true">🧭</span>
-            <div><p className="section-kicker">Historical integrity</p><h2>Your old House keeps what you earned there</h2><p>A roster move changes only future House contributions. Individual points remain yours, and completed contribution snapshots are never rewritten to make the past look different.</p></div>
-          </section>
+          {canUseRosterTurn && (
+            <WorkspacePanel
+              id="roster-turn"
+              activeId={resolvedActiveTab}
+              idPrefix={`houses-${league.id}`}
+            >
+              <RosterSwapPanel
+                key={league.id}
+                league={league}
+                houses={houses}
+                members={members}
+                actorId={user?.uid}
+                manager={manager}
+                currentHouse={currentHouse}
+                notify={showToast}
+              />
+            </WorkspacePanel>
+          )}
+
+          {preSeasonManagement && (
+            <WorkspacePanel
+              id="manage"
+              activeId={resolvedActiveTab}
+              idPrefix={`houses-${league.id}`}
+            >
+              <section className="house-management-summary card">
+                <div>
+                  <p className="section-kicker">Management workspace</p>
+                  <h2>Prepare the Houses without crowding the player view</h2>
+                  <p>
+                    Build and refine the season identities, then complete every prerequisite before
+                    activating C.H.A.O.S.
+                  </p>
+                </div>
+                <div className="house-management-metrics" aria-label="House setup progress">
+                  <span><strong>{houses.length}/{league.houseCount}</strong> Houses</span>
+                  <span><strong>{members.length}</strong> registered players</span>
+                  <span><strong>{completedChaosChecks}/{chaosReadiness.checks.length}</strong> checks complete</span>
+                </div>
+              </section>
+
+              {league.status === "draft" && houses.length < Number(league.houseCount) && (
+                <section className="house-builder card">
+                  <div>
+                    <p className="section-kicker">House forge</p>
+                    <h2>Create the season identities</h2>
+                    <p>
+                      Build exactly {league.houseCount} Houses before registration closes. Names,
+                      symbols and colours may follow the season theme—or intentionally rebel against it.
+                    </p>
+                  </div>
+                  <HouseIdentityForm
+                    submitLabel="Create House"
+                    busy={working}
+                    onSubmit={handleCreateHouse}
+                  />
+                </section>
+              )}
+
+              {manager && editingHouse && (
+                <section className="house-builder card">
+                  <div>
+                    <p className="section-kicker">House refinement</p>
+                    <h2>Edit the banner</h2>
+                  </div>
+                  <HouseIdentityForm
+                    key={editingHouse.id}
+                    initial={editingHouse}
+                    submitLabel="Save House"
+                    busy={working}
+                    onSubmit={handleUpdateHouse}
+                  />
+                </section>
+              )}
+
+              <section className="chaos-console card" aria-labelledby="chaos-console-title">
+                <div className="chaos-console__sigil" aria-hidden="true">C.H.A.O.S.</div>
+                <div className="chaos-console__content">
+                  <p className="section-kicker">
+                    Citizens Handpicked for Assignment via Operational Sorting
+                  </p>
+                  <h2 id="chaos-console-title">C.H.A.O.S. readiness</h2>
+                  <p>
+                    The opening assignment is seeded, balanced and permanent in season history.
+                    Every registered player receives a private House notification.
+                  </p>
+                  <ul className="chaos-checklist" aria-label="C.H.A.O.S. prerequisites">
+                    {chaosReadiness.checks.map((check) => (
+                      <li
+                        key={check.id}
+                        className={check.complete
+                          ? "chaos-checklist__item chaos-checklist__item--complete"
+                          : "chaos-checklist__item"}
+                      >
+                        <span aria-hidden="true">{check.complete ? "✓" : "○"}</span>
+                        <div>
+                          <strong>{check.label}</strong>
+                          <small>{check.detail}</small>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                  {!chaosReadiness.registrationOpen && (
+                    <Link
+                      className="button button--secondary"
+                      to={`/seasons?league=${league.id}`}
+                    >
+                      Open season controls
+                    </Link>
+                  )}
+                </div>
+                <div className="chaos-console__action">
+                  <button
+                    className="button button--danger"
+                    type="button"
+                    disabled={working || !chaosReadiness.eligible}
+                    onClick={handleChaos}
+                  >
+                    {working ? "Destiny is calculating…" : "Activate C.H.A.O.S."}
+                  </button>
+                  {!chaosReadiness.eligible && (
+                    <small>Complete every prerequisite to unlock assignment.</small>
+                  )}
+                </div>
+              </section>
+            </WorkspacePanel>
+          )}
         </>
       )}
+
       <Toast message={toast?.message} type={toast?.type} onDismiss={dismissToast} />
     </div>
   );

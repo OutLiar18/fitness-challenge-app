@@ -53,3 +53,15 @@ Small trophy interactions, rotating motivation and future-page humour may add pe
 - Inbox uses clear tabs and labels so colour is never the only distinction between public and private messages.
 - Analytics favours readable summaries, accessible labels and modest charts over dashboard clutter.
 - C.H.A.O.S. prerequisites use text, symbols and completion wording rather than colour alone.
+
+## v0.16 route-workspace rhythm
+
+Dense pages should reveal one major section at a time rather than stacking every card, chart, form and historical list on first load.
+
+- Keep the page header and a small number of decision-making summaries visible.
+- Use the shared workspace switcher for peer sections with different purposes.
+- Desktop section tabs may use icons, short descriptions and compact count/status badges.
+- Small screens use a labelled native selector instead of compressed horizontal tabs.
+- The default section should be the calmest useful overview, not the longest archive.
+- Do not hide the only route to a critical action: surface a concise status or callout that points to its workspace.
+- Avoid nested tab systems unless the inner pattern is already specialised and clearly scoped.

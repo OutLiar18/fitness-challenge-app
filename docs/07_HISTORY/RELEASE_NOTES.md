@@ -1,5 +1,18 @@
 # Champions Legacy Challenge — Release Notes
 
+## v0.16.0 — Progressive Disclosure and Page Breathing Room
+
+Date: 3 August 2026  
+Status: Verified and deployed to production; pre-v1.0
+
+Champions Legacy Challenge now uses one consistent visual workspace pattern on pages that had grown into long stacks of competing sections. Desktop players receive labelled tabs with icons, concise descriptions and useful counts. Smaller screens receive a native section selector rather than squeezed horizontal controls. Keyboard users can move between desktop tabs with Arrow keys, Home and End, and reduced-motion preferences are respected.
+
+Progress opens on a calm Overview. Achievements, Records, Timeline and Level Journey remain available without dominating the first view. The same principle now separates logging from Journal, analytics views, profile editing, Legacy Coach evidence/preferences, Points Guide references, season tasks, House operations, Pocket Week phases and administrative areas.
+
+Critical functionality is not hidden without context. Houses shows C.H.A.O.S. readiness on Overview and links directly to Management. Summary cards and route-wide selectors remain visible when they help every section. Dashboard, Inbox and Rulebook keep their existing interaction patterns because generic tabs would not improve them.
+
+This release changes presentation and component architecture only. It does not alter Firestore data, Security Rules, scoring, Experience Points, Pocket balances or historical House allocation. Packaging checks passed clean ESLint, 68 domain tests, syntax parsing and static source-reference audits. Authoritative Windows verification then passed the Vite production build, all 25 Firestore Rules tests and release-readiness for Hosting target `app`. Firebase Hosting deployed 60 frontend files successfully to the branded production site. Firestore Rules were unchanged. The full manual integrated review remains deferred until the final pre-v1.0 stage.
+
 ## v0.15.0 — Navigation, Inbox, Analytics and C.H.A.O.S. Readiness
 
 Date: 3 August 2026

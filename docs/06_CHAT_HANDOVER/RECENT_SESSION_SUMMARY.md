@@ -1,45 +1,49 @@
 # Recent Session Summary
 
 Date: 3 August 2026  
-Release: v0.15.0
+Current production: v0.16.0
 
-## Outcome
+## Requested outcome
 
-The post-v0.14.0 source and documentation were audited, cleaned and advanced to v0.15.0. The release was verified on Windows and deployed to production.
+Reduce visual crowding throughout the app. Use dropdowns, tabs or a better consistent pattern where appropriate, with Progress specifically avoiding a long first-load stack of timeline, achievements and related sections.
 
 ## Implemented
 
-- Renamed route pages from legacy Teams/Leagues names to Houses/Seasons.
-- Consolidated separate Announcements and Notifications pages into one tabbed Inbox.
-- Removed duplicate desktop Profile navigation; retained player-identity access and mobile Profile in More.
-- Grouped desktop navigation and simplified mobile tabs.
-- Added safe redirects for old route bookmarks and notification links.
-- Added Personal Analytics with weekly trends, 28-day consistency, category balance and transparent observations.
-- Analytics reuse the central point breakdown; no data migration or new collection.
-- Added visible C.H.A.O.S. readiness checklist and pure eligibility helper.
-- Added analytics and C.H.A.O.S. regression coverage.
-- Removed stale `public/_redirects` because Firebase Hosting is authoritative.
-- Preserved historical ADRs and superseded records rather than deleting project reasoning.
+- Added reusable `WorkspaceTabs` and `WorkspacePanel` components.
+- Added pure workspace selection and keyboard-navigation helpers.
+- Desktop uses descriptive tabs; small screens use a labelled native select.
+- Added Arrow keys, Home/End, focus movement and reduced-motion support.
+- Progress now defaults to Overview and separates Achievements, Records, Timeline and Level Journey.
+- Activity Log separates logging from Journal.
+- Analytics separates Trends, Consistency, Category Balance and Insights.
+- Profile separates Overview, Personalise and Protections.
+- Legacy Coach separates Recommendations, Evidence and Preferences.
+- Points Guide separates Activity Scoring, Bonuses/Difficulty, Season Scoring and Formula Reference.
+- Seasons separates Browse, Join and Create; season detail separates Overview, Standings and Honours.
+- Houses separates Overview, Roster, Leadership, Roster Turn and authorised Management.
+- C.H.A.O.S. remains discoverable from Overview through a readiness callout.
+- Pocket Week uses phase-aware Store, Wallet and Guide workspaces.
+- Administration replaces its internal vertical navigation with the shared full-width workspace.
+- Dashboard, Inbox and Rulebook were deliberately not forced into the generic pattern.
 
-## Verification
+## Cleanup and audit
 
-- `npm install`: passed.
-- 66 of 66 domain tests passed.
-- 25 of 25 Firestore Rules tests passed.
+- The uploaded RAR was inspected and found to be v0.14.0, so the newer v0.15.0 clean source remained authoritative.
+- Zero unresolved imports, unreferenced source modules or unreferenced stylesheets.
+- No retired route page implementations or stale Netlify routing files remain.
+- Added ADR-023 and updated current-state, architecture, design, testing, roadmap, release and handover documentation.
+
+## Verification and deployment
+
 - ESLint passed without warnings.
+- 68 of 68 domain tests passed.
 - Vite production build passed.
-- Release-readiness confirmed v0.15.0 and Hosting target `app`.
-- `npm audit` reported two high-severity React Router RSC advisories; no forced breaking fix was applied.
-
-The `PERMISSION_DENIED` lines in the Rules output were expected negative security tests, and the suite exited successfully.
-
-## Deployment
-
-- Frontend deployed successfully to `https://champions-legacy-challenge.web.app`.
-- Firebase Hosting released 58 files.
-- Firestore Rules and collection shapes were unchanged by v0.15.0.
-- The product owner chose to defer the full manual smoke, responsive, visual, keyboard, dark-mode and accessibility review until the final pre-v1.0 stage.
+- 25 of 25 Firestore Rules tests passed.
+- Release-readiness verified v0.16.0 on Hosting target `app`.
+- Firebase Hosting deployed 60 frontend files successfully to the branded production site.
+- Firestore Rules were unchanged.
+- The Firebase vendor chunk warning and two React Router React Server Components advisories remain documented and non-blocking.
 
 ## Next action
 
-Apply the deployment documentation sync and commit v0.15.0. Do not create a v1.0 tag. The recommended next development area is onboarding, privacy/support, data export/deletion, history pagination and measured performance work.
+Apply the deployment documentation synchronisation package and commit v0.16.0. The full manual integrated review remains deferred until the final pre-v1.0 stage. Do not create a v1.0 tag.

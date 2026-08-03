@@ -256,3 +256,30 @@ A great user experience allows players to focus on improving themselves—not fi
 - One concept should have one obvious destination. Profile is not duplicated on desktop, and incoming communication begins at Inbox.
 - Prerequisites should remain visible before an action becomes available. Disabled actions must explain what is missing.
 - Analytics should support reflection, not pressure. It describes patterns and never invents targets or negative comparisons.
+
+---
+
+# Progressive Disclosure on Dense Pages
+
+When a route contains several complete tasks or bodies of reference information, show one major workspace at a time.
+
+Use route-workspace tabs when:
+
+- sections are peers rather than sequential steps;
+- each section can stand alone;
+- showing all sections makes the page feel long or action-heavy;
+- the player may revisit different sections repeatedly.
+
+Use native disclosure (`details`) when:
+
+- the content is reference material inside one larger task;
+- multiple answers may reasonably remain open;
+- the user benefits from scanning headings in one document.
+
+Keep content direct when:
+
+- the page has one clear task;
+- hiding information would add a click without reducing meaningful complexity;
+- the page is already short and calm.
+
+The primary status and next action must remain discoverable. A section may be hidden by default, but its label and any critical readiness state must not disappear.

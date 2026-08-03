@@ -568,3 +568,8 @@
   white-space: normal;
   overflow-wrap: anywhere;
 }
+
+.points-secondary-grid--single {
+  grid-template-columns: minmax(0, 860px);
+  justify-content: center;
+}

@@ -33,7 +33,7 @@ npm run deploy:preview
 
 ## Pre-1.0 boundary
 
-v0.15.0 is a pre-review refinement release, not v1.0. Do not create a v1.0 tag until the user explicitly approves the final visual, gameplay and operational scope.
+v0.16.0 is a pre-review refinement release, not v1.0. Do not create a v1.0 tag until the user explicitly approves the final visual, gameplay and operational scope.
 
 ## Rule changes
 

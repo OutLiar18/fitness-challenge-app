@@ -8,6 +8,9 @@ import LibraryPublisher from "../components/admin/LibraryPublisher";
 import SuggestionModeration from "../components/admin/SuggestionModeration";
 import UserManagement from "../components/admin/UserManagement";
 import Toast from "../components/common/Toast/Toast";
+import WorkspaceTabs, {
+  WorkspacePanel,
+} from "../components/common/WorkspaceTabs";
 import PageHeader from "../components/layout/PageHeader";
 import useAdminData from "../hooks/useAdminData";
 import usePlayerData from "../hooks/usePlayerData";
@@ -149,26 +152,29 @@ export default function Admin() {
             </section>
           )}
 
-          <div className="admin-workspace">
-            <nav className="admin-tabs card" aria-label="Administration sections">
-              {ADMIN_TABS.map((tab) => (
-                <button
-                  key={tab.id}
-                  className={`admin-tab${
-                    activeTab === tab.id ? " admin-tab--active" : ""
-                  }`}
-                  type="button"
-                  aria-current={activeTab === tab.id ? "page" : undefined}
-                  onClick={() => setActiveTab(tab.id)}
-                >
-                  <span aria-hidden="true">{tab.icon}</span>
-                  <strong>{tab.label}</strong>
-                </button>
-              ))}
-            </nav>
+          <WorkspaceTabs
+            idPrefix="admin"
+            label="Administration sections"
+            tabs={ADMIN_TABS.map((tab) => ({
+              ...tab,
+              description:
+                {
+                  overview: "Operational health and current workload",
+                  announcements: "Create and publish platform updates",
+                  suggestions: "Review community-submitted library ideas",
+                  library: "Prepare and publish versioned library releases",
+                  users: "Manage trusted access and player roles",
+                  errors: "Inspect first-party client error reports",
+                  audit: "Review immutable administrative history",
+                }[tab.id],
+            }))}
+            activeId={activeTab}
+            onChange={setActiveTab}
+          />
 
+          <WorkspacePanel id={activeTab} activeId={activeTab} idPrefix="admin">
             <div className="admin-panel">{renderPanel()}</div>
-          </div>
+          </WorkspacePanel>
         </>
       )}
 

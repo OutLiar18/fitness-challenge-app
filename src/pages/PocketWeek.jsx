@@ -3,6 +3,9 @@ import { Link, useSearchParams } from "react-router-dom";
 
 import CategoryGrid from "../components/categories/CategoryGrid";
 import Toast from "../components/common/Toast/Toast";
+import WorkspaceTabs, {
+  WorkspacePanel,
+} from "../components/common/WorkspaceTabs";
 import EntryForm from "../components/entries/EntryForm";
 import PageHeader from "../components/layout/PageHeader";
 import { CATEGORY_MAP } from "../constants/categories";
@@ -24,6 +27,7 @@ import {
   storePocketActivity,
   subscribeToPocketActivities,
 } from "../services/seasons/seasonService";
+import { resolveWorkspaceTab } from "../services/ui/workspaceModel";
 import { formatMeasurement, formatNumber } from "../utils/displayFormatters";
 import "./PocketWeek.css";
 
@@ -167,9 +171,11 @@ export default function PocketWeek() {
   const [activityDate, setActivityDate] = useState(() => formatDateInputValue(new Date()));
   const [errors, setErrors] = useState([]);
   const [saving, setSaving] = useState(false);
+  const [tabState, setTabState] = useState({ leagueId: "", activeId: "wallet" });
   const phase = league ? getSeasonPhase(league) : "draft";
   const canStore = Boolean(league && membership && phase === "pocket");
   const canRedeem = Boolean(league && membership?.status === "active" && phase === "active");
+
 
   const pocketKey = league?.id && user?.uid ? `${league.id}:${user.uid}` : "";
 
@@ -194,6 +200,43 @@ export default function PocketWeek() {
       return emptyDifference || String(first.category).localeCompare(String(second.category));
     });
   }, [pocketKey, pocketState.items, pocketState.key]);
+
+  const pocketTabs = [
+    ...(canStore
+      ? [{
+          id: "store",
+          label: "Store activity",
+          icon: "➕",
+          description: "Record work during the official Pocket window",
+        }]
+      : []),
+    {
+      id: "wallet",
+      label: "Your Pocket",
+      icon: "🧳",
+      description: "Review balances and activate them in-season",
+      badge: availablePockets.filter((item) => Number(item.remainingQuantity) > 0).length,
+    },
+    {
+      id: "guide",
+      label: "How it works",
+      icon: "🔎",
+      description: "Storage, activation and integrity rules",
+    },
+  ];
+  const requestedTab = tabState.leagueId === selectedId
+    ? tabState.activeId
+    : canStore ? "store" : "wallet";
+  const activeTab = resolveWorkspaceTab(pocketTabs, requestedTab)?.id ?? "wallet";
+
+  function selectPocketTab(nextTab) {
+    setTabState({ leagueId: selectedId, activeId: nextTab });
+  }
+
+  function selectSeason(nextLeagueId) {
+    setSearchParams({ league: nextLeagueId }, { replace: true });
+    setTabState({ leagueId: nextLeagueId, activeId: "wallet" });
+  }
 
   function handleCategorySelect(nextCategory) {
     const safeCategory = getSafeCategory(nextCategory);
@@ -239,7 +282,7 @@ export default function PocketWeek() {
 
       <section className="pocket-season card">
         <label htmlFor="pocket-season">Season</label>
-        <select id="pocket-season" value={selectedId} onChange={(event) => setSearchParams({ league: event.target.value }, { replace: true })}>
+        <select id="pocket-season" value={selectedId} onChange={(event) => selectSeason(event.target.value)}>
           <option value="">Choose a season</option>
           {seasonLeagues.map((item) => <option key={item.id} value={item.id}>{item.name} · {item.theme}</option>)}
         </select>
@@ -258,83 +301,99 @@ export default function PocketWeek() {
         <section className="empty-state card">Register for this season before using its Pocket.</section>
       ) : (
         <>
-          <section className="pocket-principles">
-            <article className="card"><span aria-hidden="true">0</span><strong>Zero points while stored</strong><p>The activity exists in your Pocket, not in the daily score.</p></article>
-            <article className="card"><span aria-hidden="true">↗</span><strong>You choose when to use it</strong><p>Activate part of a simple balance or an entire stored session.</p></article>
-            <article className="card"><span aria-hidden="true">🔒</span><strong>Activation is final</strong><p>Once used, that amount leaves your Pocket and cannot be returned.</p></article>
-          </section>
+          <WorkspaceTabs
+            idPrefix="pocket"
+            label="Pocket Week sections"
+            tabs={pocketTabs}
+            activeId={activeTab}
+            onChange={selectPocketTab}
+          />
 
-          {canStore && (
-            <div className="pocket-workspace">
-              <CategoryGrid
-                selected={categoryId}
-                onSelect={handleCategorySelect}
-                eyebrow="Pocket category"
-                title="Store an activity"
-                description="Record work completed inside the official seven-day Pocket window."
-              />
-              <div className="pocket-entry-column">
-                <label className="pocket-date card">
-                  Activity date
-                  <input
-                    type="date"
-                    min={formatDateInputValue(league.pocketStartDate)}
-                    max={formatDateInputValue(league.pocketEndDate)}
-                    value={activityDate}
-                    onChange={(event) => setActivityDate(event.target.value)}
-                  />
-                </label>
-                <EntryForm
-                  userId={user.uid}
-                  type={categoryId}
-                  formData={formData}
-                  setFormData={setFormData}
-                  onSave={handleStore}
-                  saving={saving}
-                  errors={errors}
-                  eyebrow="Pocket deposit"
-                  title={CATEGORY_MAP.get(categoryId)?.name}
-                  description="This deposit is recorded but deliberately receives no points yet."
-                  notice="🧳 Store only activities completed during this season’s Pocket Week. Integrity rules still apply."
-                  submitLabel="Store in Pocket"
-                  savingLabel="Storing activity…"
+          <WorkspacePanel id="store" activeId={activeTab} idPrefix="pocket">
+            {canStore ? (
+              <div className="pocket-workspace">
+                <CategoryGrid
+                  selected={categoryId}
+                  onSelect={handleCategorySelect}
+                  eyebrow="Pocket category"
+                  title="Store an activity"
+                  description="Record work completed inside the official seven-day Pocket window."
                 />
-              </div>
-            </div>
-          )}
-
-          {!canStore && phase !== "active" && (
-            <section className="inline-alert card">Pocket deposits are closed for this season. Existing balances remain visible and become usable when the active season begins.</section>
-          )}
-
-          <section className="pocket-wallet card">
-            <div className="community-section-heading">
-              <div><p className="section-kicker">Personal reserve</p><h2>Your Pocket</h2></div>
-              <span>{availablePockets.filter((item) => Number(item.remainingQuantity) > 0).length} available</span>
-            </div>
-            {availablePockets.length === 0 ? (
-              <div className="empty-state">This Pocket is empty. Categories not recorded during Pocket Week cannot be used later.</div>
-            ) : (
-              <div className="pocket-wallet__grid">
-                {availablePockets.map((pocket) => (
-                  <PocketCard
-                    key={pocket.id}
-                    pocket={pocket}
-                    league={league}
+                <div className="pocket-entry-column">
+                  <label className="pocket-date card">
+                    Activity date
+                    <input
+                      type="date"
+                      min={formatDateInputValue(league.pocketStartDate)}
+                      max={formatDateInputValue(league.pocketEndDate)}
+                      value={activityDate}
+                      onChange={(event) => setActivityDate(event.target.value)}
+                    />
+                  </label>
+                  <EntryForm
                     userId={user.uid}
-                    notify={showToast}
-                    canRedeem={canRedeem}
+                    type={categoryId}
+                    formData={formData}
+                    setFormData={setFormData}
+                    onSave={handleStore}
+                    saving={saving}
+                    errors={errors}
+                    eyebrow="Pocket deposit"
+                    title={CATEGORY_MAP.get(categoryId)?.name}
+                    description="This deposit is recorded but deliberately receives no points yet."
+                    notice="🧳 Store only activities completed during this season’s Pocket Week. Integrity rules still apply."
+                    submitLabel="Store in Pocket"
+                    savingLabel="Storing activity…"
                   />
-                ))}
+                </div>
               </div>
+            ) : (
+              <section className="empty-state card">Pocket deposits are closed for this season.</section>
             )}
-            {!canRedeem && phase !== "active" && <p className="pocket-wallet__notice">Balances unlock for activation when the season becomes active.</p>}
-          </section>
+          </WorkspacePanel>
 
-          <section className="pocket-easter card">
-            <span aria-hidden="true">🦓</span>
-            <div><strong>Pocket inspection complete</strong><p>No prison zebras were inconvenienced. Stored activities remain non-transferable, carefully counted and entirely yours.</p></div>
-          </section>
+          <WorkspacePanel id="wallet" activeId={activeTab} idPrefix="pocket">
+            {!canStore && phase !== "active" && (
+              <section className="inline-alert card">Pocket deposits are closed for this season. Existing balances remain visible and become usable when the active season begins.</section>
+            )}
+
+            <section className="pocket-wallet card">
+              <div className="community-section-heading">
+                <div><p className="section-kicker">Personal reserve</p><h2>Your Pocket</h2></div>
+                <span>{availablePockets.filter((item) => Number(item.remainingQuantity) > 0).length} available</span>
+              </div>
+              {availablePockets.length === 0 ? (
+                <div className="empty-state">This Pocket is empty. Categories not recorded during Pocket Week cannot be used later.</div>
+              ) : (
+                <div className="pocket-wallet__grid">
+                  {availablePockets.map((pocket) => (
+                    <PocketCard
+                      key={pocket.id}
+                      pocket={pocket}
+                      league={league}
+                      userId={user.uid}
+                      notify={showToast}
+                      canRedeem={canRedeem}
+                    />
+                  ))}
+                </div>
+              )}
+              {!canRedeem && phase !== "active" && <p className="pocket-wallet__notice">Balances unlock for activation when the season becomes active.</p>}
+            </section>
+          </WorkspacePanel>
+
+          <WorkspacePanel id="guide" activeId={activeTab} idPrefix="pocket">
+            <section className="pocket-principles">
+              <article className="card"><span aria-hidden="true">0</span><strong>Zero points while stored</strong><p>The activity exists in your Pocket, not in the daily score.</p></article>
+              <article className="card"><span aria-hidden="true">↗</span><strong>You choose when to use it</strong><p>Activate part of a simple balance or an entire stored session.</p></article>
+              <article className="card"><span aria-hidden="true">🔒</span><strong>Activation is final</strong><p>Once used, that amount leaves your Pocket and cannot be returned.</p></article>
+            </section>
+
+            <section className="pocket-easter card">
+              <span aria-hidden="true">🦓</span>
+              <div><strong>Pocket inspection complete</strong><p>No prison zebras were inconvenienced. Stored activities remain non-transferable, carefully counted and entirely yours.</p></div>
+            </section>
+          </WorkspacePanel>
         </>
       )}
 

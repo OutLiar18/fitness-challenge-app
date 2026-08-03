@@ -9,10 +9,10 @@ Last updated: 3 August 2026
 3. Trusted administration, audit history, announcements, moderation and shared libraries.
 4. Rulebook, Points Guide, Legacy Coach, error monitoring and Firebase Hosting.
 5. Season-scoped Houses, C.H.A.O.S., weekly leadership, balanced roster swaps, Pocket Week, dual standings and honours.
-6. v0.14.0 verification, data cleanup, Rules deployment and production season/House smoke test.
-7. v0.15.0 grouped navigation, unified Inbox, Personal Analytics, visible C.H.A.O.S. readiness, semantic cleanup, automated verification and production Hosting deployment.
+6. v0.15.0 grouped navigation, unified Inbox, Personal Analytics, visible C.H.A.O.S. readiness and production deployment.
+7. v0.16.0 shared progressive-disclosure workspaces, focused defaults, mobile-native section selection and production deployment.
 
-## Current phase — post-v0.15.0 pre-v1 foundations
+## Next pre-v1.0 foundations
 
 - First-use onboarding.
 - Privacy and support content.
@@ -28,10 +28,6 @@ Last updated: 3 August 2026
 - Resolve defects found by that review and add regression coverage.
 - Confirm operational readiness for a real season.
 - Obtain explicit product-owner approval of v1.0.
-
-## Inactive until confirmed
-
-Power Plays, Diamonds, player prices, House Immunity, full Transfer Market, Buddy Bonuses, Five Fires and late-season twists.
 
 ## Guardrail
 

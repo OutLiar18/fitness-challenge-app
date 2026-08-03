@@ -2,17 +2,17 @@
 
 Last updated: 3 August 2026
 
-## v0.15.0 verification status
+## v0.16.0 release status
 
-The release passed the authoritative Windows gates: 66 domain tests, 25 Firestore Rules tests, clean ESLint, successful Vite production build and release-readiness for Hosting target `app`. The frontend is deployed to production.
+Automated Windows release verification and Firebase Hosting deployment succeeded. Clean ESLint, 68 domain tests, the Vite production build, 25 Firestore Rules tests and release-readiness all passed. The full manual integrated review remains deferred.
 
 ## Deferred integrated review
 
-The product owner has deferred the complete functional, responsive, keyboard, visual, dark-mode and accessibility review until the final pre-v1.0 stage. Production therefore has strong automated coverage but has not received the full manual review matrix.
+The product owner has deferred the complete functional, responsive, visual, dark-mode and accessibility review until the final pre-v1.0 stage. The new workspace pattern is designed for accessibility and small screens but has not yet received the final manual matrix.
 
 ## Performance warning
 
-The production build reports a Firebase vendor chunk above the 500 kB warning threshold. The compressed size is substantially smaller and the warning does not block deployment. Treat route/vendor chunk optimisation as measured later work rather than suppressing the warning without evidence.
+The production build reports a Firebase vendor chunk of approximately 575.67 kB minified and 169.22 kB gzip, above Vite's 500 kB warning threshold. The warning does not block deployment. Treat route/vendor chunk optimisation as measured later work rather than suppressing the warning without evidence.
 
 ## Operational boundaries
 
@@ -28,4 +28,4 @@ Power Plays, Diamonds, player prices, House Immunity, the full Transfer Market, 
 
 ## Dependency advisory
 
-`npm audit` reports two high-severity advisories in React Router's React Server Components mode. Champions Legacy Challenge is a client-rendered Vite application and does not use RSC mode. Do not run `npm audit fix --force`; the suggested package change is breaking. Reassess when an upstream non-breaking compatible fix is available.
+`npm audit` reports two high-severity advisories in React Router's React Server Components mode. Champions Legacy Challenge is a client-rendered Vite application and does not use React Server Components mode. The available forced action would install a breaking dependency version. Do not run `npm audit fix --force`; reassess when an upstream non-breaking compatible fix is available.

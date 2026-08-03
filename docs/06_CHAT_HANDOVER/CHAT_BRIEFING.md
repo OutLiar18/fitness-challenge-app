@@ -1,7 +1,8 @@
 # Champions Legacy Challenge — Chat Briefing
 
 Last updated: 3 August 2026  
-Current release: v0.15.0, deployed, pre-v1.0
+Current production: v0.16.0  
+Status: Verified and deployed; documentation sync and release commit pending; pre-v1.0
 
 ## Product
 
@@ -11,45 +12,46 @@ Champions Legacy Challenge is a gamified personal-development platform. It rewar
 
 React + Vite, Firebase Authentication, Cloud Firestore and classic Firebase Hosting. Branded URL: `https://champions-legacy-challenge.web.app`.
 
-## Current implementation
+## Latest release
 
-v0.15.0 is deployed and adds:
+v0.16.0 reduces visual crowding through one shared progressive-disclosure workspace:
 
-- grouped, less crowded adaptive navigation;
-- no duplicate desktop Profile destination;
-- one Inbox for public announcements and private season notifications;
-- derived Personal Analytics that reuses factual entries and the Points Engine;
-- visible C.H.A.O.S. prerequisites during Draft and Registration;
-- current semantic route/page names with safe redirects from old URLs;
-- removal of stale Netlify routing residue.
+- desktop tabs with icons, descriptions and optional count/status badges;
+- a native section selector on small screens;
+- Arrow-key, Home/End and visible-focus support;
+- reduced-motion handling;
+- safe pure helpers for active-section fallback and keyboard movement.
 
-Season Houses remain season-scoped. C.H.A.O.S. performs the opening assignment and requires all configured Houses plus at least two registered players per House. Pocket Week is one seven-day window immediately before a season.
+Applied to Progress, Activity Log, Analytics, Profile, Legacy Coach, Points Guide, Seasons, Houses, Pocket Week and Administration. Progress opens on Overview rather than exposing Achievements, Records, Timeline and Level Journey at once. Houses keeps C.H.A.O.S. discoverable through an overview setup callout while detailed setup lives in Management.
+
+Dashboard remains direct. Inbox keeps its specialised communications tabs. Rulebook keeps native disclosure sections.
+
+## Data and game boundaries
+
+- No Firestore collection or Security Rule change in v0.16.0.
+- No scoring, Experience Points or goal logic change.
+- Store facts and derive scoring/progression/analytics.
+- Preserve local calendar dates and historical House contribution snapshots.
+- Pocket Week is one seven-day window immediately before a season.
+- C.H.A.O.S. is Registration-only, balanced, one-time and requires at least two registered players per configured House.
+- Do not invent Power Plays, Diamonds, full Transfer Market, Buddy Bonuses, Five Fires or late-season twists.
 
 ## Verification and deployment
 
-- 66 domain tests passed.
+- ESLint passed.
+- 68 domain tests passed.
+- Vite production build passed.
 - 25 Firestore Rules tests passed.
-- ESLint and Vite production build passed.
-- Release-readiness confirmed Hosting target `app`.
-- Production Hosting deployed successfully with 58 files.
-- v0.15.0 did not change Firestore Rules or collection shapes.
-- Full manual visual/mobile/accessibility review was deferred by product-owner decision.
+- Release-readiness confirmed v0.16.0 on Hosting target `app`.
+- Firebase Hosting deployed 60 frontend files successfully.
+- Firestore Rules were unchanged.
+- `npm audit` still reports two React Router React Server Components advisories; do not run `npm audit fix --force`.
 
-## Engineering rules
+The full manual functional, responsive, visual, dark-mode and accessibility review remains deferred until the final pre-v1.0 stage.
 
-- Documentation is part of the software.
-- Store facts and derive scoring/progression/analytics.
-- Never duplicate the Points Engine in UI code.
-- Preserve local calendar dates.
-- Preserve historical House contribution snapshots after roster moves.
-- Keep public announcements and private notifications separate below the Inbox presentation layer.
-- Do not run `npm audit fix --force` for the current React Router RSC advisory.
-- Do not invent Power Plays, Diamonds, full Transfer Market, Buddy Bonuses, Five Fires or late-season twists.
-- Do not tag or declare v1.0 without explicit approval.
+## Immediate action
 
-## Recommended next scope
-
-Commit v0.15.0, then prioritise first-use onboarding, privacy/support, personal-data export/account deletion, history pagination and measured performance work. Trusted server-side scoring is required before prize-bearing competition and may require a separate infrastructure decision.
+Apply the v0.16.0 deployment documentation sync and commit with a clean working tree. Do not tag or declare v1.0 without explicit approval.
 
 ## First files to read
 
@@ -57,4 +59,4 @@ Commit v0.15.0, then prioritise first-use onboarding, privacy/support, personal-
 2. `../01_CURRENT_DEVELOPMENT/CURRENT_STATE.md`
 3. `../01_CURRENT_DEVELOPMENT/ACTIVE_MIGRATIONS.md`
 4. `../01_CURRENT_DEVELOPMENT/NEXT_SESSION.md`
-5. ADR-021 and ADR-022 for competition and navigation/analytics changes.
+5. ADR-021, ADR-022 and ADR-023.

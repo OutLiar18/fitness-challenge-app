@@ -2,6 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import Toast from "../components/common/Toast/Toast";
+import WorkspaceTabs, {
+  WorkspacePanel,
+} from "../components/common/WorkspaceTabs";
 import PageHeader from "../components/layout/PageHeader";
 import LegacyAvatar from "../components/profile/LegacyAvatar";
 import { LEAGUE_PARTICIPANT_LIMIT, LEAGUE_TYPES } from "../constants/leagues";
@@ -29,6 +32,7 @@ import {
   transitionLeague,
 } from "../services/leagues/leagueService";
 import { copyTextToClipboard } from "../utils/clipboard";
+import { resolveWorkspaceTab } from "../services/ui/workspaceModel";
 import {
   formatNumber,
   formatPoints,
@@ -37,6 +41,48 @@ import {
 import "./Seasons.css";
 
 const EMPTY_ITEMS = Object.freeze([]);
+
+const SEASON_DETAIL_TABS = Object.freeze([
+  {
+    id: "overview",
+    label: "Overview",
+    icon: "🧭",
+    description: "Season dates, rules and lifecycle",
+  },
+  {
+    id: "standings",
+    label: "Standings",
+    icon: "📊",
+    description: "Individual and House leaderboards",
+  },
+  {
+    id: "honours",
+    label: "Honours",
+    icon: "🏆",
+    description: "Provisional or final season champions",
+  },
+]);
+
+const SEASONS_PAGE_TABS = Object.freeze([
+  {
+    id: "browse",
+    label: "Browse seasons",
+    icon: "🛡️",
+    description: "Explore season details, standings and honours",
+  },
+  {
+    id: "join",
+    label: "Join a season",
+    icon: "🎟️",
+    description: "Register with a season invitation code",
+  },
+  {
+    id: "create",
+    label: "Create season",
+    icon: "✨",
+    description: "Build a new themed House season",
+  },
+]);
 const dateFormatter = new Intl.DateTimeFormat("en-ZA", {
   day: "numeric",
   month: "long",
@@ -382,6 +428,7 @@ function LeagueDetail({
     items: [],
   });
   const [workingAction, setWorkingAction] = useState("");
+  const [activeTab, setActiveTab] = useState("overview");
   const isManager =
     canManage && canManageLeague(league, userId, isPlatformAdmin);
   const isHouseSeason =
@@ -501,18 +548,12 @@ function LeagueDetail({
             </span>
           )}
           {isHouseSeason && (
-            <Link
-              className="button button--secondary"
-              to={`/houses?league=${league.id}`}
-            >
+            <Link className="button button--secondary" to={`/houses?league=${league.id}`}>
               Open Houses
             </Link>
           )}
           {isHouseSeason && league.pocketEnabled && (
-            <Link
-              className="button button--secondary"
-              to={`/pocket?league=${league.id}`}
-            >
+            <Link className="button button--secondary" to={`/pocket?league=${league.id}`}>
               Open Pocket
             </Link>
           )}
@@ -560,111 +601,124 @@ function LeagueDetail({
         </div>
       </section>
 
-      {!isHouseSeason && (
-        <section className="inline-alert card" role="status">
-          This is a legacy league record from before season-scoped Houses. It
-          remains readable, but its lifecycle cannot be changed through the
-          current season system. Create a new themed season to use C.H.A.O.S.,
-          House leadership and Pocket Week.
+      <WorkspaceTabs
+        idPrefix={`season-${league.id}`}
+        label={`${league.name} sections`}
+        tabs={SEASON_DETAIL_TABS.map((tab) =>
+          tab.id === "standings"
+            ? { ...tab, badge: members.length }
+            : tab,
+        )}
+        activeId={activeTab}
+        onChange={setActiveTab}
+      />
+
+      <WorkspacePanel id="overview" activeId={activeTab} idPrefix={`season-${league.id}`}>
+        {!isHouseSeason && (
+          <section className="inline-alert card" role="status">
+            This is a legacy league record from before season-scoped Houses. It
+            remains readable, but its lifecycle cannot be changed through the
+            current season system. Create a new themed season to use C.H.A.O.S.,
+            House leadership and Pocket Week.
+          </section>
+        )}
+
+        <section className="season-system card">
+          <article>
+            <span aria-hidden="true">🏰</span>
+            <strong>{league.houseCount || 0} Houses</strong>
+            <small>
+              {league.chaosStatus === "activated"
+                ? "C.H.A.O.S. activated"
+                : "Opening roster pending"}
+            </small>
+          </article>
+          <article>
+            <span aria-hidden="true">🧳</span>
+            <strong>{league.pocketEnabled ? "Pocket enabled" : "No Pocket"}</strong>
+            <small>
+              {league.pocketEnabled
+                ? `${formatDate(league.pocketStartDate)} – ${formatDate(league.pocketEndDate)}`
+                : "Season setting"}
+            </small>
+          </article>
+          <article>
+            <span aria-hidden="true">⚖️</span>
+            <strong>Dual standings</strong>
+            <small>Individual and House</small>
+          </article>
         </section>
-      )}
 
-      <section className="season-system card">
-        <article>
-          <span aria-hidden="true">🏰</span>
-          <strong>{league.houseCount || 0} Houses</strong>
-          <small>
-            {league.chaosStatus === "activated"
-              ? "C.H.A.O.S. activated"
-              : "Opening roster pending"}
-          </small>
-        </article>
-        <article>
-          <span aria-hidden="true">🧳</span>
-          <strong>
-            {league.pocketEnabled ? "Pocket enabled" : "No Pocket"}
-          </strong>
-          <small>
-            {league.pocketEnabled
-              ? `${formatDate(league.pocketStartDate)} – ${formatDate(league.pocketEndDate)}`
-              : "Season setting"}
-          </small>
-        </article>
-        <article>
-          <span aria-hidden="true">⚖️</span>
-          <strong>Dual standings</strong>
-          <small>Individual and House</small>
-        </article>
-      </section>
-
-      <section className="league-rules card">
-        <div>
-          <p className="section-kicker">Frozen seasonal rules</p>
-          <h2>{league.ruleset?.version || "Season rules"}</h2>
-          <p>
-            Each active day receives up to{" "}
-            <strong>
-              {formatPoints(league.ruleset?.dailyActivityCap ?? 20)}
-            </strong>{" "}
-            from activity, plus a{" "}
-            <strong>
-              {formatPoints(league.ruleset?.dailyParticipationBonus ?? 5)}
-            </strong>{" "}
-            participation bonus. Moving Houses changes only future House
-            contributions.
-          </p>
-        </div>
-        <dl>
+        <section className="league-rules card">
           <div>
-            <dt>Scoring engine</dt>
-            <dd>{league.ruleset?.scoringEngineVersion}</dd>
+            <p className="section-kicker">Frozen seasonal rules</p>
+            <h2>{league.ruleset?.version || "Season rules"}</h2>
+            <p>
+              Each active day receives up to{" "}
+              <strong>{formatPoints(league.ruleset?.dailyActivityCap ?? 20)}</strong>{" "}
+              from activity, plus a{" "}
+              <strong>{formatPoints(league.ruleset?.dailyParticipationBonus ?? 5)}</strong>{" "}
+              participation bonus. Moving Houses changes only future House
+              contributions.
+            </p>
           </div>
-          <div>
-            <dt>Rules version</dt>
-            <dd>{league.rulesVersion}</dd>
-          </div>
-          <div>
-            <dt>Standings</dt>
-            <dd>Individual and House</dd>
-          </div>
-          <div>
-            <dt>Participants</dt>
-            <dd>
-              {formatNumber(league.participantCount ?? members.length, {
-                whole: true,
-              })}{" "}
-              of{" "}
-              {formatNumber(
-                league.participantLimit ?? LEAGUE_PARTICIPANT_LIMIT,
-                { whole: true },
-              )}
-            </dd>
-          </div>
-        </dl>
-      </section>
-
-      {canViewStandings ? (
-        <>
-          <section className="league-standings card">
-            <div className="community-section-heading">
-              <div>
-                <p className="section-kicker">Personal contest</p>
-                <h2>Individual leaderboard</h2>
-              </div>
-              <span>{getLeagueStatusLabel(league.status)}</span>
+          <dl>
+            <div><dt>Scoring engine</dt><dd>{league.ruleset?.scoringEngineVersion}</dd></div>
+            <div><dt>Rules version</dt><dd>{league.rulesVersion}</dd></div>
+            <div><dt>Standings</dt><dd>Individual and House</dd></div>
+            <div>
+              <dt>Participants</dt>
+              <dd>
+                {formatNumber(league.participantCount ?? members.length, { whole: true })}{" "}
+                of {formatNumber(league.participantLimit ?? LEAGUE_PARTICIPANT_LIMIT, { whole: true })}
+              </dd>
             </div>
-            <StandingsTable rows={standings.players} kind="player" />
-          </section>
-          <section className="league-standings card">
-            <div className="community-section-heading">
-              <div>
-                <p className="section-kicker">Collective impact</p>
-                <h2>House leaderboard</h2>
+          </dl>
+        </section>
+
+        <section className="community-guardrail card">
+          <span aria-hidden="true">🧭</span>
+          <div>
+            <p className="section-kicker">Permanent memory</p>
+            <h2>The House you represented keeps that chapter</h2>
+            <p>
+              A later transfer never rewrites earlier contributions. Your
+              individual points remain yours; the House points stay exactly where
+              they were earned.
+            </p>
+          </div>
+        </section>
+      </WorkspacePanel>
+
+      <WorkspacePanel id="standings" activeId={activeTab} idPrefix={`season-${league.id}`}>
+        {canViewStandings ? (
+          <>
+            <section className="league-standings card">
+              <div className="community-section-heading">
+                <div><p className="section-kicker">Personal contest</p><h2>Individual leaderboard</h2></div>
+                <span>{getLeagueStatusLabel(league.status)}</span>
               </div>
-              <span>Historical allocation</span>
+              <StandingsTable rows={standings.players} kind="player" />
+            </section>
+            <section className="league-standings card">
+              <div className="community-section-heading">
+                <div><p className="section-kicker">Collective impact</p><h2>House leaderboard</h2></div>
+                <span>Historical allocation</span>
+              </div>
+              <StandingsTable rows={standings.houses} kind="house" />
+            </section>
+          </>
+        ) : (
+          <section className="league-standings card">
+            <div className="empty-state">
+              Join this season during registration to view its roster and standings.
             </div>
-            <StandingsTable rows={standings.houses} kind="house" />
           </section>
+        )}
+      </WorkspacePanel>
+
+      <WorkspacePanel id="honours" activeId={activeTab} idPrefix={`season-${league.id}`}>
+        {canViewStandings ? (
           <section className="season-honours card">
             <div className="community-section-heading">
               <div>
@@ -682,56 +736,31 @@ function LeagueDetail({
               </span>
             </div>
             {honours.individual.length === 0 ? (
-              <div className="empty-state">
-                Honours appear after qualifying points are earned.
-              </div>
+              <div className="empty-state">Honours appear after qualifying points are earned.</div>
             ) : (
               <div className="season-honours__grid">
                 {honours.individual.map((honour) => (
                   <article key={honour.id}>
-                    <LegacyAvatar
-                      avatarId={honour.avatarId}
-                      size="small"
-                      decorative
-                    />
-                    <div>
-                      <small>{honour.title}</small>
-                      <strong>{honour.displayName}</strong>
-                    </div>
+                    <LegacyAvatar avatarId={honour.avatarId} size="small" decorative />
+                    <div><small>{honour.title}</small><strong>{honour.displayName}</strong></div>
                     <span>{formatPoints(honour.points)}</span>
                   </article>
                 ))}
               </div>
             )}
-            {(honours.houseOfChampions ||
-              honours.houseChampions.length > 0) && (
+            {(honours.houseOfChampions || honours.houseChampions.length > 0) && (
               <div className="season-honours__houses">
                 {honours.houseOfChampions && (
                   <article className="season-honours__winner">
-                    <span aria-hidden="true">
-                      {
-                        getHouseEmblem(honours.houseOfChampions.houseEmblemId)
-                          .symbol
-                      }
-                    </span>
-                    <div>
-                      <small>House of Champions</small>
-                      <strong>{honours.houseOfChampions.houseName}</strong>
-                    </div>
+                    <span aria-hidden="true">{getHouseEmblem(honours.houseOfChampions.houseEmblemId).symbol}</span>
+                    <div><small>House of Champions</small><strong>{honours.houseOfChampions.houseName}</strong></div>
                     <b>{formatPoints(honours.houseOfChampions.totalPoints)}</b>
                   </article>
                 )}
                 {honours.houseChampions.map((champion) => (
                   <article key={champion.houseId}>
-                    <LegacyAvatar
-                      avatarId={champion.avatarId}
-                      size="small"
-                      decorative
-                    />
-                    <div>
-                      <small>{champion.houseName} Champion</small>
-                      <strong>{champion.displayName}</strong>
-                    </div>
+                    <LegacyAvatar avatarId={champion.avatarId} size="small" decorative />
+                    <div><small>{champion.houseName} Champion</small><strong>{champion.displayName}</strong></div>
                     <span>{formatPoints(champion.totalPoints)}</span>
                   </article>
                 ))}
@@ -743,28 +772,10 @@ function LeagueDetail({
               another individual title.
             </p>
           </section>
-        </>
-      ) : (
-        <section className="league-standings card">
-          <div className="empty-state">
-            Join this season during registration to view its roster and
-            standings.
-          </div>
-        </section>
-      )}
-
-      <section className="community-guardrail card">
-        <span aria-hidden="true">🧭</span>
-        <div>
-          <p className="section-kicker">Permanent memory</p>
-          <h2>The House you represented keeps that chapter</h2>
-          <p>
-            A later transfer never rewrites earlier contributions. Your
-            individual points remain yours; the House points stay exactly where
-            they were earned.
-          </p>
-        </div>
-      </section>
+        ) : (
+          <section className="empty-state card">Join this season to view its honours.</section>
+        )}
+      </WorkspacePanel>
     </div>
   );
 }
@@ -774,6 +785,7 @@ export default function Seasons() {
   const { leagues, memberships, loading, error, canManageLeagues } =
     useLeagues();
   const { toast, showToast, dismissToast } = useToast();
+  const [activePageTab, setActivePageTab] = useState("browse");
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedId = searchParams.get("league") || "";
   const fallbackId = memberships[0]?.leagueId || leagues[0]?.id || "";
@@ -785,6 +797,10 @@ export default function Seasons() {
   const selectedMembership =
     memberships.find((membership) => membership.leagueId === selectedId) ||
     null;
+  const pageTabs = SEASONS_PAGE_TABS.filter((tab) =>
+    tab.id !== "create" || canManageLeagues,
+  );
+  const resolvedPageTab = resolveWorkspaceTab(pageTabs, activePageTab)?.id ?? "browse";
 
   return (
     <div className="league-page page-stack">
@@ -799,73 +815,88 @@ export default function Seasons() {
           {error}
         </div>
       )}
-      <div className="league-tools">
-        <JoinLeagueForm
-          userId={user?.uid}
-          profile={profile}
-          notify={showToast}
-        />
-        {canManageLeagues && (
-          <LeagueCreationForm actorId={user?.uid} notify={showToast} />
-        )}
-      </div>
-      <section className="league-browser card">
-        <div className="community-section-heading">
-          <div>
-            <p className="section-kicker">Season archive</p>
-            <h2>Choose a season</h2>
+      <WorkspaceTabs
+        idPrefix="seasons"
+        label="Season workspace"
+        tabs={pageTabs}
+        activeId={resolvedPageTab}
+        onChange={setActivePageTab}
+      />
+
+      <WorkspacePanel id="browse" activeId={resolvedPageTab} idPrefix="seasons">
+        <section className="league-browser card">
+          <div className="community-section-heading">
+            <div>
+              <p className="section-kicker">Season archive</p>
+              <h2>Choose a season</h2>
+            </div>
+            <span>
+              {leagues.length} {pluralize(leagues.length, "season", "seasons")}
+            </span>
           </div>
-          <span>
-            {leagues.length} {pluralize(leagues.length, "season", "seasons")}
-          </span>
+          {loading ? (
+            <div className="empty-state">Loading seasons…</div>
+          ) : leagues.length === 0 ? (
+            <div className="empty-state">No seasons are available yet.</div>
+          ) : (
+            <div className="league-browser__list">
+              {leagues.map((league) => {
+                const leagueMembership = memberships.find(
+                  (item) => item.leagueId === league.id,
+                );
+                return (
+                  <button
+                    key={league.id}
+                    type="button"
+                    aria-pressed={selectedId === league.id}
+                    className={
+                      selectedId === league.id
+                        ? "league-browser__item league-browser__item--active"
+                        : "league-browser__item"
+                    }
+                    onClick={() =>
+                      setSearchParams({ league: league.id }, { replace: true })
+                    }
+                  >
+                    <span>{league.theme || league.type}</span>
+                    <strong>{league.name}</strong>
+                    <small>
+                      {getLeagueStatusLabel(league.status)}
+                      {leagueMembership
+                        ? ` · ${getMembershipStatusLabel(leagueMembership.status)}`
+                        : ""}
+                    </small>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </section>
+        {selectedLeague && (
+          <LeagueDetail
+            key={selectedLeague.id}
+            league={selectedLeague}
+            membership={selectedMembership}
+            canManage={canManageLeagues}
+            isPlatformAdmin={isPlatformAdmin}
+            userId={user?.uid}
+            notify={showToast}
+          />
+        )}
+      </WorkspacePanel>
+
+      <WorkspacePanel id="join" activeId={resolvedPageTab} idPrefix="seasons">
+        <div className="league-tools league-tools--single">
+          <JoinLeagueForm userId={user?.uid} profile={profile} notify={showToast} />
         </div>
-        {loading ? (
-          <div className="empty-state">Loading seasons…</div>
-        ) : leagues.length === 0 ? (
-          <div className="empty-state">No seasons are available yet.</div>
-        ) : (
-          <div className="league-browser__list">
-            {leagues.map((league) => {
-              const leagueMembership = memberships.find(
-                (item) => item.leagueId === league.id,
-              );
-              return (
-                <button
-                  key={league.id}
-                  type="button"
-                  aria-pressed={selectedId === league.id}
-                  className={
-                    selectedId === league.id
-                      ? "league-browser__item league-browser__item--active"
-                      : "league-browser__item"
-                  }
-                  onClick={() =>
-                    setSearchParams({ league: league.id }, { replace: true })
-                  }
-                >
-                  <span>{league.theme || league.type}</span>
-                  <strong>{league.name}</strong>
-                  <small>
-                    {getLeagueStatusLabel(league.status)}
-                    {leagueMembership
-                      ? ` · ${getMembershipStatusLabel(leagueMembership.status)}`
-                      : ""}
-                  </small>
-                </button>
-              );
-            })}
+      </WorkspacePanel>
+
+      {canManageLeagues && (
+        <WorkspacePanel id="create" activeId={resolvedPageTab} idPrefix="seasons">
+          <div className="league-tools league-tools--single">
+            <LeagueCreationForm actorId={user?.uid} notify={showToast} />
           </div>
-        )}
-      </section>
-      {selectedLeague && (
-        <LeagueDetail
-          league={selectedLeague}
-          membership={selectedMembership}
-          canManage={canManageLeagues}
-          isPlatformAdmin={isPlatformAdmin}
-          userId={user?.uid}
-          notify={showToast}
-        />
+        </WorkspacePanel>
       )}
       <Toast
         message={toast?.message}

@@ -1,5 +1,18 @@
 export const ANNOUNCEMENTS = Object.freeze([
   {
+    id: "v0-16-progressive-disclosure",
+    type: "release",
+    icon: "🪟",
+    title: "More breathing room across your journey",
+    summary:
+      "Dense pages now open with a focused overview and let you choose achievements, history, analytics, season tools and other detail when you need it.",
+    body:
+      "Progress, logging, analytics, profile, Legacy Coach, Points Guide, Seasons, Houses, Pocket Week and Administration now share a clearer section workspace. Desktop tabs include descriptions and keyboard navigation, while smaller screens use a straightforward section selector. Nothing about your points, activity history or season contributions has changed—this release simply makes the same tools calmer to explore.",
+    publishedAt: "2026-08-03",
+    featured: true,
+    version: "0.16.0",
+  },
+  {
     id: "v0-15-navigation-analytics",
     type: "release",
     icon: "🧭",
@@ -9,7 +22,7 @@ export const ANNOUNCEMENTS = Object.freeze([
     body:
       "The desktop sidebar is grouped around the player journey, competition and communications without repeating Profile. Announcements and private season messages now meet in one Inbox while keeping their security boundaries separate. Personal Analytics reuses factual entries and the existing Points Engine to show weekly activity, consistency and category balance without changing Points or Experience Points. Administrators can also see exactly what C.H.A.O.S. still needs before activation.",
     publishedAt: "2026-08-03",
-    featured: true,
+    featured: false,
     version: "0.15.0",
   },
   {

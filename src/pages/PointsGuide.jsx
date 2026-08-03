@@ -1,6 +1,9 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
+import WorkspaceTabs, {
+  WorkspacePanel,
+} from "../components/common/WorkspaceTabs";
 import PageHeader from "../components/layout/PageHeader";
 import {
   ACTIVITY_POINT_GUIDES,
@@ -17,6 +20,33 @@ import {
   formatPoints,
 } from "../utils/displayFormatters";
 import "./PointsGuide.css";
+
+const POINTS_GUIDE_TABS = Object.freeze([
+  {
+    id: "activities",
+    label: "Activity scoring",
+    icon: "🎯",
+    description: "Category ladders and examples",
+  },
+  {
+    id: "bonuses",
+    label: "Bonuses & difficulty",
+    icon: "✨",
+    description: "Goal bonuses and moderate multipliers",
+  },
+  {
+    id: "season",
+    label: "Season scoring",
+    icon: "🛡️",
+    description: "Daily caps, bonuses and House allocation",
+  },
+  {
+    id: "formulas",
+    label: "Reference formulas",
+    icon: "🔎",
+    description: "Visible calculations for curious players",
+  },
+]);
 
 function formatRangeValue(value, unit) {
   return formatMeasurement(value, unit, {
@@ -119,6 +149,7 @@ function ActivityGuidePanel({ guide }) {
 
 export default function PointsGuide() {
   const [selectedGuideId, setSelectedGuideId] = useState("running");
+  const [activeTab, setActiveTab] = useState("activities");
   const selectedGuide = useMemo(
     () =>
       getActivityPointGuide(selectedGuideId) ?? ACTIVITY_POINT_GUIDES[0],
@@ -169,6 +200,15 @@ export default function PointsGuide() {
         </div>
       </section>
 
+      <WorkspaceTabs
+        idPrefix="points-guide"
+        label="Points Guide sections"
+        tabs={POINTS_GUIDE_TABS}
+        activeId={activeTab}
+        onChange={setActiveTab}
+      />
+
+      <WorkspacePanel id="activities" activeId={activeTab} idPrefix="points-guide">
       <section className="points-category-picker card" aria-labelledby="category-picker-title">
         <div>
           <p className="section-kicker">Choose a category</p>
@@ -197,23 +237,9 @@ export default function PointsGuide() {
 
       <ActivityGuidePanel guide={selectedGuide} />
 
-      <section className="points-formulas card" aria-labelledby="formulas-title">
-        <div className="points-section-heading">
-          <p className="section-kicker">For the curious</p>
-          <h2 id="formulas-title">Public formulas</h2>
-          <p>Formulas only. The app handles the calculations.</p>
-        </div>
+      </WorkspacePanel>
 
-        <div className="points-formulas__grid">
-          {PUBLIC_POINT_FORMULAS.map((item) => (
-            <article key={item.id}>
-              <span>{item.label}</span>
-              <code>{item.formula}</code>
-            </article>
-          ))}
-        </div>
-      </section>
-
+      <WorkspacePanel id="bonuses" activeId={activeTab} idPrefix="points-guide">
       <section className="points-difficulty card" aria-labelledby="difficulty-title">
         <div className="points-section-heading">
           <p className="section-kicker">Difficulty multipliers</p>
@@ -235,7 +261,7 @@ export default function PointsGuide() {
         </div>
       </section>
 
-      <div className="points-secondary-grid">
+        <div className="points-secondary-grid points-secondary-grid--single">
         <section className="points-bonuses card" aria-labelledby="bonuses-title">
           <div className="points-section-heading">
             <p className="section-kicker">Visible consistency bonuses</p>
@@ -258,6 +284,11 @@ export default function PointsGuide() {
           </div>
         </section>
 
+        </div>
+      </WorkspacePanel>
+
+      <WorkspacePanel id="season" activeId={activeTab} idPrefix="points-guide">
+        <div className="points-secondary-grid points-secondary-grid--single">
         <section className="points-league card" aria-labelledby="league-scoring-title">
           <div className="points-section-heading">
             <p className="section-kicker">Seasonal competition</p>
@@ -284,7 +315,26 @@ export default function PointsGuide() {
 
           <p>{PUBLIC_LEAGUE_SCORING.note}</p>
         </section>
-      </div>
+        </div>
+      </WorkspacePanel>
+
+      <WorkspacePanel id="formulas" activeId={activeTab} idPrefix="points-guide">
+      <section className="points-formulas card" aria-labelledby="formulas-title">
+        <div className="points-section-heading">
+          <p className="section-kicker">For the curious</p>
+          <h2 id="formulas-title">Public formulas</h2>
+          <p>Formulas only. The app handles the calculations.</p>
+        </div>
+
+        <div className="points-formulas__grid">
+          {PUBLIC_POINT_FORMULAS.map((item) => (
+            <article key={item.id}>
+              <span>{item.label}</span>
+              <code>{item.formula}</code>
+            </article>
+          ))}
+        </div>
+      </section>
 
       <section className="points-guide-boundary card">
         <span aria-hidden="true">🔐</span>
@@ -295,7 +345,7 @@ export default function PointsGuide() {
             and non-competitive experience rewards are deliberately left out.
           </p>
         </div>
-      </section>
+      </section>      </WorkspacePanel>
     </div>
   );
 }

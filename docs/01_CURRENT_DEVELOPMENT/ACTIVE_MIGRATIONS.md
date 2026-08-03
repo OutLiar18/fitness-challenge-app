@@ -2,33 +2,30 @@
 
 Last updated: 3 August 2026
 
-## Current migration status
+## v0.16.0 route-workspace refinement
 
-There is no active v0.15.0 data migration.
+Status: Implementation, automated verification and production Hosting deployment complete; documentation sync and Git commit pending
 
-## Completed — v0.15.0 information-architecture cleanup
-
-Status: Complete and deployed
-
-- Renamed route-level Teams/Leagues concepts to Houses/Seasons while retaining safe legacy redirects.
-- Consolidated Announcements and Notifications into one Inbox surface without merging their security models.
-- Removed the duplicate desktop Profile destination.
-- Moved secondary tools into one structured More menu.
-- Added derived personal analytics without new Firestore documents or duplicated scoring.
-- Made C.H.A.O.S. prerequisites visible before activation.
-- Removed stale Firebase-irrelevant hosting residue.
-- Passed 66 domain tests, 25 Rules tests, lint, build and release-readiness.
-- Deployed the v0.15.0 frontend to the branded Firebase Hosting site.
+- Introduced a shared progressive-disclosure component for dense route pages.
+- Reorganised existing UI sections without changing stored data or business rules.
+- Keeps frequent summaries visible and moves lower-frequency detail behind labelled selection.
+- Preserves legacy URLs, current providers, scoring services and Firestore contracts.
+- Keeps Inbox and Rulebook on their existing appropriate disclosure patterns.
 
 ## No data migration required
 
-v0.15.0 changes navigation, presentation and pure derived analytics. It does not alter Firestore collection shapes or deployed Rules. Existing announcement read state, private notifications, season data, Houses, contributions and Pocket records remain compatible.
+v0.16.0 is a presentation and component-architecture release. It does not alter Firestore collection shapes, deployed Security Rules, activity facts, point formulas, Experience Points, season contribution snapshots, Pocket balances or notification documents.
 
-Legacy routes continue to resolve safely to current destinations, including Houses, Seasons and the correct Inbox tab.
+## Release completion
+
+- Windows release gates passed: clean lint, 68 domain tests, Vite build, 25 Rules tests and release-readiness.
+- Hosting-only deployment completed on the branded `app` target.
+- Firestore Rules remained unchanged.
+- Remaining release administration: apply this documentation sync and commit v0.16.0.
 
 ## Deferred controlled migrations
 
 - Trusted server-authoritative contribution scoring before prize-bearing competition.
 - Paginated personal history.
-- Account deletion and data export.
+- Account deletion and personal-data export.
 - Full Transfer Market and late-season data models after product confirmation.

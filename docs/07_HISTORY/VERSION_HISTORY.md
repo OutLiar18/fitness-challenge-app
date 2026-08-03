@@ -1,5 +1,9 @@
 # Champions Legacy Challenge — Version History
 
+## 0.16.0
+
+Shared progressive-disclosure workspaces, accessible desktop/mobile section selection and visual-density refinement across dense route pages. Verified and deployed to production.
+
 ## 0.15.0
 
 Grouped navigation, unified Inbox, derived personal analytics, visible C.H.A.O.S. readiness, semantic route cleanup and production Hosting deployment.
@@ -40,6 +44,7 @@ Version: 2.0
 
 | Version | Date | Milestone |
 |---------|------|-----------|
+| 0.16.0 | 3 August 2026 | Progressive disclosure and route-page visual refinement; verified production deployment |
 | 0.15.0 | 3 August 2026 | Navigation, Inbox, Analytics, C.H.A.O.S. readiness and production deployment |
 | 0.14.0 | 3 August 2026 | Season Houses, C.H.A.O.S. and Pocket Week |
 | 0.13.1 | 2 August 2026 | Rulebook installation and league verification hotfix |
