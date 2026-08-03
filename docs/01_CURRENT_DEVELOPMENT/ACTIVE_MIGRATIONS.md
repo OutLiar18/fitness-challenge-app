@@ -2,40 +2,33 @@
 
 Last updated: 3 August 2026
 
-## v0.14.0 verification and deployment migration
+## Current migration status
 
-Status: Complete
+There is no active v0.15.0 data migration.
 
-Windows verification passed clean ESLint, all 61 domain tests, all 25 Firestore Rules tests, the production build and release-readiness for Hosting target `app`.
+## Completed — v0.15.0 information-architecture cleanup
 
-The required live-data inspection found only disposable test records in the retired Team collections and one dummy pre-v0.14 draft league. Those records were removed while `users`, `challengeEntries` and `auditEvents` were preserved. No production data conversion was required.
+Status: Complete and deployed
 
-The final Firestore Rules compiled without warnings and deployed successfully. The Hosting preview and production frontend were deployed, and a production smoke test confirmed themed season and House creation.
+- Renamed route-level Teams/Leagues concepts to Houses/Seasons while retaining safe legacy redirects.
+- Consolidated Announcements and Notifications into one Inbox surface without merging their security models.
+- Removed the duplicate desktop Profile destination.
+- Moved secondary tools into one structured More menu.
+- Added derived personal analytics without new Firestore documents or duplicated scoring.
+- Made C.H.A.O.S. prerequisites visible before activation.
+- Removed stale Firebase-irrelevant hosting residue.
+- Passed 66 domain tests, 25 Rules tests, lint, build and release-readiness.
+- Deployed the v0.15.0 frontend to the branded Firebase Hosting site.
 
-## Competition-data migration outcome
+## No data migration required
 
-- `teams`, `playerTeams` and `teamInvites`: retired test data removed.
-- Legacy `leagues` and `leagueInvites`: dummy pre-v0.14 draft data removed.
-- `leagueMemberships` and `leagueContributions`: no pre-existing documents.
-- No active pre-v0.14 season was converted in place.
-- New competition data uses season-scoped Houses and `season-houses-v1`.
+v0.15.0 changes navigation, presentation and pure derived analytics. It does not alter Firestore collection shapes or deployed Rules. Existing announcement read state, private notifications, season data, Houses, contributions and Pocket records remain compatible.
 
-## Completed in v0.14.0
-
-- Permanent Team providers, services, constants and routes removed.
-- Retired Team collections denied by Rules.
-- House membership moved into `leagueMemberships`.
-- Historical House identity copied into every contribution.
-- C.H.A.O.S., elections, votes, swap locks, Pocket reserves, redemptions and private notifications added.
-- Pocket Week confirmed as one pre-season seven-day window.
+Legacy routes continue to resolve safely to current destinations, including Houses, Seasons and the correct Inbox tab.
 
 ## Deferred controlled migrations
 
-- Trusted server-authoritative league scoring before prize-bearing competition.
+- Trusted server-authoritative contribution scoring before prize-bearing competition.
 - Paginated personal history.
-- Administrator-authored season rule packs.
-- Full Transfer Market and late-season twist data model after product confirmation.
-
-## Closure rule
-
-A migration is complete only when obsolete callers are removed, domain and Rules tests pass, production build passes, live data is inspected, deployment succeeds and documentation matches behaviour.
+- Account deletion and data export.
+- Full Transfer Market and late-season data models after product confirmation.

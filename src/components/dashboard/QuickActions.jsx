@@ -19,11 +19,11 @@ const ACTIONS = [
     to: "/progress",
   },
   {
-    id: "announcements",
+    id: "inbox",
     icon: "◉",
-    title: "Read updates",
-    description: "See what changed and what comes next.",
-    to: "/announcements",
+    title: "Open inbox",
+    description: "Read challenge updates and private season messages.",
+    to: "/inbox",
   },
 ];
 

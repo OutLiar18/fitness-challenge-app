@@ -1,3 +1,41 @@
+# v0.15.0 — Navigation, Inbox, Analytics and C.H.A.O.S. Readiness
+
+Date: 3 August 2026
+
+## Navigation and communications
+
+- Grouped desktop navigation into Journey, Competition and Communications.
+- Removed the duplicate desktop Profile destination while retaining player-identity access and mobile Profile in More.
+- Simplified mobile navigation to Home, Log, Progress, Inbox and More.
+- Consolidated public announcements and private season notifications into one tabbed Inbox while preserving separate providers, repositories and Firestore security boundaries.
+- Added redirects from legacy Teams, Leagues, Announcements and Notifications URLs.
+
+## Personal analytics
+
+- Added weekly activity trends across configurable ranges.
+- Added a latest-28-day consistency view, category balance, recent momentum and transparent observations.
+- Reused the factual entry model and central point breakdown, including Running/Cardio cross-contribution.
+- Added no Firestore collection and no new stored score.
+
+## Season operations and cleanup
+
+- Added a visible C.H.A.O.S. prerequisite checklist during Draft and Registration.
+- Added a pure C.H.A.O.S. readiness helper and regression tests.
+- Renamed route-level source files to Seasons, Houses, Inbox and Analytics.
+- Removed separate Announcements/Notifications pages and stale Netlify `_redirects` residue.
+- Preserved accepted/superseded ADR history and added ADR-022.
+
+## Verification and deployment
+
+- Passed 66 domain tests and 25 Firestore Security Rules tests.
+- Passed clean ESLint, the Vite production build and release-readiness for Hosting target `app`.
+- Reviewed the two React Router RSC advisories without applying a forced breaking downgrade.
+- Deployed 58 frontend files to the branded production Hosting site.
+- Firestore Rules and collection shapes were unchanged by this release.
+- Full manual integrated review remains deferred until the final pre-v1.0 stage by product-owner decision.
+
+This release remains pre-v1.0.
+
 # v0.14.0 — Season Houses, C.H.A.O.S. and Pocket Week
 
 Date: 3 August 2026

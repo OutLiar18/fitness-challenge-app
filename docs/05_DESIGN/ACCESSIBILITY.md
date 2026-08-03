@@ -353,3 +353,11 @@ It is about removing unnecessary barriers so that every player has the opportuni
 ---
 
 # End of Document
+---
+
+# v0.15 Accessibility Addendum
+
+- Group labels and active navigation state must be exposed in text, not colour alone.
+- Inbox tabs remain keyboard-operable and preserve visible focus.
+- Analytics charts provide accessible names and textual values; heatmap intensity is never the only source of information.
+- C.H.A.O.S. completion states include symbols and full wording.

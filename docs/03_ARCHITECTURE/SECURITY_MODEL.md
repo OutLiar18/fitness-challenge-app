@@ -1,7 +1,7 @@
 # Champions Legacy Challenge — Security Model
 
 Last updated: 3 August 2026  
-Current release: v0.14.0
+Current release target: v0.15.0
 
 ## Principles
 
@@ -57,4 +57,4 @@ Rules do not reproduce the complete Points Engine. Friendly competition is suppo
 
 ## Test requirement
 
-`npm run test:rules` must pass all 25 v0.14.0 tests before deploying `firestore.rules`.
+`npm run test:rules` must pass all 25 current Rules tests before deploying `firestore.rules`.

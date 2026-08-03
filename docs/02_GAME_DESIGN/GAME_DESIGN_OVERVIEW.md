@@ -281,3 +281,16 @@ The current pre-1.0 product includes:
 - an optional, transparent Legacy Coach derived from the player’s own factual entries.
 
 See `TEAM_SYSTEM.md`, `LEAGUE_SYSTEM.md` and `LEGACY_COACH.md`.
+
+---
+
+# v0.15 Reflection and Information Architecture
+
+Personal Analytics supports reflection on factual activity and consistency. It does not introduce new rewards, rankings or penalties.
+
+The player experience now separates:
+
+- Journey: Home, Log and Progress.
+- Competition: Seasons and Houses.
+- Communications: one Inbox for public and private messages.
+- Reflection/reference tools: Analytics, Pocket Week, Legacy Coach, Rulebook and Points Guide.

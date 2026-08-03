@@ -1,6 +1,6 @@
 # ADR-010 — Adaptive Navigation Shell
 
-Status: Accepted
+Status: Superseded by ADR-022
 Date: 1 August 2026
 
 ## Context

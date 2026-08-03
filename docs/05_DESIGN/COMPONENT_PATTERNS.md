@@ -255,3 +255,22 @@ They are part of a larger language that should feel familiar, predictable and co
 ---
 
 # End of Document
+---
+
+# v0.15 Patterns
+
+## Grouped Navigation
+
+Use labelled desktop groups, a focused mobile tab bar and one More surface for secondary tools. Do not duplicate destinations within the same viewport.
+
+## Inbox
+
+Public and private message types may share a tabbed workspace when their labels, unread counts and actions remain distinct. Presentation consolidation must not imply data or permission consolidation.
+
+## Prerequisite Checklist
+
+Show every condition, its current state and a recovery action. A disabled primary action must be accompanied by a plain-language explanation.
+
+## Personal Analytics
+
+Charts require text labels, tooltips or accessible names. Analytics should offer context and reflection without changing scoring or creating shame-based prompts.

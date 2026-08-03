@@ -43,3 +43,13 @@ Reduced-motion preferences must be respected.
 ## Playful details
 
 Small trophy interactions, rotating motivation and future-page humour may add personality. They remain secondary to clarity and accessibility.
+
+---
+
+# v0.15 Navigation and Analytics Addendum
+
+- Desktop navigation groups related destinations instead of presenting one undifferentiated list.
+- The player identity panel is the desktop Profile entry point; duplicate Profile links are avoided.
+- Inbox uses clear tabs and labels so colour is never the only distinction between public and private messages.
+- Analytics favours readable summaries, accessible labels and modest charts over dashboard clutter.
+- C.H.A.O.S. prerequisites use text, symbols and completion wording rather than colour alone.

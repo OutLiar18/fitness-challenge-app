@@ -2,14 +2,14 @@
 
 Last updated: 3 August 2026
 
-**v0.14.0 — Season Houses, C.H.A.O.S. and Pocket Week** is deployed to the branded Firebase Hosting site and remains before v1.0.
+**v0.15.0 — Navigation, Inbox, Analytics and C.H.A.O.S. Readiness** is deployed to the branded Firebase Hosting site.
 
-The central architecture decision is that Houses are not permanent global Teams. A House belongs to one season. Players register as individuals, C.H.A.O.S. creates the opening rosters, weekly leadership and roster changes operate inside that season, and contribution documents preserve the House represented at the time of earning.
+The release passed 66 domain tests, 25 Firestore Rules tests, clean ESLint, the Vite production build and release-readiness for Hosting target `app`. Firestore data shapes and Rules did not change in v0.15.0; the compatible season Rules deployed during v0.14.0 remain active.
 
-Pocket Week is confirmed as one private seven-day pre-season reserve. It does not recur every challenge week. Deposits earn zero points; deliberate redemption during the Active season creates the scored entry and House contribution atomically.
+The navigation now prioritises the player journey, competition and one communications Inbox. Desktop Profile duplication is removed. Public announcements and private notifications share one page but retain separate data/security boundaries.
 
-The technical release gates and production smoke test pass. The full functional, responsive and accessibility review is intentionally deferred until the final pre-v1.0 stage.
+Personal Analytics is derived entirely from factual entries and the existing Points Engine. It shows trends and consistency without creating new score fields or changing Points or Experience Points.
 
-The next small improvement is C.H.A.O.S. prerequisite visibility: activation remains Registration-only, but Draft administrators should not mistake the hidden console for a missing feature.
+C.H.A.O.S. remains Registration-only, one-time and balanced. Administrators can see its prerequisites during Draft. Pocket Week remains one seven-day pre-season window.
 
-Unclear legacy mechanics are deliberately inactive. Never infer Power Play, Diamonds, player prices, Buddy Bonuses, Five Fires or late-season twists without explicit product decisions.
+The product owner deferred full manual functional, responsive, keyboard, visual, dark-mode and accessibility review until the final pre-v1.0 stage. Inactive mechanics must not be inferred: Power Plays, Diamonds, player prices, full Transfer Market, Buddy Bonuses, Five Fires and late-season twists await explicit product decisions.

@@ -64,3 +64,16 @@
   .house-emblem, .house-accent, .season-house-card { transition: none; }
   .house-emblem:hover, .house-accent:hover, .season-house-card:hover { transform: none; }
 }
+
+.chaos-console__content { display: grid; gap: 10px; }
+.chaos-console__content > p { margin: 0; color: var(--text-muted); }
+.chaos-checklist { display: grid; gap: 8px; margin: 6px 0 2px; padding: 0; list-style: none; }
+.chaos-checklist__item { display: grid; align-items: start; gap: 9px; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-soft); grid-template-columns: auto minmax(0, 1fr); }
+.chaos-checklist__item > span { display: grid; width: 24px; height: 24px; place-items: center; border-radius: 999px; color: var(--text-muted); background: var(--surface-strong); font-weight: 950; }
+.chaos-checklist__item div { display: grid; gap: 2px; }
+.chaos-checklist__item small { color: var(--text-muted); }
+.chaos-checklist__item--complete { border-color: color-mix(in srgb, var(--success) 42%, var(--border)); }
+.chaos-checklist__item--complete > span { color: var(--success-text); background: var(--success-soft); }
+.chaos-console__action { display: grid; justify-items: stretch; min-width: 190px; gap: 8px; text-align: center; }
+.chaos-console__action small { max-width: 220px; color: var(--text-muted); }
+@media (max-width: 800px) { .chaos-console__action { min-width: 0; justify-items: start; text-align: left; } .chaos-console__action small { max-width: none; } }

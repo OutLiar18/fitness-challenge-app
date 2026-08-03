@@ -1,7 +1,7 @@
 # Champions Legacy Challenge — Firestore Structure
 
 Last updated: 3 August 2026  
-Current release: v0.14.0
+Current release target: v0.15.0
 
 ## Player and activity
 

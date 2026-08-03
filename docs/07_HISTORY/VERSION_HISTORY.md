@@ -1,5 +1,9 @@
 # Champions Legacy Challenge — Version History
 
+## 0.15.0
+
+Grouped navigation, unified Inbox, derived personal analytics, visible C.H.A.O.S. readiness, semantic route cleanup and production Hosting deployment.
+
 ## 0.14.0
 
 Season-scoped Houses, C.H.A.O.S., weekly leadership, historical roster movement, Pocket Week, private season notifications and dual standings.
@@ -36,6 +40,7 @@ Version: 2.0
 
 | Version | Date | Milestone |
 |---------|------|-----------|
+| 0.15.0 | 3 August 2026 | Navigation, Inbox, Analytics, C.H.A.O.S. readiness and production deployment |
 | 0.14.0 | 3 August 2026 | Season Houses, C.H.A.O.S. and Pocket Week |
 | 0.13.1 | 2 August 2026 | Rulebook installation and league verification hotfix |
 | 0.13.0 | 2 August 2026 | Searchable Rulebook and generated public Points Guide |

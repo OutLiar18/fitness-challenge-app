@@ -1,24 +1,32 @@
 # Champions Legacy Challenge
 
-Version: **0.14.0**  
-Status: **Pre-1.0 season-system foundation; Windows verification and user review pending**
+Version: **0.15.0**  
+Status: **Deployed pre-v1.0 release; final integrated review deferred**
 
 Champions Legacy Challenge is a gamified personal-development platform that rewards consistent, factual progress across fitness, reading, nutrition, movement and skill development.
 
 ## Current capabilities
 
 - Firebase Authentication, protected routes and branded Firebase Hosting.
-- Ten factual activity categories with central, explainable scoring.
-- Daily and weekly goals, streaks, experience points, achievements and records.
-- Responsive Dashboard, Log & Journal, Progress, Announcements, Profile and reference areas.
+- Ten factual activity categories with one central, explainable Points Engine.
+- Daily and weekly goals, streaks, Experience Points, achievements, records and timeline.
+- Calm adaptive navigation organised around Journey, Competition and Inbox.
+- One Inbox for public announcements and private season notifications while preserving separate data and security boundaries.
+- Personal Analytics derived from factual entries and the existing Points Engine.
 - Searchable Rulebook and a Points Guide generated from live scoring constants.
-- Storage-free Legacy Avatars and constrained profile editing.
-- Trusted administration, audited announcements, moderation and versioned shared libraries.
-- Season-scoped Houses with C.H.A.O.S. assignment, weekly leadership voting and one balanced roster swap per House each week.
-- Individual and House leaderboards whose historical House allocation is never rewritten.
-- Seven-day Pocket Week reserves that earn zero points until deliberately activated.
-- Private season notifications and transparent local Legacy Coach guidance.
-- First-party error reporting, Firestore Emulator tests and deployment recovery.
+- Trusted administration, immutable audit history, moderation and versioned shared libraries.
+- Season-scoped Houses with visible C.H.A.O.S. prerequisites, weekly leadership and balanced roster movement.
+- Individual and House standings whose historical House allocation is never rewritten.
+- One seven-day pre-season Pocket Week; reserves earn zero points until deliberately redeemed.
+- Transparent local Legacy Coach guidance, first-party error reporting and Firestore Emulator tests.
+
+## Production
+
+The v0.15.0 frontend is deployed at:
+
+`https://champions-legacy-challenge.web.app`
+
+The v0.15.0 release does not change Firestore collection shapes or Security Rules. The compatible season Rules deployed during v0.14.0 remain active.
 
 ## Local setup
 
@@ -31,7 +39,7 @@ npm run dev
 
 Add the Firebase web configuration to `.env` before starting the app.
 
-## Verification
+## Verified release gates
 
 ```powershell
 npm run check
@@ -40,24 +48,16 @@ npm run check:release
 npm audit
 ```
 
-Expected v0.14.0 verification:
+Verified on Windows for v0.15.0:
 
-- 61 domain tests.
-- 25 Firestore Security Rules tests.
-- ESLint and the production build pass.
-- Release-readiness and branded Hosting target checks pass.
+- 66 domain tests passed.
+- 25 Firestore Security Rules tests passed.
+- ESLint passed without warnings.
+- Production build passed.
+- Release-readiness confirmed Firebase Hosting target `app`.
+- `npm audit` reported two high-severity React Router RSC advisories. This Vite client does not use RSC mode; do not run `npm audit fix --force` because the proposed downgrade is breaking.
 
-Do not run `npm audit fix --force`. The Firestore Emulator requires Java 21.
-
-## Deployment
-
-```powershell
-npm run deploy:rules
-npm run deploy:preview
-npm run deploy:hosting
-```
-
-The branded site is `https://champions-legacy-challenge.web.app`. Do not run the combined production script until the user approves it.
+The Firestore Emulator requires Java 21.
 
 ## Documentation
 
@@ -71,4 +71,4 @@ Start with:
 
 ## Release boundary
 
-v0.14.0 is **not** v1.0. Power Plays, Diamonds, the full Transfer Market, Buddy Bonuses, Five Fires and late-season twists remain inactive until their rules are separately confirmed.
+v0.15.0 is **not** v1.0. Full functional, responsive, keyboard, visual, dark-mode and accessibility review remains intentionally deferred until the final pre-v1.0 stage. Power Plays, Diamonds, the full Transfer Market, Buddy Bonuses, Five Fires and late-season twists remain inactive until their rules are separately confirmed.

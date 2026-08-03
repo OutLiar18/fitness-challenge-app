@@ -57,7 +57,7 @@ function setNotification(batchOrTransaction, {
   message,
   leagueId,
   houseId = "",
-  actionPath = "/leagues",
+  actionPath = "/seasons",
 }) {
   const reference = createNotificationReference();
   batchOrTransaction.set(reference, {
@@ -230,7 +230,7 @@ export async function activateChaos({ league, houses, memberships, actorId }) {
       message: `You have been assigned to ${assignment.houseName} for ${league.name}. Welcome to the unpredictable part.`,
       leagueId: league.id,
       houseId: assignment.houseId,
-      actionPath: `/teams?league=${league.id}`,
+      actionPath: `/houses?league=${league.id}`,
     });
   });
 
@@ -302,7 +302,7 @@ export async function openLeadershipElection({
       message: "Your House has 24 hours to vote. The most-supported player becomes Captain and the runner-up becomes primary Vice-Captain.",
       leagueId,
       houseId: house.id,
-      actionPath: `/teams?league=${leagueId}`,
+      actionPath: `/houses?league=${leagueId}`,
     });
   });
   await batch.commit();
@@ -384,7 +384,7 @@ export async function finalizeLeadershipElection({ election, house, members, act
       message: `This week’s captain and vice-captain have been confirmed. House leadership may now manage the weekly roster move.`,
       leagueId: election.leagueId,
       houseId: house.id,
-      actionPath: `/teams?league=${election.leagueId}`,
+      actionPath: `/houses?league=${election.leagueId}`,
     });
   });
   await batch.commit();
@@ -512,7 +512,7 @@ export async function swapHousePlayers({ league, firstHouse, secondHouse, firstP
       message: `You are now part of ${secondHouse.name}. Points already earned for ${firstHouse.name} remain with that House.`,
       leagueId: league.id,
       houseId: secondHouse.id,
-      actionPath: `/teams?league=${league.id}`,
+      actionPath: `/houses?league=${league.id}`,
     });
     setNotification(transaction, {
       userId: secondPlayer.userId,
@@ -521,7 +521,7 @@ export async function swapHousePlayers({ league, firstHouse, secondHouse, firstP
       message: `You are now part of ${firstHouse.name}. Points already earned for ${secondHouse.name} remain with that House.`,
       leagueId: league.id,
       houseId: firstHouse.id,
-      actionPath: `/teams?league=${league.id}`,
+      actionPath: `/houses?league=${league.id}`,
     });
   });
 }

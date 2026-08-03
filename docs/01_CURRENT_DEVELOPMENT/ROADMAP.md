@@ -4,39 +4,35 @@ Last updated: 3 August 2026
 
 ## Completed foundations
 
-1. Core tracking, validation and Points Engine v2.
-2. Goals, streaks, experience, achievements, records and timeline.
-3. Live announcements, trusted administration, audit history and shared libraries.
-4. Legacy Coach, Rulebook, Points Guide, error monitoring and branded Firebase Hosting.
-5. Pre-review integrity, accessibility and deployment hardening.
-6. Season-scoped Houses, C.H.A.O.S., weekly leadership, roster swaps, Pocket Week, dual standings and season honours.
-7. v0.14.0 verification, legacy-data cleanup, Rules deployment, Hosting preview, production deployment and season/House smoke test.
+1. Core factual tracking, validation and Points Engine v2.
+2. Goals, streaks, Experience Points, achievements, records and timeline.
+3. Trusted administration, audit history, announcements, moderation and shared libraries.
+4. Rulebook, Points Guide, Legacy Coach, error monitoring and Firebase Hosting.
+5. Season-scoped Houses, C.H.A.O.S., weekly leadership, balanced roster swaps, Pocket Week, dual standings and honours.
+6. v0.14.0 verification, data cleanup, Rules deployment and production season/House smoke test.
+7. v0.15.0 grouped navigation, unified Inbox, Personal Analytics, visible C.H.A.O.S. readiness, semantic cleanup, automated verification and production Hosting deployment.
 
-## Current phase — Post-v0.14 pre-v1.0 refinement
+## Current phase — post-v0.15.0 pre-v1 foundations
 
-- Improve C.H.A.O.S. prerequisite visibility without relaxing lifecycle or minimum-player safeguards.
-- Continue user-approved competition mechanics in small, documented increments.
-- Preserve the decision that Pocket Week is one pre-season seven-day window.
-- Defer the full integrated visual, responsive and accessibility review until the final pre-v1.0 stage.
+- First-use onboarding.
+- Privacy and support content.
+- Personal-data export and account deletion.
+- Personal-history pagination.
+- Measured performance and bundle optimisation.
+- Trusted server-side contribution recalculation before prize-bearing competition.
 
 ## Remaining before v1.0
 
-- Implement user-approved competition mechanics and corrections.
-- Define or explicitly defer late-season twists.
-- Add account deletion and personal-data export.
-- Add privacy, support and first-use onboarding.
-- Complete final accessibility, performance, dependency and release-candidate QA.
-- Obtain explicit user approval before naming or tagging v1.0.
+- Apply user-approved competition mechanics only after rules are explicit.
+- Complete the final integrated desktop/mobile/tablet, keyboard, visual, dark-mode and accessibility review.
+- Resolve defects found by that review and add regression coverage.
+- Confirm operational readiness for a real season.
+- Obtain explicit product-owner approval of v1.0.
 
-## Candidate future season systems
+## Inactive until confirmed
 
-Not committed until separately designed:
+Power Plays, Diamonds, player prices, House Immunity, full Transfer Market, Buddy Bonuses, Five Fires and late-season twists.
 
-- Power Plays and category voting.
-- Diamonds and full Transfer Market.
-- House Immunity and player valuations.
-- Buddy Bonus verification.
-- Five Fires side quest.
-- Evidence attachments and disputes.
-- Administrator-authored season rule packs.
-- Trophy-cabinet presentation for historical season honours.
+## Guardrail
+
+New systems must consume factual entries, shared point breakdowns and season snapshots. UI code must never duplicate scoring or rewrite historical House allocation.

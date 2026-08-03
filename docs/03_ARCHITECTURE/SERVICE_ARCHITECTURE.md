@@ -1,20 +1,25 @@
 # Champions Legacy Challenge — Service Architecture
 
-Last updated: 3 August 2026  
-Current release: v0.14.0
+Current release target: v0.15.0
 
-## Season domain
+## Pure domain services
 
-- `seasonModel.js` — invitation codes, House validation, deterministic C.H.A.O.S., week keys, election outcomes, swap identifiers and Pocket transformations.
-- `seasonService.js` — House writes, C.H.A.O.S., ballots, leadership, swaps, Pocket deposits/redemptions and private notifications.
-- `leagueModel.js` — season validation, permissions, individual/House standings and honours.
-- `leagueService.js` — creation, registration, lifecycle, subscriptions and entry contexts.
+- `services/points` — one scoring source of truth and structured breakdowns.
+- `services/statistics` — totals, goals and cross-category contributions.
+- `services/progression` — bonuses, streaks, Experience Points, records and timeline.
+- `services/seasons/seasonModel.js` — season dates, House identity, C.H.A.O.S. readiness/distribution, elections, roster identifiers and Pocket quantities.
+- `services/seasons/leagueModel.js` — lifecycle, standing and honour derivation.
+- `services/analytics/analyticsModel.js` — non-persistent weekly trends, consistency, category balance and transparent observations.
+- `services/dateService.js` — local-calendar-safe dates.
 
-## Notification domain
+## Firestore orchestration
 
-- `notificationModel.js` — types, ordering and unread selection.
-- `notificationService.js` — owner-scoped real-time reads and read-state writes.
+Repository/service modules perform writes, subscriptions and transactions. They validate current documents again inside transactions where historical integrity matters.
 
-## Entry integration
+## Provider boundaries
 
-The entry repository writes one factual challenge entry and an eligible contribution per Active season. The contribution snapshots the current House. Deletion removes only Active activity-source contributions; completed history and Pocket redemptions remain permanent.
+Player data, leagues, announcements, private notifications, Coach preferences and global libraries keep separate providers. Inbox composes two provider outputs but does not merge their repositories or permissions.
+
+## Rule
+
+Route components may coordinate user interaction but must not reproduce scoring, season eligibility or persistence rules.

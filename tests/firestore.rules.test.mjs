@@ -545,7 +545,7 @@ function notificationData({ userId, type, leagueId = "season-one", houseId = "" 
     message: "Your season information has changed. Open the related page for details.",
     leagueId,
     houseId,
-    actionPath: `/teams?league=${leagueId}`,
+    actionPath: `/houses?league=${leagueId}`,
     createdAt: serverTimestamp(),
     readAt: null,
     readBy: "",

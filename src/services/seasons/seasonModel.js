@@ -131,6 +131,67 @@ export function validateSeasonHouseCount(value) {
   return Number.isInteger(number) && number >= SEASON_HOUSE_LIMITS.minimum && number <= SEASON_HOUSE_LIMITS.maximum;
 }
 
+export function getChaosReadiness({ league, houses = [], memberships = [] } = {}) {
+  const expectedHouseCount = Number(league?.houseCount ?? 0);
+  const registeredPlayerCount = memberships.filter(
+    (membership) => membership?.status === "registered",
+  ).length;
+  const minimumPlayerCount = expectedHouseCount * 2;
+  const houseCountReady =
+    expectedHouseCount >= SEASON_HOUSE_LIMITS.minimum &&
+    houses.length === expectedHouseCount;
+  const registrationOpen = league?.status === "registration";
+  const unused = league?.chaosStatus !== "activated";
+  const enoughPlayers = minimumPlayerCount > 0 && registeredPlayerCount >= minimumPlayerCount;
+
+  const checks = [
+    {
+      id: "registration",
+      label: "Registration is open",
+      detail: registrationOpen
+        ? "Players can join with the season invitation code."
+        : "Move the season from Draft to Registration first.",
+      complete: registrationOpen,
+    },
+    {
+      id: "houses",
+      label: `${houses.length} of ${expectedHouseCount || "the required"} Houses created`,
+      detail: houseCountReady
+        ? "Every season House is ready."
+        : "Create every configured House before assignment.",
+      complete: houseCountReady,
+    },
+    {
+      id: "players",
+      label: `${registeredPlayerCount} of ${minimumPlayerCount || "the required"} players registered`,
+      detail: enoughPlayers
+        ? "There are at least two players available per House."
+        : "C.H.A.O.S. requires at least two registered players per House.",
+      complete: enoughPlayers,
+    },
+    {
+      id: "unused",
+      label: unused ? "Assignment has not run" : "Assignment completed",
+      detail: unused
+        ? "C.H.A.O.S. may run once for this season."
+        : "The opening House roster is now fixed in history.",
+      complete: unused,
+    },
+  ];
+
+  return {
+    eligible: registrationOpen && houseCountReady && enoughPlayers && unused,
+    registrationOpen,
+    houseCountReady,
+    enoughPlayers,
+    unused,
+    expectedHouseCount,
+    registeredPlayerCount,
+    minimumPlayerCount,
+    checks,
+  };
+}
+
 export function distributePlayersWithChaos(members = [], houses = [], seed = "champions-legacy") {
   if (houses.length < SEASON_HOUSE_LIMITS.minimum) {
     throw new Error("Create at least two Houses before activating C.H.A.O.S.");

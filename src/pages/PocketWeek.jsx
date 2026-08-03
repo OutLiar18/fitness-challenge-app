@@ -234,7 +234,7 @@ export default function PocketWeek() {
         title="Pocket Week"
         description="Store real activities before the season, then activate only what you need when unforeseen circumstances interrupt a category. Stored work earns no points until you use it."
         icon="🧳"
-        actions={<Link className="button button--secondary" to={league ? `/teams?league=${league.id}` : "/teams"}>View Houses</Link>}
+        actions={<Link className="button button--secondary" to={league ? `/houses?league=${league.id}` : "/houses"}>View Houses</Link>}
       />
 
       <section className="pocket-season card">

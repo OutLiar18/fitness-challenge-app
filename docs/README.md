@@ -1,8 +1,8 @@
 # Champions Legacy Challenge Documentation
 
-Current application release: **v0.14.0 — Season Houses, C.H.A.O.S. and Pocket Week**
+Current source target: **v0.15.0 — Navigation, Inbox, Analytics and C.H.A.O.S. Readiness**
 
-Read in this order:
+Start with:
 
 1. `06_CHAT_HANDOVER/CHAT_BRIEFING.md`
 2. `06_CHAT_HANDOVER/RECENT_SESSION_SUMMARY.md`
@@ -10,6 +10,11 @@ Read in this order:
 4. `01_CURRENT_DEVELOPMENT/ACTIVE_MIGRATIONS.md`
 5. `01_CURRENT_DEVELOPMENT/NEXT_SESSION.md`
 
-The source of truth is the live application configuration and Firestore Rules. Documentation explains that implementation; it does not replace it.
+Key current ADRs:
 
-v0.14.0 remains deliberately pre-v1.0.
+- ADR-021 — Season-scoped Houses and Pocket Week.
+- ADR-022 — Consolidated Navigation, Inbox and Derived Analytics.
+
+Older Team and navigation ADRs remain historical records and may be explicitly superseded. Do not use standalone v0.5 documentation as current implementation truth.
+
+v0.15.0 remains pre-v1.0.

@@ -16,6 +16,7 @@ import {
   createPocketRedemptionData,
   createRosterSwapId,
   distributePlayersWithChaos,
+  getChaosReadiness,
   getPocketQuantity,
   getPocketWindow,
   normalizePocketRedemptionQuantity,
@@ -68,6 +69,42 @@ test("C.H.A.O.S. is deterministic and balances every registered player", () => {
     () => distributePlayersWithChaos(members.slice(0, 5), houses, "too-small"),
     /at least two registered players/,
   );
+});
+
+
+test("C.H.A.O.S. readiness explains every prerequisite before assignment", () => {
+  const league = { status: "draft", houseCount: 3, chaosStatus: "pending" };
+  const registered = members.slice(0, 6).map((member) => ({ ...member, status: "registered" }));
+  const draft = getChaosReadiness({ league, houses, memberships: registered });
+  assert.equal(draft.eligible, false);
+  assert.equal(draft.registrationOpen, false);
+  assert.equal(draft.houseCountReady, true);
+  assert.equal(draft.enoughPlayers, true);
+
+  const shortRoster = getChaosReadiness({
+    league: { ...league, status: "registration" },
+    houses,
+    memberships: registered.slice(0, 5),
+  });
+  assert.equal(shortRoster.eligible, false);
+  assert.equal(shortRoster.minimumPlayerCount, 6);
+  assert.equal(shortRoster.registeredPlayerCount, 5);
+
+  const ready = getChaosReadiness({
+    league: { ...league, status: "registration" },
+    houses,
+    memberships: registered,
+  });
+  assert.equal(ready.eligible, true);
+  assert.ok(ready.checks.every((check) => check.complete));
+
+  const completed = getChaosReadiness({
+    league: { ...league, status: "registration", chaosStatus: "activated" },
+    houses,
+    memberships: registered,
+  });
+  assert.equal(completed.eligible, false);
+  assert.equal(completed.unused, false);
 });
 
 test("House identity validation preserves themed presentation", () => {

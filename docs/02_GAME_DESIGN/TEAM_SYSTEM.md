@@ -1,7 +1,7 @@
 # Champions Legacy Challenge — Season House System
 
 Last updated: 3 August 2026  
-Implemented release: v0.14.0
+Current implementation target: v0.15.0 (season House foundation introduced in v0.14.0)
 
 ## Purpose
 
@@ -57,3 +57,18 @@ Historical contribution documents are never rewritten to match current membershi
 ## Inactive mechanics
 
 Diamonds, player prices, House Immunity, timed bidding, House votes on purchases and late-season twists remain inactive until separately designed.
+
+---
+
+# v0.15 C.H.A.O.S. Readiness Presentation
+
+C.H.A.O.S. performs the opening House assignment. Houses do not need players beforehand.
+
+Authorised administrators should always be able to see a readiness checklist during Draft and Registration. Activation remains unavailable until:
+
+- the season is in Registration;
+- every configured House exists;
+- at least two players per House are registered in total;
+- C.H.A.O.S. has not already run.
+
+Visibility does not weaken authority or lifecycle rules. It prevents a valid disabled feature from appearing missing.

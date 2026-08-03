@@ -1,46 +1,36 @@
-# Release Candidate Checklist
+# Champions Legacy Challenge — Release Candidate Checklist
 
-Version: 0.14.0  
-Status: Deployed pre-v1.0; final integrated review deferred
+Version: 0.15.0  
+Status: Automated gates passed and production deployed; manual integrated review deferred
 
-## Automated verification
+## Automated gates
 
-- [x] `npm install`
-- [x] `npm run check` passes with 61 domain tests and no ESLint warnings.
-- [x] `npm run test:rules` passes all 25 Rules tests.
-- [x] `npm run check:release` confirms v0.14.0 and Hosting target `app`.
-- [x] `npm audit` reviewed without `--force`.
+- [x] `npm install` completes on Windows.
+- [x] `npm run check` passes clean ESLint, 66 domain tests and production build.
+- [x] `npm run test:rules` passes all 25 Rules tests using Java 21.
+- [x] `npm run check:release` confirms v0.15.0 and Hosting target `app`.
+- [x] `npm audit` was reviewed without `npm audit fix --force`.
 
-## Data and deployment
+## Focused regression
 
-- [x] Legacy competition collections inspected according to `ACTIVE_MIGRATIONS.md`.
-- [x] Disposable retired Team and dummy league records removed.
-- [x] Firestore Rules deployed successfully without compiler warnings.
-- [x] Firebase Hosting preview deployed to branded target.
-- [x] Production Hosting deployed to the branded live URL.
-- [ ] Direct refresh reviewed on `/leagues`, `/teams`, `/pocket`, `/notifications`, `/rules` and `/points-guide`.
+The following manual checks remain intentionally deferred until the final pre-v1.0 review:
 
-## Season workflow
+- [ ] Direct refresh on `/seasons`, `/houses`, `/pocket`, `/inbox`, `/analytics`, `/rules` and `/points-guide`.
+- [ ] Legacy route redirects preserve the selected season and private Inbox tab.
+- [ ] Desktop has no duplicate Profile destination.
+- [ ] Inbox unread badge equals public plus private unread counts.
+- [ ] Analytics handles empty and populated histories without altering Points or Experience Points.
+- [ ] C.H.A.O.S. checklist accurately reports status, House count, registered players and previous activation.
+- [ ] Responsive, keyboard, visual, dark-mode and accessibility review.
 
-- [x] Create a themed season and exact House count.
-- [ ] Open registration and join with a code.
-- [ ] C.H.A.O.S. remains disabled until at least two players per House are registered.
-- [ ] C.H.A.O.S. assigns everyone once and creates private notifications.
-- [ ] Ballot opens for 24 hours and each House member votes once.
-- [ ] Administrator finalises clear, tied and no-vote outcomes correctly.
-- [ ] Captain appoints one additional Vice-Captain.
-- [ ] Weekly balanced swap locks both Houses and preserves earlier contributions.
-- [ ] Pocket deposits earn zero points and valid redemption creates the scored entry once.
-- [ ] Individual and House standings are correct before and after a player moves.
+## Release boundary
 
-## Responsive and accessible review
+- [x] No inactive competition mechanic was invented or activated.
+- [x] Documentation and release notes match the deployed implementation after this sync.
+- [x] No `.env`, credentials, `node_modules`, `dist`, `.git`, `.firebase` or debug logs entered the handover packages.
+- [x] No v1.0 tag or declaration was created.
+- [x] Production Hosting deployed to the branded `app` target.
 
-Deferred by product-owner direction until the final pre-v1.0 review:
+## Open release risk
 
-- [ ] Mobile 320–430 pixels.
-- [ ] Tablet portrait and landscape.
-- [ ] Desktop 1280 and 1920 pixels.
-- [ ] Keyboard focus, labels, dialogs, error states and reduced-motion behaviour.
-- [ ] Light and dark mode.
-
-Do not tag v1.0 from this checklist.
+Production deployment proceeded without the deferred manual smoke test by explicit product-owner choice. Automated coverage is strong, but visual and interaction defects may remain until the final integrated review.

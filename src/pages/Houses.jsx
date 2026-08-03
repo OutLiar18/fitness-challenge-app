@@ -14,6 +14,7 @@ import useLeagues from "../hooks/useLeagues";
 import usePlayerData from "../hooks/usePlayerData";
 import useToast from "../hooks/useToast";
 import {
+  getChaosReadiness,
   getSeasonWeekKey,
   isHouseLeader,
 } from "../services/seasons/seasonModel";
@@ -34,7 +35,7 @@ import {
 } from "../services/leagues/leagueService";
 import { canManageLeague } from "../services/leagues/leagueModel";
 import { pluralize } from "../utils/displayFormatters";
-import "./Teams.css";
+import "./Houses.css";
 
 const EMPTY_HOUSE = Object.freeze({
   name: "",
@@ -348,7 +349,7 @@ function RosterSwapPanel({ league, houses, members, actorId, manager, currentHou
   );
 }
 
-export default function Teams() {
+export default function Houses() {
   const { user, isPlatformAdmin } = usePlayerData();
   const { leagues, memberships: myMemberships, canManageLeagues } = useLeagues();
   const { toast, showToast, dismissToast } = useToast();
@@ -405,7 +406,7 @@ export default function Teams() {
   const selectedMembers = members.filter((item) => item.currentHouseId === selectedHouse?.id);
   const editingHouse = houses.find((item) => item.id === editingHouseId) || null;
   const manager = Boolean(league && canManageLeagues && canManageLeague(league, user?.uid, isPlatformAdmin));
-  const houseCapacityReady = houses.length === Number(league?.houseCount ?? 0);
+  const chaosReadiness = getChaosReadiness({ league, houses, memberships: members });
 
   async function handleCreateHouse(input) {
     setWorking(true);
@@ -484,15 +485,31 @@ export default function Teams() {
             <section className="house-builder card"><div><p className="section-kicker">House refinement</p><h2>Edit the banner</h2></div><HouseIdentityForm key={editingHouse.id} initial={editingHouse} submitLabel="Save House" busy={working} onSubmit={handleUpdateHouse} /></section>
           )}
 
-          {manager && league.status === "registration" && league.chaosStatus !== "activated" && (
-            <section className="chaos-console card">
+          {manager && ["draft", "registration"].includes(league.status) && (
+            <section className="chaos-console card" aria-labelledby="chaos-console-title">
               <div className="chaos-console__sigil" aria-hidden="true">C.H.A.O.S.</div>
-              <div><p className="section-kicker">Citizens Handpicked for Assignment via Operational Sorting</p><h2>Activate C.H.A.O.S.</h2><p>The assignment is seeded, balanced and permanent as the season’s opening roster. Every player receives a private notification naming their House. At least two registered players are required per House.</p></div>
-              <button className="button button--danger" type="button" disabled={
-                working ||
-                !houseCapacityReady ||
-                members.length < houses.length * 2
-              } onClick={handleChaos}>{working ? "Destiny is calculating…" : "Activate C.H.A.O.S."}</button>
+              <div className="chaos-console__content">
+                <p className="section-kicker">Citizens Handpicked for Assignment via Operational Sorting</p>
+                <h2 id="chaos-console-title">C.H.A.O.S. readiness</h2>
+                <p>The opening assignment is seeded, balanced and permanent in season history. Every registered player receives a private House notification.</p>
+                <ul className="chaos-checklist" aria-label="C.H.A.O.S. prerequisites">
+                  {chaosReadiness.checks.map((check) => (
+                    <li key={check.id} className={check.complete ? "chaos-checklist__item chaos-checklist__item--complete" : "chaos-checklist__item"}>
+                      <span aria-hidden="true">{check.complete ? "✓" : "○"}</span>
+                      <div><strong>{check.label}</strong><small>{check.detail}</small></div>
+                    </li>
+                  ))}
+                </ul>
+                {!chaosReadiness.registrationOpen && (
+                  <Link className="button button--secondary" to={`/seasons?league=${league.id}`}>Open season controls</Link>
+                )}
+              </div>
+              <div className="chaos-console__action">
+                <button className="button button--danger" type="button" disabled={working || !chaosReadiness.eligible} onClick={handleChaos}>
+                  {working ? "Destiny is calculating…" : "Activate C.H.A.O.S."}
+                </button>
+                {!chaosReadiness.eligible && <small>Complete every prerequisite to unlock assignment.</small>}
+              </div>
             </section>
           )}
 

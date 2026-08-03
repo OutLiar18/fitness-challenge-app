@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const EXPECTED_VERSION = "0.14.0";
+const EXPECTED_VERSION = "0.15.0";
 const EXPECTED_HOSTING_TARGET = "app";
 const projectRoot = process.cwd();
 const requiredFiles = [
@@ -13,15 +13,17 @@ const requiredFiles = [
   "docs/01_CURRENT_DEVELOPMENT/RELEASE_CANDIDATE_CHECKLIST.md",
   "src/pages/Rulebook.jsx",
   "src/pages/PointsGuide.jsx",
-  "src/pages/Leagues.jsx",
-  "src/pages/Teams.jsx",
+  "src/pages/Seasons.jsx",
+  "src/pages/Houses.jsx",
+  "src/pages/Inbox.jsx",
+  "src/pages/Analytics.jsx",
   "src/pages/PocketWeek.jsx",
-  "src/pages/Notifications.jsx",
   "src/services/seasons/seasonModel.js",
   "src/services/seasons/seasonService.js",
   "src/services/notifications/notificationService.js",
   "tests/rules-points-guide.test.mjs",
   "tests/season-systems.test.mjs",
+  "tests/analytics.test.mjs",
 ];
 const forbiddenUpdaterArtifacts = [
   "payload",

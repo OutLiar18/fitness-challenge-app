@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { Link } from "react-router-dom";
 
 import PageLoader from "../components/common/PageLoader";
 import PageHeader from "../components/layout/PageHeader";
@@ -112,6 +113,7 @@ export default function Progress() {
         title={`${displayName}'s progress`}
         description="Experience points, streaks, achievements and records are derived from factual activity history—not stored as mysterious hidden scores."
         icon="📈"
+        actions={<Link className="button button--secondary" to="/analytics">View analytics</Link>}
       />
 
       <section className="progress-hero card">

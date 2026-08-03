@@ -15,7 +15,7 @@ Firestore, Authentication and Hosting remain in project `fitnesschallengeapp-9e8
 - Firebase project access and CLI authentication.
 - Java 21 for the Firestore Emulator.
 - Correct local `.env` values.
-- Completion of the v0.14.0 season migration review for any existing permanent Team or pre-season league data.
+- Completion of the season migration review for any existing permanent Team or pre-season league data.
 - Passing release checks.
 
 ## Local verification

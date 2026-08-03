@@ -1,7 +1,7 @@
 # Champions Legacy Challenge — Season League System
 
 Last updated: 3 August 2026  
-Implemented foundation: v0.14.0
+Current implementation target: v0.15.0 (foundation introduced in v0.14.0)
 
 ## Purpose
 
@@ -47,3 +47,11 @@ Honours are provisional during an Active season and final after completion.
 ## Trust boundary
 
 The client calculates category points while Rules enforce active membership, source-entry linkage, historical House identity, frozen rule version and immutability. Friendly competition is supported; prize-bearing competition requires trusted backend recalculation.
+
+---
+
+# v0.15 Season Navigation
+
+Current player-facing language uses **Seasons** and **Houses**. Firestore/service names may continue to use `league` where they represent the established season container and changing them would create unnecessary data migration risk.
+
+Legacy `/leagues` and `/teams` URLs redirect to `/seasons` and `/houses` so stored notification links and bookmarks remain safe.

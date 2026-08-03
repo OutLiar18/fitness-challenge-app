@@ -1,7 +1,7 @@
 # Champions Legacy Challenge — Player Profile System
 
 Last updated: 1 August 2026  
-Current release: v0.14.0
+Current release target: v0.15.0
 
 ## Purpose
 
@@ -36,3 +36,18 @@ Profiles may display Player, League Administrator or Platform Administrator. Hou
 - Keep competitive points separate from experience points.
 - Require explicit privacy design before public activity or league-history profiles.
 - Do not make custom image uploads available until storage, consent, moderation and cost rules exist.
+
+---
+
+# v0.15 Personal Analytics
+
+Personal Analytics is a reflection surface attached to the player’s factual history. It may show weekly activity points, active days, category balance, recent momentum and consistency windows.
+
+Analytics must:
+
+- reuse the existing Points Engine and point breakdown;
+- keep Running/Cardio cross-contribution accurate;
+- persist no alternate score;
+- never alter competitive Points or Experience Points;
+- avoid shame, diagnosis or hidden recommendations;
+- explain the date range and measurements used.

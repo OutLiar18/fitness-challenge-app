@@ -1,21 +1,60 @@
 # Champions Legacy Challenge — Chat Briefing
 
-Last updated: 3 August 2026
+Last updated: 3 August 2026  
+Current release: v0.15.0, deployed, pre-v1.0
 
-## Current implemented state — v0.14.0
+## Product
 
-Champions Legacy Challenge is a React/Vite/Firebase application hosted at `https://champions-legacy-challenge.web.app`.
+Champions Legacy Challenge is a gamified personal-development platform. It rewards factual effort, consistency and improvement without shaming players. Fitness is one part of a broader system that also includes reading, nutrition, movement and skill development.
 
-v0.14.0 replaces permanent global Teams with season-scoped Houses. Administrators create a themed season and Houses; players register as individuals; C.H.A.O.S. creates balanced opening rosters; Houses elect weekly leadership; one balanced roster swap per House/week preserves historical contributions; and Pocket Week provides private zero-point reserves that players deliberately activate during the season.
+## Stack
 
-Pocket Week is confirmed as one seven-day window immediately before the season. It is not recurring.
+React + Vite, Firebase Authentication, Cloud Firestore and classic Firebase Hosting. Branded URL: `https://champions-legacy-challenge.web.app`.
 
-Both individual and House leaderboards exist. House totals are calculated from the House snapshot stored on each contribution, not current membership.
+## Current implementation
 
-Windows verification is complete: clean ESLint, 61 domain tests, 25 Firestore Rules tests, production build and release-readiness all pass. Retired Team and dummy pre-v0.14 league test data was removed after inspection. The final Rules compiled without warnings and deployed successfully. Hosting preview and production Hosting are deployed. A production smoke test confirmed season and House creation.
+v0.15.0 is deployed and adds:
 
-The complete functional, responsive and accessibility review is intentionally deferred until the final pre-v1.0 stage. The release remains pre-v1.0.
+- grouped, less crowded adaptive navigation;
+- no duplicate desktop Profile destination;
+- one Inbox for public announcements and private season notifications;
+- derived Personal Analytics that reuses factual entries and the Points Engine;
+- visible C.H.A.O.S. prerequisites during Draft and Registration;
+- current semantic route/page names with safe redirects from old URLs;
+- removal of stale Netlify routing residue.
 
-The next identified UX issue is C.H.A.O.S. discoverability. Activation correctly requires Registration, every configured House and at least two registered players per House, but the current console is hidden during Draft and can appear to be missing.
+Season Houses remain season-scoped. C.H.A.O.S. performs the opening assignment and requires all configured Houses plus at least two registered players per House. Pocket Week is one seven-day window immediately before a season.
 
-Do not invent Power Plays, Diamonds, the full Transfer Market, Buddy Bonuses, Five Fires or late-season twists. Read `RECENT_SESSION_SUMMARY.md`, `CURRENT_STATE.md`, `ACTIVE_MIGRATIONS.md` and ADR-021 before changing competition code.
+## Verification and deployment
+
+- 66 domain tests passed.
+- 25 Firestore Rules tests passed.
+- ESLint and Vite production build passed.
+- Release-readiness confirmed Hosting target `app`.
+- Production Hosting deployed successfully with 58 files.
+- v0.15.0 did not change Firestore Rules or collection shapes.
+- Full manual visual/mobile/accessibility review was deferred by product-owner decision.
+
+## Engineering rules
+
+- Documentation is part of the software.
+- Store facts and derive scoring/progression/analytics.
+- Never duplicate the Points Engine in UI code.
+- Preserve local calendar dates.
+- Preserve historical House contribution snapshots after roster moves.
+- Keep public announcements and private notifications separate below the Inbox presentation layer.
+- Do not run `npm audit fix --force` for the current React Router RSC advisory.
+- Do not invent Power Plays, Diamonds, full Transfer Market, Buddy Bonuses, Five Fires or late-season twists.
+- Do not tag or declare v1.0 without explicit approval.
+
+## Recommended next scope
+
+Commit v0.15.0, then prioritise first-use onboarding, privacy/support, personal-data export/account deletion, history pagination and measured performance work. Trusted server-side scoring is required before prize-bearing competition and may require a separate infrastructure decision.
+
+## First files to read
+
+1. `RECENT_SESSION_SUMMARY.md`
+2. `../01_CURRENT_DEVELOPMENT/CURRENT_STATE.md`
+3. `../01_CURRENT_DEVELOPMENT/ACTIVE_MIGRATIONS.md`
+4. `../01_CURRENT_DEVELOPMENT/NEXT_SESSION.md`
+5. ADR-021 and ADR-022 for competition and navigation/analytics changes.

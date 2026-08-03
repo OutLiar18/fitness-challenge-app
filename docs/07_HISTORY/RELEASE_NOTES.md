@@ -1,5 +1,19 @@
 # Champions Legacy Challenge — Release Notes
 
+## v0.15.0 — Navigation, Inbox, Analytics and C.H.A.O.S. Readiness
+
+Date: 3 August 2026
+
+Champions Legacy Challenge now presents a calmer route hierarchy: personal journey, season competition and one communications Inbox. Profile is no longer duplicated on desktop. Public announcements and private notifications share one page without sharing their underlying permissions.
+
+Personal Analytics provides weekly activity trends, a 28-day consistency view, category balance and supportive observations. It reads factual entries and the existing point breakdown, so Running/Cardio scoring remains consistent and no alternate score is stored.
+
+Administrators can see C.H.A.O.S. prerequisites before activation. The checklist explains Registration status, House completion, the two-players-per-House minimum and one-time use. Legacy route bookmarks redirect to current Seasons, Houses and Inbox routes.
+
+The release passed 66 domain tests, 25 Firestore Rules tests, clean ESLint, the Vite production build and release-readiness for Hosting target `app`. The frontend is deployed at `https://champions-legacy-challenge.web.app`. Firestore Rules and collection shapes were unchanged by v0.15.0.
+
+This remains pre-v1.0. Full manual integrated review is intentionally deferred until the final pre-v1.0 stage.
+
 ## v0.14.0 — Season Houses, C.H.A.O.S. and Pocket Week
 
 Date: 3 August 2026

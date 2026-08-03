@@ -34,7 +34,7 @@ import {
   formatPoints,
   pluralize,
 } from "../utils/displayFormatters";
-import "./Leagues.css";
+import "./Seasons.css";
 
 const EMPTY_ITEMS = Object.freeze([]);
 const dateFormatter = new Intl.DateTimeFormat("en-ZA", {
@@ -503,7 +503,7 @@ function LeagueDetail({
           {isHouseSeason && (
             <Link
               className="button button--secondary"
-              to={`/teams?league=${league.id}`}
+              to={`/houses?league=${league.id}`}
             >
               Open Houses
             </Link>
@@ -769,7 +769,7 @@ function LeagueDetail({
   );
 }
 
-export default function Leagues() {
+export default function Seasons() {
   const { user, profile, isPlatformAdmin } = usePlayerData();
   const { leagues, memberships, loading, error, canManageLeagues } =
     useLeagues();

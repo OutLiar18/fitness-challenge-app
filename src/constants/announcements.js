@@ -1,5 +1,18 @@
 export const ANNOUNCEMENTS = Object.freeze([
   {
+    id: "v0-15-navigation-analytics",
+    type: "release",
+    icon: "🧭",
+    title: "A clearer journey and honest personal analytics",
+    summary:
+      "Navigation is calmer, updates and private notifications share one Inbox, C.H.A.O.S. prerequisites stay visible, and personal trends are easier to understand.",
+    body:
+      "The desktop sidebar is grouped around the player journey, competition and communications without repeating Profile. Announcements and private season messages now meet in one Inbox while keeping their security boundaries separate. Personal Analytics reuses factual entries and the existing Points Engine to show weekly activity, consistency and category balance without changing Points or Experience Points. Administrators can also see exactly what C.H.A.O.S. still needs before activation.",
+    publishedAt: "2026-08-03",
+    featured: true,
+    version: "0.15.0",
+  },
+  {
     id: "v0-14-season-houses-pocket",
     type: "release",
     icon: "⚡",
@@ -9,7 +22,7 @@ export const ANNOUNCEMENTS = Object.freeze([
     body:
       "C.H.A.O.S. assigns registered players fairly when an administrator activates it. House leadership is elected through a 24-hour weekly ballot, earlier House contributions remain historically permanent after roster changes, and Pocket Week activities stay worth zero points until the player deliberately activates an available amount during the season. Power Plays, Diamonds, Buddy Bonuses, Five Fires and late-season twists remain inactive until their rules are confirmed.",
     publishedAt: "2026-08-03",
-    featured: true,
+    featured: false,
     version: "0.14.0",
   },
   {

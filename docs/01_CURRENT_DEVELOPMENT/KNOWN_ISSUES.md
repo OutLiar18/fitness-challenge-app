@@ -2,56 +2,30 @@
 
 Last updated: 3 August 2026
 
-## v0.14.0 deployment status
+## v0.15.0 verification status
 
-All technical release gates pass: clean ESLint, 61 domain tests, 25 Firestore Rules tests, production build and release-readiness for Hosting target `app`.
+The release passed the authoritative Windows gates: 66 domain tests, 25 Firestore Rules tests, clean ESLint, successful Vite production build and release-readiness for Hosting target `app`. The frontend is deployed to production.
 
-Legacy competition test data was inspected and removed. Firestore Rules compile without warnings and are live. The v0.14.0 frontend is live on the branded Hosting site. A production smoke test confirmed season and House creation.
+## Deferred integrated review
 
-The full integrated visual, responsive and accessibility review is deferred until the final pre-v1.0 review stage.
+The product owner has deferred the complete functional, responsive, keyboard, visual, dark-mode and accessibility review until the final pre-v1.0 stage. Production therefore has strong automated coverage but has not received the full manual review matrix.
 
-## C.H.A.O.S. discoverability
+## Performance warning
 
-The C.H.A.O.S. console currently appears only when a season has moved from Draft to Registration. This is correct for activation authority but can make the feature seem missing during Draft.
-
-Activation requirements remain:
-
-- the season is in Registration;
-- every configured House has been created;
-- C.H.A.O.S. has not already run;
-- the season has at least two registered players per House in total.
-
-Houses do not need existing assigned members. C.H.A.O.S. creates the opening assignments.
-
-## Season mechanics still awaiting decisions
-
-- Power Play voting and category multipliers are inactive.
-- Diamonds, player prices, House Immunity and the full Transfer Market are inactive.
-- Buddy Bonuses and Five Fires are inactive.
-- Late-season twists have not been defined.
-- The current weekly roster mechanism is one balanced one-for-one swap involving each participating House at most once that week.
-- Pocket Week is confirmed as one seven-day reserve window immediately before the season and is not recurring.
+The production build reports a Firebase vendor chunk above the 500 kB warning threshold. The compressed size is substantially smaller and the warning does not block deployment. Treat route/vendor chunk optimisation as measured later work rather than suppressing the warning without evidence.
 
 ## Operational boundaries
 
-- Ballots are not opened or finalised by a server scheduler. A current House leader or administrator opens the 24-hour ballot; an administrator finalises it after closure.
+- Ballots require authorised manual opening and administrator finalisation; there is no server scheduler.
 - Invitation codes are bearer codes, not passwords.
-- Evidence uploads and administrator adjudication are not implemented.
-- Firestore Rules protect shape, ownership and atomic relationships but do not independently recalculate the complete activity Points Engine.
+- Firestore Rules validate ownership, shape and atomic relationships but do not independently run the full Points Engine.
 - Prize-bearing competition requires trusted server-side contribution recalculation.
+- Personal activity history is not yet paginated.
 
-## Data and scale
+## Inactive mechanics
 
-- v0.14 supports no more than 160 participants per season.
-- C.H.A.O.S. requires at least two registered players per House.
-- Existing pre-v0.14 permanent-Team data is not auto-converted.
-- PlayerDataProvider still subscribes to the player’s complete activity history.
-- Administrative search covers loaded pages rather than the entire database.
-
-## Product lifecycle gaps
-
-Account deletion, personal-data export, privacy/support content, first-use onboarding, server alerts and final performance/accessibility review remain before v1.0.
+Power Plays, Diamonds, player prices, House Immunity, the full Transfer Market, Buddy Bonuses, Five Fires and late-season twists remain inactive. The current roster mechanism is one balanced one-for-one swap per participating House per week. Pocket Week is one pre-season window.
 
 ## Dependency advisory
 
-A React Router advisory may remain in `npm audit`. Do not run `npm audit fix --force`; the suggested change may be breaking and the affected React Server Components mode is not used by this Vite client application.
+`npm audit` reports two high-severity advisories in React Router's React Server Components mode. Champions Legacy Challenge is a client-rendered Vite application and does not use RSC mode. Do not run `npm audit fix --force`; the suggested package change is breaking. Reassess when an upstream non-breaking compatible fix is available.

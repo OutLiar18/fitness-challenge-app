@@ -248,3 +248,11 @@ A great user experience allows players to focus on improving themselves—not fi
 ---
 
 # End of Document
+---
+
+# v0.15 Information Architecture Addendum
+
+- Frequent actions remain directly reachable; lower-frequency tools live in a predictable More menu.
+- One concept should have one obvious destination. Profile is not duplicated on desktop, and incoming communication begins at Inbox.
+- Prerequisites should remain visible before an action becomes available. Disabled actions must explain what is missing.
+- Analytics should support reflection, not pressure. It describes patterns and never invents targets or negative comparisons.

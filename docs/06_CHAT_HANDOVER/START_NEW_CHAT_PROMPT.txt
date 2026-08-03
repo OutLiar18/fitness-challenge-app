@@ -1,7 +1,11 @@
-This chat continues the Champions Legacy Challenge React/Vite/Firebase project.
+This chat continues the long-term Champions Legacy Challenge project.
 
-Current source: v0.14.0, still before v1.0. The app uses season-scoped Houses rather than permanent Teams. A season has individual and House leaderboards, C.H.A.O.S. opening assignment, weekly 24-hour leadership voting, up to two Vice-Captains, one balanced House swap per week, private notifications and a seven-day Pocket Week whose deposits earn zero points until redeemed. Historical House contributions remain with the House represented when earned.
+Current source target: v0.15.0, still pre-v1.0. v0.14.0 is the currently deployed production release until v0.15.0 passes Windows verification and deployment approval.
 
-Read docs/06_CHAT_HANDOVER/CHAT_BRIEFING.md, RECENT_SESSION_SUMMARY.md, docs/01_CURRENT_DEVELOPMENT/CURRENT_STATE.md, ACTIVE_MIGRATIONS.md and NEXT_SESSION.md first.
+Act as senior software engineer and technical architect. Read CHAT_BRIEFING.md, RECENT_SESSION_SUMMARY.md, CURRENT_STATE.md, ACTIVE_MIGRATIONS.md, NEXT_SESSION.md and KNOWN_ISSUES.md before work. Read ADR-021 and ADR-022 for season competition and navigation/analytics decisions.
 
-Expected verification: 61 domain tests and 25 Firestore Rules tests. Do not invent Power Plays, Diamonds, full Transfer Market rules, Buddy Bonuses, Five Fires or late-season twists. Do not declare v1.0 without explicit user approval.
+v0.15.0 adds grouped adaptive navigation, removes duplicate desktop Profile navigation, combines public announcements and private season notifications into one Inbox presentation layer, adds derived Personal Analytics that reuses the Points Engine, exposes C.H.A.O.S. prerequisites during Draft/Registration, and redirects legacy Teams/Leagues/Announcements/Notifications URLs to current routes.
+
+Pocket Week is one seven-day pre-season window. Permanent Teams remain retired. Do not invent Power Plays, Diamonds, full Transfer Market, Buddy Bonuses, Five Fires or late-season twists. Do not declare v1.0.
+
+Required next sequence: apply updater outside project; run npm install, npm run check, npm run test:rules with Java 21, npm run check:release and npm audit; expect 66 domain tests and 25 Rules tests; fix only verified failures; update documentation; do not deploy until all gates pass; never run npm audit fix --force.
