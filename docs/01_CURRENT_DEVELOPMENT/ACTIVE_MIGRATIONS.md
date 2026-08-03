@@ -1,43 +1,41 @@
 # Champions Legacy Challenge — Active Migrations
 
-Last updated: 1 August 2026
+Last updated: 3 August 2026
 
-## Required v0.12.0 league-capacity check
+## v0.14.0 verification and deployment migration
 
-v0.12.0 adds transactionally enforced league capacity fields.
+Status: Complete
 
-Before deploying the new Rules, inspect every existing `leagues/{leagueId}` document:
+Windows verification passed clean ESLint, all 61 domain tests, all 25 Firestore Rules tests, the production build and release-readiness for Hosting target `app`.
 
-- Add or confirm `participantLimit: 200`.
-- Set `participantCount` to the actual number of `leagueMemberships` documents for that league.
+The required live-data inspection found only disposable test records in the retired Team collections and one dummy pre-v0.14 draft league. Those records were removed while `users`, `challengeEntries` and `auditEvents` were preserved. No production data conversion was required.
 
-New leagues receive these fields automatically. If no league documents exist, no migration is required.
+The final Firestore Rules compiled without warnings and deployed successfully. The Hosting preview and production frontend were deployed, and a production smoke test confirmed themed season and House creation.
 
-Do not guess a populated league’s participant count. Count its membership documents first.
+## Competition-data migration outcome
 
-## Completed in v0.12.0
+- `teams`, `playerTeams` and `teamInvites`: retired test data removed.
+- Legacy `leagues` and `leagueInvites`: dummy pre-v0.14 draft data removed.
+- `leagueMemberships` and `leagueContributions`: no pre-existing documents.
+- No active pre-v0.14 season was converted in place.
+- New competition data uses season-scoped Houses and `season-houses-v1`.
 
-- Team summaries moved to current-week-aware normalization.
-- League joins and withdrawals moved to transactions with paired participant counts.
-- Entry deletion now preserves completed/archived league history while removing active contributions.
-- Invite access changed from listable reads to known-code document reads only.
-- Provider state moved to user/scope-keyed subscriptions.
-- Production deployment targeting moved fully to branded Hosting target `app`.
+## Completed in v0.14.0
+
+- Permanent Team providers, services, constants and routes removed.
+- Retired Team collections denied by Rules.
+- House membership moved into `leagueMemberships`.
+- Historical House identity copied into every contribution.
+- C.H.A.O.S., elections, votes, swap locks, Pocket reserves, redemptions and private notifications added.
+- Pocket Week confirmed as one pre-season seven-day window.
 
 ## Deferred controlled migrations
 
-### Server-authoritative league scoring
-
-Required before money, prizes or high-stakes public ranking. Use trusted backend recalculation and signed contribution results.
-
-### Historical entry pagination
-
-Replace the complete owner-entry subscription with current-window subscriptions and paginated history while preserving service interfaces.
-
-### Team lifecycle history
-
-Design disbanding and archiving without losing roster history or orphaning league snapshots.
+- Trusted server-authoritative league scoring before prize-bearing competition.
+- Paginated personal history.
+- Administrator-authored season rule packs.
+- Full Transfer Market and late-season twist data model after product confirmation.
 
 ## Closure rule
 
-A migration is complete only when all callers use it, obsolete code is removed, domain and Rules tests pass, the production build passes and documentation matches live behaviour.
+A migration is complete only when obsolete callers are removed, domain and Rules tests pass, production build passes, live data is inspected, deployment succeeds and documentation matches behaviour.

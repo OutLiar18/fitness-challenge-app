@@ -1,4 +1,4 @@
-export const RULEBOOK_VERSION = "2026-08-v1";
+export const RULEBOOK_VERSION = "2026-08-v2";
 
 export const RULE_STATUSES = Object.freeze({
   CURRENT: "current",
@@ -62,6 +62,13 @@ function rule(id, legacyRule, text, options = {}) {
     status: RULE_STATUSES.CURRENT,
     bullets: [],
     note: "",
+    ...options,
+  });
+}
+
+function seasonRule(id, legacyRule, text, options = {}) {
+  return rule(id, legacyRule, text, {
+    status: RULE_STATUSES.SEASON,
     ...options,
   });
 }
@@ -551,63 +558,149 @@ export const RULEBOOK_SECTIONS = Object.freeze([
   },
   {
     id: "teams-and-leagues",
-    icon: "🤝",
-    title: "Teams and leagues",
-    summary: "Membership, captain responsibility and seasonal competition.",
+    icon: "🏰",
+    title: "Seasons, Houses and Pocket Week",
+    summary: "Season registration, C.H.A.O.S., leadership, roster movement and stored activity.",
     rules: [
-      rule(
-        "one-team",
+      seasonRule(
+        "season-scoped-houses",
         21,
-        "A player may belong to one active team at a time. Teams provide shared identity, accountability and optional league competition.",
+        "Every House belongs to one league season. Houses do not continue as permanent teams outside that season.",
       ),
-      rule(
-        "team-joining",
-        12,
-        "Teams are joined through invitation codes. Players are not automatically or randomly assigned by the app.",
-        {
-          note:
-            "This replaces the 2025 C.H.A.O.S. house assignment method.",
-        },
-      ),
-      rule(
-        "invite-code",
-        null,
-        "Invitation codes should be shared only with intended participants. They are access codes, not secure passwords.",
-      ),
-      rule(
-        "captain-duty",
-        null,
-        "Team Captains must manage team identity respectfully and may not use their role to alter another player’s personal activity or points.",
-      ),
-      rule(
-        "captain-transfer",
-        null,
-        "A Team Captain must transfer captaincy before leaving the team.",
-      ),
-      rule(
+      seasonRule(
         "league-registration",
         null,
-        "Players may join or withdraw from a league only while Registration is open, unless an administrator corrects an exceptional error.",
+        "Players register for a season as individuals while Registration is open. A player may withdraw only before the season becomes Active, unless an Administrator corrects an exceptional error.",
       ),
-      rule(
+      seasonRule(
+        "house-minimum-roster",
+        null,
+        "C.H.A.O.S. requires at least two registered players for every House so each opening roster can appoint a Captain and Vice-Captain.",
+      ),
+      seasonRule(
+        "chaos-assignment",
+        12,
+        "At the start of a House season, a League or Platform Administrator may Activate C.H.A.O.S. to assign every registered player across the Houses created for that season.",
+        {
+          bullets: [
+            "C.H.A.O.S. means Citizens Handpicked for Assignment via Operational Sorting.",
+            "Assignments are randomised from a fixed season seed and balanced so House sizes differ by no more than one player.",
+            "C.H.A.O.S. may be activated only once per season.",
+          ],
+        },
+      ),
+      seasonRule(
+        "chaos-notification",
+        null,
+        "When C.H.A.O.S. is activated, every assigned player receives a private notification naming their opening House.",
+      ),
+      seasonRule(
+        "dual-leaderboards",
+        15,
+        "Each House season tracks an Individual Leaderboard for personal performance and a House Leaderboard for collective impact and bragging rights.",
+      ),
+      seasonRule(
+        "historical-house-points",
+        null,
+        "Points earned while representing a House remain with that House. After a roster move, the player’s future eligible points support the new House; earlier House contributions are never transferred or rewritten.",
+      ),
+      seasonRule(
+        "weekly-leadership-vote",
+        null,
+        "During an active season, each House may hold one 24-hour leadership vote per challenge week. Every current House member may vote once for one current House member.",
+      ),
+      seasonRule(
+        "leadership-result",
+        null,
+        "The player with the most votes becomes Captain and the player with the second-most votes becomes the primary Vice-Captain for that week.",
+      ),
+      seasonRule(
+        "leadership-resolution",
+        null,
+        "When no votes are cast, or a tie prevents a complete result, a League or Platform Administrator must appoint the Captain and primary Vice-Captain after the full voting day closes.",
+      ),
+      seasonRule(
+        "additional-vice-captain",
+        null,
+        "The elected Captain may appoint one additional Vice-Captain from the current House roster. A House may have no more than two Vice-Captains. The additional appointment ends when the next weekly election is finalised.",
+      ),
+      seasonRule(
+        "house-leader-duty",
+        null,
+        "Captains and Vice-Captains must manage House identity and roster responsibilities respectfully. Leadership does not permit anyone to alter another player’s personal activity, individual points or account data.",
+      ),
+      seasonRule(
+        "weekly-roster-move",
+        "24, 108-128",
+        "Each House may take part in one balanced player swap per challenge week. A Captain, Vice-Captain, League Administrator or Platform Administrator may complete the swap.",
+        {
+          note: "This is the app-supported roster system. Diamonds, player prices, House Immunity and timed Transfer Market bidding remain inactive.",
+        },
+      ),
+      seasonRule(
+        "leader-movement",
+        null,
+        "A Captain or Vice-Captain must first be replaced in House leadership before that player can move to another House.",
+      ),
+      seasonRule(
+        "pocket-window",
+        "16-17",
+        "The Pocket Week Window opens seven days before the official season begins and closes at the end of the day immediately before the season start date.",
+      ),
+      seasonRule(
+        "pocket-purpose",
+        17,
+        "Use Pocket Week to bank extra activities. Life happens; during the challenge there may be days where you are busy, injured, sick, or experience another unforeseen circumstance which prevents you from achieving a category target. Your Pocket is your safety net.",
+      ),
+      seasonRule(
+        "pocket-zero-points",
+        18,
+        "Pocket activities are recorded but earn zero points while stored. Points are calculated only when the player activates an available Pocket amount during the Active season.",
+      ),
+      seasonRule(
+        "pocket-control",
+        "18, 20",
+        "Players decide when to activate their Pocket and how much of an available partial balance to apply to an eligible season day.",
+      ),
+      seasonRule(
+        "pocket-whole-sessions",
+        null,
+        "Running and workout sessions are redeemed as complete stored sessions. Water, Fruit, Reading, Skill Development, Cardio and Steps may be redeemed in valid partial amounts.",
+      ),
+      seasonRule(
+        "pocket-empty",
+        null,
+        "When the remaining balance for a stored activity reaches zero, that Pocket activity is empty and cannot be used again. A category not recorded during Pocket Week has no balance to redeem.",
+      ),
+      seasonRule(
+        "pocket-personal",
+        19,
+        "Pocket activities are non-transferable. Only the player who completed and stored the activity may activate it.",
+      ),
+      seasonRule(
+        "pocket-final",
+        null,
+        "Pocket activation is final. Activated amounts cannot be returned to the Pocket, edited into another category or deleted to recover the stored balance.",
+      ),
+      seasonRule(
         "league-lifecycle",
         null,
-        "A league moves forward through Draft, Registration, Active, Completed and Archived stages. Stages may not be skipped or reversed.",
+        "A season moves forward through Draft, Registration, Active, Completed and Archived stages. Stages may not be skipped or reversed.",
       ),
-      rule(
+      seasonRule(
         "league-contributions",
         null,
-        "During an Active league, eligible entries contribute automatically. Players must not record a second copy of the same activity for league credit.",
+        "During an Active season, one factual activity entry creates the eligible individual and House contribution. Players must not record a second copy of the same activity for league credit.",
       ),
-      rule(
+      seasonRule(
         "completed-history",
         null,
-        "Completed and archived league contributions remain permanent competitive history, even if a recent personal entry would otherwise be editable.",
+        "Completed and archived season contributions remain permanent competitive history, even if a recent personal entry would otherwise be editable.",
       ),
-      rule(
+      seasonRule(
         "league-conduct",
         null,
-        "Competition should inspire. Harassment, humiliation, collusion or manipulation of another player’s participation is not permitted.",
+        "Competition should inspire. Harassment, humiliation, collusion, vote manipulation or interference with another player’s participation is not permitted.",
       ),
     ],
   },
@@ -660,35 +753,30 @@ export const RULEBOOK_SECTIONS = Object.freeze([
     title: "Champions and season awards",
     summary: "Recognition that may be activated by an official season.",
     rules: [
-      rule(
+      seasonRule(
         "legacy-champion",
         134,
-        "A season may crown a Legacy Champion and category champions based on its published standings and eligibility rules.",
-        { status: RULE_STATUSES.SEASON },
+        "A season displays a Legacy Champion and category champions based on its published standings and eligibility rules. Honours remain provisional until the season is completed.",
       ),
-      rule(
+      seasonRule(
         "one-title",
         134,
-        "A season may limit each player to one individual championship title, awarded in a published prestige order.",
-        { status: RULE_STATUSES.SEASON },
+        "Each player may hold only one individual championship title, awarded in the published prestige order.",
       ),
-      rule(
+      seasonRule(
         "team-champion",
         135,
-        "A season may recognise the top-performing player within each team.",
-        { status: RULE_STATUSES.SEASON },
+        "Each House displays a House Champion based on the points that player contributed while representing that House.",
       ),
-      rule(
+      seasonRule(
         "team-of-champions",
         136,
-        "A team league may declare the highest-ranked team the Team of Champions.",
-        { status: RULE_STATUSES.SEASON },
+        "The highest-ranked House is recognised as the House of Champions.",
       ),
-      rule(
+      seasonRule(
         "award-announcement",
         null,
-        "Season awards do not exist automatically unless they are defined and announced before the relevant competition closes.",
-        { status: RULE_STATUSES.SEASON },
+        "Final honours are confirmed only when the season is completed. Live honours shown during an Active season are provisional and may change.",
       ),
     ],
   },
@@ -700,18 +788,6 @@ export const RULEBOOK_SECTIONS = Object.freeze([
       "Preserved so players can distinguish historical challenge ideas from live app rules.",
     rules: [
       rule(
-        "pocket-week",
-        "16-20",
-        "Pocket Week and banked activities are not currently supported. Activities cannot be stored and redeemed later for challenge credit.",
-        { status: RULE_STATUSES.INACTIVE },
-      ),
-      rule(
-        "random-houses",
-        "12, 21",
-        "Random assignment to six Houses using the C.H.A.O.S. method is not currently active. The app uses persistent, invitation-based Teams.",
-        { status: RULE_STATUSES.INACTIVE },
-      ),
-      rule(
         "power-play",
         "22-23, 95-107",
         "Weekly Power Play voting, house multipliers and the 40 percent contribution penalty are not currently supported.",
@@ -720,7 +796,7 @@ export const RULEBOOK_SECTIONS = Object.freeze([
       rule(
         "transfer-market",
         "24, 108-128",
-        "Diamonds, player price tags, House Immunity and the weekly Transfer Market are not currently supported.",
+        "Diamonds, player price tags, House Immunity, timed bidding and the former Transfer Market currency are not currently supported. The app uses one balanced House swap per week instead.",
         { status: RULE_STATUSES.INACTIVE },
       ),
       rule(

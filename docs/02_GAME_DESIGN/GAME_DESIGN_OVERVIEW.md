@@ -276,8 +276,8 @@ It is about becoming better than the person you were yesterday.
 
 The current pre-1.0 product includes:
 
-- persistent teams for identity and accountability;
-- seasonal leagues with immutable consistency-weighted rules;
+- season-scoped Houses for themed identity, leadership and accountability;
+- seasonal leagues with immutable consistency-weighted rules, C.H.A.O.S. assignment and Pocket Week;
 - an optional, transparent Legacy Coach derived from the player’s own factual entries.
 
 See `TEAM_SYSTEM.md`, `LEAGUE_SYSTEM.md` and `LEGACY_COACH.md`.

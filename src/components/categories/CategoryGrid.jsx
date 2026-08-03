@@ -1,13 +1,19 @@
 import { CATEGORIES } from "../../constants/categories";
 import "./CategoryGrid.css";
 
-export default function CategoryGrid({ selected, onSelect }) {
+export default function CategoryGrid({
+  selected,
+  onSelect,
+  eyebrow = "Choose your focus",
+  title = "Log an activity",
+  description = "Select a category, then record the work you completed.",
+}) {
   return (
     <section className="category-picker card" aria-labelledby="category-picker-title">
       <div className="category-picker__header">
-        <p className="category-picker__eyebrow">Choose your focus</p>
-        <h2 id="category-picker-title">Log an activity</h2>
-        <p>Select a category, then record the work you completed.</p>
+        <p className="category-picker__eyebrow">{eyebrow}</p>
+        <h2 id="category-picker-title">{title}</h2>
+        <p>{description}</p>
       </div>
 
       <div className="category-grid">

@@ -45,7 +45,17 @@ test("Rulebook separates current, season and inactive mechanics", () => {
   assert.equal(stats.rules, RULEBOOK_RULES.length);
   assert.ok(
     RULEBOOK_RULES.some(
-      (item) => item.id === "pocket-week" && item.status === RULE_STATUSES.INACTIVE,
+      (item) => item.id === "pocket-window" && item.status === RULE_STATUSES.SEASON,
+    ),
+  );
+  assert.ok(
+    RULEBOOK_RULES.some(
+      (item) => item.id === "chaos-assignment" && item.status === RULE_STATUSES.SEASON,
+    ),
+  );
+  assert.ok(
+    RULEBOOK_RULES.some(
+      (item) => item.id === "transfer-market" && item.status === RULE_STATUSES.INACTIVE,
     ),
   );
   assert.ok(
@@ -118,6 +128,8 @@ test("Points Guide exposes visible goal and league scoring but omits streak rewa
   assert.equal(PUBLIC_POINT_FORMULAS.some((item) => item.id === "running"), true);
   assert.equal(PUBLIC_LEAGUE_SCORING.dailyActivityCap, 20);
   assert.equal(PUBLIC_LEAGUE_SCORING.dailyParticipationBonus, 5);
+  assert.match(PUBLIC_LEAGUE_SCORING.houseFormula, /credited while representing/);
+  assert.match(PUBLIC_LEAGUE_SCORING.pocketFormula, /0 points until activated/);
 });
 
 test("Rules and Points Guide remain directly reachable through reference navigation", () => {

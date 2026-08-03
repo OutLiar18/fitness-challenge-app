@@ -1,7 +1,7 @@
 # Champions Legacy Challenge — Player Profile System
 
 Last updated: 1 August 2026  
-Current release: v0.13.1
+Current release: v0.14.0
 
 ## Purpose
 
@@ -9,7 +9,7 @@ The profile makes identity and personal growth visible without turning private a
 
 ## Profile identity
 
-`/profile` displays the player’s display name, email, Legacy Avatar, trusted role, live team, joined date, level, title, points, entries and longest streak.
+`/profile` displays the player’s display name, email, Legacy Avatar, trusted role, joined date, progression summary and current season/House memberships.
 
 Players may edit only display name and an approved local avatar. Email, role, ownership and join date remain protected.
 
@@ -17,9 +17,9 @@ Players may edit only display name and an approved local avatar. Email, role, ow
 
 Only an approved `avatarId` is stored. The artwork is bundled locally, avoiding uploaded-media cost, arbitrary external URLs and image moderation.
 
-## Team identity
+## Season and House identity
 
-The live team comes from `playerTeams/{userId}` rather than a freely editable profile string. Team name and emblem may appear in team and league experiences. Leaving a team never changes historical league snapshots.
+House identity comes from `leagueMemberships/{leagueId_userId}` and is scoped to one season. It is never a freely editable profile field. Moving Houses changes only current membership and future contributions; previous House snapshots remain historical.
 
 ## Legacy Coach preferences
 
@@ -27,7 +27,7 @@ Private settings live at `users/{userId}/coach/preferences` and control enabled 
 
 ## Trusted role presentation
 
-Profiles may display Player, League Administrator or Platform Administrator. Team captain is presented within the team experience and remains separate from trusted platform roles.
+Profiles may display Player, League Administrator or Platform Administrator. House Captain and Vice-Captain are presented within the season House experience and remain separate from trusted platform roles.
 
 ## Data principles
 

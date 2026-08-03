@@ -1,5 +1,44 @@
 # Champions Legacy Challenge — Release Notes
 
+## v0.14.0 — Season Houses, C.H.A.O.S. and Pocket Week
+
+Date: 3 August 2026
+
+The challenge’s real seasonal structure is now part of the app. Administrators create themed Houses, registered players are assigned through balanced C.H.A.O.S., each House elects weekly leadership, and one balanced roster swap per House/week changes only future House points. The seven days before a season form Pocket Week: deposits remain private and worth zero points until the player activates an available amount during the Active season. Both individual and House standings preserve historical truth.
+
+### Season competition
+
+- Season-specific House themes, identities and bundled emblems.
+- Individual and House standings from the same factual activity entry.
+- Historical House snapshots that are not rewritten after roster movement.
+- Deterministic, balanced C.H.A.O.S. opening assignment with private notifications.
+- Weekly 24-hour leadership ballots, administrator resolution and one Captain-appointed additional Vice-Captain.
+- One balanced roster swap per participating House/week with atomic locks.
+- Derived season honours for individual, category and House achievements.
+
+### Pocket Week
+
+- One private seven-day reserve window immediately before the season begins.
+- Zero points until the player deliberately redeems an available balance.
+- Partial redemption for measurable categories and whole-session redemption for Running and workouts.
+- Authoritative transaction-time reload of the stored Pocket activity, membership and season.
+- Canonical quantities and tamper-resistant reconstruction of the scored entry from stored facts.
+- Immutable redemption receipts and traceable league contributions.
+
+### Player experience and verification
+
+- Dedicated Seasons, Houses, Pocket Week and Notifications areas.
+- Responsive House forge, ballot, C.H.A.O.S. console, roster movement and dual leaderboards.
+- Verification hotfix for the Pocket memo warning, live Coach preference path, safe optional claims, Captain appointment branch selection and Pocket Rules expression usage.
+- Final Rules-fixture correction aligns seeded House membership snapshots with the production denormalised House identity used by contribution validation.
+- Windows verification passed clean ESLint, all 61 domain tests, all 25 Firestore Security Rules tests, the production build and release-readiness.
+- Required legacy competition test data was inspected and removed. Final Firestore Rules deployed without warnings, followed by the Hosting preview and branded production deployment.
+- A production smoke test confirmed themed season and House creation.
+- Pocket Week was confirmed as one seven-day pre-season window and not a recurring weekly reserve.
+- Removed four unused Rules helper parameters so the final Rules redeploy compiles without warnings and without changing enforcement behaviour.
+
+This remains pre-v1.0. Power Plays, Diamonds, the complete Transfer Market, Buddy Bonuses, Five Fires and late-season twists remain inactive until their modern rules are confirmed.
+
 ## v0.13.1 — Rulebook Installation and League Verification Hotfix
 
 Date: 2 August 2026

@@ -1,3 +1,51 @@
+# v0.14.0 — Season Houses, C.H.A.O.S. and Pocket Week
+
+Date: 3 August 2026
+
+## Added
+
+- Season-scoped themed Houses and retired permanent global Teams.
+- Balanced one-time C.H.A.O.S. opening assignment with private notifications.
+- Weekly 24-hour House leadership voting, administrator resolution and Captain-appointed additional Vice-Captain.
+- One balanced player swap per House/week with transactional locks.
+- Historical House contribution allocation that survives roster movement.
+- Seven-day Pocket deposits, canonical partial/whole redemption and immutable receipts.
+- Individual/House leaderboards and season honours.
+- Private ballot, assignment, roster and Pocket notifications.
+- 61 domain tests and 25 Firestore Rules tests.
+
+## Fixed
+
+- Removed four unused Firestore Rules helper parameters so the deployed ruleset compiles without warning while preserving identical enforcement behaviour.
+- Windows verification hotfix removes the `PocketWeek.jsx` React Hook dependency warning.
+- Coach preference Rules coverage now targets the live `users/{userId}/coach/preferences` path while confirming the retired path remains denied.
+- Optional administrator claims are read safely, and Captain-appointed Vice-Captain updates evaluate only their applicable Rules branch.
+- Category-specific entry validation now uses conditional dispatch so atomic Pocket redemption stays below the Firestore Rules expression ceiling.
+- Corrected the Rules membership fixture so wrapped House definitions seed the same name, emblem and accent snapshots used by production membership documents.
+- Pocket redemption now reloads the authoritative reserve, membership and season inside the transaction.
+- Stored scoring facts cannot be replaced while a Pocket balance is redeemed.
+- Fractional count/volume redemptions and stale post-redemption amounts are rejected or normalised safely.
+- Invalid season query links fall back to an available season instead of leaving a blank page.
+- Leadership voting cannot open for a House with fewer than two current members.
+
+## Deployment
+
+- Completed the required Firestore inspection and removed only retired Team and dummy legacy-league test data.
+- Preserved `users`, `challengeEntries` and `auditEvents`.
+- Deployed the final v0.14.0 Firestore Rules without compiler warnings, deployed the seven-day Hosting preview, and released the matching frontend to the branded production URL.
+- Confirmed through a production smoke test that Platform Administrators can create themed seasons and season-scoped Houses.
+- Confirmed Pocket Week as one seven-day pre-season window rather than a recurring weekly reserve.
+
+## Changed
+
+- Teams navigation and pages now represent season Houses.
+- Leagues are presented as themed Seasons.
+- Rulebook, Points Guide, profile, architecture and deployment documentation align with the new season model.
+
+## Deferred
+
+Power Plays, Diamonds, the full Transfer Market, Buddy Bonuses, Five Fires and late-season twists remain inactive.
+
 # v0.13.1 — Rulebook Installation and League Verification Hotfix
 
 Date: 2 August 2026

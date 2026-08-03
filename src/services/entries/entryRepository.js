@@ -36,6 +36,7 @@ export async function createEntry(
   data,
   selectedDate,
   leagueContexts = [],
+  metadata = {},
 ) {
   if (!userId) {
     throw new Error("A user is required to save an entry.");
@@ -66,6 +67,10 @@ export async function createEntry(
     userId,
     category,
     data,
+    source: metadata.source || "activity",
+    sourceLeagueId: metadata.sourceLeagueId || "",
+    sourcePocketId: metadata.sourcePocketId || "",
+    sourceRedemptionId: metadata.sourceRedemptionId || "",
     createdAt: serverTimestamp(),
     challengeDate: Timestamp.fromDate(challengeDate),
   });
@@ -85,12 +90,17 @@ export async function createEntry(
         userId,
         displayName: membership.displayName || "Champion",
         avatarId: membership.avatarId || "legacy-trophy",
-        teamId: membership.teamId || "",
-        teamName: membership.teamName || "Independent",
+        houseId: membership.currentHouseId || "",
+        houseName: membership.currentHouseName || "Unassigned",
+        houseEmblemId: membership.currentHouseEmblemId || "springbok",
+        teamId: membership.currentHouseId || "",
+        teamName: membership.currentHouseName || "Unassigned",
         category,
         challengeDate: Timestamp.fromDate(challengeDate),
         activityPoints: Math.max(0, Math.round(activityPoints * 100) / 100),
         rulesVersion: league.rulesVersion,
+        source: metadata.source || "activity",
+        sourceRedemptionId: metadata.sourceRedemptionId || "",
         createdAt: serverTimestamp(),
       });
     });
@@ -131,6 +141,11 @@ export async function deleteEntry(entryId, userId) {
 
   if (!userId) {
     throw new Error("A user is required to delete an entry.");
+  }
+
+  const entrySnapshot = await getDoc(doc(db, "challengeEntries", entryId));
+  if (entrySnapshot.exists() && entrySnapshot.data().source === "pocket") {
+    throw new Error("Pocket redemptions are final and cannot be deleted.");
   }
 
   const contributionSnapshot = await getDocs(

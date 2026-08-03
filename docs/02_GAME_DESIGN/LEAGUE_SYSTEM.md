@@ -1,94 +1,49 @@
-# Champions Legacy Challenge — League System
+# Champions Legacy Challenge — Season League System
 
-Last updated: 1 August 2026  
-Implemented foundation: v0.11.0
+Last updated: 3 August 2026  
+Implemented foundation: v0.14.0
 
 ## Purpose
 
-Leagues provide time-limited, friendly competition while personal progress remains permanent. Every season begins from zero and rewards consistent participation more than one exceptional burst.
-
-## Shared activity model
-
-Players record an activity once. During an active league, the same atomic write creates:
-
-```text
-Challenge Entry
-├── Personal points, goals and progression
-└── Immutable league contribution snapshot
-```
-
-No duplicate league logging is required.
+A season is a time-limited themed competition with simultaneous individual and House standings. Personal progression remains permanent while each season begins its own competitive chapter.
 
 ## Lifecycle
 
-A league moves forward one audited stage at a time:
+1. **Draft** — create identity, dates, theme, rules and Houses.
+2. **Registration** — invitation opens and players register as individuals.
+3. **C.H.A.O.S.** — administrator assigns every registered player to a House.
+4. **Active** — entries and Pocket redemptions create eligible contributions.
+5. **Completed** — scoring closes and honours become final.
+6. **Archived** — historical read-only season.
 
-1. **Draft** — name, description, dates, mode and rules are created.
-2. **Registration** — the access code opens and players may join or withdraw.
-3. **Active** — registered memberships become active and qualifying entries contribute.
-4. **Completed** — scoring closes and memberships become completed.
-5. **Archived** — the season becomes historical and remains read-only.
-
-Stages cannot be skipped or reversed.
+Firestore stores Draft, Registration, Active, Completed and Archived as the formal status sequence. C.H.A.O.S. is a one-time Registration action.
 
 ## Frozen rules
 
-Every league created from v0.11.0 onward stores `consistency-v1`:
+Every new season stores `season-houses-v1`:
 
-- scoring engine: `points-v2`;
-- included categories: all ten factual activity categories;
-- maximum raw activity contribution per player per calendar day: 20 points;
-- participation bonus per active calendar day: 5 points.
+- Points Engine `points-v2`;
+- all ten factual categories;
+- 20-point daily raw-activity cap per player;
+- five-point daily participation bonus;
+- Houses, C.H.A.O.S., leadership elections, roster swaps and Pocket Week enabled;
+- Power Play, full Transfer Market, Buddy Bonus and Five Fires disabled.
 
-The ruleset and version are copied into the league document and may not change during the season.
+## Dual standings
 
-## Standings
+For each player/day, eligible activity points are capped and the participation bonus is added. Individual standings sum those daily scores.
 
-For each player and calendar day:
+House standings repeat the same day calculation against each contribution’s historical House snapshot. Current membership is never used to rewrite earlier House totals.
 
-1. Sum immutable entry contribution points.
-2. Cap the raw daily activity contribution at 20 points.
-3. Add the five-point participation bonus.
-4. Sum all league days for player standings.
-5. Group player totals by the team snapshot captured at registration for team standings.
+## Season honours
 
-This makes steady participation competitive without making difficulty or natural athletic ability overwhelmingly valuable.
+- Legacy Champion.
+- Category champions in the established prestige order, with one individual title per player.
+- One House Champion per House.
+- House of Champions.
 
-## League modes
+Honours are provisional during an Active season and final after completion.
 
-- **Individual** — player ranking is primary.
-- **Team** — individual contributions are grouped by the registered team snapshot.
+## Trust boundary
 
-Both views may be displayed so individual effort remains visible.
-
-## Authority
-
-League Administrators and Platform Administrators may create leagues. Only an explicitly assigned league administrator or Platform Administrator may move that league through its lifecycle. Every creation and lifecycle change requires an audit event.
-
-Administrative authority does not grant points or standings advantages.
-
-## Integrity boundary
-
-Security Rules require a contribution to match:
-
-- the authenticated player;
-- an active membership;
-- an active league;
-- the player identity and team snapshot stored in membership;
-- the category and date of an entry written in the same database state;
-- the frozen rules version.
-
-The client still calculates category points. Before leagues support prizes or high-stakes competition, a trusted backend must recalculate contributions authoritatively.
-
-## Deferred league features
-
-- seasonal achievements and awards;
-- evidence and dispute review;
-- privacy controls for archived seasons;
-- server-authoritative scoring;
-- configurable future rulesets;
-- historical league trophy-cabinet presentation.
-
-## Principle
-
-Winning a season is temporary. The honest habits built during it become part of the player’s permanent legacy.
+The client calculates category points while Rules enforce active membership, source-entry linkage, historical House identity, frozen rule version and immutability. Friendly competition is supported; prize-bearing competition requires trusted backend recalculation.

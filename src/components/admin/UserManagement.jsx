@@ -7,10 +7,9 @@ import LegacyAvatar from "../profile/LegacyAvatar";
 
 function UserAccessRow({ player, actorId, notify, onUpdated }) {
   const [role, setRole] = useState(player.role || "user");
-  const [team, setTeam] = useState(player.team || "");
   const [saving, setSaving] = useState(false);
   const isCurrentAdministrator = player.id === actorId;
-  const changed = role !== (player.role || "user") || team !== (player.team || "");
+  const changed = role !== (player.role || "user");
 
   async function save() {
     setSaving(true);
@@ -19,11 +18,10 @@ function UserAccessRow({ player, actorId, notify, onUpdated }) {
       await updateUserAdministration({
         targetUser: player,
         role,
-        team,
         actorId,
       });
       notify(`Trusted access was updated for ${player.displayName || player.email}.`);
-      onUpdated?.(player.id, { role, team });
+      onUpdated?.(player.id, { role });
     } catch (error) {
       notify(error.message || "The player account could not be updated.", "error");
     } finally {
@@ -56,16 +54,13 @@ function UserAccessRow({ player, actorId, notify, onUpdated }) {
         </select>
       </label>
 
-      <label>
-        <span>Team assignment</span>
-        <input
-          value={team}
-          maxLength={80}
-          disabled={isCurrentAdministrator}
-          onChange={(event) => setTeam(event.target.value)}
-          placeholder="No team assigned"
-        />
-      </label>
+      <div className="user-access-row__scope">
+        <span>Season membership</span>
+        <small>
+          House placement is managed inside each season and cannot be assigned
+          permanently from a player profile.
+        </small>
+      </div>
 
       <div className="user-access-row__action">
         <span className={`status-pill status-pill--${player.role === "admin" ? "published" : "draft"}`}>
@@ -102,7 +97,6 @@ export default function UserManagement({
           player.displayName,
           player.fullName,
           player.email,
-          player.team,
           getRoleLabel(player.role),
         ]
           .filter(Boolean)
@@ -121,7 +115,9 @@ export default function UserManagement({
           <p className="section-kicker">Trusted access</p>
           <h2>Player and role management</h2>
           <p>
-            Administrative roles represent responsibility, not status. Every role change is recorded in the audit history.
+            Administrative roles represent responsibility, not status. Every
+            role change is recorded in the audit history. Seasonal House
+            membership remains inside the relevant season.
           </p>
         </div>
         <strong>{formatNumber(users.length, { whole: true })} loaded players</strong>
@@ -133,7 +129,7 @@ export default function UserManagement({
           type="search"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search by name, email, team or role"
+          placeholder="Search by name, email or role"
         />
       </label>
 
@@ -143,7 +139,7 @@ export default function UserManagement({
         ) : (
           filteredUsers.map((player) => (
             <UserAccessRow
-              key={`${player.id}-${player.role}-${player.team}`}
+              key={`${player.id}-${player.role}`}
               player={player}
               actorId={actorId}
               notify={notify}

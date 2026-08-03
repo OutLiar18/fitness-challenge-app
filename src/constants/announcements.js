@@ -1,5 +1,18 @@
 export const ANNOUNCEMENTS = Object.freeze([
   {
+    id: "v0-14-season-houses-pocket",
+    type: "release",
+    icon: "⚡",
+    title: "C.H.A.O.S. has entered the season system",
+    summary:
+      "Seasons now contain themed Houses, dual leaderboards, weekly leadership voting, roster movement, Pocket Week reserves and private player notifications.",
+    body:
+      "C.H.A.O.S. assigns registered players fairly when an administrator activates it. House leadership is elected through a 24-hour weekly ballot, earlier House contributions remain historically permanent after roster changes, and Pocket Week activities stay worth zero points until the player deliberately activates an available amount during the season. Power Plays, Diamonds, Buddy Bonuses, Five Fires and late-season twists remain inactive until their rules are confirmed.",
+    publishedAt: "2026-08-03",
+    featured: true,
+    version: "0.14.0",
+  },
+  {
     id: "v0-13-1-rulebook-installation-hotfix",
     type: "release",
     icon: "🧰",
@@ -9,7 +22,7 @@ export const ANNOUNCEMENTS = Object.freeze([
     body:
       "This patch replaces managed source folders instead of nesting them, restores the complete 54-test domain suite and aligns the 15 Firestore Rules fixtures with the hardened league model. No challenge scoring or player data has been changed.",
     publishedAt: "2026-08-02",
-    featured: true,
+    featured: false,
     version: "0.13.1",
   },
   {

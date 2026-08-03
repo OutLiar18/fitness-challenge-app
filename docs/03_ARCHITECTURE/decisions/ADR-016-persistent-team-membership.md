@@ -1,7 +1,7 @@
 # ADR-016 — Persistent Team Membership
 
 Date: 1 August 2026  
-Status: Accepted
+Status: Superseded by ADR-021
 
 ## Context
 
@@ -24,3 +24,7 @@ Creation, joining, leaving and captain transfer use atomic batches. Team weekly 
 - Captain transfer can be validated through `getAfter` across all affected documents.
 - The duplicated membership pointer requires atomic consistency.
 - Team weekly summaries remain friendly client-derived accountability data, not high-stakes score authority.
+
+## Supersession
+
+v0.14.0 established that Houses belong to one league season and permanent global Teams do not match the product rules. The collections described above are retired and denied by current Firestore Rules. ADR-021 is the active decision.

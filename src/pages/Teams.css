@@ -1,38 +1,66 @@
-.community-page { width: 100%; }
-.community-onboarding { display: grid; gap: 22px; grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr); }
-.community-form, .community-join, .team-hero, .team-roster, .community-guardrail { padding: 24px; }
-.community-form { display: grid; gap: 20px; }
-.community-form__grid { display: grid; gap: 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.community-join { align-content: start; display: grid; gap: 18px; }
-.community-join__icon { font-size: 3rem; }
-.community-code-row { display: grid; gap: 10px; }
-.community-code-input { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 1.15rem; font-weight: 850; letter-spacing: 0.12em; text-align: center; text-transform: uppercase; }
-.emblem-picker { min-width: 0; padding: 0; border: 0; }
-.emblem-picker legend { margin-bottom: 10px; font-weight: 800; }
-.emblem-picker > div { display: grid; gap: 10px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.emblem-option { display: grid; min-height: 92px; place-items: center; gap: 5px; padding: 12px 8px; border: 2px solid var(--border); border-radius: var(--radius-md); background: var(--surface-soft); text-align: center; transition: border-color var(--transition), transform var(--transition), background var(--transition); }
-.emblem-option:hover { transform: translateY(-1px); border-color: var(--primary); }
-.emblem-option--selected { border-color: var(--primary); background: var(--primary-soft); }
-.emblem-option span { font-size: 1.65rem; }
-.emblem-option strong { font-size: 0.78rem; }
-.team-hero { display: grid; align-items: center; gap: 22px; grid-template-columns: auto minmax(0, 1fr) auto; background: radial-gradient(circle at top left, var(--primary-soft), transparent 28rem), var(--surface); }
-.team-hero__emblem { display: grid; width: 94px; height: 94px; place-items: center; border: 2px solid var(--border); border-radius: 28px; background: var(--surface-raised); box-shadow: var(--shadow-lg); font-size: 3rem; }
-.team-hero blockquote { margin: 6px 0 10px; color: var(--primary); font-family: var(--font-accent); font-size: 1.15rem; font-style: italic; }
-.team-hero__actions { display: grid; gap: 10px; }
-.community-metrics { display: grid; gap: 14px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.community-metrics article { display: grid; gap: 5px; padding: 18px; }
-.community-metrics strong { color: var(--primary); font-family: var(--font-display); font-size: 1.35rem; }
-.community-metrics span { color: var(--text-muted); font-size: 0.83rem; }
-.community-section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 18px; }
-.community-section-heading > span { padding: 7px 10px; border-radius: 999px; color: var(--primary); background: var(--primary-soft); font-size: 0.78rem; font-weight: 800; }
-.team-roster__list { display: grid; gap: 10px; }
-.team-member { display: grid; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-soft); grid-template-columns: auto minmax(0, 1fr) auto; }
-.team-member__identity, .team-member__stats { display: grid; gap: 2px; }
-.team-member__identity span, .team-member__stats span { color: var(--text-muted); font-size: 0.78rem; }
-.team-member__stats { text-align: right; }
-.community-guardrail { display: flex; align-items: flex-start; gap: 16px; }
-.community-guardrail > span { font-size: 2rem; }
-@media (max-width: 900px) { .community-onboarding, .team-hero { grid-template-columns: 1fr; } .team-hero__actions { grid-template-columns: repeat(2, minmax(0, 1fr)); } .community-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 620px) { .community-form, .community-join, .team-hero, .team-roster, .community-guardrail { padding: 18px; } .community-form__grid, .team-hero__actions { grid-template-columns: 1fr; } .emblem-picker > div { grid-template-columns: repeat(2, minmax(0, 1fr)); } .community-metrics { grid-template-columns: 1fr 1fr; } .team-member { align-items: start; grid-template-columns: auto minmax(0, 1fr); } .team-member__stats { grid-column: 2; text-align: left; } }
-.captain-transfer { display: grid; gap: 16px; padding-top: 20px; border-top: 1px solid var(--border); grid-template-columns: minmax(0, 1fr) minmax(260px, 0.7fr); }
-@media (max-width: 720px) { .captain-transfer { grid-template-columns: 1fr; } }
+.season-houses-page { width: 100%; }
+.season-selector { display: grid; align-items: end; gap: 12px; padding: 20px 22px; grid-template-columns: minmax(180px, .35fr) minmax(260px, 1fr); }
+.season-selector label { font-weight: 850; }
+.season-banner { position: relative; display: grid; align-items: center; gap: 24px; overflow: hidden; padding: 28px; grid-template-columns: minmax(0, 1fr) auto; background: radial-gradient(circle at 0 0, var(--primary-soft), transparent 30rem), var(--surface); }
+.season-banner::after { position: absolute; right: -18px; bottom: -42px; content: "C.H.A.O.S."; color: var(--border); font-family: var(--font-display); font-size: clamp(3rem, 8vw, 7rem); font-weight: 950; letter-spacing: -.06em; transform: rotate(-7deg); pointer-events: none; }
+.season-banner > * { position: relative; z-index: 1; }
+.season-banner h2 { font-size: clamp(1.6rem, 3vw, 2.4rem); }
+.season-banner__status { display: grid; justify-items: end; gap: 5px; text-align: right; }
+.season-banner__status strong { color: var(--primary); font-family: var(--font-display); }
+.season-banner__status span { color: var(--text-muted); }
+.house-builder { display: grid; gap: 24px; padding: 26px; }
+.house-form { display: grid; gap: 18px; }
+.house-form__grid, .roster-swap__grid { display: grid; gap: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.house-form__grid label, .roster-swap__grid label { display: grid; gap: 7px; font-weight: 820; }
+.house-style-grid { display: grid; gap: 18px; grid-template-columns: minmax(0, 1.35fr) minmax(240px, .65fr); }
+.house-emblems, .house-accents { min-width: 0; padding: 0; border: 0; }
+.house-emblems legend, .house-accents legend { margin-bottom: 10px; font-weight: 900; }
+.house-emblems > div { display: grid; gap: 9px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.house-accents > div { display: grid; gap: 9px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.house-emblem, .house-accent { display: grid; min-height: 78px; place-items: center; gap: 4px; padding: 10px; border: 2px solid var(--border); border-radius: var(--radius-md); background: var(--surface-soft); text-align: center; cursor: pointer; transition: transform var(--transition), border-color var(--transition), background var(--transition); }
+.house-emblem:hover, .house-accent:hover { transform: translateY(-2px); border-color: var(--primary); }
+.house-emblem:has(input:focus-visible), .house-accent:has(input:focus-visible) { outline: 3px solid color-mix(in srgb, var(--primary) 38%, transparent); outline-offset: 3px; }
+.house-emblem--selected, .house-accent--selected { border-color: var(--primary); background: var(--primary-soft); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 13%, transparent); }
+.house-emblem > span { font-size: 1.8rem; }
+.house-emblem small, .house-accent small { font-weight: 800; }
+.house-accent > span { display: block; width: 34px; height: 34px; border: 3px solid var(--surface); border-radius: 999px; background: var(--swatch); box-shadow: 0 0 0 1px var(--border); }
+.chaos-console { position: relative; display: grid; align-items: center; gap: 20px; overflow: hidden; padding: 26px; border-color: color-mix(in srgb, var(--danger) 45%, var(--border)); grid-template-columns: auto minmax(0, 1fr) auto; background: radial-gradient(circle at 10% 50%, color-mix(in srgb, var(--danger) 14%, transparent), transparent 26rem), var(--surface); }
+.chaos-console__sigil { display: grid; width: 104px; height: 104px; place-items: center; border: 2px solid var(--danger); border-radius: 50%; color: var(--danger); font-family: var(--font-display); font-size: .88rem; font-weight: 950; letter-spacing: .06em; box-shadow: inset 0 0 25px color-mix(in srgb, var(--danger) 18%, transparent), 0 0 30px color-mix(in srgb, var(--danger) 12%, transparent); transform: rotate(-8deg); }
+.house-grid { display: grid; gap: 14px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.season-house-card { display: grid; min-width: 0; gap: 12px; padding: 18px; border: 2px solid var(--border); border-radius: var(--radius-lg); color: var(--text); background: linear-gradient(145deg, color-mix(in srgb, var(--house-accent) 9%, var(--surface)), var(--surface)); text-align: left; cursor: pointer; grid-template-columns: auto minmax(0, 1fr); transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition); }
+.season-house-card:hover { transform: translateY(-3px); border-color: var(--house-accent); box-shadow: var(--shadow-md); }
+.season-house-card:focus-visible { outline: 3px solid color-mix(in srgb, var(--house-accent) 42%, transparent); outline-offset: 3px; }
+.season-house-card--selected { border-color: var(--house-accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--house-accent) 15%, transparent), var(--shadow-md); }
+.season-house-card__emblem { display: grid; width: 54px; height: 54px; place-items: center; border-radius: 17px; background: color-mix(in srgb, var(--house-accent) 14%, var(--surface)); font-size: 1.8rem; }
+.season-house-card__copy { display: grid; min-width: 0; gap: 3px; }
+.season-house-card__copy strong { font-family: var(--font-display); font-size: 1.1rem; }
+.season-house-card__copy em { overflow: hidden; color: var(--house-accent); font-family: var(--font-accent); text-overflow: ellipsis; white-space: nowrap; }
+.season-house-card__copy small, .season-house-card__leadership { color: var(--text-muted); font-size: .76rem; }
+.season-house-card__leadership { grid-column: 1 / -1; }
+.house-identity { display: grid; align-items: center; gap: 22px; padding: 26px; border-top: 5px solid var(--house-accent); grid-template-columns: auto minmax(0, 1fr) auto; background: radial-gradient(circle at 5% 50%, color-mix(in srgb, var(--house-accent) 13%, transparent), transparent 24rem), var(--surface); }
+.house-identity > span { font-size: 4.2rem; filter: drop-shadow(0 8px 12px rgba(0,0,0,.12)); }
+.house-identity blockquote { margin: 4px 0 10px; color: var(--house-accent); font-family: var(--font-accent); font-size: 1.12rem; font-style: italic; }
+.house-roster, .leadership-panel, .roster-swap, .season-integrity { padding: 24px; }
+.house-roster__list { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.house-member { display: grid; align-items: center; gap: 11px; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-soft); grid-template-columns: auto minmax(0, 1fr) auto; }
+.house-member > div { display: grid; gap: 2px; }
+.house-member span { color: var(--text-muted); font-size: .78rem; }
+.house-member__crest { font-size: 1.15rem !important; }
+.leadership-panel { display: grid; gap: 16px; }
+.leadership-panel > p { margin: 0; color: var(--text-muted); }
+.leadership-panel__status { display: flex; justify-content: space-between; gap: 12px; padding: 14px 16px; border-radius: var(--radius-md); background: var(--primary-soft); }
+.leadership-panel__status span { color: var(--text-muted); }
+.leadership-vote, .leadership-resolution, .leadership-appointment { display: grid; gap: 12px; padding: 18px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface-soft); }
+.leadership-vote label, .leadership-resolution label { display: grid; gap: 7px; font-weight: 820; }
+.roster-swap { display: grid; gap: 18px; border-left: 5px solid var(--danger); }
+.roster-swap > div:first-child p:last-child { color: var(--text-muted); }
+.season-integrity { display: flex; align-items: flex-start; gap: 16px; }
+.season-integrity > span { font-size: 2rem; }
+@media (max-width: 1050px) { .house-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .house-style-grid { grid-template-columns: 1fr; } }
+@media (max-width: 800px) { .chaos-console, .house-identity, .season-banner { grid-template-columns: 1fr; } .chaos-console__sigil { width: 82px; height: 82px; } .season-banner__status { justify-items: start; text-align: left; } .house-roster__list { grid-template-columns: 1fr; } }
+@media (max-width: 620px) { .season-selector, .house-form__grid, .roster-swap__grid { grid-template-columns: 1fr; } .season-banner, .house-builder, .house-roster, .leadership-panel, .roster-swap, .season-integrity { padding: 18px; } .house-grid { grid-template-columns: 1fr; } .house-emblems > div { grid-template-columns: repeat(3, minmax(0, 1fr)); } .house-accents > div { grid-template-columns: repeat(2, minmax(0, 1fr)); } .leadership-panel__status { flex-direction: column; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .house-emblem, .house-accent, .season-house-card { transition: none; }
+  .house-emblem:hover, .house-accent:hover, .season-house-card:hover { transform: none; }
+}

@@ -6,7 +6,7 @@ import AvatarPicker from "../components/profile/AvatarPicker";
 import LegacyAvatar from "../components/profile/LegacyAvatar";
 import { DEFAULT_AVATAR_ID, getAvatarById } from "../constants/avatars";
 import usePlayerData from "../hooks/usePlayerData";
-import useTeam from "../hooks/useTeam";
+import useLeagues from "../hooks/useLeagues";
 import {
   normalizeProfileUpdate,
   validateProfileUpdate,
@@ -172,7 +172,12 @@ function ProfileEditor({ profile, user }) {
 
 export default function Profile() {
   const { profile, user, entries, progression } = usePlayerData();
-  const { team } = useTeam();
+  const { leagues, memberships } = useLeagues();
+  const currentMembership = memberships.find((item) => item.status === "active")
+    || memberships.find((item) => item.status === "registered")
+    || memberships[0]
+    || null;
+  const currentSeason = leagues.find((item) => item.id === currentMembership?.leagueId) || null;
 
   const displayName =
     profile?.displayName ||
@@ -188,7 +193,8 @@ export default function Profile() {
     ["Legacy Avatar", avatar.name],
     ["Email", profile?.email || user?.email || "Not available"],
     ["Role", formatRole(profile?.role)],
-    ["Team", team?.name || "No team joined"],
+    ["Current season", currentSeason?.name || "No season joined"],
+    ["Current House", currentMembership?.currentHouseName || "Not assigned"],
     ["Joined", formatTimestamp(profile?.joinedAt)],
   ];
 
@@ -284,7 +290,7 @@ export default function Profile() {
           <h2>Your identity and permissions stay separate</h2>
           <p>
             Changing your display name or avatar cannot change your email,
-            trusted role, team membership or competitive history. Legacy Coach
+            trusted role, season membership or competitive history. Legacy Coach
             preferences remain private to your account, while completed league
             results keep their original seasonal record.
           </p>

@@ -46,7 +46,7 @@ export function sanitizeErrorReport({
     stack: truncate(normalizedError.stack, MAX_STACK_LENGTH),
     source: truncate(source, 120),
     route: truncate(route, 300),
-    releaseVersion: "0.13.1",
+    releaseVersion: "0.14.0",
     context: {
       summary: truncate(serializeContext(context), MAX_CONTEXT_LENGTH),
     },

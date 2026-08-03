@@ -1,52 +1,48 @@
 # Champions Legacy Challenge — Firestore Structure
 
-Last updated: 1 August 2026  
-Current release: v0.13.1
+Last updated: 3 August 2026  
+Current release: v0.14.0
 
-## Player and activity collections
+## Player and activity
 
-- `users/{userId}` — identity and trusted role.
-  - `library/{itemId}` — personal library.
-  - `announcementReads/{announcementId}` — private cross-device read state.
-  - `coach/preferences` — private Legacy Coach settings.
-- `challengeEntries/{entryId}` — owner-scoped factual activity; immutable after creation and deletable only during the recent edit window.
+- `users/{userId}`
+  - `library/{itemId}`
+  - `announcementReads/{announcementId}`
+  - `coach/preferences`
+- `challengeEntries/{entryId}`
 
-## Teams
+## Season competition
 
-- `teams/{teamId}` — identity, captain, `memberCount` and invitation code.
-  - `members/{userId}` — roster identity, role and current-week accountability snapshot.
-- `playerTeams/{userId}` — one-team membership pointer.
-- `teamInvites/{code}` — known-code mapping; direct get only, no collection listing.
+- `leagues/{leagueId}`
+- `leagueInvites/{code}`
+- `leagueMemberships/{leagueId_userId}`
+- `leagueHouses/{houseId}`
+- `leadershipElections/{leagueId_houseId_weekKey}`
+- `leadershipVotes/{electionId_userId}`
+- `leagueRosterSwaps/{swapId}`
+- `leagueRosterLocks/{leagueId_houseId_weekKey}`
+- `pocketActivities/{pocketId}`
+- `pocketRedemptions/{redemptionId}`
+- `playerNotifications/{notificationId}`
+- `leagueContributions/{leagueId_entryId}`
 
-## Leagues
+## Retired collections
 
-- `leagues/{leagueId}` — frozen season configuration, lifecycle, `participantCount` and `participantLimit`.
-- `leagueInvites/{code}` — known-code registration mapping; direct get only, no collection listing.
-- `leagueMemberships/{leagueId_userId}` — season identity/team snapshot and membership status.
-- `leagueContributions/{leagueId_entryId}` — immutable entry-linked activity contribution.
+- `teams`
+- `playerTeams`
+- `teamInvites`
 
-Active contribution snapshots may be removed with a recent source entry. Completed/archived contribution snapshots remain permanent.
+Firestore Rules deny all use of these permanent-Team collections from v0.14 onward. Existing data must be inspected before deployment and is not automatically converted.
 
-## Communication and administration
+## Administrative collections
 
-- `announcements/{announcementId}` — draft, published and archived messages.
-- `exerciseSuggestions/{suggestionId}` — exercise moderation.
-- `librarySuggestions/{suggestionId}` — Cardio and Skill moderation.
-- `publishedLibraryItems/{itemId}` — shared definitions.
-- `libraryReleases/{releaseId}` — immutable publication releases.
-- `clientErrorReports/{reportId}` — sanitised client failures.
-- `auditEvents/{auditId}` — immutable privileged history.
-
-## Index expectations
-
-Queries currently use simple equality, membership and array-contains constraints. Add composite indexes only in response to a confirmed Firebase query error and document the requirement.
+Announcements, moderation queues, published library items/releases, client error reports and audit events remain unchanged.
 
 ## Data rules
 
-- Store factual activity and trusted decisions; derive personal progression.
-- Never allow a player to own two active `playerTeams` pointers.
-- Keep team and league counts paired with membership writes.
-- Never mutate a league contribution after creation.
-- Never change a league ruleset after creation.
-- Preserve completed/archived league history.
-- Archive trusted history instead of deleting it.
+- Invitation collections support direct known-code reads, not enumeration.
+- Membership and participant counts change atomically.
+- House leadership must match a finalised election or a valid Captain appointment.
+- C.H.A.O.S., swaps, Pocket redemption and privileged lifecycle actions use atomic writes.
+- Contribution updates are denied.
+- Completed/archived contributions are permanent.

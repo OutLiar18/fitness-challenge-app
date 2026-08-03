@@ -74,6 +74,8 @@ beforeEach(async () => {
     const firestore = context.firestore();
     await setDoc(doc(firestore, "users", "player-one"), createProfile("player-one"));
     await setDoc(doc(firestore, "users", "player-two"), createProfile("player-two"));
+    await setDoc(doc(firestore, "users", "player-three"), createProfile("player-three"));
+    await setDoc(doc(firestore, "users", "player-four"), createProfile("player-four"));
     await setDoc(doc(firestore, "users", "admin-one"), createProfile("admin-one", "admin"));
   });
 });
@@ -383,223 +385,244 @@ test("published library releases are immutable after creation", async () => {
 });
 
 
-test("team creation, joining and captain transfer remain atomic and role-safe", async () => {
-  const captainFirestore = playerContext("player-one").firestore();
-  const teamId = "team-one";
-  const inviteCode = "TEAMABCD";
-  const createBatch = writeBatch(captainFirestore);
+function currentSeasonRuleset() {
+  return {
+    version: "season-houses-v1",
+    scoringEngineVersion: "points-v2",
+    dailyActivityCap: 20,
+    dailyParticipationBonus: 5,
+    includedCategories: [
+      "water", "fruit", "reading", "running", "upperBody",
+      "lowerBody", "core", "cardio", "skill", "steps",
+    ],
+    modules: {
+      houses: true,
+      chaosAssignment: true,
+      leadershipElections: true,
+      rosterSwaps: true,
+      pocketWeek: true,
+      powerPlay: false,
+      transferMarket: false,
+      buddyBonus: false,
+      fiveFires: false,
+    },
+  };
+}
 
-  createBatch.set(doc(captainFirestore, "teams", teamId), {
-    name: "Legacy Builders",
-    normalizedName: "legacy builders",
-    description: "A steady team committed to becoming better together.",
-    motto: "Consistency builds legacy",
-    emblemId: "legacy-banner",
-    status: "active",
-    captainId: "player-one",
-    memberCount: 1,
+function seasonDates({ active = false } = {}) {
+  const now = Date.now();
+  const start = active
+    ? new Date(now - 2 * 24 * 60 * 60 * 1000)
+    : new Date(now + 10 * 24 * 60 * 60 * 1000);
+  const end = new Date(start.getTime() + 28 * 24 * 60 * 60 * 1000);
+  return {
+    startDate: Timestamp.fromDate(start),
+    endDate: Timestamp.fromDate(end),
+    pocketStartDate: Timestamp.fromDate(new Date(start.getTime() - 7 * 24 * 60 * 60 * 1000)),
+    pocketEndDate: Timestamp.fromDate(new Date(start.getTime() - 24 * 60 * 60 * 1000)),
+  };
+}
+
+function seasonData({
+  status = "draft",
+  actorId = "admin-one",
+  inviteCode = "SEASONAA",
+  participantCount = 0,
+  chaosStatus = "not-started",
+  active = false,
+} = {}) {
+  const dates = seasonDates({ active });
+  return {
+    name: "Legacy House Season",
+    normalizedName: "legacy house season",
+    description: "A themed season used to verify House competition and Pocket integrity.",
+    theme: "South African Animals",
+    type: "Community",
+    mode: "season",
+    status,
+    ...dates,
+    pocketEnabled: true,
+    houseCount: 2,
+    chaosStatus,
+    chaosActivatedAt: chaosStatus === "activated" ? Timestamp.now() : null,
+    chaosActivatedBy: chaosStatus === "activated" ? actorId : "",
+    rulesVersion: "season-houses-v1",
+    ruleset: currentSeasonRuleset(),
+    administratorIds: [actorId],
+    participantCount,
+    participantLimit: 160,
     inviteCode,
+    createdAt: Timestamp.now(),
+    createdBy: actorId,
+    updatedAt: Timestamp.now(),
+    updatedBy: actorId,
+    activatedAt: status === "active" ? Timestamp.now() : null,
+    completedAt: status === "completed" ? Timestamp.now() : null,
+    archivedAt: status === "archived" ? Timestamp.now() : null,
+    lastAuditId: "seed-audit",
+  };
+}
+
+function membershipData({
+  leagueId = "season-one",
+  userId = "player-one",
+  status = "registered",
+  house = null,
+  inviteCode = "SEASONAA",
+} = {}) {
+  const houseSnapshot = house?.data ?? house;
+
+  return {
+    leagueId,
+    userId,
+    displayName: userId.replace("-", " "),
+    avatarId: "legacy-trophy",
+    role: "participant",
+    status,
+    inviteCode,
+    currentHouseId: house?.id ?? "",
+    currentHouseName: houseSnapshot?.name ?? "Unassigned",
+    currentHouseEmblemId: houseSnapshot?.emblemId ?? "",
+    currentHouseAccentId: houseSnapshot?.accentId ?? "",
+    houseAssignedAt: house ? Timestamp.now() : null,
+    houseAssignmentMethod: house ? "chaos" : "",
+    lastRosterSwapId: "",
+    lastRosterWeekKey: "",
+    joinedAt: Timestamp.now(),
+    updatedAt: Timestamp.now(),
+  };
+}
+
+function houseData({
+  leagueId = "season-one",
+  id = "house-springbok",
+  name = "House Springbok",
+  emblemId = "springbok",
+  accentId = "emerald",
+  captainId = "",
+  viceCaptainIds = [],
+  lastElectionId = "",
+} = {}) {
+  return {
+    id,
+    data: {
+      leagueId,
+      name,
+      description: `${name} moves with courage, consistency and collective purpose.`,
+      motto: "Rise together",
+      emblemId,
+      accentId,
+      status: "active",
+      captainId,
+      viceCaptainIds,
+      lastElectionId,
+      createdAt: Timestamp.now(),
+      createdBy: "admin-one",
+      updatedAt: Timestamp.now(),
+      updatedBy: "admin-one",
+      lastAuditId: "seed-audit",
+    },
+  };
+}
+
+function auditData({ action, entityId = "season-one", summary = "Season operation" }) {
+  return {
+    actorId: "admin-one",
+    action,
+    entityType: "league",
+    entityId,
+    summary,
+    details: {},
     createdAt: serverTimestamp(),
-    createdBy: "player-one",
-    updatedAt: serverTimestamp(),
-    updatedBy: "player-one",
-  });
-  createBatch.set(doc(captainFirestore, "teams", teamId, "members", "player-one"), {
-    userId: "player-one",
-    displayName: "Test Player",
-    avatarId: "legacy-trophy",
-    role: "captain",
-    inviteCode,
-    joinedAt: serverTimestamp(),
-    weeklyKey: "",
-    weeklyPoints: 0,
-    activeDays: 0,
-    entriesRecorded: 0,
-    currentStreak: 0,
-    progressUpdatedAt: serverTimestamp(),
-  });
-  createBatch.set(doc(captainFirestore, "playerTeams", "player-one"), {
-    userId: "player-one",
-    teamId,
-    teamName: "Legacy Builders",
-    emblemId: "legacy-banner",
-    role: "captain",
-    joinedAt: serverTimestamp(),
-  });
-  createBatch.set(doc(captainFirestore, "teamInvites", inviteCode), {
-    teamId,
-    teamName: "Legacy Builders",
-    emblemId: "legacy-banner",
-    status: "active",
+  };
+}
+
+function notificationData({ userId, type, leagueId = "season-one", houseId = "" }) {
+  return {
+    userId,
+    type,
+    title: "Season update",
+    message: "Your season information has changed. Open the related page for details.",
+    leagueId,
+    houseId,
+    actionPath: `/teams?league=${leagueId}`,
     createdAt: serverTimestamp(),
-    createdBy: "player-one",
-    updatedAt: serverTimestamp(),
-    updatedBy: "player-one",
-  });
+    readAt: null,
+    readBy: "",
+  };
+}
 
-  await assertSucceeds(createBatch.commit());
-
-  const memberFirestore = playerContext("player-two").firestore();
-  const joinBatch = writeBatch(memberFirestore);
-  joinBatch.set(doc(memberFirestore, "teams", teamId, "members", "player-two"), {
-    userId: "player-two",
-    displayName: "Test Player",
-    avatarId: "legacy-trophy",
-    role: "member",
-    inviteCode,
-    joinedAt: serverTimestamp(),
-    weeklyKey: "",
-    weeklyPoints: 0,
-    activeDays: 0,
-    entriesRecorded: 0,
-    currentStreak: 0,
-    progressUpdatedAt: serverTimestamp(),
-  });
-  joinBatch.set(doc(memberFirestore, "playerTeams", "player-two"), {
-    userId: "player-two",
-    teamId,
-    teamName: "Legacy Builders",
-    emblemId: "legacy-banner",
-    role: "member",
-    joinedAt: serverTimestamp(),
-  });
-  joinBatch.update(doc(memberFirestore, "teams", teamId), {
-    memberCount: 2,
-    updatedAt: serverTimestamp(),
-    updatedBy: "player-two",
-  });
-
-  await assertSucceeds(joinBatch.commit());
-  await assertFails(
-    updateDoc(doc(memberFirestore, "teams", teamId, "members", "player-two"), {
-      role: "captain",
-    }),
-  );
-
-  const transferBatch = writeBatch(captainFirestore);
-  transferBatch.update(doc(captainFirestore, "teams", teamId), {
-    captainId: "player-two",
-    updatedAt: serverTimestamp(),
-    updatedBy: "player-one",
-  });
-  transferBatch.update(doc(captainFirestore, "teams", teamId, "members", "player-one"), {
-    role: "member",
-  });
-  transferBatch.update(doc(captainFirestore, "teams", teamId, "members", "player-two"), {
-    role: "captain",
-  });
-  transferBatch.update(doc(captainFirestore, "playerTeams", "player-one"), {
-    role: "member",
-  });
-  transferBatch.update(doc(captainFirestore, "playerTeams", "player-two"), {
-    role: "captain",
-  });
-
-  await assertSucceeds(transferBatch.commit());
-
-  await testEnvironment.withSecurityRulesDisabled(async (context) => {
-    await updateDoc(doc(context.firestore(), "teams", teamId), {
-      memberCount: 25,
-    });
-  });
-
-  const overflowFirestore = playerContext("player-three").firestore();
-  const overflowBatch = writeBatch(overflowFirestore);
-  overflowBatch.set(doc(overflowFirestore, "teams", teamId, "members", "player-three"), {
-    userId: "player-three",
-    displayName: "Third Player",
-    avatarId: "legacy-trophy",
-    role: "member",
-    inviteCode,
-    joinedAt: serverTimestamp(),
-    weeklyKey: "",
-    weeklyPoints: 0,
-    activeDays: 0,
-    entriesRecorded: 0,
-    currentStreak: 0,
-    progressUpdatedAt: serverTimestamp(),
-  });
-  overflowBatch.set(doc(overflowFirestore, "playerTeams", "player-three"), {
-    userId: "player-three",
-    teamId,
-    teamName: "Legacy Builders",
-    emblemId: "legacy-banner",
-    role: "member",
-    joinedAt: serverTimestamp(),
-  });
-  overflowBatch.update(doc(overflowFirestore, "teams", teamId), {
-    memberCount: 26,
-    updatedAt: serverTimestamp(),
-    updatedBy: "player-three",
-  });
-
-  await assertFails(overflowBatch.commit());
+test("retired permanent Team collections cannot be used", async () => {
+  const firestore = playerContext().firestore();
+  await assertFails(setDoc(doc(firestore, "teams", "legacy-team"), { name: "Legacy Team" }));
+  await assertFails(setDoc(doc(firestore, "playerTeams", "player-one"), { teamId: "legacy-team" }));
 });
 
 test("Legacy Coach preferences remain private to their owner", async () => {
   const ownerFirestore = playerContext("player-one").firestore();
-  const preferencesReference = doc(ownerFirestore, "users", "player-one", "coach", "preferences");
+  const preferencePath = doc(ownerFirestore, "users", "player-one", "coach", "preferences");
 
-  await assertSucceeds(
-    setDoc(preferencesReference, {
-      enabled: true,
-      tone: "balanced",
-      focus: "consistency",
-      updatedAt: serverTimestamp(),
-    }),
-  );
-  await assertSucceeds(getDoc(preferencesReference));
-  await assertFails(
-    getDoc(doc(playerContext("player-two").firestore(), "users", "player-one", "coach", "preferences")),
-  );
+  await assertSucceeds(setDoc(preferencePath, {
+    enabled: true,
+    tone: "balanced",
+    focus: "consistency",
+    updatedAt: serverTimestamp(),
+  }));
+  await assertFails(getDoc(doc(
+    playerContext("player-two").firestore(),
+    "users",
+    "player-one",
+    "coach",
+    "preferences",
+  )));
+  await assertFails(setDoc(doc(
+    ownerFirestore,
+    "coachPreferences",
+    "player-one",
+    "settings",
+    "preferences",
+  ), {
+    enabled: true,
+    tone: "balanced",
+    focus: "consistency",
+    updatedAt: serverTimestamp(),
+  }));
 });
 
-test("league drafts require an authorised operator and a matching audit event", async () => {
-  async function commitLeagueDraft(firestore, actorId, leagueId) {
+test("season drafts require an authorised operator, invite and matching audit event", async () => {
+  async function commitDraft(firestore, actorId, leagueId) {
+    const inviteCode = leagueId === "season-admin" ? "ADMINSEA" : "PLAYERSE";
+    const dates = seasonDates();
     const batch = writeBatch(firestore);
-    const inviteCode = leagueId === "league-admin" ? "LEAGUEAA" : "LEAGUEBB";
     const auditId = `${leagueId}-audit`;
-
     batch.set(doc(firestore, "auditEvents", auditId), {
       actorId,
       action: "league.created",
       entityType: "league",
       entityId: leagueId,
-      summary: "Created a new consistency league",
-      details: { status: "draft" },
+      summary: "Created a themed House season",
+      details: {},
       createdAt: serverTimestamp(),
     });
     batch.set(doc(firestore, "leagues", leagueId), {
-      name: "Consistency League",
-      normalizedName: "consistency league",
-      description: "A friendly season that rewards steady participation over isolated peaks.",
+      name: "Legacy House Season",
+      normalizedName: "legacy house season",
+      description: "A themed season used to verify House competition and Pocket integrity.",
+      theme: "South African Animals",
       type: "Community",
-      mode: "individual",
+      mode: "season",
       status: "draft",
-      startDate: Timestamp.fromDate(new Date("2026-08-10T00:00:00.000Z")),
-      endDate: Timestamp.fromDate(new Date("2026-08-24T00:00:00.000Z")),
-      rulesVersion: "consistency-v1",
-      ruleset: {
-        version: "consistency-v1",
-        scoringEngineVersion: "points-v2",
-        dailyActivityCap: 20,
-        dailyParticipationBonus: 5,
-        includedCategories: [
-          "water",
-          "fruit",
-          "reading",
-          "running",
-          "upperBody",
-          "lowerBody",
-          "core",
-          "cardio",
-          "skill",
-          "steps",
-        ],
-      },
+      ...dates,
+      pocketEnabled: true,
+      houseCount: 2,
+      chaosStatus: "not-started",
+      chaosActivatedAt: null,
+      chaosActivatedBy: "",
+      rulesVersion: "season-houses-v1",
+      ruleset: currentSeasonRuleset(),
       administratorIds: [actorId],
       participantCount: 0,
-      participantLimit: 200,
+      participantLimit: 160,
       inviteCode,
       createdAt: serverTimestamp(),
       createdBy: actorId,
@@ -612,65 +635,48 @@ test("league drafts require an authorised operator and a matching audit event", 
     });
     batch.set(doc(firestore, "leagueInvites", inviteCode), {
       leagueId,
-      leagueName: "Consistency League",
+      leagueName: "Legacy House Season",
       status: "closed",
       createdAt: serverTimestamp(),
       createdBy: actorId,
       updatedAt: serverTimestamp(),
       updatedBy: actorId,
     });
-
     return batch.commit();
   }
 
-  await assertFails(
-    commitLeagueDraft(playerContext("player-one").firestore(), "player-one", "league-player"),
-  );
-  await assertSucceeds(
-    commitLeagueDraft(adminContext("admin-one").firestore(), "admin-one", "league-admin"),
-  );
+  await assertFails(commitDraft(playerContext().firestore(), "player-one", "season-player"));
+  await assertSucceeds(commitDraft(adminContext().firestore(), "admin-one", "season-admin"));
 });
 
-test("league lifecycle changes move forward one stage and remain audited", async () => {
+test("Houses can be created only inside an administrator-managed draft season", async () => {
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), "leagues", "season-one"), seasonData());
+  });
+
+  const firestore = adminContext().firestore();
+  const batch = writeBatch(firestore);
+  const auditId = "house-create-audit";
+  const house = houseData();
+  batch.set(doc(firestore, "auditEvents", auditId), auditData({ action: "house.created" }));
+  batch.set(doc(firestore, "leagueHouses", house.id), {
+    ...house.data,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    lastAuditId: auditId,
+  });
+  await assertSucceeds(batch.commit());
+  await assertFails(setDoc(doc(playerContext().firestore(), "leagueHouses", "house-fake"), house.data));
+});
+
+test("registration joins are atomic, unassigned and capped", async () => {
   await testEnvironment.withSecurityRulesDisabled(async (context) => {
     const firestore = context.firestore();
-    await setDoc(doc(firestore, "leagues", "league-lifecycle"), {
-      name: "Lifecycle League",
-      normalizedName: "lifecycle league",
-      description: "A league used to verify safe and ordered seasonal status changes.",
-      type: "Community",
-      mode: "individual",
-      status: "draft",
-      startDate: Timestamp.fromDate(new Date("2026-08-10T00:00:00.000Z")),
-      endDate: Timestamp.fromDate(new Date("2026-08-24T00:00:00.000Z")),
-      rulesVersion: "consistency-v1",
-      ruleset: {
-        version: "consistency-v1",
-        scoringEngineVersion: "points-v2",
-        dailyActivityCap: 20,
-        dailyParticipationBonus: 5,
-        includedCategories: [
-          "water", "fruit", "reading", "running", "upperBody",
-          "lowerBody", "core", "cardio", "skill", "steps",
-        ],
-      },
-      administratorIds: ["admin-one"],
-      participantCount: 0,
-      participantLimit: 200,
-      inviteCode: "LIFECYCL",
-      createdAt: Timestamp.now(),
-      createdBy: "admin-one",
-      updatedAt: Timestamp.now(),
-      updatedBy: "admin-one",
-      activatedAt: null,
-      completedAt: null,
-      archivedAt: null,
-      lastAuditId: "original-audit",
-    });
-    await setDoc(doc(firestore, "leagueInvites", "LIFECYCL"), {
-      leagueId: "league-lifecycle",
-      leagueName: "Lifecycle League",
-      status: "closed",
+    await setDoc(doc(firestore, "leagues", "season-one"), seasonData({ status: "registration" }));
+    await setDoc(doc(firestore, "leagueInvites", "SEASONAA"), {
+      leagueId: "season-one",
+      leagueName: "Legacy House Season",
+      status: "active",
       createdAt: Timestamp.now(),
       createdBy: "admin-one",
       updatedAt: Timestamp.now(),
@@ -678,445 +684,689 @@ test("league lifecycle changes move forward one stage and remain audited", async
     });
   });
 
-  const firestore = adminContext("admin-one").firestore();
-  const invalidBatch = writeBatch(firestore);
-  invalidBatch.set(doc(firestore, "auditEvents", "skip-audit"), {
-    actorId: "admin-one",
-    action: "league.active",
-    entityType: "league",
-    entityId: "league-lifecycle",
-    summary: "Attempted to skip league registration",
-    details: {},
-    createdAt: serverTimestamp(),
-  });
-  invalidBatch.update(doc(firestore, "leagues", "league-lifecycle"), {
-    status: "active",
+  const firestore = playerContext().firestore();
+  const batch = writeBatch(firestore);
+  batch.set(doc(firestore, "leagueMemberships", "season-one_player-one"), {
+    ...membershipData(),
+    joinedAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
-    updatedBy: "admin-one",
-    activatedAt: serverTimestamp(),
-    lastAuditId: "skip-audit",
   });
-  await assertFails(invalidBatch.commit());
-
-  const validBatch = writeBatch(firestore);
-  validBatch.set(doc(firestore, "auditEvents", "registration-audit"), {
-    actorId: "admin-one",
-    action: "league.registration",
-    entityType: "league",
-    entityId: "league-lifecycle",
-    summary: "Opened league registration",
-    details: {},
-    createdAt: serverTimestamp(),
-  });
-  validBatch.update(doc(firestore, "leagues", "league-lifecycle"), {
-    status: "registration",
-    updatedAt: serverTimestamp(),
-    updatedBy: "admin-one",
-    lastAuditId: "registration-audit",
-  });
-  validBatch.update(doc(firestore, "leagueInvites", "LIFECYCL"), {
-    status: "active",
-    updatedAt: serverTimestamp(),
-    updatedBy: "admin-one",
-  });
-  await assertSucceeds(validBatch.commit());
-
-  const playerFirestore = playerContext("player-one").firestore();
-  const joinLeagueBatch = writeBatch(playerFirestore);
-  joinLeagueBatch.set(
-    doc(playerFirestore, "leagueMemberships", "league-lifecycle_player-one"),
-    {
-      leagueId: "league-lifecycle",
-      userId: "player-one",
-      displayName: "Test Player",
-      avatarId: "legacy-trophy",
-      teamId: "",
-      teamName: "Independent",
-      role: "participant",
-      status: "registered",
-      inviteCode: "LIFECYCL",
-      joinedAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    },
-  );
-  joinLeagueBatch.update(doc(playerFirestore, "leagues", "league-lifecycle"), {
+  batch.update(doc(firestore, "leagues", "season-one"), {
     participantCount: 1,
-    participantLimit: 200,
+    participantLimit: 160,
     updatedAt: serverTimestamp(),
     updatedBy: "player-one",
   });
-  await assertSucceeds(joinLeagueBatch.commit());
+  await assertSucceeds(batch.commit());
 
-  const falseTeamFirestore = playerContext("player-two").firestore();
-  const invalidJoinBatch = writeBatch(falseTeamFirestore);
-  invalidJoinBatch.set(
-    doc(falseTeamFirestore, "leagueMemberships", "league-lifecycle_player-two"),
-    {
-      leagueId: "league-lifecycle",
-      userId: "player-two",
-      displayName: "Test Player",
-      avatarId: "legacy-trophy",
-      teamId: "invented-team",
-      teamName: "Invented Team",
-      role: "participant",
-      status: "registered",
-      inviteCode: "LIFECYCL",
-      joinedAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    },
-  );
-  invalidJoinBatch.update(doc(falseTeamFirestore, "leagues", "league-lifecycle"), {
+  const forged = playerContext("player-two").firestore();
+  const forgedBatch = writeBatch(forged);
+  forgedBatch.set(doc(forged, "leagueMemberships", "season-one_player-two"), {
+    ...membershipData({ userId: "player-two" }),
+    currentHouseId: "house-invented",
+    currentHouseName: "Invented House",
+    joinedAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+  forgedBatch.update(doc(forged, "leagues", "season-one"), {
     participantCount: 2,
-    participantLimit: 200,
+    participantLimit: 160,
     updatedAt: serverTimestamp(),
     updatedBy: "player-two",
   });
-  await assertFails(invalidJoinBatch.commit());
+  await assertFails(forgedBatch.commit());
+});
 
+test("C.H.A.O.S. assigns registered players and creates private notifications atomically", async () => {
+  const firstHouse = houseData();
+  const secondHouse = houseData({ id: "house-lion", name: "House Lion", emblemId: "lion", accentId: "sunstone" });
   await testEnvironment.withSecurityRulesDisabled(async (context) => {
-    await updateDoc(doc(context.firestore(), "leagues", "league-lifecycle"), {
-      participantCount: 200,
-      participantLimit: 200,
-    });
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", "season-one"), seasonData({ status: "registration", participantCount: 4 }));
+    await setDoc(doc(firestore, "leagueHouses", firstHouse.id), firstHouse.data);
+    await setDoc(doc(firestore, "leagueHouses", secondHouse.id), secondHouse.data);
+    await setDoc(doc(firestore, "leagueMemberships", "season-one_player-one"), membershipData());
+    await setDoc(doc(firestore, "leagueMemberships", "season-one_player-two"), membershipData({ userId: "player-two" }));
+    await setDoc(doc(firestore, "leagueMemberships", "season-one_player-three"), membershipData({ userId: "player-three" }));
+    await setDoc(doc(firestore, "leagueMemberships", "season-one_player-four"), membershipData({ userId: "player-four" }));
   });
 
-  const overflowFirestore = playerContext("player-three").firestore();
-  const overflowBatch = writeBatch(overflowFirestore);
-  overflowBatch.set(
-    doc(overflowFirestore, "leagueMemberships", "league-lifecycle_player-three"),
-    {
-      leagueId: "league-lifecycle",
-      userId: "player-three",
-      displayName: "Third Player",
-      avatarId: "legacy-trophy",
-      teamId: "",
-      teamName: "Independent",
-      role: "participant",
-      status: "registered",
-      inviteCode: "LIFECYCL",
-      joinedAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    },
-  );
-  overflowBatch.update(doc(overflowFirestore, "leagues", "league-lifecycle"), {
-    participantCount: 201,
-    participantLimit: 200,
+  const firestore = adminContext().firestore();
+  const batch = writeBatch(firestore);
+  const auditId = "chaos-audit";
+  batch.set(doc(firestore, "auditEvents", auditId), auditData({ action: "league.chaos-activated", summary: "Activated C.H.A.O.S." }));
+  batch.update(doc(firestore, "leagues", "season-one"), {
+    chaosStatus: "activated",
+    chaosActivatedAt: serverTimestamp(),
+    chaosActivatedBy: "admin-one",
     updatedAt: serverTimestamp(),
-    updatedBy: "player-three",
+    updatedBy: "admin-one",
+    lastAuditId: auditId,
   });
-  await assertFails(overflowBatch.commit());
+  [
+    ["player-one", firstHouse],
+    ["player-two", secondHouse],
+    ["player-three", firstHouse],
+    ["player-four", secondHouse],
+  ].forEach(([userId, house], index) => {
+    batch.update(doc(firestore, "leagueMemberships", `season-one_${userId}`), {
+      currentHouseId: house.id,
+      currentHouseName: house.data.name,
+      currentHouseEmblemId: house.data.emblemId,
+      currentHouseAccentId: house.data.accentId,
+      houseAssignedAt: serverTimestamp(),
+      houseAssignmentMethod: "chaos",
+      updatedAt: serverTimestamp(),
+    });
+    batch.set(doc(firestore, "playerNotifications", `chaos-${index}`), notificationData({
+      userId,
+      type: "chaos-assignment",
+      houseId: house.id,
+    }));
+  });
+  await assertSucceeds(batch.commit());
+  await assertSucceeds(getDoc(doc(playerContext().firestore(), "playerNotifications", "chaos-0")));
+  await assertFails(getDoc(doc(playerContext("player-two").firestore(), "playerNotifications", "chaos-0")));
 });
 
-test("league contributions must match an active membership and the entry written with them", async () => {
+test("leadership ballots can open only during an active season", async () => {
+  const activeHouse = houseData({ leagueId: "season-active", id: "house-active" });
+  const registrationHouse = houseData({ leagueId: "season-registration", id: "house-registration" });
+
   await testEnvironment.withSecurityRulesDisabled(async (context) => {
     const firestore = context.firestore();
-    await setDoc(doc(firestore, "leagues", "league-active"), {
-      name: "Active League",
-      normalizedName: "active league",
-      description: "An active consistency league used to verify contribution integrity.",
-      type: "Community",
-      mode: "individual",
-      status: "active",
-      startDate: Timestamp.fromMillis(Date.now() - 7 * 24 * 60 * 60 * 1000),
-      endDate: Timestamp.fromMillis(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      rulesVersion: "consistency-v1",
-      ruleset: {
-        version: "consistency-v1",
-        scoringEngineVersion: "points-v2",
-        dailyActivityCap: 20,
-        dailyParticipationBonus: 5,
-        includedCategories: [
-          "water", "fruit", "reading", "running", "upperBody",
-          "lowerBody", "core", "cardio", "skill", "steps",
-        ],
-      },
-      administratorIds: ["admin-one"],
-      participantCount: 1,
-      participantLimit: 200,
-      inviteCode: "ACTIVEAA",
-      createdAt: Timestamp.now(),
-      createdBy: "admin-one",
-      updatedAt: Timestamp.now(),
-      updatedBy: "admin-one",
-      activatedAt: Timestamp.now(),
-      completedAt: null,
-      archivedAt: null,
-      lastAuditId: "active-audit",
-    });
-    await setDoc(doc(firestore, "leagueMemberships", "league-active_player-one"), {
-      leagueId: "league-active",
-      userId: "player-one",
-      displayName: "Test Player",
-      avatarId: "legacy-trophy",
-      teamId: "",
-      teamName: "Independent",
-      role: "participant",
-      status: "active",
-      inviteCode: "ACTIVEAA",
-      joinedAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
-    });
+    await setDoc(
+      doc(firestore, "leagues", "season-active"),
+      seasonData({
+        id: "season-active",
+        status: "active",
+        participantCount: 2,
+        chaosStatus: "activated",
+        active: true,
+      }),
+    );
+    await setDoc(
+      doc(firestore, "leagues", "season-registration"),
+      seasonData({
+        id: "season-registration",
+        status: "registration",
+        participantCount: 2,
+        chaosStatus: "activated",
+      }),
+    );
+    await setDoc(doc(firestore, "leagueHouses", activeHouse.id), activeHouse.data);
+    await setDoc(doc(firestore, "leagueHouses", registrationHouse.id), registrationHouse.data);
   });
 
-  const firestore = playerContext("player-one").firestore();
-  const challengeDate = Timestamp.now();
-  const validBatch = writeBatch(firestore);
-  validBatch.set(doc(firestore, "challengeEntries", "league-entry-one"), {
-    userId: "player-one",
-    category: "water",
-    data: { amount: 1000 },
-    createdAt: serverTimestamp(),
-    challengeDate,
-  });
-  validBatch.set(doc(firestore, "leagueContributions", "league-active_league-entry-one"), {
-    leagueId: "league-active",
-    entryId: "league-entry-one",
-    userId: "player-one",
-    displayName: "Test Player",
-    avatarId: "legacy-trophy",
-    teamId: "",
-    teamName: "Independent",
-    category: "water",
-    challengeDate,
-    activityPoints: 4,
-    rulesVersion: "consistency-v1",
-    createdAt: serverTimestamp(),
-  });
-  await assertSucceeds(validBatch.commit());
-  await assertSucceeds(
-    getDoc(
-      doc(firestore, "leagueContributions", "league-active_league-entry-one"),
-    ),
-  );
-  await assertSucceeds(
-    getDocs(
-      query(
-        collection(firestore, "leagueContributions"),
-        where("entryId", "==", "league-entry-one"),
-        where("userId", "==", "player-one"),
-      ),
-    ),
-  );
-  await assertFails(
-    getDoc(
-      doc(
-        playerContext("player-two").firestore(),
-        "leagueContributions",
-        "league-active_league-entry-one",
-      ),
-    ),
-  );
+  const firestore = adminContext().firestore();
+  const openedAt = Timestamp.now();
+  const closesAt = Timestamp.fromMillis(openedAt.toMillis() + 24 * 60 * 60 * 1000);
 
-  const invalidBatch = writeBatch(firestore);
-  invalidBatch.set(doc(firestore, "challengeEntries", "league-entry-two"), {
-    userId: "player-one",
-    category: "reading",
-    data: {
-      hours: 0,
-      minutes: 30,
-      seconds: 0,
-      totalSeconds: 1800,
-      totalMinutes: 30,
-      title: "A Valid Reading Entry",
-      author: "",
-      totalPages: "",
-      reflection: "",
-      completed: false,
-    },
-    createdAt: serverTimestamp(),
-    challengeDate,
-  });
-  invalidBatch.set(doc(firestore, "leagueContributions", "league-active_league-entry-two"), {
-    leagueId: "league-active",
-    entryId: "league-entry-two",
-    userId: "player-one",
-    displayName: "Test Player",
-    avatarId: "legacy-trophy",
-    teamId: "",
-    teamName: "Independent",
-    category: "water",
-    challengeDate,
-    activityPoints: 3,
-    rulesVersion: "consistency-v1",
-    createdAt: serverTimestamp(),
-  });
-  await assertFails(invalidBatch.commit());
+  function electionData(leagueId, house) {
+    return {
+      leagueId,
+      houseId: house.id,
+      houseName: house.data.name,
+      weekKey: "2026-08-03",
+      status: "open",
+      openedAt,
+      closesAt,
+      finalizedAt: null,
+      finalizedBy: "",
+      captainId: "",
+      viceCaptainId: "",
+      resultStatus: "pending",
+      voteCount: 0,
+      lastAuditId: `${leagueId}-ballot-audit`,
+    };
+  }
+
+  const activeBatch = writeBatch(firestore);
+  activeBatch.set(
+    doc(firestore, "auditEvents", "season-active-ballot-audit"),
+    auditData({
+      action: "house.election-opened",
+      entityId: "season-active",
+      summary: "Opened active House leadership voting",
+    }),
+  );
+  activeBatch.set(
+    doc(firestore, "leadershipElections", "season-active_house-active_2026-08-03"),
+    electionData("season-active", activeHouse),
+  );
+  await assertSucceeds(activeBatch.commit());
+
+  const registrationBatch = writeBatch(firestore);
+  registrationBatch.set(
+    doc(firestore, "auditEvents", "season-registration-ballot-audit"),
+    auditData({
+      action: "house.election-opened",
+      entityId: "season-registration",
+      summary: "Attempted early House leadership voting",
+    }),
+  );
+  registrationBatch.set(
+    doc(
+      firestore,
+      "leadershipElections",
+      "season-registration_house-registration_2026-08-03",
+    ),
+    electionData("season-registration", registrationHouse),
+  );
+  await assertFails(registrationBatch.commit());
 });
 
-test("invitation codes can be resolved directly but cannot be enumerated", async () => {
+test("House members can cast one private leadership vote during the 24-hour window", async () => {
+  const house = houseData({ captainId: "player-three", viceCaptainIds: ["player-four"] });
+  const openedAt = Timestamp.now();
+  const closesAt = Timestamp.fromMillis(openedAt.toMillis() + 24 * 60 * 60 * 1000);
   await testEnvironment.withSecurityRulesDisabled(async (context) => {
     const firestore = context.firestore();
-    await setDoc(doc(firestore, "teamInvites", "PRIVATE1"), {
-      teamId: "team-private",
-      teamName: "Private Team",
-      emblemId: "legacy-banner",
-      status: "active",
-      createdAt: Timestamp.now(),
-      createdBy: "player-one",
-      updatedAt: Timestamp.now(),
-      updatedBy: "player-one",
-    });
-    await setDoc(doc(firestore, "leagueInvites", "PRIVATE2"), {
-      leagueId: "league-private",
-      leagueName: "Private League",
-      status: "active",
-      createdAt: Timestamp.now(),
-      createdBy: "admin-one",
-      updatedAt: Timestamp.now(),
-      updatedBy: "admin-one",
+    await setDoc(doc(firestore, "leagues", "season-one"), seasonData({ status: "active", participantCount: 4, chaosStatus: "activated", active: true }));
+    await setDoc(doc(firestore, "leagueHouses", house.id), house.data);
+    for (const userId of ["player-one", "player-two", "player-three", "player-four"]) {
+      await setDoc(doc(firestore, "leagueMemberships", `season-one_${userId}`), membershipData({ userId, status: "active", house }));
+    }
+    await setDoc(doc(firestore, "leadershipElections", "season-one_house-springbok_2026-08-03"), {
+      leagueId: "season-one",
+      houseId: house.id,
+      houseName: house.data.name,
+      weekKey: "2026-08-03",
+      status: "open",
+      openedAt,
+      closesAt,
+      finalizedAt: null,
+      finalizedBy: "",
+      captainId: "",
+      viceCaptainId: "",
+      resultStatus: "pending",
+      voteCount: 0,
+      lastAuditId: "seed-audit",
     });
   });
 
   const firestore = playerContext().firestore();
-  const teamInvite = await assertSucceeds(
-    getDoc(doc(firestore, "teamInvites", "PRIVATE1")),
-  );
-  const leagueInvite = await assertSucceeds(
-    getDoc(doc(firestore, "leagueInvites", "PRIVATE2")),
-  );
-  assert.equal(teamInvite.exists(), true);
-  assert.equal(leagueInvite.exists(), true);
-  await assertFails(getDocs(collection(firestore, "teamInvites")));
-  await assertFails(getDocs(collection(firestore, "leagueInvites")));
+  const voteId = "season-one_house-springbok_2026-08-03_player-one";
+  await assertSucceeds(setDoc(doc(firestore, "leadershipVotes", voteId), {
+    electionId: "season-one_house-springbok_2026-08-03",
+    leagueId: "season-one",
+    houseId: house.id,
+    weekKey: "2026-08-03",
+    voterId: "player-one",
+    candidateId: "player-two",
+    createdAt: serverTimestamp(),
+  }));
+  await assertFails(updateDoc(doc(firestore, "leadershipVotes", voteId), { candidateId: "player-three" }));
+  await assertFails(getDocs(query(collection(firestore, "leadershipVotes"), where("electionId", "==", "season-one_house-springbok_2026-08-03"))));
 });
 
-test("challenge entries require recent dates and category-shaped data", async () => {
-  const firestore = playerContext().firestore();
-
-  await assertSucceeds(
-    setDoc(doc(firestore, "challengeEntries", "recent-water"), {
-      userId: "player-one",
-      category: "water",
-      data: { amount: 750 },
-      createdAt: serverTimestamp(),
-      challengeDate: Timestamp.now(),
-    }),
-  );
-
-  await assertFails(
-    setDoc(doc(firestore, "challengeEntries", "backdated-water"), {
-      userId: "player-one",
-      category: "water",
-      data: { amount: 750 },
-      createdAt: serverTimestamp(),
-      challengeDate: Timestamp.fromMillis(
-        Date.now() - 10 * 24 * 60 * 60 * 1000,
-      ),
-    }),
-  );
-
-  await assertFails(
-    setDoc(doc(firestore, "challengeEntries", "malformed-water"), {
-      userId: "player-one",
-      category: "water",
-      data: { amount: "a lot" },
-      createdAt: serverTimestamp(),
-      challengeDate: Timestamp.now(),
-    }),
-  );
-
-  await assertFails(
-    setDoc(doc(firestore, "challengeEntries", "inconsistent-duration"), {
-      userId: "player-one",
-      category: "reading",
-      data: {
-        hours: 0,
-        minutes: 30,
-        seconds: 0,
-        totalSeconds: 60,
-        totalMinutes: 1,
-        title: "Inconsistent Duration",
-        author: "",
-        totalPages: "",
-        reflection: "",
-        completed: false,
-      },
-      createdAt: serverTimestamp(),
-      challengeDate: Timestamp.now(),
-    }),
-  );
-});
-
-test("completed league contributions remain after a recent personal entry is deleted", async () => {
+test("administrator finalisation connects the election result to House leadership", async () => {
+  const electionId = "closed-election";
+  const house = houseData();
   await testEnvironment.withSecurityRulesDisabled(async (context) => {
     const firestore = context.firestore();
-    await setDoc(doc(firestore, "leagues", "league-completed"), {
-      name: "Completed League",
-      normalizedName: "completed league",
-      description: "A completed league that preserves its final contribution history.",
-      type: "Community",
-      mode: "individual",
-      status: "completed",
-      startDate: Timestamp.fromMillis(Date.now() - 7 * 24 * 60 * 60 * 1000),
-      endDate: Timestamp.fromMillis(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      rulesVersion: "consistency-v1",
-      ruleset: {
-        version: "consistency-v1",
-        scoringEngineVersion: "points-v2",
-        dailyActivityCap: 20,
-        dailyParticipationBonus: 5,
-        includedCategories: [
-          "water", "fruit", "reading", "running", "upperBody",
-          "lowerBody", "core", "cardio", "skill", "steps",
-        ],
-      },
-      administratorIds: ["admin-one"],
-      participantCount: 1,
-      participantLimit: 200,
-      inviteCode: "DONECODE",
-      createdAt: Timestamp.now(),
-      createdBy: "admin-one",
-      updatedAt: Timestamp.now(),
-      updatedBy: "admin-one",
-      activatedAt: Timestamp.now(),
-      completedAt: Timestamp.now(),
-      archivedAt: null,
-      lastAuditId: "completed-audit",
+    await setDoc(doc(firestore, "leagues", "season-one"), seasonData({ status: "active", participantCount: 2, chaosStatus: "activated", active: true }));
+    await setDoc(doc(firestore, "leagueHouses", house.id), house.data);
+    await setDoc(doc(firestore, "leagueMemberships", "season-one_player-one"), membershipData({ status: "active", house }));
+    await setDoc(doc(firestore, "leagueMemberships", "season-one_player-two"), membershipData({ userId: "player-two", status: "active", house }));
+    await setDoc(doc(firestore, "leadershipElections", electionId), {
+      leagueId: "season-one",
+      houseId: house.id,
+      houseName: house.data.name,
+      weekKey: "2026-07-27",
+      status: "open",
+      openedAt: Timestamp.fromMillis(Date.now() - 26 * 60 * 60 * 1000),
+      closesAt: Timestamp.fromMillis(Date.now() - 2 * 60 * 60 * 1000),
+      finalizedAt: null,
+      finalizedBy: "",
+      captainId: "",
+      viceCaptainId: "",
+      resultStatus: "pending",
+      voteCount: 0,
+      lastAuditId: "seed-audit",
     });
-    await setDoc(doc(firestore, "leagueMemberships", "league-completed_player-one"), {
-      leagueId: "league-completed",
+  });
+
+  const firestore = adminContext().firestore();
+  const batch = writeBatch(firestore);
+  const auditId = "leadership-audit";
+  batch.set(doc(firestore, "auditEvents", auditId), auditData({ action: "house.election-finalized" }));
+  batch.update(doc(firestore, "leadershipElections", electionId), {
+    status: "finalized",
+    finalizedAt: serverTimestamp(),
+    finalizedBy: "admin-one",
+    captainId: "player-one",
+    viceCaptainId: "player-two",
+    resultStatus: "no-votes",
+    voteCount: 0,
+    lastAuditId: auditId,
+  });
+  batch.update(doc(firestore, "leagueHouses", house.id), {
+    captainId: "player-one",
+    viceCaptainIds: ["player-two"],
+    lastElectionId: electionId,
+    updatedAt: serverTimestamp(),
+    updatedBy: "admin-one",
+    lastAuditId: auditId,
+  });
+  await assertSucceeds(batch.commit());
+});
+
+test("a captain may appoint one additional current House vice-captain", async () => {
+  const house = houseData({ captainId: "player-one", viceCaptainIds: ["player-two"], lastElectionId: "election-one" });
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", "season-one"), seasonData({ status: "active", participantCount: 3, chaosStatus: "activated", active: true }));
+    await setDoc(doc(firestore, "leagueHouses", house.id), house.data);
+    for (const userId of ["player-one", "player-two", "player-three"]) {
+      await setDoc(doc(firestore, "leagueMemberships", `season-one_${userId}`), membershipData({ userId, status: "active", house }));
+    }
+  });
+
+  await assertSucceeds(updateDoc(doc(playerContext().firestore(), "leagueHouses", house.id), {
+    viceCaptainIds: ["player-two", "player-three"],
+    updatedAt: serverTimestamp(),
+    updatedBy: "player-one",
+  }));
+  await assertFails(updateDoc(doc(playerContext("player-two").firestore(), "leagueHouses", house.id), {
+    viceCaptainIds: ["player-two", "player-three"],
+    updatedAt: serverTimestamp(),
+    updatedBy: "player-two",
+  }));
+  await assertFails(updateDoc(doc(playerContext().firestore(), "leagueHouses", house.id), {
+    viceCaptainIds: ["player-two", "player-four"],
+    updatedAt: serverTimestamp(),
+    updatedBy: "player-one",
+  }));
+});
+
+test("weekly roster swaps move future membership but cannot rewrite contribution history", async () => {
+  const firstHouse = houseData({ captainId: "admin-one", viceCaptainIds: [] });
+  const secondHouse = houseData({ id: "house-lion", name: "House Lion", emblemId: "lion", accentId: "sunstone", captainId: "player-three", viceCaptainIds: ["player-four"] });
+  const weekKey = "2026-08-03";
+  const swapId = `season-one_house-lion_house-springbok_${weekKey}`;
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", "season-one"), seasonData({ status: "active", participantCount: 4, chaosStatus: "activated", active: true }));
+    await setDoc(doc(firestore, "leagueHouses", firstHouse.id), firstHouse.data);
+    await setDoc(doc(firestore, "leagueHouses", secondHouse.id), secondHouse.data);
+    await setDoc(doc(firestore, "leagueMemberships", "season-one_player-one"), membershipData({ status: "active", house: firstHouse }));
+    await setDoc(doc(firestore, "leagueMemberships", "season-one_player-two"), membershipData({ userId: "player-two", status: "active", house: secondHouse }));
+    await setDoc(doc(firestore, "leagueMemberships", "season-one_player-three"), membershipData({ userId: "player-three", status: "active", house: secondHouse }));
+    await setDoc(doc(firestore, "leagueMemberships", "season-one_player-four"), membershipData({ userId: "player-four", status: "active", house: secondHouse }));
+    await setDoc(doc(firestore, "leagueContributions", "historic-contribution"), {
+      leagueId: "season-one",
+      entryId: "historic-entry",
       userId: "player-one",
-      displayName: "Test Player",
+      displayName: "player one",
       avatarId: "legacy-trophy",
-      teamId: "",
-      teamName: "Independent",
-      role: "participant",
-      status: "completed",
-      inviteCode: "DONECODE",
-      joinedAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
-    });
-    await setDoc(doc(firestore, "challengeEntries", "completed-entry"), {
-      userId: "player-one",
-      category: "water",
-      data: { amount: 1000 },
-      createdAt: Timestamp.now(),
-      challengeDate: Timestamp.now(),
-    });
-    await setDoc(doc(firestore, "leagueContributions", "league-completed_completed-entry"), {
-      leagueId: "league-completed",
-      entryId: "completed-entry",
-      userId: "player-one",
-      displayName: "Test Player",
-      avatarId: "legacy-trophy",
-      teamId: "",
-      teamName: "Independent",
+      houseId: firstHouse.id,
+      houseName: firstHouse.data.name,
+      houseEmblemId: firstHouse.data.emblemId,
+      teamId: firstHouse.id,
+      teamName: firstHouse.data.name,
       category: "water",
       challengeDate: Timestamp.now(),
       activityPoints: 4,
-      rulesVersion: "consistency-v1",
+      rulesVersion: "season-houses-v1",
+      source: "activity",
+      sourceRedemptionId: "",
       createdAt: Timestamp.now(),
     });
   });
 
-  const firestore = playerContext().firestore();
-  await assertSucceeds(deleteDoc(doc(firestore, "challengeEntries", "completed-entry")));
-  const contribution = await assertSucceeds(
-    getDoc(doc(firestore, "leagueContributions", "league-completed_completed-entry")),
-  );
-  assert.equal(contribution.exists(), true);
-  await assertFails(
-    deleteDoc(doc(firestore, "leagueContributions", "league-completed_completed-entry")),
-  );
+  const firestore = adminContext().firestore();
+  const batch = writeBatch(firestore);
+  const auditId = "swap-audit";
+  batch.set(doc(firestore, "auditEvents", auditId), auditData({ action: "house.roster-swapped" }));
+  batch.set(doc(firestore, "leagueRosterLocks", `season-one_${firstHouse.id}_${weekKey}`), {
+    leagueId: "season-one", houseId: firstHouse.id, weekKey, swapId, createdAt: serverTimestamp(), createdBy: "admin-one",
+  });
+  batch.set(doc(firestore, "leagueRosterLocks", `season-one_${secondHouse.id}_${weekKey}`), {
+    leagueId: "season-one", houseId: secondHouse.id, weekKey, swapId, createdAt: serverTimestamp(), createdBy: "admin-one",
+  });
+  batch.set(doc(firestore, "leagueRosterSwaps", swapId), {
+    leagueId: "season-one", weekKey,
+    firstHouseId: firstHouse.id, firstHouseName: firstHouse.data.name,
+    secondHouseId: secondHouse.id, secondHouseName: secondHouse.data.name,
+    firstPlayerId: "player-one", secondPlayerId: "player-two",
+    actorId: "admin-one", createdAt: serverTimestamp(), lastAuditId: auditId,
+  });
+  batch.update(doc(firestore, "leagueMemberships", "season-one_player-one"), {
+    currentHouseId: secondHouse.id, currentHouseName: secondHouse.data.name,
+    currentHouseEmblemId: secondHouse.data.emblemId, currentHouseAccentId: secondHouse.data.accentId,
+    houseAssignedAt: serverTimestamp(), houseAssignmentMethod: "weekly-swap",
+    lastRosterSwapId: swapId, lastRosterWeekKey: weekKey, updatedAt: serverTimestamp(),
+  });
+  batch.update(doc(firestore, "leagueMemberships", "season-one_player-two"), {
+    currentHouseId: firstHouse.id, currentHouseName: firstHouse.data.name,
+    currentHouseEmblemId: firstHouse.data.emblemId, currentHouseAccentId: firstHouse.data.accentId,
+    houseAssignedAt: serverTimestamp(), houseAssignmentMethod: "weekly-swap",
+    lastRosterSwapId: swapId, lastRosterWeekKey: weekKey, updatedAt: serverTimestamp(),
+  });
+  batch.set(doc(firestore, "playerNotifications", "swap-one"), notificationData({ userId: "player-one", type: "roster-swap", houseId: secondHouse.id }));
+  batch.set(doc(firestore, "playerNotifications", "swap-two"), notificationData({ userId: "player-two", type: "roster-swap", houseId: firstHouse.id }));
+  await assertSucceeds(batch.commit());
+  await assertFails(updateDoc(doc(firestore, "leagueContributions", "historic-contribution"), { houseId: secondHouse.id }));
 });
 
+test("Pocket activities are private, zero-point reserves during the official window", async () => {
+  const dates = seasonDates();
+  const now = Timestamp.now();
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    const league = seasonData({ status: "registration", participantCount: 1 });
+    league.pocketStartDate = Timestamp.fromMillis(Date.now() - 24 * 60 * 60 * 1000);
+    league.pocketEndDate = Timestamp.fromMillis(Date.now() + 5 * 24 * 60 * 60 * 1000);
+    league.startDate = Timestamp.fromMillis(Date.now() + 6 * 24 * 60 * 60 * 1000);
+    league.endDate = Timestamp.fromMillis(Date.now() + 34 * 24 * 60 * 60 * 1000);
+    await setDoc(doc(firestore, "leagues", "season-one"), league);
+    await setDoc(doc(firestore, "leagueMemberships", "season-one_player-one"), membershipData());
+  });
+
+  const firestore = playerContext().firestore();
+  await assertSucceeds(setDoc(doc(firestore, "pocketActivities", "pocket-water"), {
+    leagueId: "season-one",
+    userId: "player-one",
+    category: "water",
+    data: { amount: 1000 },
+    mode: "partial",
+    unit: "millilitres",
+    originalQuantity: 1000,
+    remainingQuantity: 1000,
+    activityDate: now,
+    status: "available",
+    lastRedemptionId: "",
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  }));
+  await assertFails(getDoc(doc(playerContext("player-two").firestore(), "pocketActivities", "pocket-water")));
+  assert.ok(dates.startDate);
+});
+
+test("Pocket redemption atomically creates the scored entry, House contribution and receipt", async () => {
+  const house = houseData();
+  const challengeDate = Timestamp.fromDate(new Date(new Date().setHours(0, 0, 0, 0)));
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", "season-one"), seasonData({ status: "active", participantCount: 1, chaosStatus: "activated", active: true }));
+    await setDoc(doc(firestore, "leagueHouses", house.id), house.data);
+    await setDoc(doc(firestore, "leagueMemberships", "season-one_player-one"), membershipData({ status: "active", house }));
+    await setDoc(doc(firestore, "pocketActivities", "pocket-water"), {
+      leagueId: "season-one", userId: "player-one", category: "water", data: { amount: 1000 },
+      mode: "partial", unit: "millilitres", originalQuantity: 1000, remainingQuantity: 1000,
+      activityDate: Timestamp.fromMillis(Date.now() - 10 * 24 * 60 * 60 * 1000), status: "available",
+      lastRedemptionId: "", createdAt: Timestamp.now(), updatedAt: Timestamp.now(),
+    });
+  });
+
+  const firestore = playerContext().firestore();
+  const batch = writeBatch(firestore);
+  const entryId = "pocket-entry";
+  const redemptionId = "pocket-redemption";
+  batch.set(doc(firestore, "challengeEntries", entryId), {
+    userId: "player-one", category: "water", data: { amount: 500 }, source: "pocket",
+    sourceLeagueId: "season-one", sourcePocketId: "pocket-water", sourceRedemptionId: redemptionId,
+    createdAt: serverTimestamp(), challengeDate,
+  });
+  batch.set(doc(firestore, "leagueContributions", `season-one_${entryId}`), {
+    leagueId: "season-one", entryId, userId: "player-one", displayName: "player one", avatarId: "legacy-trophy",
+    houseId: house.id, houseName: house.data.name, houseEmblemId: house.data.emblemId,
+    teamId: house.id, teamName: house.data.name, category: "water", challengeDate,
+    activityPoints: 1, rulesVersion: "season-houses-v1", source: "pocket", sourceRedemptionId: redemptionId,
+    createdAt: serverTimestamp(),
+  });
+  batch.update(doc(firestore, "pocketActivities", "pocket-water"), {
+    remainingQuantity: 500, status: "available", lastRedemptionId: redemptionId, updatedAt: serverTimestamp(),
+  });
+  batch.set(doc(firestore, "pocketRedemptions", redemptionId), {
+    leagueId: "season-one", userId: "player-one", pocketActivityId: "pocket-water",
+    challengeEntryId: entryId, category: "water", quantity: 500, unit: "millilitres",
+    targetDate: challengeDate, houseId: house.id, createdAt: serverTimestamp(),
+  });
+  batch.set(doc(firestore, "playerNotifications", "pocket-note"), notificationData({ userId: "player-one", type: "pocket-redeemed", houseId: house.id }));
+  await assertSucceeds(batch.commit());
+  await assertFails(deleteDoc(doc(firestore, "challengeEntries", entryId)));
+});
+
+test("Pocket redemption cannot change the stored scoring facts", async () => {
+  const challengeDate = Timestamp.fromDate(new Date(new Date().setHours(0, 0, 0, 0)));
+  const runData = {
+    distance: 3,
+    hours: 0,
+    minutes: 20,
+    seconds: 0,
+    totalSeconds: 1200,
+    totalMinutes: 20,
+    averagePaceSecondsPerKm: 400,
+  };
+
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    const house = houseData();
+    await setDoc(doc(firestore, "leagues", "season-one"), seasonData({
+      status: "active",
+      participantCount: 1,
+      chaosStatus: "activated",
+      active: true,
+    }));
+    await setDoc(doc(firestore, "leagueHouses", house.id), house.data);
+    await setDoc(
+      doc(firestore, "leagueMemberships", "season-one_player-one"),
+      membershipData({ status: "active", house }),
+    );
+    await setDoc(doc(firestore, "pocketActivities", "pocket-water-tamper"), {
+      leagueId: "season-one",
+      userId: "player-one",
+      category: "water",
+      data: { amount: 1000 },
+      mode: "partial",
+      unit: "millilitres",
+      originalQuantity: 1000,
+      remainingQuantity: 1000,
+      activityDate: Timestamp.fromMillis(Date.now() - 10 * 24 * 60 * 60 * 1000),
+      status: "available",
+      lastRedemptionId: "",
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
+    });
+    await setDoc(doc(firestore, "pocketActivities", "pocket-run-tamper"), {
+      leagueId: "season-one",
+      userId: "player-one",
+      category: "running",
+      data: runData,
+      mode: "whole",
+      unit: "stored runs",
+      originalQuantity: 1,
+      remainingQuantity: 1,
+      activityDate: Timestamp.fromMillis(Date.now() - 10 * 24 * 60 * 60 * 1000),
+      status: "available",
+      lastRedemptionId: "",
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
+    });
+  });
+
+  const firestore = playerContext().firestore();
+  const waterBatch = writeBatch(firestore);
+  waterBatch.set(doc(firestore, "challengeEntries", "tampered-water-entry"), {
+    userId: "player-one",
+    category: "water",
+    data: { amount: 750 },
+    source: "pocket",
+    sourceLeagueId: "season-one",
+    sourcePocketId: "pocket-water-tamper",
+    sourceRedemptionId: "tampered-water-redemption",
+    createdAt: serverTimestamp(),
+    challengeDate,
+  });
+  waterBatch.update(doc(firestore, "pocketActivities", "pocket-water-tamper"), {
+    remainingQuantity: 500,
+    status: "available",
+    lastRedemptionId: "tampered-water-redemption",
+    updatedAt: serverTimestamp(),
+  });
+  waterBatch.set(doc(firestore, "pocketRedemptions", "tampered-water-redemption"), {
+    leagueId: "season-one",
+    userId: "player-one",
+    pocketActivityId: "pocket-water-tamper",
+    challengeEntryId: "tampered-water-entry",
+    category: "water",
+    quantity: 500,
+    unit: "millilitres",
+    targetDate: challengeDate,
+    houseId: "house-springbok",
+    createdAt: serverTimestamp(),
+  });
+  await assertFails(waterBatch.commit());
+
+  const runningBatch = writeBatch(firestore);
+  runningBatch.set(doc(firestore, "challengeEntries", "tampered-run-entry"), {
+    userId: "player-one",
+    category: "running",
+    data: { ...runData, distance: 21 },
+    source: "pocket",
+    sourceLeagueId: "season-one",
+    sourcePocketId: "pocket-run-tamper",
+    sourceRedemptionId: "tampered-run-redemption",
+    createdAt: serverTimestamp(),
+    challengeDate,
+  });
+  runningBatch.update(doc(firestore, "pocketActivities", "pocket-run-tamper"), {
+    remainingQuantity: 0,
+    status: "empty",
+    lastRedemptionId: "tampered-run-redemption",
+    updatedAt: serverTimestamp(),
+  });
+  runningBatch.set(doc(firestore, "pocketRedemptions", "tampered-run-redemption"), {
+    leagueId: "season-one",
+    userId: "player-one",
+    pocketActivityId: "pocket-run-tamper",
+    challengeEntryId: "tampered-run-entry",
+    category: "running",
+    quantity: 1,
+    unit: "stored runs",
+    targetDate: challengeDate,
+    houseId: "house-springbok",
+    createdAt: serverTimestamp(),
+  });
+  await assertFails(runningBatch.commit());
+});
+
+test("season invitation codes resolve directly but cannot be enumerated", async () => {
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), "leagueInvites", "SEASONAA"), {
+      leagueId: "season-one", leagueName: "Legacy House Season", status: "active",
+      createdAt: Timestamp.now(), createdBy: "admin-one", updatedAt: Timestamp.now(), updatedBy: "admin-one",
+    });
+  });
+  const firestore = playerContext().firestore();
+  await assertSucceeds(getDoc(doc(firestore, "leagueInvites", "SEASONAA")));
+  await assertFails(getDocs(collection(firestore, "leagueInvites")));
+});
+
+test("standard challenge entries require recent dates and category-shaped data", async () => {
+  const firestore = playerContext().firestore();
+  await assertSucceeds(setDoc(doc(firestore, "challengeEntries", "water-entry"), {
+    userId: "player-one", category: "water", data: { amount: 500 }, source: "activity",
+    sourceLeagueId: "", sourcePocketId: "", sourceRedemptionId: "",
+    createdAt: serverTimestamp(), challengeDate: Timestamp.now(),
+  }));
+  await assertFails(setDoc(doc(firestore, "challengeEntries", "invalid-water"), {
+    userId: "player-one", category: "water", data: { amount: -5 }, source: "activity",
+    sourceLeagueId: "", sourcePocketId: "", sourceRedemptionId: "",
+    createdAt: serverTimestamp(), challengeDate: Timestamp.now(),
+  }));
+});
+
+test("completed House contributions remain after a recent personal entry is deleted", async () => {
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", "season-one"), seasonData({ status: "completed", participantCount: 1, chaosStatus: "activated", active: true }));
+    await setDoc(doc(firestore, "challengeEntries", "recent-entry"), {
+      userId: "player-one", category: "water", data: { amount: 500 }, source: "activity",
+      sourceLeagueId: "", sourcePocketId: "", sourceRedemptionId: "",
+      createdAt: Timestamp.now(), challengeDate: Timestamp.now(),
+    });
+    await setDoc(doc(firestore, "leagueContributions", "season-one_recent-entry"), {
+      leagueId: "season-one", entryId: "recent-entry", userId: "player-one", displayName: "player one",
+      avatarId: "legacy-trophy", houseId: "house-springbok", houseName: "House Springbok",
+      houseEmblemId: "springbok", teamId: "house-springbok", teamName: "House Springbok",
+      category: "water", challengeDate: Timestamp.now(), activityPoints: 1, rulesVersion: "season-houses-v1",
+      source: "activity", sourceRedemptionId: "", createdAt: Timestamp.now(),
+    });
+  });
+
+  const firestore = playerContext().firestore();
+  await assertSucceeds(deleteDoc(doc(firestore, "challengeEntries", "recent-entry")));
+  await assertSucceeds(getDoc(doc(firestore, "leagueContributions", "season-one_recent-entry")));
+  await assertFails(deleteDoc(doc(firestore, "leagueContributions", "season-one_recent-entry")));
+});
+
+test("House leaders can announce their ballot but cannot impersonate another House", async () => {
+  const firstHouse = houseData({
+    captainId: "player-three",
+    viceCaptainIds: ["player-one"],
+  });
+  const secondHouse = houseData({
+    id: "house-lion",
+    name: "House Lion",
+    emblemId: "lion",
+    accentId: "sunstone",
+    captainId: "player-four",
+    viceCaptainIds: ["player-two"],
+  });
+
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(
+      doc(firestore, "leagues", "season-one"),
+      seasonData({
+        status: "active",
+        participantCount: 4,
+        chaosStatus: "activated",
+        active: true,
+      }),
+    );
+    await setDoc(doc(firestore, "leagueHouses", firstHouse.id), firstHouse.data);
+    await setDoc(doc(firestore, "leagueHouses", secondHouse.id), secondHouse.data);
+    await setDoc(
+      doc(firestore, "leagueMemberships", "season-one_player-one"),
+      membershipData({ userId: "player-one", status: "active", house: firstHouse }),
+    );
+    await setDoc(
+      doc(firestore, "leagueMemberships", "season-one_player-two"),
+      membershipData({ userId: "player-two", status: "active", house: secondHouse }),
+    );
+    await setDoc(
+      doc(firestore, "leagueMemberships", "season-one_player-three"),
+      membershipData({ userId: "player-three", status: "active", house: firstHouse }),
+    );
+    await setDoc(
+      doc(firestore, "leagueMemberships", "season-one_player-four"),
+      membershipData({ userId: "player-four", status: "active", house: secondHouse }),
+    );
+  });
+
+  const leaderFirestore = playerContext("player-three").firestore();
+  await assertSucceeds(
+    setDoc(
+      doc(leaderFirestore, "playerNotifications", "first-house-ballot"),
+      notificationData({
+        userId: "player-one",
+        type: "leadership-vote-open",
+        houseId: firstHouse.id,
+      }),
+    ),
+  );
+  await assertFails(
+    setDoc(
+      doc(leaderFirestore, "playerNotifications", "forged-second-house-ballot"),
+      notificationData({
+        userId: "player-two",
+        type: "leadership-vote-open",
+        houseId: secondHouse.id,
+      }),
+    ),
+  );
+});

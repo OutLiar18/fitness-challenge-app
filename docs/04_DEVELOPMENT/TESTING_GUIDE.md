@@ -1,6 +1,6 @@
 # Champions Legacy Challenge — Testing Guide
 
-Last updated: 2 August 2026
+Last updated: 3 August 2026
 
 ## Domain suite
 
@@ -8,41 +8,29 @@ Last updated: 2 August 2026
 npm test
 ```
 
-v0.13.1 target: **54 passing tests**.
+v0.14.0 target: **61 passing tests**.
 
-Coverage includes scoring, goals, progression, records, navigation, profiles, announcements, administration, libraries, monitoring, Teams, Leagues, Legacy Coach, Rulebook filtering and generated Points Guide data.
+Coverage includes scoring, goals, progression, Rulebook/Points Guide, C.H.A.O.S. balance, House identity, election outcomes, roster identifiers, Pocket windows/redemption, historical House standings and season honours.
 
-## Firestore Security Rules
+The Rules regression suite also verifies the live Coach preference path, denial of the retired Coach path, current-House Captain appointments and atomic Pocket redemption without exceeding Rules evaluation limits.
+
+Rules fixtures must seed the same denormalised snapshots used by production documents. When a helper wraps document data as `{ id, data }`, membership fixtures must read House identity from `data`; a fixture that stores `Unassigned` while a contribution stores the real House name is intentionally rejected by the security model.
+
+## Firestore Rules suite
 
 ```powershell
 npm run test:rules
 ```
 
-v0.13.1 target: **15 passing tests**. The Rulebook and Points Guide are bundled read-only references and add no Firestore permissions.
+v0.14.0 target: **25 passing tests**.
 
-Permission-denied output is expected for `assertFails` cases.
+Expected `PERMISSION_DENIED` logs are produced by deliberate forbidden-action tests. The final pass/fail count is authoritative.
 
-## Full verification
+## Full checks
 
 ```powershell
 npm run check
-npm run test:rules
 npm run check:release
-npm audit
 ```
 
-- `check` runs ESLint, domain tests and production build.
-- `check:release` verifies the version, announcement and branded Hosting target.
-- Do not run `npm audit fix --force`.
-
-## Reference-page manual tests
-
-- Search and filter Rulebook rules by text and legacy number.
-- Verify accordion keyboard behaviour, jump navigation and empty states.
-- Compare displayed goals with Dashboard/Progress.
-- Compare every Points Guide range with the scoring engine.
-- Test direct-route refreshes and 320-pixel layouts.
-
-## Defect rule
-
-Reproduce, add regression coverage where practical, apply the smallest maintainable fix, run focused tests, run complete checks and update documentation.
+Java 21 is required for the Emulator Suite. Do not deploy Rules after a failed emulator run.

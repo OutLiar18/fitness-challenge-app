@@ -10,7 +10,7 @@ Accepted decisions are permanent historical records. Superseding a decision requ
 - ADR-013 — Versioned Global Libraries.
 - ADR-014 — Firestore Emulator Rule Tests.
 - ADR-015 — First-party Error Monitoring and Firebase Hosting.
-- ADR-016 — Persistent Team Membership.
+- ADR-016 — Persistent Team Membership (superseded by ADR-021).
 - ADR-017 — Immutable Consistency-weighted Leagues.
 - ADR-018 — Transparent Local Legacy Coach.
 - ADR-019 — Pre-review Integrity and Deployment Hardening.

@@ -1,44 +1,42 @@
-# Champions Legacy Challenge — Recent Session Summary
+# Recent Session Summary
 
-Date: 2 August 2026  
-Release target: v0.13.1 Rulebook and Points Reference
-
-## User direction
-
-The user supplied the original 2025 14-page Rule Book and one-page Points Guidelines. They requested accessible in-app references, preservation of original wording where appropriate, clear handling of unsupported mechanics, and no v1.0 declaration.
+Date: 3 August 2026  
+Release: v0.14.0 Season Houses, C.H.A.O.S. and Pocket Week
 
 ## Implemented
 
-- Searchable `/rules` page with status filters, accordion sections, jump navigation and dynamic current goals.
-- Stable rule identifiers and 2025 rule-number source references.
-- Current, season-option and inactive legacy classifications.
-- Added platform integrity, privacy, safety, respectful-conduct and account-security rules.
-- Marked Pocket Week, Houses, Power Plays, Transfer Market, Buddy Bonus, photo bonuses, WhatsApp administration and Five Fires inactive.
-- Added `/points-guide` with category selector, visual scoring ladders, zero-point ranges, public formulas, difficulty scale, visible goal bonuses and league scoring.
-- Generated the guide from live Points Engine constants rather than copying the obsolete 2025 table.
-- Added navigation, announcement, release metadata, ADR-020 and regression coverage.
+- Retired permanent Teams and replaced them with season-scoped Houses.
+- Added balanced deterministic C.H.A.O.S., private assignments and weekly House leadership.
+- Added one balanced player swap per House/week while preserving historical contribution allocation.
+- Added private zero-point Pocket reserves, canonical redemption and immutable receipts.
+- Added individual/House standings, season honours and private competition notifications.
+- Updated Rulebook, Points Guide, navigation, profiles, architecture, security and release documentation.
 
-## Verification targets
+## Verification completed
 
-```powershell
-npm install
-npm run check
-npm run test:rules
-npm run check:release
-npm audit
-```
+- ESLint passed with no warnings.
+- All 61 domain tests passed.
+- All 25 Firestore Security Rules tests passed.
+- The Vite production build passed.
+- `npm run check:release` confirmed v0.14.0 and Hosting target `app`.
+- `npm audit` still reports the known React Router advisory; do not use `npm audit fix --force`.
 
-Expected:
+## Firestore and deployment
 
-- 54 domain tests.
-- 15 Firestore Rules tests.
-- ESLint and production build pass.
-- Release readiness confirms v0.13.1 and Hosting target `app`.
+- Retired Team records and one dummy pre-v0.14 draft league were confirmed as disposable test data and removed.
+- No pre-existing `leagueMemberships` or `leagueContributions` required conversion.
+- Core `users`, `challengeEntries` and `auditEvents` data was preserved.
+- Final Firestore Rules compiled without warnings and deployed successfully.
+- A seven-day Hosting preview was deployed.
+- v0.14.0 was deployed to the branded production URL.
+- A production smoke test confirmed that season and House creation work for a Platform Administrator.
 
-## Important boundary
+## Product decisions
 
-The new pages do not add Firestore collections or permissions. Existing v0.12 league-capacity migration and Rules deployment requirements still apply when that baseline has not already been deployed.
+- Pocket Week is one seven-day window immediately before the season.
+- Pocket Week does not recur every challenge week.
+- The full functional, responsive and accessibility review is deferred until the final pre-v1.0 stage.
 
-## Next action
+## Next
 
-Apply v0.13.1, run verification, deploy the branded Hosting build and begin the user’s complete review. Do not create v1.0.
+Commit the deployed v0.14.0 state. Then improve C.H.A.O.S. prerequisite visibility: the console is currently hidden during Draft, although activation correctly requires Registration, all configured Houses and at least two registered players per House. Still not v1.0.

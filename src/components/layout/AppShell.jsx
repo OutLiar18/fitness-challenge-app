@@ -11,6 +11,7 @@ import {
 } from "../../constants/navigation";
 import useAnnouncements from "../../hooks/useAnnouncements";
 import usePlayerData from "../../hooks/usePlayerData";
+import useNotifications from "../../hooks/useNotifications";
 import { logoutUser } from "../../services/auth/authService";
 import { formatRole } from "../../utils/displayFormatters";
 import LegacyAvatar from "../profile/LegacyAvatar";
@@ -72,6 +73,7 @@ function MoreMenu({
   isAdmin,
   displayName,
   avatarId,
+  notificationUnreadCount,
   onNavigate,
   onLogout,
 }) {
@@ -109,7 +111,12 @@ function MoreMenu({
       <div className="app-more-panel__section">
         <p>Community and guidance</p>
         {SECONDARY_NAV_ITEMS.map((item) => (
-          <NavigationLink key={item.id} item={item} onNavigate={onNavigate} />
+          <NavigationLink
+            key={item.id}
+            item={item}
+            badge={item.id === "notifications" && notificationUnreadCount > 0 ? notificationUnreadCount : undefined}
+            onNavigate={onNavigate}
+          />
         ))}
       </div>
 
@@ -143,6 +150,7 @@ export default function AppShell() {
     isPlatformAdmin,
   } = usePlayerData();
   const { unreadCount } = useAnnouncements();
+  const { unreadCount: notificationUnreadCount } = useNotifications();
   const [moreOpen, setMoreOpen] = useState(false);
   const [brandClicks, setBrandClicks] = useState(0);
   const [secretMessage, setSecretMessage] = useState("");
@@ -338,6 +346,11 @@ export default function AppShell() {
                 : ""
             }`}
             type="button"
+            aria-label={
+              notificationUnreadCount > 0
+                ? `More navigation, ${notificationUnreadCount} unread season ${notificationUnreadCount === 1 ? "notification" : "notifications"}`
+                : "More navigation"
+            }
             aria-expanded={moreOpen}
             aria-haspopup="dialog"
             aria-controls="app-more-menu"
@@ -347,6 +360,11 @@ export default function AppShell() {
               •••
             </span>
             <span className="app-nav__label">More</span>
+            {notificationUnreadCount > 0 && (
+              <span className="app-nav__badge">
+                {notificationUnreadCount > 99 ? "99+" : notificationUnreadCount}
+              </span>
+            )}
           </button>
         </nav>
 
@@ -455,7 +473,12 @@ export default function AppShell() {
           aria-controls="app-more-menu"
           onClick={() => toggleMoreMenu(mobileMoreButtonRef.current)}
         >
-          <span aria-hidden="true">•••</span>
+          <span className="app-mobile-nav__icon" aria-hidden="true">
+            •••
+            {notificationUnreadCount > 0 && (
+              <span className="app-mobile-nav__badge">{notificationUnreadCount > 9 ? "9+" : notificationUnreadCount}</span>
+            )}
+          </span>
           <small>More</small>
         </button>
       </nav>
@@ -474,6 +497,7 @@ export default function AppShell() {
             isAdmin={isPlatformAdmin}
             displayName={displayName}
             avatarId={profile?.avatarId}
+            notificationUnreadCount={notificationUnreadCount}
             onNavigate={closeMoreMenu}
             onLogout={handleLogout}
           />

@@ -1,21 +1,23 @@
 # Champions Legacy Challenge
 
-Version: **0.13.1**  
-Status: **Pre-1.0 reference system complete; verification and user review pending**
+Version: **0.14.0**  
+Status: **Pre-1.0 season-system foundation; Windows verification and user review pending**
 
 Champions Legacy Challenge is a gamified personal-development platform that rewards consistent, factual progress across fitness, reading, nutrition, movement and skill development.
 
 ## Current capabilities
 
-- Firebase authentication, protected routes and branded Firebase Hosting.
+- Firebase Authentication, protected routes and branded Firebase Hosting.
 - Ten factual activity categories with central, explainable scoring.
 - Daily and weekly goals, streaks, experience points, achievements and records.
-- Responsive Dashboard, Log & Journal, Progress, Announcements and Profile areas.
-- Searchable in-app Challenge Rulebook with current rules, season options and inactive 2025 mechanics.
-- Public Points Guide generated from the live scoring constants.
+- Responsive Dashboard, Log & Journal, Progress, Announcements, Profile and reference areas.
+- Searchable Rulebook and a Points Guide generated from live scoring constants.
 - Storage-free Legacy Avatars and constrained profile editing.
 - Trusted administration, audited announcements, moderation and versioned shared libraries.
-- Persistent Teams, seasonal consistency-weighted Leagues and transparent local Legacy Coach guidance.
+- Season-scoped Houses with C.H.A.O.S. assignment, weekly leadership voting and one balanced roster swap per House each week.
+- Individual and House leaderboards whose historical House allocation is never rewritten.
+- Seven-day Pocket Week reserves that earn zero points until deliberately activated.
+- Private season notifications and transparent local Legacy Coach guidance.
 - First-party error reporting, Firestore Emulator tests and deployment recovery.
 
 ## Local setup
@@ -38,10 +40,10 @@ npm run check:release
 npm audit
 ```
 
-Expected v0.13.1 verification:
+Expected v0.14.0 verification:
 
-- 54 domain tests.
-- 15 Firestore Security Rules tests.
+- 61 domain tests.
+- 25 Firestore Security Rules tests.
 - ESLint and the production build pass.
 - Release-readiness and branded Hosting target checks pass.
 
@@ -64,9 +66,9 @@ Start with:
 - `docs/06_CHAT_HANDOVER/CHAT_BRIEFING.md`
 - `docs/06_CHAT_HANDOVER/RECENT_SESSION_SUMMARY.md`
 - `docs/01_CURRENT_DEVELOPMENT/CURRENT_STATE.md`
+- `docs/01_CURRENT_DEVELOPMENT/ACTIVE_MIGRATIONS.md`
 - `docs/01_CURRENT_DEVELOPMENT/NEXT_SESSION.md`
-- `docs/04_DEVELOPMENT/QA_MATRIX.md`
 
 ## Release boundary
 
-v0.13.1 is **not** v1.0. It adds the official player-facing rules and scoring references before the full product review.
+v0.14.0 is **not** v1.0. Power Plays, Diamonds, the full Transfer Market, Buddy Bonuses, Five Fires and late-season twists remain inactive until their rules are separately confirmed.

@@ -1,481 +1,528 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 
 import Toast from "../components/common/Toast/Toast";
 import PageHeader from "../components/layout/PageHeader";
 import LegacyAvatar from "../components/profile/LegacyAvatar";
-import { TEAM_EMBLEMS, getTeamEmblem } from "../constants/teams";
+import {
+  HOUSE_ACCENTS,
+  HOUSE_EMBLEMS,
+  getHouseAccent,
+  getHouseEmblem,
+} from "../constants/seasons";
+import useLeagues from "../hooks/useLeagues";
 import usePlayerData from "../hooks/usePlayerData";
-import useTeam from "../hooks/useTeam";
 import useToast from "../hooks/useToast";
 import {
-  createTeam,
-  joinTeam,
-  leaveTeam,
-  transferTeamCaptain,
-  updateTeam,
-} from "../services/teams/teamService";
+  getSeasonWeekKey,
+  isHouseLeader,
+} from "../services/seasons/seasonModel";
 import {
-  getCurrentTeamMemberSnapshot,
-  getTeamSummary,
-} from "../services/teams/teamModel";
+  activateChaos,
+  createLeagueHouse,
+  finalizeLeadershipElection,
+  openLeadershipElection,
+  setAdditionalViceCaptain,
+  submitLeadershipVote,
+  subscribeToLeadershipElections,
+  subscribeToLeagueHouses,
+  swapHousePlayers,
+  updateLeagueHouse,
+} from "../services/seasons/seasonService";
 import {
-  formatNumber,
-  formatPoints,
-  pluralize,
-} from "../utils/displayFormatters";
-import { copyTextToClipboard } from "../utils/clipboard";
+  subscribeToLeagueMemberships,
+} from "../services/leagues/leagueService";
+import { canManageLeague } from "../services/leagues/leagueModel";
+import { pluralize } from "../utils/displayFormatters";
 import "./Teams.css";
 
-const EMPTY_TEAM_FORM = Object.freeze({
+const EMPTY_HOUSE = Object.freeze({
   name: "",
   description: "",
   motto: "",
-  emblemId: "legacy-banner",
+  emblemId: "springbok",
+  accentId: "emerald",
 });
 
-function TeamForm({ profile, userId, notify }) {
-  const [form, setForm] = useState(EMPTY_TEAM_FORM);
-  const [saving, setSaving] = useState(false);
+function HouseIdentityForm({ initial = EMPTY_HOUSE, submitLabel, busy, onSubmit }) {
+  const [form, setForm] = useState(() => ({ ...EMPTY_HOUSE, ...initial }));
 
   async function handleSubmit(event) {
     event.preventDefault();
-    setSaving(true);
-
-    try {
-      await createTeam({ userId, profile, input: form });
-      notify("Team created. Your invitation code is ready.", "success");
-      setForm(EMPTY_TEAM_FORM);
-    } catch (error) {
-      console.error(error);
-      notify(error.message || "The team could not be created.", "error");
-    } finally {
-      setSaving(false);
-    }
+    await onSubmit(form);
+    if (!initial.id) setForm(EMPTY_HOUSE);
   }
 
   return (
-    <form className="community-form card" onSubmit={handleSubmit}>
-      <div>
-        <p className="section-kicker">Create a team</p>
-        <h2>Build a shared identity</h2>
-        <p>One team can hold up to 25 players. Team progress encourages accountability without changing personal points.</p>
-      </div>
-
-      <div className="community-form__grid">
+    <form className="house-form" onSubmit={handleSubmit}>
+      <div className="house-form__grid">
         <div className="form-field">
-          <label htmlFor="team-name">Team name</label>
+          <label htmlFor={`house-name-${initial.id || "new"}`}>House name</label>
           <input
-            id="team-name"
+            id={`house-name-${initial.id || "new"}`}
+            required
             minLength={3}
             maxLength={48}
-            required
             value={form.name}
             onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
           />
         </div>
-
         <div className="form-field">
-          <label htmlFor="team-motto">Team motto</label>
+          <label htmlFor={`house-motto-${initial.id || "new"}`}>House motto</label>
           <input
-            id="team-motto"
+            id={`house-motto-${initial.id || "new"}`}
+            required
             minLength={3}
             maxLength={90}
-            required
             value={form.motto}
             onChange={(event) => setForm((current) => ({ ...current, motto: event.target.value }))}
           />
         </div>
       </div>
-
       <div className="form-field">
-        <label htmlFor="team-description">What are you building together?</label>
+        <label htmlFor={`house-description-${initial.id || "new"}`}>House identity</label>
         <textarea
-          id="team-description"
-          minLength={10}
-          maxLength={240}
+          id={`house-description-${initial.id || "new"}`}
           required
+          minLength={10}
+          maxLength={220}
           value={form.description}
           onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
         />
       </div>
-
-      <fieldset className="emblem-picker">
-        <legend>Team emblem</legend>
-        <div>
-          {TEAM_EMBLEMS.map((emblem) => (
-            <label key={emblem.id} className={form.emblemId === emblem.id ? "emblem-option emblem-option--selected" : "emblem-option"}>
-              <input
-                className="sr-only"
-                type="radio"
-                name="team-emblem"
-                value={emblem.id}
-                checked={form.emblemId === emblem.id}
-                onChange={() => setForm((current) => ({ ...current, emblemId: emblem.id }))}
-              />
-              <span aria-hidden="true">{emblem.symbol}</span>
-              <strong>{emblem.name}</strong>
-            </label>
-          ))}
-        </div>
-      </fieldset>
-
-      <button className="button button--primary" type="submit" disabled={saving}>
-        {saving ? "Creating team…" : "Create team"}
+      <div className="house-style-grid">
+        <fieldset className="house-emblems">
+          <legend>Emblem</legend>
+          <div>
+            {HOUSE_EMBLEMS.map((item) => (
+              <label key={item.id} className={form.emblemId === item.id ? "house-emblem house-emblem--selected" : "house-emblem"}>
+                <input className="sr-only" type="radio" name={`house-emblem-${initial.id || "new"}`} checked={form.emblemId === item.id} onChange={() => setForm((current) => ({ ...current, emblemId: item.id }))} />
+                <span aria-hidden="true">{item.symbol}</span>
+                <small>{item.name}</small>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+        <fieldset className="house-accents">
+          <legend>House colour</legend>
+          <div>
+            {HOUSE_ACCENTS.map((item) => (
+              <label key={item.id} className={form.accentId === item.id ? "house-accent house-accent--selected" : "house-accent"}>
+                <input className="sr-only" type="radio" name={`house-accent-${initial.id || "new"}`} checked={form.accentId === item.id} onChange={() => setForm((current) => ({ ...current, accentId: item.id }))} />
+                <span style={{ "--swatch": item.value }} aria-hidden="true" />
+                <small>{item.label}</small>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      </div>
+      <button className="button button--primary" type="submit" disabled={busy}>
+        {busy ? "Saving House…" : submitLabel}
       </button>
     </form>
   );
 }
 
-function JoinTeamForm({ profile, userId, notify }) {
-  const [code, setCode] = useState("");
-  const [joining, setJoining] = useState(false);
-
-  async function handleSubmit(event) {
-    event.preventDefault();
-    setJoining(true);
-
-    try {
-      await joinTeam({ userId, profile, code });
-      notify("Welcome to the team. Your roster has been updated.", "success");
-      setCode("");
-    } catch (error) {
-      console.error(error);
-      notify(error.message || "The team could not be joined.", "error");
-    } finally {
-      setJoining(false);
-    }
-  }
+function HouseCard({ house, members, selected, onSelect }) {
+  const emblem = getHouseEmblem(house.emblemId);
+  const accent = getHouseAccent(house.accentId);
+  const captain = members.find((member) => member.userId === house.captainId);
+  const viceCaptains = (house.viceCaptainIds ?? [])
+    .map((id) => members.find((member) => member.userId === id))
+    .filter(Boolean);
 
   return (
-    <form className="community-join card" onSubmit={handleSubmit}>
-      <span className="community-join__icon" aria-hidden="true">🤝</span>
-      <div>
-        <p className="section-kicker">Join a team</p>
-        <h2>Enter an invitation code</h2>
-        <p>Ask the team captain for the 8-character code.</p>
-      </div>
-      <div className="community-code-row">
-        <label className="sr-only" htmlFor="team-code">Team invitation code</label>
-        <input
-          id="team-code"
-          className="community-code-input"
-          inputMode="text"
-          autoComplete="off"
-          maxLength={8}
-          placeholder="ABCD2345"
-          value={code}
-          onChange={(event) => setCode(event.target.value.toUpperCase())}
-        />
-        <button className="button button--secondary" type="submit" disabled={joining}>
-          {joining ? "Joining…" : "Join team"}
-        </button>
-      </div>
-    </form>
+    <button
+      type="button"
+      className={selected ? "season-house-card season-house-card--selected" : "season-house-card"}
+      style={{ "--house-accent": accent.value }}
+      aria-pressed={selected}
+      onClick={onSelect}
+    >
+      <span className="season-house-card__emblem" aria-hidden="true">{emblem.symbol}</span>
+      <span className="season-house-card__copy">
+        <strong>{house.name}</strong>
+        <em>“{house.motto}”</em>
+        <small>{members.length} {pluralize(members.length, "member", "members")}</small>
+      </span>
+      <span className="season-house-card__leadership">
+        {captain ? `Captain: ${captain.displayName}` : "Captain pending"}
+        {viceCaptains.length > 0 && ` · ${viceCaptains.length} vice ${pluralize(viceCaptains.length, "captain", "captains")}`}
+      </span>
+    </button>
   );
 }
 
-function TeamRoster({ members }) {
-  const currentMembers = members.map((member) =>
-    getCurrentTeamMemberSnapshot(member),
-  );
-  const sortedMembers = [...currentMembers].sort(
-    (first, second) =>
-      (first.role === "captain" ? -1 : 0) - (second.role === "captain" ? -1 : 0) ||
-      Number(second.weeklyPoints ?? 0) - Number(first.weeklyPoints ?? 0) ||
-      String(first.displayName).localeCompare(String(second.displayName)),
-  );
+function HouseRoster({ house, members }) {
+  const leadership = new Set([house.captainId, ...(house.viceCaptainIds ?? [])]);
+  const sorted = [...members].sort((first, second) => {
+    const firstRank = first.userId === house.captainId ? 0 : leadership.has(first.userId) ? 1 : 2;
+    const secondRank = second.userId === house.captainId ? 0 : leadership.has(second.userId) ? 1 : 2;
+    return firstRank - secondRank || first.displayName.localeCompare(second.displayName);
+  });
 
   return (
-    <section className="team-roster card">
+    <section className="house-roster card">
       <div className="community-section-heading">
-        <div>
-          <p className="section-kicker">Roster</p>
-          <h2>People showing up together</h2>
-        </div>
-        <span>{members.length} {pluralize(members.length, "member", "members")}</span>
+        <div><p className="section-kicker">Current roster</p><h2>{house.name}</h2></div>
+        <span>{members.length} {pluralize(members.length, "player", "players")}</span>
       </div>
-
-      <div className="team-roster__list">
-        {sortedMembers.map((member) => (
-          <article key={member.userId} className="team-member">
-            <LegacyAvatar avatarId={member.avatarId} size="small" decorative />
-            <div className="team-member__identity">
-              <strong>{member.displayName}</strong>
-              <span>{member.role === "captain" ? "Team captain" : "Team member"}</span>
-            </div>
-            <div className="team-member__stats">
-              <strong>{formatPoints(member.weeklyPoints ?? 0)}</strong>
-              <span>{member.activeDays ?? 0} active {pluralize(member.activeDays ?? 0, "day", "days")}</span>
-            </div>
-          </article>
-        ))}
+      <div className="house-roster__list">
+        {sorted.map((member) => {
+          const label = member.userId === house.captainId
+            ? "House captain"
+            : house.viceCaptainIds?.includes(member.userId)
+              ? "Vice-captain"
+              : "House member";
+          return (
+            <article className="house-member" key={member.userId}>
+              <LegacyAvatar avatarId={member.avatarId} size="small" decorative />
+              <div><strong>{member.displayName}</strong><span>{label}</span></div>
+              {leadership.has(member.userId) && <span className="house-member__crest" aria-label={label}>{member.userId === house.captainId ? "👑" : "⭐"}</span>}
+            </article>
+          );
+        })}
       </div>
     </section>
   );
 }
 
-function TeamDashboard({ team, membership, members, userId, notify }) {
-  const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState(() => ({
-    name: team.name,
-    description: team.description,
-    motto: team.motto,
-    emblemId: team.emblemId,
-  }));
-  const [saving, setSaving] = useState(false);
-  const [nextCaptainId, setNextCaptainId] = useState("");
-  const summary = useMemo(() => getTeamSummary(members), [members]);
-  const emblem = getTeamEmblem(team.emblemId);
-  const isCaptain = membership.role === "captain";
+function LeadershipPanel({ league, house, members, membership, elections, manager, actorId, notify }) {
+  const weekKey = getSeasonWeekKey(new Date());
+  const election = elections.find((item) => item.houseId === house.id && item.weekKey === weekKey);
+  const [candidateId, setCandidateId] = useState("");
+  const [captainId, setCaptainId] = useState("");
+  const [viceCaptainId, setViceCaptainId] = useState("");
+  const [additionalViceId, setAdditionalViceId] = useState("");
+  const [busy, setBusy] = useState(false);
+  const closesAt = election?.closesAt?.toDate?.() ?? (election?.closesAt ? new Date(election.closesAt) : null);
+  const closed = Boolean(election && closesAt && closesAt <= new Date());
+  const isMember = membership?.currentHouseId === house.id;
+  const isCaptain = house.captainId === actorId;
+  const seasonActive = league.status === "active";
+  const canOpenElection = seasonActive && (manager || isHouseLeader(house, actorId));
 
-  async function copyCode() {
+  async function act(task, success) {
+    setBusy(true);
     try {
-      await copyTextToClipboard(team.inviteCode);
-      notify("Team invitation code copied.", "success");
+      await task();
+      notify(success, "success");
     } catch (error) {
       console.error(error);
-      notify(`Invitation code: ${team.inviteCode}`, "info");
-    }
-  }
-
-  async function handleSave(event) {
-    event.preventDefault();
-    setSaving(true);
-    try {
-      await updateTeam({ teamId: team.id, userId, input: form });
-      notify("Team details updated.", "success");
-      setEditing(false);
-    } catch (error) {
-      console.error(error);
-      notify(error.message || "Team details could not be updated.", "error");
+      notify(error.message || "The leadership action could not be completed.", "error");
     } finally {
-      setSaving(false);
-    }
-  }
-
-
-  async function handleCaptainTransfer() {
-    if (!nextCaptainId) {
-      notify("Choose the next team captain.", "error");
-      return;
-    }
-
-    const nextCaptain = members.find((member) => member.userId === nextCaptainId);
-    if (!window.confirm(`Make ${nextCaptain?.displayName || "this player"} the new team captain?`)) {
-      return;
-    }
-
-    setSaving(true);
-    try {
-      await transferTeamCaptain({
-        teamId: team.id,
-        currentCaptainId: userId,
-        nextCaptainId,
-      });
-      notify("Team captain transferred successfully.", "success");
-      setNextCaptainId("");
-      setEditing(false);
-    } catch (error) {
-      console.error(error);
-      notify(error.message || "Captaincy could not be transferred.", "error");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function handleLeave() {
-    if (saving || !window.confirm("Leave this team? Your personal progress will remain unchanged.")) {
-      return;
-    }
-
-    setSaving(true);
-    try {
-      await leaveTeam({ teamId: team.id, userId, role: membership.role });
-      notify("You left the team. Your personal legacy is unchanged.", "success");
-    } catch (error) {
-      console.error(error);
-      notify(error.message || "The team could not be left.", "error");
-    } finally {
-      setSaving(false);
+      setBusy(false);
     }
   }
 
   return (
-    <>
-      <section className="team-hero card">
-        <span className="team-hero__emblem" aria-hidden="true">{emblem.symbol}</span>
-        <div>
-          <p className="section-kicker">Your team</p>
-          <h2>{team.name}</h2>
-          <blockquote>“{team.motto}”</blockquote>
-          <p>{team.description}</p>
+    <section className="leadership-panel card">
+      <div className="community-section-heading">
+        <div><p className="section-kicker">Weekly leadership</p><h2>Captain and vice-captain vote</h2></div>
+        <span>{weekKey}</span>
+      </div>
+      <p>Every House receives one 24-hour leadership vote per week. Most votes appoint the captain; second-most appoints the primary vice-captain. A current leader or administrator may open the ballot. Ties and empty ballots require administrator judgement.</p>
+
+      {!seasonActive && (
+        <div className="inline-alert inline-alert--info">
+          Weekly House voting begins when the season becomes active.
         </div>
-        <div className="team-hero__actions">
-          <button className="button button--primary" type="button" onClick={copyCode}>Copy invitation code</button>
-          {isCaptain && (
-            <button
-              className="button button--secondary"
-              type="button"
-              onClick={() => {
-                if (!editing) {
-                  setForm({
-                    name: team.name,
-                    description: team.description,
-                    motto: team.motto,
-                    emblemId: team.emblemId,
-                  });
-                }
-                setEditing((current) => !current);
-              }}
-            >
-              {editing ? "Close editor" : "Edit team"}
-            </button>
-          )}
-          {!isCaptain && (
-            <button
-              className="button button--danger"
-              type="button"
-              disabled={saving}
-              onClick={handleLeave}
-            >
-              {saving ? "Leaving team…" : "Leave team"}
-            </button>
-          )}
-        </div>
-      </section>
-
-      <section className="community-metrics" aria-label="Team weekly summary">
-        {[
-          [summary.memberCount, "Members"],
-          [formatPoints(summary.weeklyPoints), "Team points this week"],
-          [summary.activeDays, "Combined active days"],
-          [summary.entriesRecorded, "Entries recorded this week"],
-        ].map(([value, label]) => (
-          <article className="card" key={label}>
-            <strong>{typeof value === "number" ? formatNumber(value, { whole: true }) : value}</strong>
-            <span>{label}</span>
-          </article>
-        ))}
-      </section>
-
-      {editing && (
-        <form className="community-form card" onSubmit={handleSave}>
-          <p className="section-kicker">Captain controls</p>
-          <h2>Refine the team identity</h2>
-          <div className="form-field">
-            <label htmlFor="edit-team-description">Team description</label>
-            <textarea
-              id="edit-team-description"
-              minLength={10}
-              maxLength={240}
-              required
-              value={form.description}
-              onChange={(event) =>
-                setForm((current) => ({ ...current, description: event.target.value }))
-              }
-            />
-          </div>
-          <div className="form-field">
-            <label htmlFor="edit-team-motto">Team motto</label>
-            <input
-              id="edit-team-motto"
-              minLength={3}
-              maxLength={90}
-              required
-              value={form.motto}
-              onChange={(event) =>
-                setForm((current) => ({ ...current, motto: event.target.value }))
-              }
-            />
-          </div>
-          <fieldset className="emblem-picker">
-            <legend>Team emblem</legend>
-            <div>
-              {TEAM_EMBLEMS.map((option) => (
-                <label key={option.id} className={form.emblemId === option.id ? "emblem-option emblem-option--selected" : "emblem-option"}>
-                  <input
-                    className="sr-only"
-                    type="radio"
-                    name="edit-team-emblem"
-                    value={option.id}
-                    checked={form.emblemId === option.id}
-                    onChange={() => setForm((current) => ({ ...current, emblemId: option.id }))}
-                  />
-                  <span aria-hidden="true">{option.symbol}</span>
-                  <strong>{option.name}</strong>
-                </label>
-              ))}
-            </div>
-          </fieldset>
-          <button className="button button--primary" type="submit" disabled={saving}>{saving ? "Saving team…" : "Save team"}</button>
-
-          {members.length > 1 && (
-            <section className="captain-transfer">
-              <div>
-                <p className="section-kicker">Leadership handover</p>
-                <h3>Transfer team captaincy</h3>
-                <p>Captaincy moves atomically. The new captain receives leadership immediately and you remain a team member.</p>
-              </div>
-              <div className="community-code-row">
-                <label htmlFor="next-captain">Next team captain</label>
-                <select id="next-captain" value={nextCaptainId} onChange={(event) => setNextCaptainId(event.target.value)}>
-                  <option value="">Choose a team member</option>
-                  {members.filter((member) => member.userId !== userId).map((member) => (
-                    <option key={member.userId} value={member.userId}>{member.displayName}</option>
-                  ))}
-                </select>
-                <button className="button button--danger" type="button" disabled={saving || !nextCaptainId} onClick={handleCaptainTransfer}>Transfer captaincy</button>
-              </div>
-            </section>
-          )}
-        </form>
       )}
 
-      <TeamRoster members={members} />
+      {!election && canOpenElection && (
+        <button className="button button--primary" type="button" disabled={busy} onClick={() => act(() => openLeadershipElection({
+        league,
+        house,
+        members,
+        actorId,
+      }), "The 24-hour House vote is open.")}>Open this week’s vote</button>
+      )}
 
-      <section className="community-guardrail card">
-        <span aria-hidden="true">🛡️</span>
-        <div>
-          <p className="section-kicker">Healthy teamwork</p>
-          <h2>Shared progress without shared pressure</h2>
-          <p>Team summaries use each member’s factual activity history. They do not change personal points, levels or achievements, and the roster never labels a lower result as failure.</p>
+      {election && (
+        <div className="leadership-panel__status">
+          <strong>{election.status === "finalized" ? "Leadership confirmed" : closed ? "Voting closed" : "Voting open"}</strong>
+          <span>{election.status === "finalized" ? `${election.voteCount ?? 0} votes counted` : closesAt ? `Closes ${closesAt.toLocaleString()}` : "Closing time unavailable"}</span>
         </div>
-      </section>
-    </>
+      )}
+
+      {election?.status === "open" && !closed && isMember && (
+        <div className="leadership-vote">
+          <label htmlFor="leadership-candidate">Choose one House member</label>
+          <select id="leadership-candidate" value={candidateId} onChange={(event) => setCandidateId(event.target.value)}>
+            <option value="">Select a candidate</option>
+            {members.map((member) => <option key={member.userId} value={member.userId}>{member.displayName}</option>)}
+          </select>
+          <button className="button button--secondary" type="button" disabled={busy || !candidateId} onClick={() => act(() => submitLeadershipVote({ election, voterId: actorId, candidateId, membership }), "Your weekly House vote has been recorded.")}>Submit my vote</button>
+        </div>
+      )}
+
+      {election && election.status !== "finalized" && closed && manager && (
+        <div className="leadership-resolution">
+          <p className="section-kicker">Administrator resolution</p>
+          <p>Use the automatic result when clear, or select leaders when no votes or a tie prevents a result.</p>
+          <div className="house-form__grid">
+            <label>Captain<select value={captainId} onChange={(event) => setCaptainId(event.target.value)}><option value="">Use vote result</option>{members.map((member) => <option key={member.userId} value={member.userId}>{member.displayName}</option>)}</select></label>
+            <label>Primary vice-captain<select value={viceCaptainId} onChange={(event) => setViceCaptainId(event.target.value)}><option value="">Use vote result</option>{members.map((member) => <option key={member.userId} value={member.userId}>{member.displayName}</option>)}</select></label>
+          </div>
+          <button className="button button--primary" type="button" disabled={busy} onClick={() => act(() => finalizeLeadershipElection({ election, house, members, actorId, captainId, viceCaptainId }), "House leadership has been confirmed.")}>Finalise leadership</button>
+        </div>
+      )}
+
+      {isCaptain && members.length > 2 && (
+        <div className="leadership-appointment">
+          <p className="section-kicker">Captain’s appointment</p>
+          <p>The elected vice-captain remains primary. You may appoint one additional vice-captain for the week.</p>
+          <select value={additionalViceId} onChange={(event) => setAdditionalViceId(event.target.value)}>
+            <option value="">Choose an additional vice-captain</option>
+            {members.filter((member) => member.userId !== house.captainId && member.userId !== house.viceCaptainIds?.[0]).map((member) => <option key={member.userId} value={member.userId}>{member.displayName}</option>)}
+          </select>
+          <button className="button button--secondary" type="button" disabled={busy || !additionalViceId} onClick={() => act(() => setAdditionalViceCaptain({ house, actorId, userId: additionalViceId }), "Additional vice-captain appointed.")}>Appoint vice-captain</button>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function RosterSwapPanel({ league, houses, members, actorId, manager, currentHouse, notify }) {
+  const leader = currentHouse && isHouseLeader(currentHouse, actorId);
+  const availableSourceHouses = useMemo(
+    () => (manager ? houses : leader ? [currentHouse] : []),
+    [currentHouse, houses, leader, manager],
+  );
+  const [sourceHouseId, setSourceHouseId] = useState("");
+  const [targetHouseId, setTargetHouseId] = useState("");
+  const [firstPlayerId, setFirstPlayerId] = useState("");
+  const [secondPlayerId, setSecondPlayerId] = useState("");
+  const [busy, setBusy] = useState(false);
+  const sourceHouse =
+    availableSourceHouses.find((item) => item.id === sourceHouseId) ||
+    availableSourceHouses[0] ||
+    null;
+  const effectiveSourceHouseId = sourceHouse?.id || "";
+  const targetHouse = houses.find((item) => item.id === targetHouseId) || null;
+  const protectedLeaderIds = useMemo(
+    () => new Set(
+      houses.flatMap((house) => [house.captainId, ...(house.viceCaptainIds ?? [])]),
+    ),
+    [houses],
+  );
+  const sourceMembers = members.filter(
+    (item) => item.currentHouseId === effectiveSourceHouseId && !protectedLeaderIds.has(item.userId),
+  );
+  const targetMembers = members.filter(
+    (item) => item.currentHouseId === targetHouseId && !protectedLeaderIds.has(item.userId),
+  );
+
+
+  if (availableSourceHouses.length === 0 || league.status !== "active") return null;
+
+  async function handleSwap() {
+    const firstPlayer = sourceMembers.find((item) => item.userId === firstPlayerId);
+    const secondPlayer = targetMembers.find((item) => item.userId === secondPlayerId);
+    if (!window.confirm("Complete this week’s House roster swap? Earlier contributions will remain with each player’s previous House.")) return;
+    setBusy(true);
+    try {
+      await swapHousePlayers({ league, firstHouse: sourceHouse, secondHouse: targetHouse, firstPlayer, secondPlayer, actorId });
+      notify("The weekly House roster swap is complete.", "success");
+      setFirstPlayerId("");
+      setSecondPlayerId("");
+    } catch (error) {
+      console.error(error);
+      notify(error.message || "The House roster could not be changed.", "error");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className="roster-swap card">
+      <div><p className="section-kicker">Weekly roster turn</p><h2>One strategic House swap</h2><p>Each House may take part in one balanced player swap per week. Captains, vice-captains and league administrators can act; current leaders must be reassigned before they move.</p></div>
+      <div className="roster-swap__grid">
+        <label>Source House<select value={effectiveSourceHouseId} onChange={(event) => { setSourceHouseId(event.target.value); setFirstPlayerId(""); }}><option value="">Choose House</option>{availableSourceHouses.map((house) => <option key={house.id} value={house.id}>{house.name}</option>)}</select></label>
+        <label>Player leaving<select value={firstPlayerId} onChange={(event) => setFirstPlayerId(event.target.value)}><option value="">Choose player</option>{sourceMembers.map((member) => <option key={member.userId} value={member.userId}>{member.displayName}</option>)}</select></label>
+        <label>Other House<select value={targetHouseId} onChange={(event) => { setTargetHouseId(event.target.value); setSecondPlayerId(""); }}><option value="">Choose House</option>{houses.filter((house) => house.id !== effectiveSourceHouseId).map((house) => <option key={house.id} value={house.id}>{house.name}</option>)}</select></label>
+        <label>Player joining<select value={secondPlayerId} onChange={(event) => setSecondPlayerId(event.target.value)}><option value="">Choose player</option>{targetMembers.map((member) => <option key={member.userId} value={member.userId}>{member.displayName}</option>)}</select></label>
+      </div>
+      <button className="button button--danger" type="button" disabled={busy || !sourceHouse || !targetHouse || !sourceMembers.some((item) => item.userId === firstPlayerId) || !targetMembers.some((item) => item.userId === secondPlayerId)} onClick={handleSwap}>{busy ? "Changing Houses…" : "Complete roster swap"}</button>
+    </section>
   );
 }
 
 export default function Teams() {
-  const { user, profile } = usePlayerData();
-  const { membership, team, members, loading, error } = useTeam();
+  const { user, isPlatformAdmin } = usePlayerData();
+  const { leagues, memberships: myMemberships, canManageLeagues } = useLeagues();
   const { toast, showToast, dismissToast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const seasonLeagues = leagues.filter((league) => league.mode === "season");
+  const requestedId = searchParams.get("league") || "";
+  const fallbackId = myMemberships.find((item) => item.currentHouseId)?.leagueId
+    || seasonLeagues[0]?.id
+    || "";
+  const selectedId = seasonLeagues.some((item) => item.id === requestedId)
+    ? requestedId
+    : fallbackId;
+  const league = seasonLeagues.find((item) => item.id === selectedId) || null;
+  const [housesState, setHousesState] = useState({ leagueId: "", items: [] });
+  const [membersState, setMembersState] = useState({ leagueId: "", items: [] });
+  const [electionsState, setElectionsState] = useState({ leagueId: "", items: [] });
+  const [selectedHouseId, setSelectedHouseId] = useState("");
+  const [working, setWorking] = useState(false);
+  const [editingHouseId, setEditingHouseId] = useState("");
+
+  useEffect(() => {
+    const leagueId = league?.id;
+    if (!leagueId) return undefined;
+
+    const unsubHouses = subscribeToLeagueHouses(
+      leagueId,
+      (items) => setHousesState({ leagueId, items }),
+      (error) => showToast(error.message || "Houses could not be loaded.", "error"),
+    );
+    const unsubMembers = subscribeToLeagueMemberships(
+      leagueId,
+      (items) => setMembersState({ leagueId, items }),
+      (error) => showToast(error.message || "Season members could not be loaded.", "error"),
+    );
+    const unsubElections = subscribeToLeadershipElections(
+      leagueId,
+      (items) => setElectionsState({ leagueId, items }),
+      (error) => showToast(error.message || "Leadership votes could not be loaded.", "error"),
+    );
+
+    return () => {
+      unsubHouses();
+      unsubMembers();
+      unsubElections();
+    };
+  }, [league?.id, showToast]);
+
+  const houses = housesState.leagueId === league?.id ? housesState.items : [];
+  const members = membersState.leagueId === league?.id ? membersState.items : [];
+  const elections = electionsState.leagueId === league?.id ? electionsState.items : [];
+  const membership = myMemberships.find((item) => item.leagueId === league?.id) || null;
+  const currentHouse = houses.find((item) => item.id === membership?.currentHouseId) || null;
+  const selectedHouse = houses.find((item) => item.id === selectedHouseId) || currentHouse || houses[0] || null;
+  const selectedMembers = members.filter((item) => item.currentHouseId === selectedHouse?.id);
+  const editingHouse = houses.find((item) => item.id === editingHouseId) || null;
+  const manager = Boolean(league && canManageLeagues && canManageLeague(league, user?.uid, isPlatformAdmin));
+  const houseCapacityReady = houses.length === Number(league?.houseCount ?? 0);
+
+  async function handleCreateHouse(input) {
+    setWorking(true);
+    try {
+      await createLeagueHouse({ leagueId: league.id, actorId: user.uid, input });
+      showToast("House created. Its banner is ready for the season.", "success");
+    } catch (error) {
+      console.error(error);
+      showToast(error.message || "The House could not be created.", "error");
+    } finally {
+      setWorking(false);
+    }
+  }
+
+  async function handleUpdateHouse(input) {
+    const house = houses.find((item) => item.id === editingHouseId);
+    setWorking(true);
+    try {
+      await updateLeagueHouse({ house, actorId: user.uid, input });
+      showToast("House identity updated.", "success");
+      setEditingHouseId("");
+    } catch (error) {
+      console.error(error);
+      showToast(error.message || "The House could not be updated.", "error");
+    } finally {
+      setWorking(false);
+    }
+  }
+
+  async function handleChaos() {
+    if (!window.confirm("Activate C.H.A.O.S.? Every registered player will be assigned fairly and notified. This cannot be repeated for the season.")) return;
+    setWorking(true);
+    try {
+      await activateChaos({ league, houses, memberships: members, actorId: user.uid });
+      showToast("C.H.A.O.S. activated. The Houses have claimed their players.", "success", 6000);
+    } catch (error) {
+      console.error(error);
+      showToast(error.message || "C.H.A.O.S. could not be activated.", "error");
+    } finally {
+      setWorking(false);
+    }
+  }
 
   return (
-    <div className="community-page page-stack">
+    <div className="season-houses-page page-stack">
       <PageHeader
-        eyebrow="Community"
-        title="Teams"
-        description="Build accountability with people who want one another to improve—without turning friendship into pressure."
-        icon="🤝"
+        eyebrow="Season Houses"
+        title="Houses"
+        description="Every House belongs to one season. Individual points remain personal, while every new contribution also strengthens the House you represent at that moment."
+        icon="🏰"
+        actions={<Link className="button button--secondary" to={league ? `/pocket?league=${league.id}` : "/pocket"}>Open Pocket Week</Link>}
       />
 
-      {error && <div className="inline-alert inline-alert--danger" role="alert">{error}</div>}
+      <section className="season-selector card">
+        <label htmlFor="house-season">Season</label>
+        <select id="house-season" value={selectedId} onChange={(event) => setSearchParams({ league: event.target.value }, { replace: true })}>
+          <option value="">Choose a House season</option>
+          {seasonLeagues.map((item) => <option key={item.id} value={item.id}>{item.name} · {item.theme}</option>)}
+        </select>
+      </section>
 
-      {loading ? (
-        <section className="empty-state">Loading your team…</section>
-      ) : membership && !team ? (
-        <section className="inline-alert inline-alert--danger" role="alert">
-          Your team membership exists, but the team record could not be loaded. Refresh the page; if the problem remains, ask a Platform Administrator to inspect the team record before creating or joining another team.
-        </section>
-      ) : membership && team ? (
-        <TeamDashboard team={team} membership={membership} members={members} userId={user?.uid} notify={showToast} />
+      {!league ? (
+        <section className="empty-state card">No House season is available yet. A League or Platform Administrator must create one first.</section>
       ) : (
-        <div className="community-onboarding">
-          <TeamForm profile={profile} userId={user?.uid} notify={showToast} />
-          <JoinTeamForm profile={profile} userId={user?.uid} notify={showToast} />
-        </div>
-      )}
+        <>
+          <section className="season-banner card">
+            <div><p className="section-kicker">{league.theme}</p><h2>{league.name}</h2><p>{league.description}</p></div>
+            <div className="season-banner__status"><strong>{houses.length} of {league.houseCount} Houses</strong><span>{league.chaosStatus === "activated" ? "C.H.A.O.S. activated" : "Awaiting C.H.A.O.S."}</span></div>
+          </section>
 
+          {manager && league.status === "draft" && houses.length < Number(league.houseCount) && (
+            <section className="house-builder card"><div><p className="section-kicker">House forge</p><h2>Create the season identities</h2><p>Build exactly {league.houseCount} Houses before registration closes. Names, symbols and colours may follow the season theme—or intentionally rebel against it.</p></div><HouseIdentityForm submitLabel="Create House" busy={working} onSubmit={handleCreateHouse} /></section>
+          )}
+
+          {manager && editingHouse && (
+            <section className="house-builder card"><div><p className="section-kicker">House refinement</p><h2>Edit the banner</h2></div><HouseIdentityForm key={editingHouse.id} initial={editingHouse} submitLabel="Save House" busy={working} onSubmit={handleUpdateHouse} /></section>
+          )}
+
+          {manager && league.status === "registration" && league.chaosStatus !== "activated" && (
+            <section className="chaos-console card">
+              <div className="chaos-console__sigil" aria-hidden="true">C.H.A.O.S.</div>
+              <div><p className="section-kicker">Citizens Handpicked for Assignment via Operational Sorting</p><h2>Activate C.H.A.O.S.</h2><p>The assignment is seeded, balanced and permanent as the season’s opening roster. Every player receives a private notification naming their House. At least two registered players are required per House.</p></div>
+              <button className="button button--danger" type="button" disabled={
+                working ||
+                !houseCapacityReady ||
+                members.length < houses.length * 2
+              } onClick={handleChaos}>{working ? "Destiny is calculating…" : "Activate C.H.A.O.S."}</button>
+            </section>
+          )}
+
+          <section className="house-grid" aria-label="Season Houses">
+            {houses.map((house) => {
+              const houseMembers = members.filter((item) => item.currentHouseId === house.id);
+              return <HouseCard key={house.id} house={house} members={houseMembers} selected={selectedHouse?.id === house.id} onSelect={() => setSelectedHouseId(house.id)} />;
+            })}
+          </section>
+
+          {selectedHouse && (
+            <>
+              <section className="house-identity card" style={{ "--house-accent": getHouseAccent(selectedHouse.accentId).value }}>
+                <span aria-hidden="true">{getHouseEmblem(selectedHouse.emblemId).symbol}</span>
+                <div><p className="section-kicker">Selected House</p><h2>{selectedHouse.name}</h2><blockquote>“{selectedHouse.motto}”</blockquote><p>{selectedHouse.description}</p></div>
+                {manager && ["draft", "registration"].includes(league.status) && <button className="button button--secondary" type="button" onClick={() => setEditingHouseId(selectedHouse.id)}>Edit identity</button>}
+              </section>
+              <HouseRoster house={selectedHouse} members={selectedMembers} />
+              <LeadershipPanel key={`${league.id}:${selectedHouse.id}`} league={league} house={selectedHouse} members={selectedMembers} membership={membership} elections={elections} manager={manager} actorId={user?.uid} notify={showToast} />
+            </>
+          )}
+
+          <RosterSwapPanel key={league.id} league={league} houses={houses} members={members} actorId={user?.uid} manager={manager} currentHouse={currentHouse} notify={showToast} />
+
+          <section className="season-integrity card">
+            <span aria-hidden="true">🧭</span>
+            <div><p className="section-kicker">Historical integrity</p><h2>Your old House keeps what you earned there</h2><p>A roster move changes only future House contributions. Individual points remain yours, and completed contribution snapshots are never rewritten to make the past look different.</p></div>
+          </section>
+        </>
+      )}
       <Toast message={toast?.message} type={toast?.type} onDismiss={dismissToast} />
     </div>
   );

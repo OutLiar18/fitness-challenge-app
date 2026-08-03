@@ -1,0 +1,33 @@
+.pocket-page { width: 100%; }
+.pocket-season { display: grid; align-items: end; gap: 16px; padding: 22px; grid-template-columns: minmax(220px, .7fr) minmax(300px, 1.3fr); }
+.pocket-season > label { display: grid; gap: 8px; font-weight: 850; }
+.pocket-season__window { display: grid; gap: 4px; padding: 15px 18px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-soft); grid-template-columns: 1fr auto; }
+.pocket-season__window span { color: var(--text-muted); font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+.pocket-season__window strong { grid-column: 1; }
+.pocket-phase { align-self: center; grid-column: 2; grid-row: 1 / span 2; padding: 6px 10px; border-radius: 999px; color: var(--primary); background: var(--primary-soft); font-size: .76rem; font-style: normal; font-weight: 850; text-transform: capitalize; }
+.pocket-principles { display: grid; gap: 14px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.pocket-principles article { display: grid; gap: 8px; padding: 20px; }
+.pocket-principles article > span { display: grid; width: 40px; height: 40px; place-items: center; border-radius: 13px; color: var(--primary); background: var(--primary-soft); font-family: var(--font-display); font-size: 1.2rem; font-weight: 900; }
+.pocket-principles p { margin: 0; color: var(--text-muted); }
+.pocket-workspace { display: grid; align-items: start; gap: 22px; grid-template-columns: minmax(260px, .72fr) minmax(0, 1.28fr); }
+.pocket-entry-column { display: grid; gap: 14px; }
+.pocket-date { display: grid; gap: 8px; padding: 18px 22px; font-weight: 850; }
+.pocket-wallet { padding: 24px; }
+.pocket-wallet__grid { display: grid; gap: 14px; }
+.pocket-card { display: grid; align-items: center; gap: 16px; padding: 18px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: linear-gradient(135deg, var(--surface-soft), var(--surface)); grid-template-columns: auto minmax(0, 1fr) minmax(260px, .9fr); }
+.pocket-card--empty { opacity: .68; }
+.pocket-card__icon { display: grid; width: 52px; height: 52px; place-items: center; border-radius: 17px; background: var(--primary-soft); font-size: 1.7rem; }
+.pocket-card__copy { display: grid; gap: 3px; }
+.pocket-card__copy p { margin: 0; color: var(--primary); font-size: .75rem; font-weight: 850; text-transform: uppercase; letter-spacing: .08em; }
+.pocket-card__copy h3 { margin: 0; font-size: 1.04rem; }
+.pocket-card__copy span { color: var(--text-muted); font-size: .8rem; }
+.pocket-card__controls { display: grid; align-items: end; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.pocket-card__controls label { display: grid; gap: 6px; color: var(--text-muted); font-size: .76rem; font-weight: 800; }
+.pocket-card__controls .button { grid-column: 1 / -1; }
+.pocket-card__empty { color: var(--success); font-weight: 850; }
+.pocket-wallet__notice { margin: 18px 0 0; color: var(--text-muted); font-style: italic; }
+.pocket-easter { display: flex; align-items: center; gap: 16px; padding: 20px 24px; background: radial-gradient(circle at 4% 50%, var(--primary-soft), transparent 17rem), var(--surface); }
+.pocket-easter > span { font-size: 2.2rem; }
+.pocket-easter p { margin: 3px 0 0; color: var(--text-muted); }
+@media (max-width: 900px) { .pocket-workspace, .pocket-season { grid-template-columns: 1fr; } .pocket-principles { grid-template-columns: 1fr; } .pocket-card { grid-template-columns: auto minmax(0, 1fr); } .pocket-card__controls, .pocket-card__empty { grid-column: 1 / -1; } }
+@media (max-width: 620px) { .pocket-season, .pocket-wallet { padding: 18px; } .pocket-season__window { grid-template-columns: 1fr; } .pocket-phase { grid-column: 1; grid-row: auto; justify-self: start; } .pocket-card { padding: 14px; } .pocket-card__controls { grid-template-columns: 1fr; } .pocket-card__controls .button { grid-column: 1; } }

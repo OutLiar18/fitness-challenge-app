@@ -1,53 +1,37 @@
 # Champions Legacy Challenge — Data Model
 
-Last updated: 1 August 2026  
-Current release: v0.13.1
+Last updated: 3 August 2026  
+Current release: v0.14.0
 
 ## Principle
 
-Store facts and trusted decisions. Derive progress and presentation.
+Store factual activity, trusted decisions and immutable competitive snapshots. Derive presentation and progress.
 
 ## Core entities
 
-- **Player profile** — permanent identity and trusted role metadata.
-- **Challenge entry** — owner, category, category-shaped factual data, server creation time and local challenge date.
-- **Personal/shared library records** — reusable definitions with versioned publication history.
-- **Announcement/read record** — platform communication and private read state.
-- **Client error report** — sanitised authenticated failure and resolution state.
-- **Audit event** — immutable privileged-operation record.
+- Player profile.
+- Challenge entry.
+- Personal/shared library definitions.
+- Announcement/read record.
+- Client error report.
+- Immutable audit event.
 
-## Team entities
+## Season competition entities
 
-- **Team** — identity, local emblem, captain, member count and invite code.
-- **Team member** — identity snapshot, role and current-week accountability snapshot.
-- **Player team pointer** — one active team per player.
-- **Team invitation** — known-code lookup; not listable.
-
-Stale weekly member values are normalised to zero when their `weeklyKey` is not the current week.
-
-## League entities
-
-- **League** — identity, mode, lifecycle, dates, frozen rules, administrators, participant count/limit and access code.
-- **Membership** — season identity/team snapshot and status.
-- **Contribution** — immutable entry-linked identity/category/date/point/rules snapshot.
-- **Invitation** — known-code registration state; not listable.
-
-Registration count and membership changes are paired transactionally. Active contributions follow recent source-entry deletion; completed/archived contributions remain permanent.
-
-## Coach entity
-
-`users/{userId}/coach/preferences` stores only enabled state, tone, focus and server update timestamp. Recommendations are derived and not persisted.
-
-## Derived systems
-
-- personal points, goals, bonuses, streaks, experience, achievements, records and timeline;
-- current-week team summaries;
-- league player and team standings;
-- Legacy Coach comparisons, recommendations and evidence.
+- **League/season** — identity, theme, lifecycle, dates, House count, Pocket window, frozen rules, administrators and participant count.
+- **League membership** — player identity, status and current House assignment.
+- **House** — season identity, emblem, accent, Captain, Vice-Captains and last election.
+- **Leadership election/vote** — weekly 24-hour ballot and one private vote per member.
+- **Roster swap/lock** — one atomic balanced move and one weekly lock per participating House.
+- **Pocket activity** — private zero-point reserve and remaining balance.
+- **Pocket redemption** — immutable receipt linking reserve, target day and challenge entry.
+- **League contribution** — immutable entry/category/date/point/rules/Historical-House snapshot.
+- **Player notification** — private assignment, ballot, leadership, roster and Pocket event.
 
 ## Historical stability
 
 - Published activity definitions are copied into entries.
-- League rules are frozen in the league document.
-- League identity and activity points are copied into contributions.
-- Completed seasonal history is not silently recalculated or deleted.
+- Season rules are frozen in the league document.
+- Every contribution copies House identity at earning time.
+- A roster move changes membership only; earlier contributions remain unchanged.
+- Completed and archived competitive history cannot be deleted.

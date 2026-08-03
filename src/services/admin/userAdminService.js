@@ -52,7 +52,6 @@ export async function getUserPage({
 export async function updateUserAdministration({
   targetUser,
   role,
-  team,
   actorId,
 }) {
   if (!targetUser?.id) {
@@ -67,7 +66,6 @@ export async function updateUserAdministration({
     throw new Error("Choose a valid player role.");
   }
 
-  const normalizedTeam = String(team ?? "").trim().slice(0, 80);
   const batch = writeBatch(db);
   const userReference = doc(db, "users", targetUser.id);
   const auditReference = addAuditWrite(batch, {
@@ -81,14 +79,11 @@ export async function updateUserAdministration({
     details: {
       previousRole: targetUser.role ?? "user",
       nextRole: role,
-      previousTeam: targetUser.team ?? "",
-      nextTeam: normalizedTeam,
     },
   });
 
   batch.update(userReference, {
     role,
-    team: normalizedTeam,
     adminUpdatedAt: serverTimestamp(),
     adminUpdatedBy: actorId,
     lastAuditId: auditReference.id,

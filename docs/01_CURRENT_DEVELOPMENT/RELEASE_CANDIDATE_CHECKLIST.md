@@ -1,62 +1,46 @@
-# Champions Legacy Challenge — Release Candidate Checklist
+# Release Candidate Checklist
 
-Version: 0.13.1  
-Purpose: Verify the official player-reference release without declaring v1.0
+Version: 0.14.0  
+Status: Deployed pre-v1.0; final integrated review deferred
 
-## Migration and automated verification
+## Automated verification
 
-- [ ] Outstanding v0.12 league-capacity migration is complete when existing leagues are present.
-- [ ] `npm install` completes.
-- [ ] `npm run lint` passes.
-- [ ] `npm test` passes 54 domain tests.
-- [ ] `npm run build` succeeds.
-- [ ] `npm run test:rules` passes 15 Emulator tests.
-- [ ] `npm run check:release` confirms v0.13.1 and Hosting target `app`.
-- [ ] `npm audit` is reviewed without forced breaking changes.
+- [x] `npm install`
+- [x] `npm run check` passes with 61 domain tests and no ESLint warnings.
+- [x] `npm run test:rules` passes all 25 Rules tests.
+- [x] `npm run check:release` confirms v0.14.0 and Hosting target `app`.
+- [x] `npm audit` reviewed without `--force`.
 
-## Rulebook
+## Data and deployment
 
-- [ ] `/rules` is reachable through desktop and mobile More navigation.
-- [ ] Current rules are shown by default.
-- [ ] Search finds text and legacy rule numbers.
-- [ ] Current, season and inactive filters are accurate.
-- [ ] Accordions, jump links, expand all and collapse all are keyboard usable.
-- [ ] Daily and weekly goals match the live goal configuration.
-- [ ] Changed rules explain why the 2025 wording no longer applies.
-- [ ] Inactive mechanics clearly state that they award no points.
+- [x] Legacy competition collections inspected according to `ACTIVE_MIGRATIONS.md`.
+- [x] Disposable retired Team and dummy league records removed.
+- [x] Firestore Rules deployed successfully without compiler warnings.
+- [x] Firebase Hosting preview deployed to branded target.
+- [x] Production Hosting deployed to the branded live URL.
+- [ ] Direct refresh reviewed on `/leagues`, `/teams`, `/pocket`, `/notifications`, `/rules` and `/points-guide`.
 
-## Points Guide
+## Season workflow
 
-- [ ] `/points-guide` is reachable and cross-linked with the Rulebook.
-- [ ] Water, Fruit, Reading, Skill, Cardio, Running, Steps and Workouts appear.
-- [ ] Every table includes its zero-point range.
-- [ ] Thresholds match the central scoring constants.
-- [ ] Running qualification and Tier 3 Cardio contribution are accurate.
-- [ ] Difficulty multipliers, goal bonuses and league-day score are accurate.
-- [ ] Hidden streak/achievement progression rewards are omitted.
+- [x] Create a themed season and exact House count.
+- [ ] Open registration and join with a code.
+- [ ] C.H.A.O.S. remains disabled until at least two players per House are registered.
+- [ ] C.H.A.O.S. assigns everyone once and creates private notifications.
+- [ ] Ballot opens for 24 hours and each House member votes once.
+- [ ] Administrator finalises clear, tied and no-vote outcomes correctly.
+- [ ] Captain appoints one additional Vice-Captain.
+- [ ] Weekly balanced swap locks both Houses and preserves earlier contributions.
+- [ ] Pocket deposits earn zero points and valid redemption creates the scored entry once.
+- [ ] Individual and House standings are correct before and after a player moves.
 
-## Core regression
+## Responsive and accessible review
 
-- [ ] Authentication, profiles and protected redirects work.
-- [ ] Valid activity entries score correctly; malformed entries are rejected.
-- [ ] Today/yesterday editability and local dates remain correct.
-- [ ] Goals, progression, records and timeline agree.
-- [ ] Announcements, moderation, audit history and library publication work.
-- [ ] Teams, captain transfer, league registration/lifecycle and Legacy Coach work.
-- [ ] Completed league history remains immutable.
+Deferred by product-owner direction until the final pre-v1.0 review:
 
-## Accessibility and Hosting
+- [ ] Mobile 320–430 pixels.
+- [ ] Tablet portrait and landscape.
+- [ ] Desktop 1280 and 1920 pixels.
+- [ ] Keyboard focus, labels, dialogs, error states and reduced-motion behaviour.
+- [ ] Light and dark mode.
 
-- [ ] 320-pixel mobile, tablet and desktop layouts pass.
-- [ ] Keyboard-only navigation, visible focus and reduced motion pass.
-- [ ] Light and dark mode pass.
-- [ ] Direct refreshes on `/rules` and `/points-guide` work.
-- [ ] `npm run deploy:hosting` publishes to `champions-legacy-challenge.web.app`.
-- [ ] No unexpected console errors remain.
-
-## Review boundary
-
-- [ ] User-requested corrections are recorded after verification.
-- [ ] v1.0 remains unapproved until explicit confirmation.
-
-Completing this checklist supports review; it does not create v1.0.
+Do not tag v1.0 from this checklist.

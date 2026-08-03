@@ -1,3 +1,5 @@
+import { SEASON_MODULES } from "./seasons";
+
 export const LEAGUE_STATUSES = Object.freeze({
   DRAFT: "draft",
   REGISTRATION: "registration",
@@ -17,13 +19,13 @@ export const LEAGUE_TYPES = Object.freeze([
 ]);
 
 export const LEAGUE_MODES = Object.freeze([
-  { id: "individual", label: "Individual standings" },
-  { id: "team", label: "Team and individual standings" },
+  { id: "season", label: "Individual and House standings" },
+  { id: "individual", label: "Individual standings only" },
 ]);
 
-export const LEAGUE_PARTICIPANT_LIMIT = 200;
+export const LEAGUE_PARTICIPANT_LIMIT = 160;
 
-export const LEAGUE_RULESET_VERSION = "consistency-v1";
+export const LEAGUE_RULESET_VERSION = "season-houses-v1";
 export const DEFAULT_LEAGUE_RULESET = Object.freeze({
   version: LEAGUE_RULESET_VERSION,
   scoringEngineVersion: "points-v2",
@@ -41,4 +43,5 @@ export const DEFAULT_LEAGUE_RULESET = Object.freeze({
     "skill",
     "steps",
   ]),
+  modules: SEASON_MODULES,
 });

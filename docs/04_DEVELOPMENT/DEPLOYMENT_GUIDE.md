@@ -1,6 +1,6 @@
 # Champions Legacy Challenge — Deployment Guide
 
-Last updated: 1 August 2026
+Last updated: 3 August 2026
 
 ## Hosting
 
@@ -15,7 +15,7 @@ Firestore, Authentication and Hosting remain in project `fitnesschallengeapp-9e8
 - Firebase project access and CLI authentication.
 - Java 21 for the Firestore Emulator.
 - Correct local `.env` values.
-- Accurate v0.12.0 league-capacity fields for any existing league documents.
+- Completion of the v0.14.0 season migration review for any existing permanent Team or pre-season league data.
 - Passing release checks.
 
 ## Local verification
@@ -34,7 +34,7 @@ npm audit
 npm run deploy:rules
 ```
 
-Deploy Rules after completing the league-capacity migration check.
+Deploy Rules only after completing the season migration checks in `docs/01_CURRENT_DEVELOPMENT/ACTIVE_MIGRATIONS.md`. Export any legacy permanent Team data that still needs to be retained before the new Rules make those collections inaccessible.
 
 ## Preview and live Hosting
 

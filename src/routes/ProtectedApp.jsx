@@ -4,7 +4,7 @@ import { CoachProvider } from "../context/CoachProvider";
 import { GlobalLibraryProvider } from "../context/GlobalLibraryProvider";
 import { LeagueProvider } from "../context/LeagueProvider";
 import { PlayerDataProvider } from "../context/PlayerDataProvider";
-import { TeamProvider } from "../context/TeamProvider";
+import { NotificationProvider } from "../context/NotificationProvider";
 import PrivateRoute from "./PrivateRoute";
 
 export default function ProtectedApp() {
@@ -13,13 +13,13 @@ export default function ProtectedApp() {
       <PlayerDataProvider>
         <GlobalLibraryProvider>
           <AnnouncementProvider>
-            <TeamProvider>
-              <LeagueProvider>
+            <LeagueProvider>
+              <NotificationProvider>
                 <CoachProvider>
                   <AppShell />
                 </CoachProvider>
-              </LeagueProvider>
-            </TeamProvider>
+              </NotificationProvider>
+            </LeagueProvider>
           </AnnouncementProvider>
         </GlobalLibraryProvider>
       </PlayerDataProvider>

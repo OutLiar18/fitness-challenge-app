@@ -1,67 +1,47 @@
-# Champions Legacy Challenge — Next Session
+# Next Session
 
-Version target: 0.13.1  
-Objective: Verify the official Rulebook and Points Guide before the full review
+Version target: Post-v0.14.0 pre-v1.0 development  
+Status: v0.14.0 deployed; integrated review deferred
 
-## Before deploying Rules
+## Begin here
 
-The v0.13 feature itself adds no Firestore collections or Rules. However, if the v0.12 Rules have not yet been deployed, inspect every existing `leagues` document and confirm:
+1. Confirm the v0.14.0 deployment commit is clean with `git status`.
+2. Improve C.H.A.O.S. discoverability on the Houses page:
+   - keep activation restricted to Registration;
+   - show administrators a prerequisite checklist during Draft instead of hiding the system completely;
+   - explain that all configured Houses must exist;
+   - explain that the minimum is two registered players per House in total;
+   - do not require Houses to contain players before activation because C.H.A.O.S. performs the assignment.
+3. Add regression coverage for the prerequisite presentation and preserve existing service/Rules safeguards.
 
-- `participantLimit` is the number `200`.
-- `participantCount` equals the matching `leagueMemberships` count.
+## Completed release gates
 
-No league documents means no migration action.
+- Clean ESLint.
+- 61 domain tests.
+- 25 Firestore Rules tests.
+- Successful Vite production build.
+- Release-readiness for Hosting target `app`.
+- Required Firestore legacy-data inspection and cleanup.
+- Firestore Rules deployment without compiler warnings.
+- Seven-day Hosting preview deployment.
+- Production Hosting deployment.
+- Production smoke test for season and House creation.
 
-## Required sequence
+## Deferred final review
 
-```powershell
-npm install
-npm run check
-npm run test:rules
-npm run check:release
-npm audit
-npm run deploy:hosting
-npm run dev
-```
+The full functional, responsive, keyboard, visual, dark-mode and accessibility review will be completed near the final pre-v1.0 stage, as directed by the product owner.
 
-Run `npm run deploy:rules` first only when the v0.12 hardened Rules are not already live.
+## Confirmed product rule
 
-Expected results:
+Pocket Week is one seven-day window immediately before a season. It does not recur every challenge week.
 
-- 54 domain tests pass.
-- 15 Firestore Security Rules tests pass.
-- ESLint passes.
-- Production build passes.
-- Release readiness confirms v0.13.1 and Hosting target `app`.
+## Product questions still open
 
-Do not run `npm audit fix --force`.
+- Exact late-season twists.
+- Whether future roster movement remains a balanced swap or becomes a full Transfer Market.
+- Power Play voting, multipliers and the 40-percent contribution rule.
+- Diamonds, player prices, House Immunity and transfer windows.
+- Buddy Bonus evidence and group validation.
+- Five Fires participation and reward rules.
 
-## Focused checks
-
-### Rulebook
-
-- `/rules` opens from desktop and mobile More navigation.
-- Current rules are the default view.
-- Search finds rules by text and 2025 rule number.
-- Current, season and inactive filters remain distinct.
-- Expand all, collapse all, jump links and browser back/forward work.
-- Current goal values match Dashboard and Progress.
-- Inactive legacy mechanics cannot be mistaken for active features.
-
-### Points Guide
-
-- Every activity category is selectable.
-- Zero-point ranges and earning ranges match the live scoring engine.
-- Running eligibility and automatic Cardio contribution are clear.
-- Difficulty multipliers, visible goal bonuses and league scoring display correctly.
-- Streak milestone and achievement rewards are not disclosed.
-
-### Regression
-
-- Activity scoring, Teams, Leagues, Legacy Coach, Announcements and Administration still work.
-- Direct refreshes on `/rules` and `/points-guide` work on Firebase Hosting.
-- Mobile layouts have no horizontal overflow.
-
-## Release boundary
-
-After verification, commit and tag v0.13.1. The next phase is the user’s full review and targeted corrections, still before v1.0.
+Do not activate or invent these systems before the user confirms them. Do not create v1.0 without explicit approval.

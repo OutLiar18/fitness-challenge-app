@@ -11,7 +11,8 @@ service cloud.firestore {
     }
 
     function hasPlatformAdminClaim() {
-      return signedIn() && request.auth.token.admin == true;
+      return signedIn()
+        && request.auth.token.get("admin", false) == true;
     }
 
     function hasPlatformAdminProfile() {
@@ -30,11 +31,6 @@ service cloud.firestore {
 
     function isLeagueOperator() {
       return isPlatformAdmin() || hasLeagueAdminProfile();
-    }
-
-    function isTeamMember(teamId) {
-      return signedIn()
-        && exists(/databases/$(database)/documents/teams/$(teamId)/members/$(request.auth.uid));
     }
 
     function isLeagueMember(leagueId) {
@@ -64,6 +60,7 @@ service cloud.firestore {
           && (
             isLeagueAdministrator(request.resource.data.entityId)
             || managesLeagueAfter(request.resource.data.entityId)
+            || leadsHouseInLeague(request.resource.data.entityId)
           )
         );
     }
@@ -175,14 +172,11 @@ service cloud.firestore {
       return request.auth.uid != userId
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           "role",
-          "team",
           "adminUpdatedAt",
           "adminUpdatedBy",
           "lastAuditId"
         ])
         && validRole(request.resource.data.role)
-        && request.resource.data.team is string
-        && request.resource.data.team.size() <= 80
         && request.resource.data.adminUpdatedAt == request.time
         && request.resource.data.adminUpdatedBy == request.auth.uid
         && request.resource.data.lastAuditId is string
@@ -227,173 +221,183 @@ service cloud.firestore {
         && data.totalMinutes == data.totalSeconds / 60;
     }
 
-    function validChallengeEntryData(category, data) {
-      return (
-          category == "water"
-          && data.keys().hasOnly(["amount"])
-          && data.amount is number
-          && data.amount >= 1
-          && data.amount <= 20000
-        )
-        || (
-          category == "fruit"
-          && data.keys().hasOnly(["fruitType", "servings"])
-          && data.fruitType is string
-          && data.fruitType.size() >= 1
-          && data.fruitType.size() <= 80
-          && data.servings is int
-          && data.servings >= 1
-          && data.servings <= 100
-        )
-        || (
-          category == "reading"
-          && data.keys().hasOnly([
-            "hours",
-            "minutes",
-            "seconds",
-            "totalSeconds",
-            "totalMinutes",
-            "title",
-            "author",
-            "totalPages",
-            "reflection",
-            "completed"
-          ])
-          && validDurationData(data)
-          && data.title is string
-          && data.title.size() >= 1
-          && data.title.size() <= 240
-          && data.author is string
-          && data.author.size() <= 160
-          && (
-            data.totalPages == ""
-            || (
-              data.totalPages is int
-              && data.totalPages >= 1
-              && data.totalPages <= 100000
-            )
-          )
-          && data.reflection is string
-          && data.reflection.size() <= 2000
-          && data.completed is bool
-        )
-        || (
-          category == "running"
-          && data.keys().hasOnly([
-            "distance",
-            "hours",
-            "minutes",
-            "seconds",
-            "totalSeconds",
-            "totalMinutes",
-            "averagePaceSecondsPerKm"
-          ])
-          && validDurationData(data)
-          && data.distance is number
-          && data.distance > 0
-          && data.distance <= 500
-          && data.averagePaceSecondsPerKm is number
-          && data.averagePaceSecondsPerKm > 0
-          && data.averagePaceSecondsPerKm <= 86400
-        )
-        || (
-          category in ["upperBody", "lowerBody", "core"]
-          && data.keys().hasOnly(["exercises"])
-          && data.exercises is list
-          && data.exercises.size() >= 1
-          && data.exercises.size() <= 30
-        )
-        || (
-          category == "cardio"
-          && data.keys().hasOnly([
-            "activity",
-            "source",
-            "suggestionStatus",
-            "activityDefinition",
-            "hours",
-            "minutes",
-            "seconds",
-            "totalSeconds",
-            "totalMinutes",
-            "distance",
-            "notes"
-          ])
-          && validDurationData(data)
-          && data.activity is string
-          && data.activity.size() >= 1
-          && data.activity.size() <= 120
-          && data.source in ["library", "published", "custom"]
-          && data.suggestionStatus in ["", "pending"]
-          && data.activityDefinition is map
-          && (
-            data.distance == ""
-            || (
-              data.distance is number
-              && data.distance > 0
-              && data.distance <= 1000
-            )
-          )
-          && data.notes is string
-          && data.notes.size() <= 1000
-        )
-        || (
-          category == "skill"
-          && data.keys().hasOnly([
-            "skill",
-            "source",
-            "suggestionStatus",
-            "skillDefinition",
-            "hours",
-            "minutes",
-            "seconds",
-            "totalSeconds",
-            "totalMinutes"
-          ])
-          && validDurationData(data)
-          && data.skill is string
-          && data.skill.size() >= 1
-          && data.skill.size() <= 120
-          && data.source in ["library", "published", "custom"]
-          && data.suggestionStatus in ["", "pending"]
-          && (data.skillDefinition == null || data.skillDefinition is map)
-        )
-        || (
-          category == "steps"
-          && data.keys().hasOnly(["steps"])
-          && data.steps is int
-          && data.steps >= 1
-          && data.steps <= 500000
-        );
+    function validWaterEntryData(data) {
+      return data.keys().hasOnly(["amount"])
+        && data.amount is number
+        && data.amount >= 1
+        && data.amount <= 20000;
     }
 
-    function validChallengeEntry() {
+    function validFruitEntryData(data) {
+      return data.keys().hasOnly(["fruitType", "servings"])
+        && data.fruitType is string
+        && data.fruitType.size() >= 1
+        && data.fruitType.size() <= 80
+        && data.servings is int
+        && data.servings >= 1
+        && data.servings <= 100;
+    }
+
+    function validReadingEntryData(data) {
+      return data.keys().hasOnly([
+          "hours",
+          "minutes",
+          "seconds",
+          "totalSeconds",
+          "totalMinutes",
+          "title",
+          "author",
+          "totalPages",
+          "reflection",
+          "completed"
+        ])
+        && validDurationData(data)
+        && data.title is string
+        && data.title.size() >= 1
+        && data.title.size() <= 240
+        && data.author is string
+        && data.author.size() <= 160
+        && (
+          data.totalPages == ""
+          || (
+            data.totalPages is int
+            && data.totalPages >= 1
+            && data.totalPages <= 100000
+          )
+        )
+        && data.reflection is string
+        && data.reflection.size() <= 2000
+        && data.completed is bool;
+    }
+
+    function validRunningEntryData(data) {
+      return data.keys().hasOnly([
+          "distance",
+          "hours",
+          "minutes",
+          "seconds",
+          "totalSeconds",
+          "totalMinutes",
+          "averagePaceSecondsPerKm"
+        ])
+        && validDurationData(data)
+        && data.distance is number
+        && data.distance > 0
+        && data.distance <= 500
+        && data.averagePaceSecondsPerKm is number
+        && data.averagePaceSecondsPerKm > 0
+        && data.averagePaceSecondsPerKm <= 86400;
+    }
+
+    function validWorkoutEntryData(data) {
+      return data.keys().hasOnly(["exercises"])
+        && data.exercises is list
+        && data.exercises.size() >= 1
+        && data.exercises.size() <= 30;
+    }
+
+    function validCardioEntryData(data) {
+      return data.keys().hasOnly([
+          "activity",
+          "source",
+          "suggestionStatus",
+          "activityDefinition",
+          "hours",
+          "minutes",
+          "seconds",
+          "totalSeconds",
+          "totalMinutes",
+          "distance",
+          "notes"
+        ])
+        && validDurationData(data)
+        && data.activity is string
+        && data.activity.size() >= 1
+        && data.activity.size() <= 120
+        && data.source in ["library", "published", "custom"]
+        && data.suggestionStatus in ["", "pending"]
+        && data.activityDefinition is map
+        && (
+          data.distance == ""
+          || (
+            data.distance is number
+            && data.distance > 0
+            && data.distance <= 1000
+          )
+        )
+        && data.notes is string
+        && data.notes.size() <= 1000;
+    }
+
+    function validSkillEntryData(data) {
+      return data.keys().hasOnly([
+          "skill",
+          "source",
+          "suggestionStatus",
+          "skillDefinition",
+          "hours",
+          "minutes",
+          "seconds",
+          "totalSeconds",
+          "totalMinutes"
+        ])
+        && validDurationData(data)
+        && data.skill is string
+        && data.skill.size() >= 1
+        && data.skill.size() <= 120
+        && data.source in ["library", "published", "custom"]
+        && data.suggestionStatus in ["", "pending"]
+        && (data.skillDefinition == null || data.skillDefinition is map);
+    }
+
+    function validStepsEntryData(data) {
+      return data.keys().hasOnly(["steps"])
+        && data.steps is int
+        && data.steps >= 1
+        && data.steps <= 500000;
+    }
+
+    function validChallengeEntryData(category, data) {
+      return category == "water"
+        ? validWaterEntryData(data)
+        : (category == "fruit"
+          ? validFruitEntryData(data)
+          : (category == "reading"
+            ? validReadingEntryData(data)
+            : (category == "running"
+              ? validRunningEntryData(data)
+              : (category in ["upperBody", "lowerBody", "core"]
+                ? validWorkoutEntryData(data)
+                : (category == "cardio"
+                  ? validCardioEntryData(data)
+                  : (category == "skill"
+                    ? validSkillEntryData(data)
+                    : (category == "steps"
+                      ? validStepsEntryData(data)
+                      : false)))))));
+    }
+
+    function validChallengeEntry(entryId) {
       return request.resource.data.keys().hasOnly([
-          "userId",
-          "category",
-          "data",
-          "createdAt",
-          "challengeDate"
+          "userId", "category", "data", "source", "sourceLeagueId",
+          "sourcePocketId", "sourceRedemptionId", "createdAt", "challengeDate"
         ])
         && request.resource.data.userId == request.auth.uid
         && request.resource.data.category in [
-          "water",
-          "fruit",
-          "reading",
-          "running",
-          "upperBody",
-          "lowerBody",
-          "core",
-          "cardio",
-          "skill",
-          "steps"
+          "water", "fruit", "reading", "running", "upperBody",
+          "lowerBody", "core", "cardio", "skill", "steps"
         ]
         && request.resource.data.data is map
-        && validChallengeEntryData(
-          request.resource.data.category,
-          request.resource.data.data
-        )
+        && validChallengeEntryData(request.resource.data.category, request.resource.data.data)
         && request.resource.data.createdAt == request.time
-        && isRecentChallengeDate(request.resource.data.challengeDate);
+        && (
+          (request.resource.data.source == "activity"
+            && request.resource.data.sourceLeagueId == ""
+            && request.resource.data.sourcePocketId == ""
+            && request.resource.data.sourceRedemptionId == ""
+            && isRecentChallengeDate(request.resource.data.challengeDate))
+          || validPocketChallengeEntry(entryId)
+        );
     }
 
     function validExerciseSuggestion() {
@@ -777,323 +781,6 @@ service cloud.firestore {
         );
     }
 
-    function validTeamEmblemId(emblemId) {
-      return emblemId in [
-        "legacy-banner",
-        "iron-shield",
-        "rising-phoenix",
-        "summit",
-        "lion-heart",
-        "storm",
-        "oak",
-        "compass"
-      ];
-    }
-
-    function validTeamCreate(teamId) {
-      return request.resource.data.keys().hasOnly([
-          "name",
-          "normalizedName",
-          "description",
-          "motto",
-          "emblemId",
-          "status",
-          "captainId",
-          "memberCount",
-          "inviteCode",
-          "createdAt",
-          "createdBy",
-          "updatedAt",
-          "updatedBy"
-        ])
-        && request.resource.data.name is string
-        && request.resource.data.name.size() >= 3
-        && request.resource.data.name.size() <= 48
-        && request.resource.data.normalizedName is string
-        && request.resource.data.description is string
-        && request.resource.data.description.size() >= 10
-        && request.resource.data.description.size() <= 240
-        && request.resource.data.motto is string
-        && request.resource.data.motto.size() >= 3
-        && request.resource.data.motto.size() <= 90
-        && validTeamEmblemId(request.resource.data.emblemId)
-        && request.resource.data.status == "active"
-        && request.resource.data.captainId == request.auth.uid
-        && request.resource.data.memberCount == 1
-        && request.resource.data.inviteCode is string
-        && request.resource.data.inviteCode.size() == 8
-        && request.resource.data.createdAt == request.time
-        && request.resource.data.createdBy == request.auth.uid
-        && request.resource.data.updatedAt == request.time
-        && request.resource.data.updatedBy == request.auth.uid
-        && getAfter(/databases/$(database)/documents/teams/$(teamId)/members/$(request.auth.uid)).data.role == "captain"
-        && getAfter(/databases/$(database)/documents/playerTeams/$(request.auth.uid)).data.teamId == teamId
-        && getAfter(/databases/$(database)/documents/teamInvites/$(request.resource.data.inviteCode)).data.teamId == teamId;
-    }
-
-    function validTeamUpdate() {
-      return request.auth.uid == resource.data.captainId
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          "description",
-          "motto",
-          "emblemId",
-          "updatedAt",
-          "updatedBy"
-        ])
-        && request.resource.data.description is string
-        && request.resource.data.description.size() >= 10
-        && request.resource.data.description.size() <= 240
-        && request.resource.data.motto is string
-        && request.resource.data.motto.size() >= 3
-        && request.resource.data.motto.size() <= 90
-        && validTeamEmblemId(request.resource.data.emblemId)
-        && request.resource.data.updatedAt == request.time
-        && request.resource.data.updatedBy == request.auth.uid;
-    }
-
-    function validTeamMemberCountUpdate(teamId) {
-      let memberBefore = exists(
-        /databases/$(database)/documents/teams/$(teamId)/members/$(request.auth.uid)
-      );
-      let memberAfter = existsAfter(
-        /databases/$(database)/documents/teams/$(teamId)/members/$(request.auth.uid)
-      );
-
-      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          "memberCount",
-          "updatedAt",
-          "updatedBy"
-        ])
-        && request.resource.data.memberCount is int
-        && request.resource.data.memberCount >= 1
-        && request.resource.data.memberCount <= 25
-        && request.resource.data.updatedAt == request.time
-        && request.resource.data.updatedBy == request.auth.uid
-        && (
-          (
-            !memberBefore
-            && memberAfter
-            && request.resource.data.memberCount == resource.data.memberCount + 1
-            && getAfter(
-              /databases/$(database)/documents/teams/$(teamId)/members/$(request.auth.uid)
-            ).data.role == "member"
-          )
-          || (
-            memberBefore
-            && !memberAfter
-            && get(
-              /databases/$(database)/documents/teams/$(teamId)/members/$(request.auth.uid)
-            ).data.role == "member"
-            && request.resource.data.memberCount == resource.data.memberCount - 1
-          )
-        );
-    }
-
-    function validTeamCaptainTransfer(teamId) {
-      return request.auth.uid == resource.data.captainId
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          "captainId",
-          "updatedAt",
-          "updatedBy"
-        ])
-        && request.resource.data.captainId is string
-        && request.resource.data.captainId != request.auth.uid
-        && request.resource.data.updatedAt == request.time
-        && request.resource.data.updatedBy == request.auth.uid
-        && getAfter(
-          /databases/$(database)/documents/teams/$(teamId)/members/$(request.resource.data.captainId)
-        ).data.role == "captain"
-        && getAfter(
-          /databases/$(database)/documents/teams/$(teamId)/members/$(request.auth.uid)
-        ).data.role == "member"
-        && getAfter(
-          /databases/$(database)/documents/playerTeams/$(request.resource.data.captainId)
-        ).data.role == "captain"
-        && getAfter(
-          /databases/$(database)/documents/playerTeams/$(request.auth.uid)
-        ).data.role == "member";
-    }
-
-    function validTeamMemberRoleTransfer(teamId, userId) {
-      let teamBefore = get(
-        /databases/$(database)/documents/teams/$(teamId)
-      ).data;
-      let teamAfter = getAfter(
-        /databases/$(database)/documents/teams/$(teamId)
-      ).data;
-
-      return (
-          request.auth.uid == resource.data.userId
-          || request.auth.uid == teamBefore.captainId
-        )
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["role"])
-        && request.resource.data.role in ["captain", "member"]
-        && (
-          (
-            userId == teamAfter.captainId
-            && request.resource.data.role == "captain"
-          )
-          || (
-            userId == request.auth.uid
-            && resource.data.role == "captain"
-            && request.resource.data.role == "member"
-            && teamAfter.captainId != userId
-          )
-        );
-    }
-
-    function validPlayerTeamRoleTransfer(userId) {
-      let teamId = resource.data.teamId;
-      let teamAfter = getAfter(
-        /databases/$(database)/documents/teams/$(teamId)
-      ).data;
-
-      return request.auth.uid == get(
-          /databases/$(database)/documents/teams/$(teamId)
-        ).data.captainId
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["role"])
-        && request.resource.data.role in ["captain", "member"]
-        && (
-          (
-            userId == teamAfter.captainId
-            && request.resource.data.role == "captain"
-          )
-          || (
-            userId == request.auth.uid
-            && resource.data.role == "captain"
-            && request.resource.data.role == "member"
-            && teamAfter.captainId != userId
-          )
-        );
-    }
-
-    function validTeamInviteCreate(code) {
-      return request.resource.data.keys().hasOnly([
-          "teamId",
-          "teamName",
-          "emblemId",
-          "status",
-          "createdAt",
-          "createdBy",
-          "updatedAt",
-          "updatedBy"
-        ])
-        && code.size() == 8
-        && request.resource.data.teamId is string
-        && request.resource.data.teamName is string
-        && request.resource.data.teamName.size() >= 3
-        && request.resource.data.teamName.size() <= 48
-        && validTeamEmblemId(request.resource.data.emblemId)
-        && request.resource.data.status == "active"
-        && request.resource.data.createdAt == request.time
-        && request.resource.data.createdBy == request.auth.uid
-        && request.resource.data.updatedAt == request.time
-        && request.resource.data.updatedBy == request.auth.uid
-        && getAfter(/databases/$(database)/documents/teams/$(request.resource.data.teamId)).data.captainId == request.auth.uid;
-    }
-
-    function validTeamMemberCreate(teamId, userId) {
-      return request.auth.uid == userId
-        && request.resource.data.keys().hasOnly([
-          "userId",
-          "displayName",
-          "avatarId",
-          "role",
-          "inviteCode",
-          "joinedAt",
-          "weeklyKey",
-          "weeklyPoints",
-          "activeDays",
-          "entriesRecorded",
-          "currentStreak",
-          "progressUpdatedAt"
-        ])
-        && request.resource.data.userId == userId
-        && request.resource.data.displayName is string
-        && request.resource.data.displayName.size() >= 2
-        && request.resource.data.displayName.size() <= 40
-        && validAvatarId(request.resource.data.avatarId)
-        && request.resource.data.role in ["captain", "member"]
-        && request.resource.data.inviteCode is string
-        && request.resource.data.inviteCode.size() == 8
-        && request.resource.data.joinedAt == request.time
-        && request.resource.data.weeklyKey == ""
-        && request.resource.data.weeklyPoints == 0
-        && request.resource.data.activeDays == 0
-        && request.resource.data.entriesRecorded == 0
-        && request.resource.data.currentStreak == 0
-        && request.resource.data.progressUpdatedAt == request.time
-        && getAfter(/databases/$(database)/documents/teamInvites/$(request.resource.data.inviteCode)).data.teamId == teamId
-        && getAfter(/databases/$(database)/documents/teamInvites/$(request.resource.data.inviteCode)).data.status == "active"
-        && getAfter(/databases/$(database)/documents/playerTeams/$(userId)).data.teamId == teamId
-        && (
-          (
-            request.resource.data.role == "captain"
-            && getAfter(/databases/$(database)/documents/teams/$(teamId)).data.captainId == userId
-            && getAfter(/databases/$(database)/documents/teams/$(teamId)).data.memberCount == 1
-          )
-          || (
-            request.resource.data.role == "member"
-            && get(/databases/$(database)/documents/teams/$(teamId)).data.status == "active"
-            && getAfter(/databases/$(database)/documents/teams/$(teamId)).data.memberCount
-              == get(/databases/$(database)/documents/teams/$(teamId)).data.memberCount + 1
-          )
-        );
-    }
-
-    function validTeamMemberProgressUpdate() {
-      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          "displayName",
-          "avatarId",
-          "weeklyKey",
-          "weeklyPoints",
-          "activeDays",
-          "entriesRecorded",
-          "currentStreak",
-          "progressUpdatedAt"
-        ])
-        && request.resource.data.displayName is string
-        && request.resource.data.displayName.size() >= 2
-        && request.resource.data.displayName.size() <= 40
-        && validAvatarId(request.resource.data.avatarId)
-        && request.resource.data.weeklyKey is string
-        && request.resource.data.weeklyKey.size() <= 10
-        && request.resource.data.weeklyPoints is number
-        && request.resource.data.weeklyPoints >= 0
-        && request.resource.data.weeklyPoints <= 100000
-        && request.resource.data.activeDays is int
-        && request.resource.data.activeDays >= 0
-        && request.resource.data.activeDays <= 7
-        && request.resource.data.entriesRecorded is int
-        && request.resource.data.entriesRecorded >= 0
-        && request.resource.data.entriesRecorded <= 1000
-        && request.resource.data.currentStreak is int
-        && request.resource.data.currentStreak >= 0
-        && request.resource.data.currentStreak <= 100000
-        && request.resource.data.progressUpdatedAt == request.time;
-    }
-
-    function validPlayerTeamCreate(userId) {
-      return request.auth.uid == userId
-        && request.resource.data.keys().hasOnly([
-          "userId",
-          "teamId",
-          "teamName",
-          "emblemId",
-          "role",
-          "joinedAt"
-        ])
-        && request.resource.data.userId == userId
-        && request.resource.data.teamId is string
-        && request.resource.data.teamName is string
-        && request.resource.data.teamName.size() >= 3
-        && request.resource.data.teamName.size() <= 48
-        && validTeamEmblemId(request.resource.data.emblemId)
-        && request.resource.data.role in ["captain", "member"]
-        && request.resource.data.joinedAt == request.time
-        && getAfter(/databases/$(database)/documents/teams/$(request.resource.data.teamId)/members/$(userId)).data.role == request.resource.data.role;
-    }
-
     function validCoachPreferences() {
       return request.resource.data.keys().hasOnly([
           "enabled",
@@ -1114,26 +801,34 @@ service cloud.firestore {
           "scoringEngineVersion",
           "dailyActivityCap",
           "dailyParticipationBonus",
-          "includedCategories"
+          "includedCategories",
+          "modules"
         ])
-        && ruleset.version == "consistency-v1"
+        && ruleset.version == "season-houses-v1"
         && ruleset.scoringEngineVersion == "points-v2"
         && ruleset.dailyActivityCap == 20
         && ruleset.dailyParticipationBonus == 5
         && ruleset.includedCategories is list
         && ruleset.includedCategories.size() == 10
         && ruleset.includedCategories.hasAll([
-          "water",
-          "fruit",
-          "reading",
-          "running",
-          "upperBody",
-          "lowerBody",
-          "core",
-          "cardio",
-          "skill",
-          "steps"
-        ]);
+          "water", "fruit", "reading", "running", "upperBody",
+          "lowerBody", "core", "cardio", "skill", "steps"
+        ])
+        && ruleset.modules is map
+        && ruleset.modules.keys().hasOnly([
+          "houses", "chaosAssignment", "leadershipElections",
+          "rosterSwaps", "pocketWeek", "powerPlay",
+          "transferMarket", "buddyBonus", "fiveFires"
+        ])
+        && ruleset.modules.houses == true
+        && ruleset.modules.chaosAssignment == true
+        && ruleset.modules.leadershipElections == true
+        && ruleset.modules.rosterSwaps == true
+        && ruleset.modules.pocketWeek == true
+        && ruleset.modules.powerPlay == false
+        && ruleset.modules.transferMarket == false
+        && ruleset.modules.buddyBonus == false
+        && ruleset.modules.fiveFires == false;
     }
 
     function validLeagueTransition(currentStatus, nextStatus) {
@@ -1145,28 +840,13 @@ service cloud.firestore {
 
     function validLeagueCreate(leagueId) {
       return request.resource.data.keys().hasOnly([
-          "name",
-          "normalizedName",
-          "description",
-          "type",
-          "mode",
-          "status",
-          "startDate",
-          "endDate",
-          "rulesVersion",
-          "ruleset",
-          "administratorIds",
-          "participantCount",
-          "participantLimit",
-          "inviteCode",
-          "createdAt",
-          "createdBy",
-          "updatedAt",
-          "updatedBy",
-          "activatedAt",
-          "completedAt",
-          "archivedAt",
-          "lastAuditId"
+          "name", "normalizedName", "description", "theme", "type", "mode",
+          "status", "startDate", "endDate", "pocketEnabled",
+          "pocketStartDate", "pocketEndDate", "houseCount", "chaosStatus",
+          "chaosActivatedAt", "chaosActivatedBy", "rulesVersion", "ruleset",
+          "administratorIds", "participantCount", "participantLimit",
+          "inviteCode", "createdAt", "createdBy", "updatedAt", "updatedBy",
+          "activatedAt", "completedAt", "archivedAt", "lastAuditId"
         ])
         && request.resource.data.name is string
         && request.resource.data.name.size() >= 4
@@ -1175,27 +855,36 @@ service cloud.firestore {
         && request.resource.data.description is string
         && request.resource.data.description.size() >= 15
         && request.resource.data.description.size() <= 400
+        && request.resource.data.theme is string
+        && request.resource.data.theme.size() >= 3
+        && request.resource.data.theme.size() <= 80
         && request.resource.data.type in [
-          "Friends",
-          "Family",
-          "Workplace",
-          "School",
-          "Community",
-          "Charity",
-          "Tournament"
+          "Friends", "Family", "Workplace", "School", "Community",
+          "Charity", "Tournament"
         ]
-        && request.resource.data.mode in ["individual", "team"]
+        && request.resource.data.mode in ["season", "individual"]
         && request.resource.data.status == "draft"
         && request.resource.data.startDate is timestamp
         && request.resource.data.endDate is timestamp
         && request.resource.data.endDate > request.resource.data.startDate
-        && request.resource.data.rulesVersion == "consistency-v1"
+        && request.resource.data.pocketEnabled is bool
+        && request.resource.data.pocketStartDate
+          == request.resource.data.startDate - duration.value(7, "d")
+        && request.resource.data.pocketEndDate
+          == request.resource.data.startDate - duration.value(1, "d")
+        && request.resource.data.houseCount is int
+        && request.resource.data.houseCount >= 2
+        && request.resource.data.houseCount <= 8
+        && request.resource.data.chaosStatus == "not-started"
+        && request.resource.data.chaosActivatedAt == null
+        && request.resource.data.chaosActivatedBy == ""
+        && request.resource.data.rulesVersion == "season-houses-v1"
         && validLeagueRuleset(request.resource.data.ruleset)
         && request.resource.data.administratorIds is list
         && request.resource.data.administratorIds.size() == 1
         && request.auth.uid in request.resource.data.administratorIds
         && request.resource.data.participantCount == 0
-        && request.resource.data.participantLimit == 200
+        && request.resource.data.participantLimit == 160
         && request.resource.data.inviteCode is string
         && request.resource.data.inviteCode.size() == 8
         && request.resource.data.createdAt == request.time
@@ -1212,31 +901,39 @@ service cloud.firestore {
 
     function validLeagueStatusUpdate(leagueId) {
       return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          "status",
-          "updatedAt",
-          "updatedBy",
-          "activatedAt",
-          "completedAt",
-          "archivedAt",
-          "lastAuditId"
+          "status", "updatedAt", "updatedBy", "activatedAt",
+          "completedAt", "archivedAt", "lastAuditId"
         ])
         && validLeagueTransition(resource.data.status, request.resource.data.status)
+        && (
+          request.resource.data.status != "active"
+          || resource.data.mode != "season"
+          || resource.data.chaosStatus == "activated"
+        )
         && request.resource.data.updatedAt == request.time
         && request.resource.data.updatedBy == request.auth.uid
         && request.resource.data.lastAuditId is string
         && validAuditAfter(request.resource.data.lastAuditId, "league", leagueId)
-        && (
-          request.resource.data.status != "active"
-          || request.resource.data.activatedAt == request.time
-        )
-        && (
-          request.resource.data.status != "completed"
-          || request.resource.data.completedAt == request.time
-        )
-        && (
-          request.resource.data.status != "archived"
-          || request.resource.data.archivedAt == request.time
-        );
+        && (request.resource.data.status != "active" || request.resource.data.activatedAt == request.time)
+        && (request.resource.data.status != "completed" || request.resource.data.completedAt == request.time)
+        && (request.resource.data.status != "archived" || request.resource.data.archivedAt == request.time);
+    }
+
+    function validLeagueChaosUpdate(leagueId) {
+      return resource.data.status == "registration"
+        && resource.data.mode == "season"
+        && resource.data.participantCount >= resource.data.houseCount * 2
+        && resource.data.chaosStatus == "not-started"
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          "chaosStatus", "chaosActivatedAt", "chaosActivatedBy",
+          "updatedAt", "updatedBy", "lastAuditId"
+        ])
+        && request.resource.data.chaosStatus == "activated"
+        && request.resource.data.chaosActivatedAt == request.time
+        && request.resource.data.chaosActivatedBy == request.auth.uid
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == request.auth.uid
+        && validAuditAfter(request.resource.data.lastAuditId, "league", leagueId);
     }
 
     function validLeagueParticipantCountUpdate(leagueId) {
@@ -1250,42 +947,26 @@ service cloud.firestore {
       return resource.data.status == "registration"
         && request.resource.data.status == "registration"
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          "participantCount",
-          "participantLimit",
-          "updatedAt",
-          "updatedBy"
+          "participantCount", "participantLimit", "updatedAt", "updatedBy"
         ])
         && request.resource.data.participantCount is int
         && request.resource.data.participantCount >= 0
-        && request.resource.data.participantCount <= 200
-        && request.resource.data.participantLimit == 200
+        && request.resource.data.participantCount <= 160
+        && request.resource.data.participantLimit == 160
         && request.resource.data.updatedAt == request.time
         && request.resource.data.updatedBy == request.auth.uid
         && (
-          (
-            !memberBefore
-            && memberAfter
-            && request.resource.data.participantCount
-              == resource.data.get("participantCount", 0) + 1
-          )
-          || (
-            memberBefore
-            && !memberAfter
-            && request.resource.data.participantCount
-              == resource.data.get("participantCount", 0) - 1
-          )
+          (!memberBefore && memberAfter
+            && request.resource.data.participantCount == resource.data.get("participantCount", 0) + 1)
+          || (memberBefore && !memberAfter
+            && request.resource.data.participantCount == resource.data.get("participantCount", 0) - 1)
         );
     }
 
     function validLeagueInviteCreate(code) {
       return request.resource.data.keys().hasOnly([
-          "leagueId",
-          "leagueName",
-          "status",
-          "createdAt",
-          "createdBy",
-          "updatedAt",
-          "updatedBy"
+          "leagueId", "leagueName", "status", "createdAt", "createdBy",
+          "updatedAt", "updatedBy"
         ])
         && code.size() == 8
         && request.resource.data.leagueId is string
@@ -1302,11 +983,8 @@ service cloud.firestore {
       let leagueAfter = getAfter(
         /databases/$(database)/documents/leagues/$(resource.data.leagueId)
       ).data;
-
       return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          "status",
-          "updatedAt",
-          "updatedBy"
+          "status", "updatedAt", "updatedBy"
         ])
         && request.resource.data.status in ["active", "closed"]
         && request.resource.data.updatedAt == request.time
@@ -1324,22 +1002,12 @@ service cloud.firestore {
       let leagueAfter = getAfter(
         /databases/$(database)/documents/leagues/$(request.resource.data.leagueId)
       ).data;
-      let playerHasTeam = exists(
-        /databases/$(database)/documents/playerTeams/$(request.auth.uid)
-      );
-
       return request.resource.data.keys().hasOnly([
-          "leagueId",
-          "userId",
-          "displayName",
-          "avatarId",
-          "teamId",
-          "teamName",
-          "role",
-          "status",
-          "inviteCode",
-          "joinedAt",
-          "updatedAt"
+          "leagueId", "userId", "displayName", "avatarId", "role", "status",
+          "inviteCode", "currentHouseId", "currentHouseName",
+          "currentHouseEmblemId", "currentHouseAccentId", "houseAssignedAt",
+          "houseAssignmentMethod", "lastRosterSwapId", "lastRosterWeekKey",
+          "joinedAt", "updatedAt"
         ])
         && membershipId == request.resource.data.leagueId + "_" + request.auth.uid
         && request.resource.data.userId == request.auth.uid
@@ -1347,38 +1015,25 @@ service cloud.firestore {
         && request.resource.data.displayName.size() >= 2
         && request.resource.data.displayName.size() <= 40
         && validAvatarId(request.resource.data.avatarId)
-        && request.resource.data.teamId is string
-        && request.resource.data.teamId.size() <= 200
-        && request.resource.data.teamName is string
-        && request.resource.data.teamName.size() >= 2
-        && request.resource.data.teamName.size() <= 80
         && request.resource.data.role == "participant"
         && request.resource.data.status == "registered"
         && request.resource.data.inviteCode is string
         && request.resource.data.inviteCode.size() == 8
+        && request.resource.data.currentHouseId == ""
+        && request.resource.data.currentHouseName == "Unassigned"
+        && request.resource.data.currentHouseEmblemId == ""
+        && request.resource.data.currentHouseAccentId == ""
+        && request.resource.data.houseAssignedAt == null
+        && request.resource.data.houseAssignmentMethod == ""
+        && request.resource.data.lastRosterSwapId == ""
+        && request.resource.data.lastRosterWeekKey == ""
         && request.resource.data.joinedAt == request.time
         && request.resource.data.updatedAt == request.time
         && leagueBefore.status == "registration"
         && leagueAfter.status == "registration"
-        && leagueAfter.participantLimit == 200
-        && leagueAfter.participantCount
-          == leagueBefore.get("participantCount", 0) + 1
+        && leagueAfter.participantLimit == 160
+        && leagueAfter.participantCount == leagueBefore.get("participantCount", 0) + 1
         && leagueAfter.participantCount <= leagueAfter.participantLimit
-        && (leagueBefore.mode != "team" || playerHasTeam)
-        && (
-          (
-            playerHasTeam
-            && request.resource.data.teamId
-              == get(/databases/$(database)/documents/playerTeams/$(request.auth.uid)).data.teamId
-            && request.resource.data.teamName
-              == get(/databases/$(database)/documents/playerTeams/$(request.auth.uid)).data.teamName
-          )
-          || (
-            !playerHasTeam
-            && request.resource.data.teamId == ""
-            && request.resource.data.teamName == "Independent"
-          )
-        )
         && get(/databases/$(database)/documents/leagueInvites/$(request.resource.data.inviteCode)).data.leagueId == request.resource.data.leagueId
         && get(/databases/$(database)/documents/leagueInvites/$(request.resource.data.inviteCode)).data.status == "active";
     }
@@ -1387,18 +1042,500 @@ service cloud.firestore {
       let leagueAfter = getAfter(
         /databases/$(database)/documents/leagues/$(resource.data.leagueId)
       ).data;
-
       return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          "status",
-          "updatedAt"
+          "status", "updatedAt"
         ])
         && request.resource.data.updatedAt == request.time
         && (
           (leagueAfter.status == "active" && request.resource.data.status == "active")
+          || (leagueAfter.status in ["completed", "archived"] && request.resource.data.status == "completed")
+        );
+    }
+
+    function validMembershipHouseAssignment() {
+      let league = getAfter(
+        /databases/$(database)/documents/leagues/$(resource.data.leagueId)
+      ).data;
+      let house = getAfter(
+        /databases/$(database)/documents/leagueHouses/$(request.resource.data.currentHouseId)
+      ).data;
+      return isLeagueAdministrator(resource.data.leagueId)
+        && league.status == "registration"
+        && league.chaosStatus == "activated"
+        && resource.data.currentHouseId == ""
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          "currentHouseId", "currentHouseName", "currentHouseEmblemId",
+          "currentHouseAccentId", "houseAssignedAt", "houseAssignmentMethod",
+          "updatedAt"
+        ])
+        && house.leagueId == resource.data.leagueId
+        && request.resource.data.currentHouseName == house.name
+        && request.resource.data.currentHouseEmblemId == house.emblemId
+        && request.resource.data.currentHouseAccentId == house.accentId
+        && request.resource.data.houseAssignedAt == request.time
+        && request.resource.data.houseAssignmentMethod == "chaos"
+        && request.resource.data.updatedAt == request.time;
+    }
+
+    function currentHouseLeader(houseId) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/leagueHouses/$(houseId))
+        && (
+          get(/databases/$(database)/documents/leagueHouses/$(houseId)).data.captainId == request.auth.uid
+          || request.auth.uid in get(/databases/$(database)/documents/leagueHouses/$(houseId)).data.viceCaptainIds
+        );
+    }
+
+    function leadsHouseInLeague(leagueId) {
+      let membershipId = leagueId + "_" + request.auth.uid;
+      return signedIn()
+        && exists(/databases/$(database)/documents/leagueMemberships/$(membershipId))
+        && get(/databases/$(database)/documents/leagueMemberships/$(membershipId)).data.currentHouseId != ""
+        && currentHouseLeader(
+          get(/databases/$(database)/documents/leagueMemberships/$(membershipId)).data.currentHouseId
+        );
+    }
+
+    function validMembershipRosterSwap() {
+      let swap = getAfter(
+        /databases/$(database)/documents/leagueRosterSwaps/$(request.resource.data.lastRosterSwapId)
+      ).data;
+      let nextHouse = getAfter(
+        /databases/$(database)/documents/leagueHouses/$(request.resource.data.currentHouseId)
+      ).data;
+      return get(/databases/$(database)/documents/leagues/$(resource.data.leagueId)).data.status == "active"
+        && swap.actorId == request.auth.uid
+        && (isLeagueAdministrator(resource.data.leagueId)
+          || currentHouseLeader(swap.firstHouseId)
+          || currentHouseLeader(swap.secondHouseId))
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          "currentHouseId", "currentHouseName", "currentHouseEmblemId",
+          "currentHouseAccentId", "houseAssignedAt", "houseAssignmentMethod",
+          "lastRosterSwapId", "lastRosterWeekKey", "updatedAt"
+        ])
+        && request.resource.data.currentHouseId != resource.data.currentHouseId
+        && nextHouse.leagueId == resource.data.leagueId
+        && request.resource.data.currentHouseName == nextHouse.name
+        && request.resource.data.currentHouseEmblemId == nextHouse.emblemId
+        && request.resource.data.currentHouseAccentId == nextHouse.accentId
+        && request.resource.data.houseAssignedAt == request.time
+        && request.resource.data.houseAssignmentMethod == "weekly-swap"
+        && request.resource.data.updatedAt == request.time
+        && swap.leagueId == resource.data.leagueId
+        && swap.weekKey == request.resource.data.lastRosterWeekKey
+        && (
+          (swap.firstPlayerId == resource.data.userId
+            && swap.firstHouseId == resource.data.currentHouseId
+            && swap.secondHouseId == request.resource.data.currentHouseId)
+          || (swap.secondPlayerId == resource.data.userId
+            && swap.secondHouseId == resource.data.currentHouseId
+            && swap.firstHouseId == request.resource.data.currentHouseId)
+        );
+    }
+
+    function validHouseCreate() {
+      let league = get(
+        /databases/$(database)/documents/leagues/$(request.resource.data.leagueId)
+      ).data;
+      return request.resource.data.keys().hasOnly([
+          "leagueId", "name", "description", "motto", "emblemId", "accentId",
+          "status", "captainId", "viceCaptainIds", "lastElectionId", "createdAt", "createdBy",
+          "updatedAt", "updatedBy", "lastAuditId"
+        ])
+        && isLeagueAdministrator(request.resource.data.leagueId)
+        && league.status == "draft"
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 3
+        && request.resource.data.name.size() <= 48
+        && request.resource.data.description is string
+        && request.resource.data.description.size() >= 10
+        && request.resource.data.description.size() <= 220
+        && request.resource.data.motto is string
+        && request.resource.data.motto.size() >= 3
+        && request.resource.data.motto.size() <= 90
+        && request.resource.data.emblemId is string
+        && request.resource.data.accentId is string
+        && request.resource.data.status == "active"
+        && request.resource.data.captainId == ""
+        && request.resource.data.viceCaptainIds is list
+        && request.resource.data.viceCaptainIds.size() == 0
+        && request.resource.data.lastElectionId == ""
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == request.auth.uid
+        && validAuditAfter(request.resource.data.lastAuditId, "league", request.resource.data.leagueId);
+    }
+
+    function validHouseIdentityUpdate() {
+      return isLeagueAdministrator(resource.data.leagueId)
+        && get(/databases/$(database)/documents/leagues/$(resource.data.leagueId)).data.status in ["draft", "registration"]
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          "name", "description", "motto", "emblemId", "accentId",
+          "updatedAt", "updatedBy", "lastAuditId"
+        ])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 3
+        && request.resource.data.name.size() <= 48
+        && request.resource.data.description is string
+        && request.resource.data.description.size() >= 10
+        && request.resource.data.description.size() <= 220
+        && request.resource.data.motto is string
+        && request.resource.data.motto.size() >= 3
+        && request.resource.data.motto.size() <= 90
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == request.auth.uid
+        && validAuditAfter(request.resource.data.lastAuditId, "league", resource.data.leagueId);
+    }
+
+    function validViceCaptainList(leagueId, houseId, captainId, viceIds) {
+      return viceIds is list
+        && viceIds.size() >= 1
+        && viceIds.size() <= 2
+        && viceIds.toSet().size() == viceIds.size()
+        && !(captainId in viceIds)
+        && exists(/databases/$(database)/documents/leagueMemberships/$(leagueId + "_" + captainId))
+        && get(/databases/$(database)/documents/leagueMemberships/$(leagueId + "_" + captainId)).data.currentHouseId == houseId
+        && exists(/databases/$(database)/documents/leagueMemberships/$(leagueId + "_" + viceIds[0]))
+        && get(/databases/$(database)/documents/leagueMemberships/$(leagueId + "_" + viceIds[0])).data.currentHouseId == houseId
+        && (
+          viceIds.size() == 1
           || (
-            leagueAfter.status in ["completed", "archived"]
-            && request.resource.data.status == "completed"
+            exists(/databases/$(database)/documents/leagueMemberships/$(leagueId + "_" + viceIds[1]))
+            && get(/databases/$(database)/documents/leagueMemberships/$(leagueId + "_" + viceIds[1])).data.currentHouseId == houseId
           )
+        );
+    }
+
+    function validHouseElectionFinalisation(houseId) {
+      let election = getAfter(
+        /databases/$(database)/documents/leadershipElections/$(request.resource.data.lastElectionId)
+      ).data;
+      return isLeagueAdministrator(resource.data.leagueId)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          "captainId", "viceCaptainIds", "lastElectionId",
+          "updatedAt", "updatedBy", "lastAuditId"
+        ])
+        && election.leagueId == resource.data.leagueId
+        && election.houseId == houseId
+        && election.status == "finalized"
+        && election.finalizedBy == request.auth.uid
+        && election.captainId == request.resource.data.captainId
+        && election.viceCaptainId == request.resource.data.viceCaptainIds[0]
+        && validAuditAfter(
+          request.resource.data.lastAuditId,
+          "league",
+          resource.data.leagueId
+        );
+    }
+
+    function validCaptainViceAppointment() {
+      return request.auth.uid == resource.data.captainId
+        && request.resource.data.captainId == resource.data.captainId
+        && request.resource.data.lastElectionId == resource.data.lastElectionId
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          "viceCaptainIds", "updatedAt", "updatedBy"
+        ])
+        && resource.data.viceCaptainIds.size() >= 1
+        && request.resource.data.viceCaptainIds[0] == resource.data.viceCaptainIds[0];
+    }
+
+    function validHouseLeadershipUpdate(houseId) {
+      let changedKeys = request.resource.data.diff(resource.data).affectedKeys();
+      let captainAppointment = changedKeys.hasOnly([
+        "viceCaptainIds", "updatedAt", "updatedBy"
+      ]);
+      return (
+          captainAppointment
+            ? validCaptainViceAppointment()
+            : validHouseElectionFinalisation(houseId)
+        )
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == request.auth.uid
+        && validViceCaptainList(
+          resource.data.leagueId,
+          houseId,
+          request.resource.data.captainId,
+          request.resource.data.viceCaptainIds
+        );
+    }
+
+    function validLeadershipElectionCreate() {
+      return get(
+          /databases/$(database)/documents/leagues/$(request.resource.data.leagueId)
+        ).data.status == "active"
+        && (isLeagueAdministrator(request.resource.data.leagueId)
+          || currentHouseLeader(request.resource.data.houseId))
+        && request.resource.data.keys().hasOnly([
+          "leagueId", "houseId", "houseName", "weekKey", "status",
+          "openedAt", "closesAt", "finalizedAt", "finalizedBy", "captainId",
+          "viceCaptainId", "resultStatus", "voteCount", "lastAuditId"
+        ])
+        && request.resource.data.status == "open"
+        && request.resource.data.openedAt is timestamp
+        && request.resource.data.openedAt <= request.time
+        && request.resource.data.openedAt >= request.time - duration.value(1, "m")
+        && request.resource.data.closesAt == request.resource.data.openedAt + duration.value(24, "h")
+        && request.resource.data.finalizedAt == null
+        && request.resource.data.finalizedBy == ""
+        && request.resource.data.captainId == ""
+        && request.resource.data.viceCaptainId == ""
+        && request.resource.data.resultStatus == "pending"
+        && request.resource.data.voteCount == 0
+        && get(/databases/$(database)/documents/leagueHouses/$(request.resource.data.houseId)).data.leagueId == request.resource.data.leagueId
+        && validAuditAfter(request.resource.data.lastAuditId, "league", request.resource.data.leagueId);
+    }
+
+    function validLeadershipElectionFinalize() {
+      return isLeagueAdministrator(resource.data.leagueId)
+        && resource.data.status == "open"
+        && resource.data.closesAt <= request.time
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          "status", "finalizedAt", "finalizedBy", "captainId",
+          "viceCaptainId", "resultStatus", "voteCount", "lastAuditId"
+        ])
+        && request.resource.data.status == "finalized"
+        && request.resource.data.finalizedAt == request.time
+        && request.resource.data.finalizedBy == request.auth.uid
+        && request.resource.data.captainId != request.resource.data.viceCaptainId
+        && request.resource.data.resultStatus in ["ready", "no-votes", "captain-tie", "vice-tie", "vice-required"]
+        && request.resource.data.voteCount is int
+        && request.resource.data.voteCount >= 0
+        && validAuditAfter(request.resource.data.lastAuditId, "league", resource.data.leagueId);
+    }
+
+    function validLeadershipVoteCreate(voteId) {
+      let election = get(
+        /databases/$(database)/documents/leadershipElections/$(request.resource.data.electionId)
+      ).data;
+      let voterMembership = get(
+        /databases/$(database)/documents/leagueMemberships/$(request.resource.data.leagueId + "_" + request.auth.uid)
+      ).data;
+      let candidateMembership = get(
+        /databases/$(database)/documents/leagueMemberships/$(request.resource.data.leagueId + "_" + request.resource.data.candidateId)
+      ).data;
+      return request.resource.data.keys().hasOnly([
+          "electionId", "leagueId", "houseId", "weekKey", "voterId",
+          "candidateId", "createdAt"
+        ])
+        && voteId == request.resource.data.electionId + "_" + request.auth.uid
+        && request.resource.data.voterId == request.auth.uid
+        && election.status == "open"
+        && election.closesAt > request.time
+        && election.leagueId == request.resource.data.leagueId
+        && election.houseId == request.resource.data.houseId
+        && election.weekKey == request.resource.data.weekKey
+        && voterMembership.status == "active"
+        && candidateMembership.status == "active"
+        && voterMembership.currentHouseId == election.houseId
+        && candidateMembership.currentHouseId == election.houseId
+        && request.resource.data.createdAt == request.time;
+    }
+
+    function validRosterSwapCreate(swapId) {
+      let firstBefore = get(
+        /databases/$(database)/documents/leagueMemberships/$(request.resource.data.leagueId + "_" + request.resource.data.firstPlayerId)
+      ).data;
+      let secondBefore = get(
+        /databases/$(database)/documents/leagueMemberships/$(request.resource.data.leagueId + "_" + request.resource.data.secondPlayerId)
+      ).data;
+      let firstAfter = getAfter(
+        /databases/$(database)/documents/leagueMemberships/$(request.resource.data.leagueId + "_" + request.resource.data.firstPlayerId)
+      ).data;
+      let secondAfter = getAfter(
+        /databases/$(database)/documents/leagueMemberships/$(request.resource.data.leagueId + "_" + request.resource.data.secondPlayerId)
+      ).data;
+      let firstHouse = get(
+        /databases/$(database)/documents/leagueHouses/$(request.resource.data.firstHouseId)
+      ).data;
+      let secondHouse = get(
+        /databases/$(database)/documents/leagueHouses/$(request.resource.data.secondHouseId)
+      ).data;
+      return request.resource.data.keys().hasOnly([
+          "leagueId", "weekKey", "firstHouseId", "firstHouseName",
+          "secondHouseId", "secondHouseName", "firstPlayerId", "secondPlayerId",
+          "actorId", "createdAt", "lastAuditId"
+        ])
+        && request.resource.data.actorId == request.auth.uid
+        && request.resource.data.firstHouseId != request.resource.data.secondHouseId
+        && request.resource.data.firstPlayerId != request.resource.data.secondPlayerId
+        && request.resource.data.firstPlayerId != firstHouse.captainId
+        && !(request.resource.data.firstPlayerId in firstHouse.viceCaptainIds)
+        && request.resource.data.secondPlayerId != secondHouse.captainId
+        && !(request.resource.data.secondPlayerId in secondHouse.viceCaptainIds)
+        && (isLeagueAdministrator(request.resource.data.leagueId)
+          || currentHouseLeader(request.resource.data.firstHouseId)
+          || currentHouseLeader(request.resource.data.secondHouseId))
+        && firstBefore.currentHouseId == request.resource.data.firstHouseId
+        && secondBefore.currentHouseId == request.resource.data.secondHouseId
+        && firstAfter.currentHouseId == request.resource.data.secondHouseId
+        && secondAfter.currentHouseId == request.resource.data.firstHouseId
+        && firstAfter.lastRosterSwapId == swapId
+        && secondAfter.lastRosterSwapId == swapId
+        && existsAfter(/databases/$(database)/documents/leagueRosterLocks/$(request.resource.data.leagueId + "_" + request.resource.data.firstHouseId + "_" + request.resource.data.weekKey))
+        && existsAfter(/databases/$(database)/documents/leagueRosterLocks/$(request.resource.data.leagueId + "_" + request.resource.data.secondHouseId + "_" + request.resource.data.weekKey))
+        && request.resource.data.createdAt == request.time
+        && validAuditAfter(request.resource.data.lastAuditId, "league", request.resource.data.leagueId);
+    }
+
+    function validRosterLockCreate(lockId) {
+      let swap = getAfter(
+        /databases/$(database)/documents/leagueRosterSwaps/$(request.resource.data.swapId)
+      ).data;
+      return request.resource.data.keys().hasOnly([
+          "leagueId", "houseId", "weekKey", "swapId", "createdAt", "createdBy"
+        ])
+        && lockId == request.resource.data.leagueId + "_" + request.resource.data.houseId + "_" + request.resource.data.weekKey
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.createdBy == request.auth.uid
+        && swap.leagueId == request.resource.data.leagueId
+        && swap.weekKey == request.resource.data.weekKey
+        && request.resource.data.houseId in [swap.firstHouseId, swap.secondHouseId];
+    }
+
+    function wholePocketCategory(category) {
+      return category in ["running", "upperBody", "core", "lowerBody"];
+    }
+
+    function validPocketQuantity(category, value) {
+      return value is number
+        && value > 0
+        && value <= 500000
+        && (!wholePocketCategory(category) || value == 1)
+        && (!(category in ["water", "fruit", "steps"]) || value is int);
+    }
+
+    function pocketEntryMatchesStoredActivity(category, entryData, pocketData, quantity) {
+      return (
+          wholePocketCategory(category)
+          && quantity == 1
+          && entryData == pocketData
+        )
+        || (category == "water" && entryData.amount == quantity)
+        || (category == "fruit" && entryData.servings == quantity)
+        || (category == "steps" && entryData.steps == quantity)
+        || (category == "reading" && entryData.totalMinutes == quantity)
+        || (category == "skill" && entryData.totalMinutes == quantity)
+        || (
+          category == "cardio"
+          && entryData.totalMinutes == quantity
+          && entryData.activity == pocketData.activity
+          && entryData.source == pocketData.source
+          && entryData.activityDefinition == pocketData.activityDefinition
+        );
+    }
+
+    function validPocketActivityCreate() {
+      let league = get(
+        /databases/$(database)/documents/leagues/$(request.resource.data.leagueId)
+      ).data;
+      let membership = get(
+        /databases/$(database)/documents/leagueMemberships/$(request.resource.data.leagueId + "_" + request.auth.uid)
+      ).data;
+      return request.resource.data.keys().hasOnly([
+          "leagueId", "userId", "category", "data", "mode", "unit",
+          "originalQuantity", "remainingQuantity", "activityDate", "status",
+          "lastRedemptionId", "createdAt", "updatedAt"
+        ])
+        && request.resource.data.userId == request.auth.uid
+        && membership.status == "registered"
+        && league.pocketEnabled == true
+        && request.time >= league.pocketStartDate
+        && request.time < league.startDate
+        && request.resource.data.activityDate >= league.pocketStartDate
+        && request.resource.data.activityDate <= league.pocketEndDate
+        && validChallengeEntryData(request.resource.data.category, request.resource.data.data)
+        && request.resource.data.mode == (wholePocketCategory(request.resource.data.category) ? "whole" : "partial")
+        && request.resource.data.unit is string
+        && validPocketQuantity(request.resource.data.category, request.resource.data.originalQuantity)
+        && request.resource.data.remainingQuantity == request.resource.data.originalQuantity
+        && request.resource.data.status == "available"
+        && request.resource.data.lastRedemptionId == ""
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+    }
+
+    function validPocketActivityRedeem(pocketId) {
+      let redemption = getAfter(
+        /databases/$(database)/documents/pocketRedemptions/$(request.resource.data.lastRedemptionId)
+      ).data;
+      return resource.data.userId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          "remainingQuantity", "status", "lastRedemptionId", "updatedAt"
+        ])
+        && request.resource.data.remainingQuantity is number
+        && request.resource.data.remainingQuantity >= 0
+        && request.resource.data.remainingQuantity < resource.data.remainingQuantity
+        && request.resource.data.status == (request.resource.data.remainingQuantity == 0 ? "empty" : "available")
+        && request.resource.data.updatedAt == request.time
+        && redemption.pocketActivityId == pocketId
+        && redemption.userId == request.auth.uid
+        && redemption.quantity == resource.data.remainingQuantity - request.resource.data.remainingQuantity;
+    }
+
+    function validPocketRedemptionCreate(redemptionId) {
+      let pocketBefore = get(
+        /databases/$(database)/documents/pocketActivities/$(request.resource.data.pocketActivityId)
+      ).data;
+      let pocketAfter = getAfter(
+        /databases/$(database)/documents/pocketActivities/$(request.resource.data.pocketActivityId)
+      ).data;
+      let league = get(
+        /databases/$(database)/documents/leagues/$(request.resource.data.leagueId)
+      ).data;
+      let membership = get(
+        /databases/$(database)/documents/leagueMemberships/$(request.resource.data.leagueId + "_" + request.auth.uid)
+      ).data;
+      return request.resource.data.keys().hasOnly([
+          "leagueId", "userId", "pocketActivityId", "challengeEntryId",
+          "category", "quantity", "unit", "targetDate", "houseId", "createdAt"
+        ])
+        && request.resource.data.userId == request.auth.uid
+        && league.status == "active"
+        && membership.status == "active"
+        && membership.currentHouseId == request.resource.data.houseId
+        && pocketBefore.userId == request.auth.uid
+        && pocketBefore.leagueId == request.resource.data.leagueId
+        && pocketBefore.category == request.resource.data.category
+        && pocketBefore.unit == request.resource.data.unit
+        && validPocketQuantity(request.resource.data.category, request.resource.data.quantity)
+        && pocketAfter.lastRedemptionId == redemptionId
+        && pocketAfter.remainingQuantity == pocketBefore.remainingQuantity - request.resource.data.quantity
+        && request.resource.data.targetDate >= league.startDate
+        && request.resource.data.targetDate <= league.endDate
+        && request.resource.data.targetDate <= request.time
+        && request.resource.data.createdAt == request.time;
+    }
+
+    function validPocketChallengeEntry(entryId) {
+      let league = get(
+        /databases/$(database)/documents/leagues/$(request.resource.data.sourceLeagueId)
+      ).data;
+      let redemption = getAfter(
+        /databases/$(database)/documents/pocketRedemptions/$(request.resource.data.sourceRedemptionId)
+      ).data;
+      let pocket = get(
+        /databases/$(database)/documents/pocketActivities/$(request.resource.data.sourcePocketId)
+      ).data;
+      return request.resource.data.source == "pocket"
+        && request.resource.data.sourceLeagueId is string
+        && request.resource.data.sourcePocketId is string
+        && request.resource.data.sourceRedemptionId is string
+        && league.status == "active"
+        && pocket.userId == request.auth.uid
+        && pocket.leagueId == request.resource.data.sourceLeagueId
+        && pocket.category == request.resource.data.category
+        && redemption.userId == request.auth.uid
+        && redemption.challengeEntryId == entryId
+        && redemption.pocketActivityId == request.resource.data.sourcePocketId
+        && redemption.leagueId == request.resource.data.sourceLeagueId
+        && redemption.category == request.resource.data.category
+        && redemption.targetDate == request.resource.data.challengeDate
+        && pocketEntryMatchesStoredActivity(
+          request.resource.data.category,
+          request.resource.data.data,
+          pocket.data,
+          redemption.quantity
         );
     }
 
@@ -1412,20 +1549,11 @@ service cloud.firestore {
       let entry = getAfter(
         /databases/$(database)/documents/challengeEntries/$(request.resource.data.entryId)
       ).data;
-
       return request.resource.data.keys().hasOnly([
-          "leagueId",
-          "entryId",
-          "userId",
-          "displayName",
-          "avatarId",
-          "teamId",
-          "teamName",
-          "category",
-          "challengeDate",
-          "activityPoints",
-          "rulesVersion",
-          "createdAt"
+          "leagueId", "entryId", "userId", "displayName", "avatarId",
+          "houseId", "houseName", "houseEmblemId", "teamId", "teamName",
+          "category", "challengeDate", "activityPoints", "rulesVersion",
+          "source", "sourceRedemptionId", "createdAt"
         ])
         && contributionId == request.resource.data.leagueId + "_" + request.resource.data.entryId
         && request.resource.data.userId == request.auth.uid
@@ -1435,18 +1563,97 @@ service cloud.firestore {
         && request.resource.data.rulesVersion == league.rulesVersion
         && request.resource.data.displayName == membership.displayName
         && request.resource.data.avatarId == membership.avatarId
-        && request.resource.data.teamId == membership.teamId
-        && request.resource.data.teamName == membership.teamName
+        && request.resource.data.houseId == membership.currentHouseId
+        && request.resource.data.houseName == membership.currentHouseName
+        && request.resource.data.houseEmblemId == membership.currentHouseEmblemId
+        && request.resource.data.teamId == membership.currentHouseId
+        && request.resource.data.teamName == membership.currentHouseName
         && entry.userId == request.auth.uid
         && request.resource.data.category == entry.category
         && request.resource.data.category in league.ruleset.includedCategories
         && request.resource.data.challengeDate == entry.challengeDate
         && request.resource.data.challengeDate >= league.startDate
         && request.resource.data.challengeDate <= league.endDate
+        && request.resource.data.source == entry.source
+        && request.resource.data.sourceRedemptionId == entry.sourceRedemptionId
         && request.resource.data.activityPoints is number
         && request.resource.data.activityPoints >= 0
         && request.resource.data.activityPoints <= 10000
         && request.resource.data.createdAt == request.time;
+    }
+
+    function validPlayerNotificationCreate() {
+      let recipientMembership = getAfter(
+        /databases/$(database)/documents/leagueMemberships/$(request.resource.data.leagueId + "_" + request.resource.data.userId)
+      ).data;
+      let sameHouse = request.resource.data.houseId != ""
+        && recipientMembership.currentHouseId == request.resource.data.houseId;
+      return request.resource.data.keys().hasOnly([
+          "userId", "type", "title", "message", "leagueId", "houseId",
+          "actionPath", "createdAt", "readAt", "readBy"
+        ])
+        && request.resource.data.type in [
+          "chaos-assignment", "leadership-vote-open", "leadership-result",
+          "roster-swap", "pocket-redeemed", "season-notice"
+        ]
+        && request.resource.data.title is string
+        && request.resource.data.title.size() >= 3
+        && request.resource.data.title.size() <= 120
+        && request.resource.data.message is string
+        && request.resource.data.message.size() >= 3
+        && request.resource.data.message.size() <= 500
+        && request.resource.data.actionPath is string
+        && request.resource.data.actionPath.size() <= 200
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.readAt == null
+        && request.resource.data.readBy == ""
+        && recipientMembership.leagueId == request.resource.data.leagueId
+        && (
+          (
+            request.resource.data.type == "chaos-assignment"
+            && isLeagueAdministrator(request.resource.data.leagueId)
+            && sameHouse
+          )
+          || (
+            request.resource.data.type == "leadership-vote-open"
+            && (
+              isLeagueAdministrator(request.resource.data.leagueId)
+              || currentHouseLeader(request.resource.data.houseId)
+            )
+            && sameHouse
+          )
+          || (
+            request.resource.data.type == "leadership-result"
+            && isLeagueAdministrator(request.resource.data.leagueId)
+            && sameHouse
+          )
+          || (
+            request.resource.data.type == "roster-swap"
+            && (
+              isLeagueAdministrator(request.resource.data.leagueId)
+              || leadsHouseInLeague(request.resource.data.leagueId)
+            )
+            && sameHouse
+          )
+          || (
+            request.resource.data.type == "pocket-redeemed"
+            && request.resource.data.userId == request.auth.uid
+            && sameHouse
+          )
+          || (
+            request.resource.data.type == "season-notice"
+            && isLeagueAdministrator(request.resource.data.leagueId)
+          )
+        );
+    }
+
+    function validPlayerNotificationRead() {
+      return resource.data.userId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          "readAt", "readBy"
+        ])
+        && request.resource.data.readAt == request.time
+        && request.resource.data.readBy == request.auth.uid;
     }
 
     match /users/{userId} {
@@ -1485,52 +1692,18 @@ service cloud.firestore {
       allow delete: if false;
     }
 
-    match /teams/{teamId} {
-      allow create: if signedIn()
-        && !exists(/databases/$(database)/documents/playerTeams/$(request.auth.uid))
-        && validTeamCreate(teamId);
-      allow read: if isPlatformAdmin() || isTeamMember(teamId);
-      allow update: if signedIn()
-        && (
-          validTeamUpdate()
-          || validTeamCaptainTransfer(teamId)
-          || validTeamMemberCountUpdate(teamId)
-        );
-      allow delete: if false;
+    // Permanent global teams were retired in v0.14.0.
+    // Houses now exist only inside a specific season.
+    match /teams/{document=**} {
+      allow read, write: if false;
     }
 
-    match /teams/{teamId}/members/{userId} {
-      allow read: if isPlatformAdmin() || isTeamMember(teamId);
-      allow create: if signedIn() && validTeamMemberCreate(teamId, userId);
-      allow update: if signedIn()
-        && (
-          (isOwner(userId) && validTeamMemberProgressUpdate())
-          || validTeamMemberRoleTransfer(teamId, userId)
-        );
-      allow delete: if isOwner(userId)
-        && resource.data.role != "captain"
-        && !existsAfter(/databases/$(database)/documents/playerTeams/$(userId))
-        && getAfter(/databases/$(database)/documents/teams/$(teamId)).data.memberCount
-          == get(/databases/$(database)/documents/teams/$(teamId)).data.memberCount - 1;
+    match /playerTeams/{document=**} {
+      allow read, write: if false;
     }
 
-    match /playerTeams/{userId} {
-      allow read: if isOwner(userId) || isPlatformAdmin();
-      allow create: if signedIn()
-        && !exists(/databases/$(database)/documents/playerTeams/$(userId))
-        && validPlayerTeamCreate(userId);
-      allow update: if signedIn() && validPlayerTeamRoleTransfer(userId);
-      allow delete: if isOwner(userId)
-        && !existsAfter(
-          /databases/$(database)/documents/teams/$(resource.data.teamId)/members/$(userId)
-        );
-    }
-
-    match /teamInvites/{code} {
-      allow get: if signedIn();
-      allow list: if false;
-      allow create: if signedIn() && validTeamInviteCreate(code);
-      allow update, delete: if false;
+    match /teamInvites/{document=**} {
+      allow read, write: if false;
     }
 
     match /leagues/{leagueId} {
@@ -1545,7 +1718,10 @@ service cloud.firestore {
         && (
           (
             isLeagueAdministrator(leagueId)
-            && validLeagueStatusUpdate(leagueId)
+            && (
+              validLeagueStatusUpdate(leagueId)
+              || validLeagueChaosUpdate(leagueId)
+            )
           )
           || validLeagueParticipantCountUpdate(leagueId)
         );
@@ -1563,19 +1739,100 @@ service cloud.firestore {
 
     match /leagueMemberships/{membershipId} {
       allow read: if isPlatformAdmin()
-        || resource.data.userId == request.auth.uid
+        || (signedIn() && resource.data.userId == request.auth.uid)
         || isLeagueMember(resource.data.leagueId)
         || isLeagueAdministrator(resource.data.leagueId);
       allow create: if signedIn() && validLeagueMembershipCreate(membershipId);
-      allow update: if isLeagueAdministrator(resource.data.leagueId)
-        && validLeagueMembershipStatusUpdate();
+      allow update: if signedIn()
+        && (
+          (
+            isLeagueAdministrator(resource.data.leagueId)
+            && (
+              validLeagueMembershipStatusUpdate()
+              || validMembershipHouseAssignment()
+            )
+          )
+          || validMembershipRosterSwap()
+        );
       allow delete: if signedIn()
         && resource.data.userId == request.auth.uid
         && resource.data.status == "registered"
         && get(/databases/$(database)/documents/leagues/$(resource.data.leagueId)).data.status == "registration"
         && getAfter(/databases/$(database)/documents/leagues/$(resource.data.leagueId)).data.participantCount
           == get(/databases/$(database)/documents/leagues/$(resource.data.leagueId)).data.get("participantCount", 0) - 1
-        && getAfter(/databases/$(database)/documents/leagues/$(resource.data.leagueId)).data.participantLimit == 200;
+        && getAfter(/databases/$(database)/documents/leagues/$(resource.data.leagueId)).data.participantLimit == 160;
+    }
+
+    match /leagueHouses/{houseId} {
+      allow read: if isPlatformAdmin()
+        || isLeagueAdministrator(resource.data.leagueId)
+        || isLeagueMember(resource.data.leagueId);
+      allow create: if signedIn() && validHouseCreate();
+      allow update: if signedIn()
+        && (
+          validHouseIdentityUpdate()
+          || validHouseLeadershipUpdate(houseId)
+        );
+      allow delete: if false;
+    }
+
+    match /leadershipElections/{electionId} {
+      allow read: if isPlatformAdmin()
+        || isLeagueAdministrator(resource.data.leagueId)
+        || isLeagueMember(resource.data.leagueId);
+      allow create: if signedIn() && validLeadershipElectionCreate();
+      allow update: if signedIn() && validLeadershipElectionFinalize();
+      allow delete: if false;
+    }
+
+    match /leadershipVotes/{voteId} {
+      allow get: if isPlatformAdmin()
+        || isLeagueAdministrator(resource.data.leagueId)
+        || (signedIn() && resource.data.voterId == request.auth.uid);
+      allow list: if isPlatformAdmin()
+        || isLeagueAdministrator(resource.data.leagueId);
+      allow create: if signedIn() && validLeadershipVoteCreate(voteId);
+      allow update, delete: if false;
+    }
+
+    match /leagueRosterSwaps/{swapId} {
+      allow read: if isPlatformAdmin()
+        || isLeagueAdministrator(resource.data.leagueId)
+        || isLeagueMember(resource.data.leagueId);
+      allow create: if signedIn() && validRosterSwapCreate(swapId);
+      allow update, delete: if false;
+    }
+
+    match /leagueRosterLocks/{lockId} {
+      allow read: if isPlatformAdmin()
+        || isLeagueAdministrator(resource.data.leagueId)
+        || isLeagueMember(resource.data.leagueId);
+      allow create: if signedIn() && validRosterLockCreate(lockId);
+      allow update, delete: if false;
+    }
+
+    match /pocketActivities/{pocketId} {
+      allow read: if isPlatformAdmin()
+        || (signedIn() && resource.data.userId == request.auth.uid)
+        || isLeagueAdministrator(resource.data.leagueId);
+      allow create: if signedIn() && validPocketActivityCreate();
+      allow update: if signedIn() && validPocketActivityRedeem(pocketId);
+      allow delete: if false;
+    }
+
+    match /pocketRedemptions/{redemptionId} {
+      allow read: if isPlatformAdmin()
+        || (signedIn() && resource.data.userId == request.auth.uid)
+        || isLeagueAdministrator(resource.data.leagueId);
+      allow create: if signedIn() && validPocketRedemptionCreate(redemptionId);
+      allow update, delete: if false;
+    }
+
+    match /playerNotifications/{notificationId} {
+      allow read: if signedIn() && resource.data.userId == request.auth.uid;
+      allow create: if signedIn() && validPlayerNotificationCreate();
+      allow update: if signedIn() && validPlayerNotificationRead();
+      allow delete: if false;
     }
 
     match /leagueContributions/{contributionId} {
@@ -1588,6 +1845,7 @@ service cloud.firestore {
       allow update: if false;
       allow delete: if signedIn()
         && resource.data.userId == request.auth.uid
+        && resource.data.get("source", "activity") == "activity"
         && get(/databases/$(database)/documents/leagues/$(resource.data.leagueId)).data.status == "active"
         && !existsAfter(
           /databases/$(database)/documents/challengeEntries/$(resource.data.entryId)
@@ -1595,11 +1853,12 @@ service cloud.firestore {
     }
 
     match /challengeEntries/{entryId} {
-      allow create: if signedIn() && validChallengeEntry();
+      allow create: if signedIn() && validChallengeEntry(entryId);
       allow read: if signedIn()
         && resource.data.userId == request.auth.uid;
       allow delete: if signedIn()
         && resource.data.userId == request.auth.uid
+        && resource.data.get("source", "activity") == "activity"
         && isRecentChallengeDate(resource.data.challengeDate);
       allow update: if false;
     }

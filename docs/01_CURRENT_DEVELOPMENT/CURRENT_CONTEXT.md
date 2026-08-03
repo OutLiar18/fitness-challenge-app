@@ -1,21 +1,15 @@
-# Champions Legacy Challenge — Current Context
+# Current Context
 
-Last updated: 2 August 2026
+Last updated: 3 August 2026
 
-## Current development phase
+**v0.14.0 — Season Houses, C.H.A.O.S. and Pocket Week** is deployed to the branded Firebase Hosting site and remains before v1.0.
 
-**v0.13.1 — Rulebook and Points Reference**, still before v1.0.
+The central architecture decision is that Houses are not permanent global Teams. A House belongs to one season. Players register as individuals, C.H.A.O.S. creates the opening rosters, weekly leadership and roster changes operate inside that season, and contribution documents preserve the House represented at the time of earning.
 
-The original 2025 challenge rules and points chart were reviewed. Current player references now reflect the app’s actual behaviour rather than copying obsolete submission processes or scoring tables.
+Pocket Week is confirmed as one private seven-day pre-season reserve. It does not recur every challenge week. Deposits earn zero points; deliberate redemption during the Active season creates the scored entry and House contribution atomically.
 
-## Current priorities
+The technical release gates and production smoke test pass. The full functional, responsive and accessibility review is intentionally deferred until the final pre-v1.0 stage.
 
-1. Apply the v0.13.1 updater, which includes the v0.12 hardening baseline.
-2. Complete the existing-league `participantCount` and `participantLimit` check when applicable.
-3. Verify 54 domain tests, 15 Firestore Rules tests, ESLint, production build and release readiness.
-4. Deploy the branded Hosting target; Firestore Rules require deployment only when the v0.12 baseline has not yet been deployed.
-5. Review `/rules` and `/points-guide` on mobile and desktop, then begin the broader product review.
+The next small improvement is C.H.A.O.S. prerequisite visibility: activation remains Registration-only, but Draft administrators should not mistake the hidden console for a missing feature.
 
-## Guardrail
-
-Do not create a v1.0 tag or final production declaration. Inactive 2025 mechanics must not be presented as live until their data model, permissions, administration and tests exist.
+Unclear legacy mechanics are deliberately inactive. Never infer Power Play, Diamonds, player prices, Buddy Bonuses, Five Fires or late-season twists without explicit product decisions.

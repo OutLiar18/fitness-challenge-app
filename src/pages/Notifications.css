@@ -1,0 +1,23 @@
+.notifications-page { width: 100%; }
+.notification-summary { display: flex; align-items: center; gap: 22px; padding: 22px 24px; }
+.notification-summary > div { display: grid; min-width: 110px; grid-template-columns: auto 1fr; column-gap: 8px; }
+.notification-summary span { grid-row: 1 / span 2; color: var(--primary); font-size: 1.8rem; }
+.notification-summary strong { font-family: var(--font-display); font-size: 1.55rem; }
+.notification-summary small { color: var(--text-muted); }
+.notification-summary p { margin: 0; color: var(--text-muted); }
+.notification-list { display: grid; gap: 0; overflow: hidden; padding: 0; }
+.notification-item { display: grid; gap: 12px; padding: 20px 24px; border-bottom: 1px solid var(--border); grid-template-columns: auto minmax(0, 1fr); }
+.notification-item:last-child { border-bottom: 0; }
+.notification-item--unread { background: linear-gradient(90deg, var(--primary-soft), transparent 48%); }
+.notification-item__mark { padding-top: 2px; color: var(--primary); }
+.notification-item__copy { display: grid; gap: 8px; }
+.notification-item__copy > div:first-child { display: flex; justify-content: space-between; gap: 14px; }
+.notification-item time { color: var(--text-muted); font-size: .78rem; }
+.notification-item p { margin: 0; color: var(--text-muted); }
+.notification-item__actions { display: flex; align-items: center; gap: 14px; }
+.notification-item__actions button { padding: 0; border: 0; color: var(--primary); background: none; font: inherit; font-size: .82rem; font-weight: 850; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.notification-item__actions button:disabled { color: var(--text-subtle); cursor: progress; }
+.notification-easter { display: flex; gap: 16px; padding: 20px 24px; }
+.notification-easter > span { font-size: 2rem; }
+.notification-easter p { margin: 4px 0 0; color: var(--text-muted); }
+@media (max-width: 620px) { .notification-summary { align-items: flex-start; flex-direction: column; } .notification-item { padding: 17px; } .notification-item__copy > div:first-child { flex-direction: column; gap: 3px; } }

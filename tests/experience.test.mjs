@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { FUTURE_FEATURES } from "../src/constants/futureFeatures.js";
 import { getDailyMotivation, getMotivationCount } from "../src/constants/motivation.js";
 import {
   ADMIN_NAV_ITEM,
@@ -40,15 +39,17 @@ test("Mobile navigation is a valid subset of primary navigation", () => {
   assert.equal(MOBILE_NAV_ITEMS.some((item) => item.id === "profile"), false);
 });
 
-test("Every community navigation item retains a structured product definition", () => {
+test("Every season and coaching navigation item remains clearly described", () => {
   FUTURE_NAV_ITEMS.forEach((item) => {
-    const feature = FUTURE_FEATURES[item.id];
-
-    assert.ok(feature);
-    assert.ok(feature.title);
-    assert.ok(feature.capabilities.length >= 3);
-    assert.ok(feature.guardrail);
+    assert.ok(item.label);
+    assert.ok(item.description.length >= 20);
+    assert.ok(item.to.startsWith("/"));
   });
+
+  assert.ok(FUTURE_NAV_ITEMS.some((item) => item.id === "leagues"));
+  assert.ok(FUTURE_NAV_ITEMS.some((item) => item.id === "teams"));
+  assert.ok(FUTURE_NAV_ITEMS.some((item) => item.id === "pocket"));
+  assert.ok(FUTURE_NAV_ITEMS.some((item) => item.id === "notifications"));
 });
 
 test("Daily motivation is deterministic and can be shuffled", () => {

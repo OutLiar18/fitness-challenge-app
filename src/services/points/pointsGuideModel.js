@@ -224,7 +224,9 @@ export const PUBLIC_LEAGUE_SCORING = Object.freeze({
   dailyParticipationBonus: DEFAULT_LEAGUE_RULESET.dailyParticipationBonus,
   formula: `League day score = min(${DEFAULT_LEAGUE_RULESET.dailyActivityCap}, activity points) + ${DEFAULT_LEAGUE_RULESET.dailyParticipationBonus} when active`,
   note:
-    "League score is a seasonal ranking value. It does not replace or reduce personal points.",
+    "League score is a seasonal ranking value. It does not replace or reduce personal points. The same scored day is credited to the House represented when each contribution was earned.",
+  houseFormula: "House score = sum of member league-day scores credited while representing that House",
+  pocketFormula: "Stored Pocket activity = 0 points until activated; activation uses the normal category calculation",
 });
 
 export function getActivityPointGuide(guideId) {

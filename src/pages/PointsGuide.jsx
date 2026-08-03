@@ -277,6 +277,11 @@ export default function PointsGuide() {
             </article>
           </div>
 
+          <div className="points-league__formulas">
+            <code>{PUBLIC_LEAGUE_SCORING.houseFormula}</code>
+            <code>{PUBLIC_LEAGUE_SCORING.pocketFormula}</code>
+          </div>
+
           <p>{PUBLIC_LEAGUE_SCORING.note}</p>
         </section>
       </div>

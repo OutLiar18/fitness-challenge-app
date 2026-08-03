@@ -31,23 +31,34 @@ export default function EntryForm({
   saving = false,
   readOnly = false,
   errors = [],
+  eyebrow,
+  title,
+  description,
+  notice,
+  submitLabel = "Save entry",
+  savingLabel = "Saving entry…",
 }) {
   const category = getCategory(type);
   const FormComponent = FORM_COMPONENTS[type];
+  const heading = title || category?.name || "Activity";
 
   return (
     <section className={`entry-form card${readOnly ? " entry-form--locked" : ""}`} aria-labelledby="entry-form-title">
       <div className="entry-form__header">
         <span className="entry-form__emoji" aria-hidden="true">{category?.emoji ?? "🏆"}</span>
         <div>
-          <p>{readOnly ? "History view" : "New entry"}</p>
-          <h2 id="entry-form-title">{category?.name ?? "Activity"}</h2>
+          <p>{eyebrow || (readOnly ? "History view" : "New entry")}</p>
+          <h2 id="entry-form-title">{heading}</h2>
         </div>
       </div>
 
-      {category?.description && <p className="entry-form__description">{category.description}</p>}
+      {(description || category?.description) && (
+        <p className="entry-form__description">{description || category.description}</p>
+      )}
 
-      {readOnly && (
+      {notice && <div className="inline-alert entry-form__notice">{notice}</div>}
+
+      {readOnly && !notice && (
         <div className="inline-alert entry-form__notice">
           🔒 This day is locked. Entries can only be added or deleted for today and yesterday.
         </div>
@@ -82,7 +93,7 @@ export default function EntryForm({
         disabled={readOnly || saving || !FormComponent}
         onClick={onSave}
       >
-        {saving ? "Saving entry…" : "Save entry"}
+        {saving ? savingLabel : submitLabel}
       </button>
     </section>
   );

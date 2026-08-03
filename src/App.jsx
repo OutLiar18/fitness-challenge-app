@@ -17,6 +17,8 @@ const Leagues = lazy(() => import("./pages/Leagues"));
 const LegacyCoach = lazy(() => import("./pages/LegacyCoach"));
 const Rulebook = lazy(() => import("./pages/Rulebook"));
 const PointsGuide = lazy(() => import("./pages/PointsGuide"));
+const PocketWeek = lazy(() => import("./pages/PocketWeek"));
+const Notifications = lazy(() => import("./pages/Notifications"));
 const FutureFeature = lazy(() => import("./pages/FutureFeature"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -39,6 +41,8 @@ export default function App() {
           <Route path="/coach" element={<LegacyCoach />} />
           <Route path="/rules" element={<Rulebook />} />
           <Route path="/points-guide" element={<PointsGuide />} />
+          <Route path="/pocket" element={<PocketWeek />} />
+          <Route path="/notifications" element={<Notifications />} />
           <Route path="/future/:featureId" element={<FutureFeature />} />
           <Route path="/app" element={<Navigate to="/dashboard" replace />} />
           <Route path="*" element={<NotFound />} />

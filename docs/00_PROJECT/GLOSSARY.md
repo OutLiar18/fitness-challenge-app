@@ -260,9 +260,9 @@ Streaks exist to encourage consistency rather than perfection.
 
 # Team
 
-A group of participants working together within a challenge or league.
+A general historical term for group competition.
 
-Teams encourage accountability and shared success.
+The current season system uses **House** as the official product term. Houses are scoped to one season and must not be treated as permanent profile assignments.
 
 ---
 
@@ -346,3 +346,49 @@ A player earns one shield after seven successful streak days and may bank a maxi
 An identifier for a specific set of goal, scoring or progression values.
 
 Future leagues should freeze a Ruleset Version so later balancing changes do not rewrite completed competition results.
+
+# C.H.A.O.S.
+
+Citizens Handpicked for Assignment via Operational Sorting.
+
+C.H.A.O.S. is the one-time, administrator-activated process that distributes every registered player across the Houses created for a season. The assignment is seeded, balanced and recorded before the season becomes Active.
+
+---
+
+# House
+
+A themed, season-scoped group of players competing together on the House leaderboard.
+
+A House exists only inside one season. It has its own identity, Captain, Vice-Captains and current roster. Points already contributed to a House remain there when a player later moves.
+
+---
+
+# House Captain
+
+The weekly elected leader of a House.
+
+The Captain may appoint one additional Vice-Captain and participate in the House’s permitted weekly roster movement. Captaincy is a season role, not a trusted platform role.
+
+---
+
+# Pocket Activity
+
+An activity completed and stored during Pocket Week.
+
+A Pocket Activity earns no points while stored. It becomes a scored challenge entry only when its owner deliberately redeems an available amount during the Active season.
+
+---
+
+# Pocket Week
+
+The seven calendar days immediately before a season begins.
+
+Pocket Week allows registered players to store eligible activities as private reserves for that season. Stored activity is personal, non-transferable and finite.
+
+---
+
+# Vice-Captain
+
+A weekly House leadership role.
+
+The primary Vice-Captain is normally determined by the second-highest valid vote total. The Captain may appoint one additional Vice-Captain for the same week.

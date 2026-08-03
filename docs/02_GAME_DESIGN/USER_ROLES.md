@@ -1,18 +1,18 @@
 # Champions Legacy Challenge — User Roles
 
-Last updated: 1 August 2026
+Last updated: 3 August 2026
 
 ## Purpose
 
-Roles control trusted responsibilities. They never change activity points, goal bonuses, experience points, achievements or league contribution formulas.
+Roles control trusted responsibilities. They never change activity points, goal bonuses, experience points, achievements or season contribution formulas.
 
 ## Player
 
 Identifier: `user`
 
-A Player may manage their profile identity, factual entries, personal library, announcement reads, Coach preferences, team membership and league registrations. Players may submit activity-library suggestions and view published content.
+A Player may manage their profile identity, factual entries, personal library, announcement reads, Legacy Coach preferences and season registrations. During a House season, a Player may store and redeem their own Pocket Week activities, vote once in their current House’s weekly leadership election and view the standings and private notifications available to them.
 
-A Player may not change their own trusted role, review suggestions, manage another account, create league audit authority or alter league contribution snapshots.
+A Player may not change their own trusted role, rewrite another player’s activity, review suggestions, manage another account, alter completed season contributions or assign themselves to a House.
 
 ## League Administrator
 
@@ -20,35 +20,56 @@ Identifier: `leagueAdmin`
 
 A League Administrator may:
 
-- create a league Draft with a frozen supported ruleset;
-- become an explicitly assigned administrator of that league;
-- move that assigned league forward through Registration, Active, Completed and Archived stages;
-- create the matching league-scoped audit events.
+- create a season Draft with a frozen supported ruleset;
+- become an explicitly assigned administrator of that season;
+- create themed Houses for the assigned season;
+- open Registration and activate C.H.A.O.S.;
+- open and resolve weekly House leadership elections;
+- complete permitted weekly House roster swaps;
+- move the assigned season through Registration, Active, Completed and Archived stages;
+- create the matching season-scoped audit events.
 
 A League Administrator may not:
 
-- administer a league to which they are not assigned;
+- administer a season to which they are not assigned;
 - manage platform announcements, users, global libraries or client error reports;
-- grant roles;
-- modify league rules after creation;
+- grant trusted roles;
+- modify frozen scoring rules after creation;
+- rewrite historical House contributions;
 - receive competitive advantages.
 
 ## Platform Administrator
 
 Identifier: `admin`
 
-A Platform Administrator may perform platform administration, including announcements, moderation, global library releases, user role/team metadata, audit review, error resolution and all league operations.
+A Platform Administrator may perform platform administration, including announcements, moderation, global library releases, trusted user-role management, audit review, error resolution and all season operations.
 
-Platform Administrators may not change their own role through the client, delete immutable audit history or receive competitive advantages.
+Platform Administrators may not change their own role through the client, delete immutable audit history, permanently assign a player to a global team or receive competitive advantages.
 
-## Team Captain
+## House Captain
 
-Team captain is a team membership role, not a trusted platform role. It grants narrow authority over one team’s identity and captain transfer. It does not grant league or platform administration.
+House Captain is a weekly season role, not a trusted platform role.
+
+The Captain is normally determined by the highest valid vote total after a complete 24-hour House ballot. The Captain may open the next eligible weekly ballot, appoint one additional Vice-Captain and participate in the House’s permitted weekly roster swap.
+
+Captain authority ends or changes when the next weekly election is finalised, the player changes House or the season ends.
+
+## Primary Vice-Captain
+
+The primary Vice-Captain is normally the player with the second-highest valid vote total after the weekly ballot.
+
+The primary Vice-Captain may open the next eligible ballot and participate in the House’s permitted weekly roster swap. They remain the primary Vice-Captain for that week even when the Captain appoints one additional Vice-Captain.
+
+## Additional Vice-Captain
+
+The current Captain may appoint one additional current House member as a second Vice-Captain for the week.
+
+This appointment does not replace the elected primary Vice-Captain and is reset when the next weekly leadership election is finalised.
 
 ## Authorization source
 
-Platform authority comes from a trusted Firebase custom claim or protected Firestore profile role. League operations additionally require explicit assignment in the league document. Team captain authority comes from the team and membership documents.
+Platform authority comes from a trusted Firebase custom claim or protected Firestore profile role. League operations additionally require explicit assignment in the season document. House leadership comes from the current season’s protected House document. Player placement comes from the current season membership document and never from a permanent profile field.
 
 ## Principle
 
-Authority must be narrow, visible, auditable and unrelated to score.
+Authority must be narrow, visible, auditable, temporary where appropriate and unrelated to score.

@@ -6,11 +6,12 @@
 .league-join { align-content: start; display: grid; gap: 16px; }
 .league-join > span { font-size: 2.8rem; }
 .league-browser__list { display: grid; gap: 10px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.league-card { display: grid; align-content: start; gap: 7px; min-height: 130px; padding: 16px; border: 2px solid var(--border); border-radius: var(--radius-md); color: var(--text); background: var(--surface-soft); text-align: left; transition: transform var(--transition), border-color var(--transition), background var(--transition); }
-.league-card:hover { transform: translateY(-1px); border-color: var(--primary); }
-.league-card--selected { border-color: var(--primary); background: var(--primary-soft); }
-.league-card small { color: var(--text-muted); }
-.league-card em { color: var(--success); font-size: 0.78rem; font-weight: 800; }
+.league-browser__item { display: grid; align-content: start; gap: 7px; min-height: 130px; padding: 16px; border: 2px solid var(--border); border-radius: var(--radius-md); color: var(--text); background: var(--surface-soft); text-align: left; transition: transform var(--transition), border-color var(--transition), background var(--transition); }
+.league-browser__item:hover { transform: translateY(-1px); border-color: var(--primary); }
+.league-browser__item:focus-visible { outline: 3px solid var(--primary-soft); outline-offset: 3px; }
+.league-browser__item--active { border-color: var(--primary); background: var(--primary-soft); }
+.league-browser__item small { color: var(--text-muted); }
+.league-browser__item em { color: var(--success); font-size: 0.78rem; font-weight: 800; }
 .league-detail { display: grid; gap: 22px; }
 .league-hero { display: grid; align-items: center; gap: 22px; grid-template-columns: minmax(0, 1fr) auto; background: radial-gradient(circle at top right, var(--primary-soft), transparent 30rem), var(--surface); }
 .league-hero__actions { display: grid; gap: 10px; min-width: 220px; }
@@ -33,3 +34,107 @@
 .standings-score { color: var(--primary); }
 @media (max-width: 980px) { .league-tools, .league-hero, .league-rules { grid-template-columns: 1fr; } .league-form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .league-browser__list { grid-template-columns: repeat(2, minmax(0, 1fr)); } .league-hero__actions { grid-template-columns: repeat(2, minmax(0, 1fr)); min-width: 0; } }
 @media (max-width: 620px) { .league-create, .league-join, .league-browser, .league-hero, .league-rules, .league-standings { padding: 18px; } .league-form-grid, .league-browser__list, .league-hero__actions { grid-template-columns: 1fr; } .standings-row { grid-template-columns: 32px auto minmax(0, 1fr); } .standings-score { grid-column: 3; } }
+.league-pocket-toggle { display: flex; align-items: flex-start; gap: 12px; padding: 16px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-soft); cursor: pointer; }
+.league-pocket-toggle input { width: 20px; height: 20px; margin-top: 2px; }
+.league-pocket-toggle span { display: grid; gap: 3px; }
+.league-pocket-toggle small { color: var(--text-muted); }
+.season-system { display: grid; gap: 14px; padding: 18px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.season-system article { display: grid; gap: 4px; padding: 16px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-soft); }
+.season-system article > span { font-size: 1.5rem; }
+.season-system small { color: var(--text-muted); }
+.standings-house-emblem { display: grid; width: 40px; height: 40px; place-items: center; border-radius: 13px; background: var(--primary-soft); font-size: 1.35rem; }
+@media (max-width: 720px) { .season-system { grid-template-columns: 1fr; } }
+
+.season-honours {
+  display: grid;
+  gap: 1.25rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.season-honours::after {
+  content: "♛";
+  position: absolute;
+  right: -1rem;
+  bottom: -2.4rem;
+  font-size: clamp(7rem, 18vw, 13rem);
+  color: color-mix(in srgb, var(--accent) 8%, transparent);
+  pointer-events: none;
+  transform: rotate(-10deg);
+}
+
+.season-honours__grid,
+.season-honours__houses {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem;
+  position: relative;
+  z-index: 1;
+}
+
+.season-honours__grid article,
+.season-honours__houses article {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-soft);
+}
+
+.season-honours__grid article > div,
+.season-honours__houses article > div {
+  min-width: 0;
+  display: grid;
+  gap: 0.15rem;
+  flex: 1;
+}
+
+.season-honours__grid small,
+.season-honours__houses small {
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.season-honours__grid strong,
+.season-honours__houses strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.season-honours__grid article > span:last-child,
+.season-honours__houses article > span:last-child,
+.season-honours__houses article > b {
+  color: var(--warning);
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.season-honours__winner {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border)) !important;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--warning-soft) 75%, var(--surface)), var(--surface)) !important;
+}
+
+.season-honours__winner > span:first-child {
+  font-size: 2rem;
+}
+
+.season-honours__note {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 520px) {
+  .season-honours__grid,
+  .season-honours__houses {
+    grid-template-columns: 1fr;
+  }
+}
