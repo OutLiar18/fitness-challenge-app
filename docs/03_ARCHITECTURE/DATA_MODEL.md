@@ -41,3 +41,7 @@ Water and Fruit use one daily claim per category. Running and Steps use one clai
 - Decisions and snapshots are appended, not edited.
 - Evidence-linked entries are locked from ordinary deletion.
 - Completed and archived competitive history cannot be deleted by the client.
+
+## v0.19 derived season operations model
+
+The Season Command Centre is a read model only. It combines existing league, House, membership, election, evidence, reviewer, contribution and snapshot documents in memory. No `seasonCommandCentres` collection exists. Downloaded reports serialize the currently visible records locally and are not persisted.

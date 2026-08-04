@@ -1,5 +1,33 @@
 # Champions Legacy Challenge — Changelog
 
+## v0.19.0 — Season Command Centre
+
+<!-- RELEASE_STATUS: DEPLOYED -->
+Date: 4 August 2026  
+Status: Verified and deployed; release commit pending
+
+### Added
+
+- Role-aware Season Command Centre for configured v2 seasons.
+- Ordered next-action guidance across Houses, C.H.A.O.S., leadership, evidence and publication.
+- Evidence workload and reviewer coverage by category.
+- Immutable evidence-decision and leaderboard-snapshot history.
+- Downloadable role-scoped season operations reports.
+- ADR-026, source audit and release documentation.
+
+### Preserved
+
+- No scoring, evidence, deadline, House attribution or Security Rule change.
+- No WhatsApp media storage or export.
+- Player-facing standings remain immutable published snapshots.
+
+### Verification
+
+- Clean ESLint passed in the packaging environment.
+- 85 domain tests passed in the packaging environment.
+- Windows Vite build, 39 Rules tests and release-readiness passed.
+- Branded Firebase Hosting deployed successfully.
+
 ## v0.18.0 — External Evidence and Published Standings
 
 <!-- RELEASE_STATUS: DEPLOYED -->
@@ -29,7 +57,7 @@ Status: Verified and deployed; release commit pending
 
 - Clean ESLint passed in the packaging environment.
 - 80 domain tests passed in the packaging environment.
-- Windows Vite build passed. A candidate hotfix now addresses two Firestore Rules expression-budget failures; 39 Rules tests, release-readiness and production deployment remain pending.
+- Windows verification passed the Vite build, 80 domain tests, 39 Firestore Rules tests and release-readiness. Firestore Rules and branded Hosting deployed successfully.
 
 ## v0.17.0 — Player Readiness and Account Control
 

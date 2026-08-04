@@ -3,29 +3,23 @@
 <!-- RELEASE_STATUS: DEPLOYED -->
 Last updated: 4 August 2026
 
-## v0.18.0 candidate status
+## v0.19.0 candidate status
 
-Packaging lint, 80 domain tests and the Windows Vite build pass. The first Rules run found two expression-budget failures; the candidate includes a targeted hotfix and awaits a clean 39-test rerun, release-readiness and production deployment.
+Windows verification passed clean ESLint, 85 domain tests, the Vite production build, 39 Rules tests and release-readiness. Branded Firebase Hosting deployed successfully.
 
-## Rules evaluation budget
+## Season operations
 
-- The first v0.18.0 Windows Rules run hit Firestore's 1,000-expression evaluation limit in two valid atomic workflows.
-- The candidate hotfix replaces broad OR validation with branch-directed ternaries, removes redundant full-policy validation from claim creation and fixes the Running proof test fixture to include the production `evidenceClaimIds` link.
-- This remains a release blocker until all 39 Rules tests pass cleanly. Do not deploy the pre-hotfix Rules.
-
-## Evidence operations
-
-- The app stores no WhatsApp media. Administrators must visually compare external proof and record the message timestamp.
-- The 10:00 leaderboard fallback is administrator-session based, not a guaranteed background job. Without an authorised session, the previous player snapshot remains visible.
-- Evidence-linked entries are locked from ordinary deletion to preserve the verification chain. A complete audited factual-correction workflow is still required.
-- Running and Steps Pocket redemption is disabled in new v2 seasons because proof cannot safely be attached to the reserved whole session.
+- The command centre is a derived operational view; it does not replace detailed controls in Houses or Evidence Operations.
+- Snapshot publication remains administrator-session based. There is still no guaranteed background scheduler.
+- Operations reports can contain private season administration data and should be handled as trusted operational exports.
+- Category-reviewer reports are scoped to assigned evidence categories, but still contain shared season records the reviewer may already read as a member.
 
 ## Existing technical limitations
 
-- The Firebase vendor bundle remains above Vite's 500-kilobyte warning threshold. This is recorded as a future measured optimisation, not a release blocker.
-- `npm audit` reports a React Router React Server Components advisory. The app does not use React Server Components, and the available forced remediation is breaking. Do not run `npm audit fix --force`.
-- Personal history still subscribes to the complete signed-in user's entries. Pagination remains future work.
-- Account deletion requires trusted operational handling outside the client.
+- The Firebase vendor bundle remains above Vite's 500-kilobyte warning threshold.
+- `npm audit` reports the known React Router React Server Components advisory. The app does not use RSC mode, and forced remediation is breaking. Do not run `npm audit fix --force`.
+- Personal history still subscribes to the complete signed-in user's entries; pagination remains future work.
+- Account deletion still requires trusted operational execution outside the client.
 - Prize-bearing competition should eventually use trusted server-side recalculation and scheduled publication.
 
 ## Review boundary

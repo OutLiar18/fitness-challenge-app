@@ -20,3 +20,5 @@ Accepted decisions are permanent historical records. Superseding a decision requ
 - `ADR-024-guided-onboarding-and-trusted-account-requests.md` — versioned onboarding, personal export and audited account-request lifecycle.
 
 - `ADR-025-external-evidence-and-published-standings.md` — no-cost WhatsApp proof, least-privilege review and immutable player-facing leaderboard snapshots.
+
+- `ADR-026-season-command-centre-and-role-scoped-reports.md` — derived season operations, next-action guidance and local role-scoped reports.

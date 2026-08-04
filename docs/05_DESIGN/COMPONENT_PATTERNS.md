@@ -330,3 +330,7 @@ Badges supplement the label; they never replace it.
 - nested generic tablists;
 - moving business logic into tab components;
 - rendering scoring differently depending on the active section.
+
+## Season command centre
+
+Use one operational health hero, a small metric grid, an ordered next-action list and two-column history cards that collapse to one column. Urgent state must use wording and structure in addition to colour. Every suggested action links to the authoritative detailed workspace rather than duplicating its controls. Download actions must explain report scope and privacy.

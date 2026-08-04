@@ -2,29 +2,27 @@
 
 Last updated: 4 August 2026
 
-## Current candidate — v0.18.0
+## Current candidate — v0.19.0
 
-External WhatsApp evidence administration and published daily standings:
+Season Command Centre and operational reporting:
 
-- verification IDs;
-- Running and Steps proof gates;
-- Water and Fruit daily evidence bonuses;
-- assigned category reviewers;
-- audited decisions and reversals;
-- live administrator standings;
-- immutable player-facing snapshots;
-- 10:00 Africa/Johannesburg administrator-session fallback.
+- role-aware season health summary;
+- ordered next-action guidance;
+- evidence workload by category;
+- immutable decision history;
+- leaderboard snapshot history;
+- downloadable role-scoped operations report.
 
 ## Recommended next phases
 
-### v0.19.0 — Operational resilience and corrections
+### v0.20.0 — Audited factual correction and history resilience
 
-- Audited factual entry correction instead of direct point editing.
-- Review-decision history and operational reporting.
-- Better season command-centre diagnostics.
-- History pagination and measured performance optimisation.
+- Replacement-entry workflow instead of direct point editing.
+- Explicit correction chains for evidence-linked factual mistakes.
+- Journal/history pagination and measured performance optimisation.
+- Reconciliation diagnostics for missing or duplicated derived records.
 
-### v0.20.0 — Trusted competition operations
+### v0.21.0 — Trusted competition operations
 
 - Trusted server/Admin SDK recalculation for prize-bearing seasons.
 - Reliable scheduled leaderboard publication.
@@ -41,7 +39,7 @@ External WhatsApp evidence administration and published daily standings:
 
 ## Deferred until separately defined
 
-Power Plays, Diamonds, full Transfer Market, Buddy Bonus, Five Fires, gender scoring and late-season twists remain inactive. Do not infer or implement their rules.
+Power Plays, Diamonds, full Transfer Market, Buddy Bonus, Five Fires, gender scoring and late-season twists remain inactive.
 
 ## v1.0 boundary
 

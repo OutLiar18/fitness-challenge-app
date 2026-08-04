@@ -4,6 +4,7 @@
 
 | Version | Date | Milestone |
 |---|---|---|
+| 0.19.0 | 4 August 2026 | Season Command Centre and role-scoped operations reports; verified production deployment |
 | 0.18.0 | 4 August 2026 | External evidence and published standings; verified production deployment |
 | 0.17.0 | 4 August 2026 | Player readiness and account control; verified production deployment |
 | 0.16.0 | 3 August 2026 | Progressive disclosure and route-page visual refinement; verified production deployment |

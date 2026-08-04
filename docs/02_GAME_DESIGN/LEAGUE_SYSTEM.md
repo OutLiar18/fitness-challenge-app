@@ -60,3 +60,7 @@ Season honours are derived from the authoritative contribution stream and may be
 ## Trust boundary
 
 Client-side calculation supports the current private challenge iteration. Prize-bearing or public competition should eventually add trusted server-side recalculation, reliable scheduling and reconciliation without rewriting historical contribution records.
+
+## v0.19 Season Command Centre
+
+Configured v2 seasons expose a role-aware operations summary to authorised administrators and evidence reviewers. It derives next actions from lifecycle, House, C.H.A.O.S., leadership, proof and publication records. Detailed actions remain in the existing Houses, Evidence Operations and Honours workspaces. The command centre stores no alternate score and creates no season-state document.

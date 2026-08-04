@@ -46,3 +46,7 @@ Profile roles, account requests, season lifecycle, C.H.A.O.S., leadership, swaps
 ## Test requirement
 
 `npm run test:rules` must pass all **39 v0.18.0 Rules tests** using Java 21 before deploying `firestore.rules`. Expected `PERMISSION_DENIED` logs from negative assertions are not failures when the suite passes.
+
+## v0.19 role-scoped operations reporting
+
+The command centre does not expand Firestore authority. Platform and season administrators read records already permitted by v0.18.0 Rules. Category reviewers receive only assigned evidence claim/decision queries. Reports are generated from successfully read records, so unavailable data is not bypassed or inferred. Operations exports contain no proof media.

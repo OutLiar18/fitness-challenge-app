@@ -196,3 +196,7 @@ Running and Steps Pocket redemption is blocked in new v2 seasons. Whole-session 
 ## Privacy boundary
 
 The app must never imply that WhatsApp media is stored, encrypted, retained or deleted by Champions Legacy Challenge. Those media controls belong to the external WhatsApp group and its administrators. The app stores only structured metadata and decisions necessary for competition operation.
+
+## v0.19 operational visibility
+
+Authorised v2 season operators receive a derived command centre that summarises evidence workload, reviewer coverage, immutable decision history and leaderboard snapshot history. The command centre does not change evidence status or points by itself. Category reviewers see only their assigned evidence categories, and downloaded operations reports contain no WhatsApp media.

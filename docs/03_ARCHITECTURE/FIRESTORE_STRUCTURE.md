@@ -65,3 +65,7 @@ Rules deny all use of permanent-Team collections.
 - Player leaderboard snapshots are immutable and player-readable only after publication.
 - Players cannot read another player's live contribution stream in v2.
 - Completed contribution and snapshot history remains permanent.
+
+## v0.19 command-centre reads
+
+The command centre reads existing collections only: `leagues`, `leagueHouses`, `leagueMemberships`, `leadershipElections`, `seasonEvidenceClaims`, `seasonEvidenceDecisions`, `leagueEvidenceReviewers`, `leagueContributions` and `leagueLeaderboardSnapshots`. Security Rules are unchanged from v0.18.0. Queries remain role-scoped and no command-centre collection is introduced.

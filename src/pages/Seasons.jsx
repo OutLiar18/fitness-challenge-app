@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 
 import Toast from "../components/common/Toast/Toast";
 import EvidenceWorkspace from "../components/seasons/EvidenceWorkspace";
+import SeasonCommandCentre from "../components/seasons/SeasonCommandCentre";
 import WorkspaceTabs, {
   WorkspacePanel,
 } from "../components/common/WorkspaceTabs";
@@ -54,6 +55,12 @@ const SEASON_DETAIL_TABS = Object.freeze([
     label: "Overview",
     icon: "🧭",
     description: "Season dates, rules and lifecycle",
+  },
+  {
+    id: "operations",
+    label: "Command centre",
+    icon: "🎛️",
+    description: "Operational health, next actions and downloadable reports",
   },
   {
     id: "standings",
@@ -619,6 +626,16 @@ function LeagueDetail({
   const canOperateEvidence = Boolean(
     evidenceEnabled && (isManager || isEvidenceReviewer),
   );
+  const canViewCommandCentre = Boolean(
+    isHouseSeason && evidenceEnabled && (isManager || isEvidenceReviewer),
+  );
+  const detailTabs = SEASON_DETAIL_TABS.filter((tab) => {
+    if (tab.id === "operations") return canViewCommandCentre;
+    if (tab.id === "evidence") return canOperateEvidence;
+    return true;
+  });
+  const resolvedDetailTab =
+    resolveWorkspaceTab(detailTabs, activeTab)?.id ?? "overview";
 
   useEffect(() => {
     if (!userId) return undefined;
@@ -822,18 +839,16 @@ function LeagueDetail({
       <WorkspaceTabs
         idPrefix={`season-${league.id}`}
         label={`${league.name} sections`}
-        tabs={SEASON_DETAIL_TABS
-          .filter((tab) => tab.id !== "evidence" || canOperateEvidence)
-          .map((tab) =>
+        tabs={detailTabs.map((tab) =>
             tab.id === "standings"
               ? { ...tab, badge: members.length }
               : tab,
           )}
-        activeId={activeTab}
+        activeId={resolvedDetailTab}
         onChange={setActiveTab}
       />
 
-      <WorkspacePanel id="overview" activeId={activeTab} idPrefix={`season-${league.id}`}>
+      <WorkspacePanel id="overview" activeId={resolvedDetailTab} idPrefix={`season-${league.id}`}>
         {!isHouseSeason && (
           <section className="inline-alert card" role="status">
             This is a legacy league record from before season-scoped Houses. It
@@ -910,7 +925,24 @@ function LeagueDetail({
         </section>
       </WorkspacePanel>
 
-      <WorkspacePanel id="standings" activeId={activeTab} idPrefix={`season-${league.id}`}>
+      {canViewCommandCentre && (
+        <WorkspacePanel id="operations" activeId={resolvedDetailTab} idPrefix={`season-${league.id}`}>
+          <SeasonCommandCentre
+            league={league}
+            members={members}
+            contributions={contributions}
+            actorId={userId}
+            isPlatformAdmin={isPlatformAdmin}
+            isLeagueAdministrator={isManager}
+            reviewerCategories={reviewerAssignment?.categories ?? EMPTY_ITEMS}
+            notify={notify}
+            onOpenEvidence={() => setActiveTab("evidence")}
+            onOpenHonours={() => setActiveTab("honours")}
+          />
+        </WorkspacePanel>
+      )}
+
+      <WorkspacePanel id="standings" activeId={resolvedDetailTab} idPrefix={`season-${league.id}`}>
         {canViewStandings ? (
           <>
             <section className="league-standings card">
@@ -963,7 +995,7 @@ function LeagueDetail({
         )}
       </WorkspacePanel>
 
-      <WorkspacePanel id="honours" activeId={activeTab} idPrefix={`season-${league.id}`}>
+      <WorkspacePanel id="honours" activeId={resolvedDetailTab} idPrefix={`season-${league.id}`}>
         {canViewStandings ? (
           <section className="season-honours card">
             <div className="community-section-heading">
@@ -1032,7 +1064,7 @@ function LeagueDetail({
       </WorkspacePanel>
 
       {canOperateEvidence && (
-        <WorkspacePanel id="evidence" activeId={activeTab} idPrefix={`season-${league.id}`}>
+        <WorkspacePanel id="evidence" activeId={resolvedDetailTab} idPrefix={`season-${league.id}`}>
           <EvidenceWorkspace
             league={league}
             members={members}

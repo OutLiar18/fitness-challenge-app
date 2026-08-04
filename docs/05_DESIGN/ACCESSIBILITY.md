@@ -387,3 +387,12 @@ The shared workspace pattern must preserve the following:
 - Count/status badges are never the only communication of state.
 - Panel entrance motion is removed under `prefers-reduced-motion: reduce`.
 - Dynamic role or season-phase changes must fall back to an available section rather than leaving an empty page.
+
+## v0.19 command-centre accessibility
+
+- Health states include icon, heading and explanatory text; colour is supplementary.
+- Next actions remain normal links or buttons with visible focus.
+- Evidence and snapshot histories use semantic lists and readable timestamps.
+- Metric grids collapse without horizontal scrolling.
+- Report download exposes a clear busy state and success/error feedback.
+- No automatic focus movement or time-based action is introduced.

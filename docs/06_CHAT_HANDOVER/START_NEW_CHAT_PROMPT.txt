@@ -1,7 +1,7 @@
-Continue the Champions Legacy Challenge React + Vite + Firebase project as a senior engineer. Read docs/06_CHAT_HANDOVER/CHAT_BRIEFING.md, RECENT_SESSION_SUMMARY.md, docs/01_CURRENT_DEVELOPMENT/CURRENT_STATE.md, ACTIVE_MIGRATIONS.md, NEXT_SESSION.md and docs/02_GAME_DESIGN/EVIDENCE_AND_PUBLISHED_STANDINGS.md first.
+Continue the Champions Legacy Challenge React + Vite + Firebase project as a senior engineer. Read docs/06_CHAT_HANDOVER/CHAT_BRIEFING.md, RECENT_SESSION_SUMMARY.md, docs/01_CURRENT_DEVELOPMENT/CURRENT_STATE.md, ACTIVE_MIGRATIONS.md, NEXT_SESSION.md and docs/02_GAME_DESIGN/SEASON_COMMAND_CENTRE.md first.
 
-Current source and production are v0.18.0 External Evidence and Published Standings. Windows verification and combined Rules/Hosting deployment succeeded.
+Current source and production are v0.19.0 Season Command Centre.
 
-The app stores no proof media. Players send WhatsApp proof with a verification ID. Running/Steps are proof-gated as documented; Water/Fruit have limited daily evidence bonuses; player leaderboards are immutable published snapshots while administrators see live standings. The 10:00 Johannesburg fallback requires an administrator session.
+v0.19.0 adds a role-aware operations summary, ordered next actions, evidence workload, immutable decision/snapshot history and role-scoped JSON reports. It changes no scoring rule, Firestore collection or Security Rule and stores no WhatsApp media.
 
-Release evidence: 80 domain tests, 39 Firestore Rules tests, clean lint/build, v0.18.0 release-readiness and successful combined Rules/Hosting deployment. Do not use npm audit fix --force. Commit v0.18.0 cleanly; do not create a separate documentation sync. Do not call or tag v1.0 without explicit approval.
+Release evidence: 85 domain tests, 39 Firestore Rules tests, clean lint/build, v0.19.0 release-readiness and successful branded Hosting deployment. Do not use npm audit fix --force. Use the FINALISE_RELEASE.ps1 included in the main updater; do not create a separate documentation sync. Do not call or tag v1.0 without explicit approval.

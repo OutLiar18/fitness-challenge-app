@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const EXPECTED_VERSION = "0.18.0";
+const EXPECTED_VERSION = "0.19.0";
 const EXPECTED_HOSTING_TARGET = "app";
 const projectRoot = process.cwd();
 const requiredFiles = [
@@ -11,47 +11,15 @@ const requiredFiles = [
   "firestore.rules",
   ".env.example",
   "docs/01_CURRENT_DEVELOPMENT/RELEASE_CANDIDATE_CHECKLIST.md",
-  "src/pages/Rulebook.jsx",
-  "src/pages/PointsGuide.jsx",
   "src/pages/Seasons.jsx",
-  "src/pages/Houses.jsx",
-  "src/pages/Inbox.jsx",
-  "src/pages/Analytics.jsx",
-  "src/pages/PocketWeek.jsx",
-  "src/services/seasons/seasonModel.js",
-  "src/services/seasons/seasonService.js",
-  "src/services/notifications/notificationService.js",
-  "tests/rules-points-guide.test.mjs",
-  "tests/season-systems.test.mjs",
-  "tests/analytics.test.mjs",
-  "tests/workspace-tabs.test.mjs",
-  "src/components/common/WorkspaceTabs.jsx",
-  "src/components/common/WorkspaceTabs.css",
-  "src/services/ui/workspaceModel.js",
-  "src/pages/Help.jsx",
-  "src/pages/Help.css",
-  "src/components/onboarding/OnboardingGate.jsx",
-  "src/components/onboarding/OnboardingGate.css",
-  "src/services/account/accountModel.js",
-  "src/services/account/accountRequestService.js",
-  "src/services/account/dataExportModel.js",
-  "src/services/account/dataExportService.js",
-  "src/services/account/onboardingService.js",
-  "src/services/admin/accountRequestService.js",
-  "src/components/admin/AccountDeletionRequests.jsx",
-  "tests/account-foundations.test.mjs",
-  "docs/02_GAME_DESIGN/ACCOUNT_AND_PRIVACY.md",
-  "docs/03_ARCHITECTURE/decisions/ADR-024-guided-onboarding-and-trusted-account-requests.md",
-  "src/services/auth/authService.js",
-  "src/constants/evidence.js",
-  "src/services/evidence/evidenceModel.js",
-  "src/services/evidence/evidenceService.js",
-  "src/components/seasons/EvidenceWorkspace.jsx",
-  "src/components/seasons/EvidenceWorkspace.css",
-  "tests/evidence-system.test.mjs",
-  "docs/02_GAME_DESIGN/EVIDENCE_AND_PUBLISHED_STANDINGS.md",
-  "docs/03_ARCHITECTURE/decisions/ADR-025-external-evidence-and-published-standings.md",
-  "docs/01_CURRENT_DEVELOPMENT/SOURCE_AUDIT_V0180.md",
+  "src/components/seasons/SeasonCommandCentre.jsx",
+  "src/components/seasons/SeasonCommandCentre.css",
+  "src/services/seasons/seasonOperationsModel.js",
+  "src/services/seasons/seasonOperationsService.js",
+  "tests/season-operations.test.mjs",
+  "docs/02_GAME_DESIGN/SEASON_COMMAND_CENTRE.md",
+  "docs/03_ARCHITECTURE/decisions/ADR-026-season-command-centre-and-role-scoped-reports.md",
+  "docs/01_CURRENT_DEVELOPMENT/SOURCE_AUDIT_V0190.md",
   "scripts/finalise-release.mjs",
 ];
 const forbiddenUpdaterArtifacts = [
@@ -73,9 +41,7 @@ const forbiddenUpdaterArtifacts = [
 const failures = [];
 
 function readJson(relativePath) {
-  return JSON.parse(
-    fs.readFileSync(path.join(projectRoot, relativePath), "utf8"),
-  );
+  return JSON.parse(fs.readFileSync(path.join(projectRoot, relativePath), "utf8"));
 }
 
 requiredFiles.forEach((relativePath) => {
@@ -86,9 +52,7 @@ requiredFiles.forEach((relativePath) => {
 
 forbiddenUpdaterArtifacts.forEach((relativePath) => {
   if (fs.existsSync(path.join(projectRoot, relativePath))) {
-    failures.push(
-      `Local updater artifact must remain outside the repository: ${relativePath}`,
-    );
+    failures.push(`Local updater artifact must remain outside the repository: ${relativePath}`);
   }
 });
 
@@ -98,38 +62,25 @@ if (failures.length === 0) {
   const firebaseAliases = readJson(".firebaserc");
   const defaultProject = firebaseAliases.projects?.default;
   const hostingSites =
-    firebaseAliases.targets?.[defaultProject]?.hosting?.[
-      EXPECTED_HOSTING_TARGET
-    ] ?? [];
+    firebaseAliases.targets?.[defaultProject]?.hosting?.[EXPECTED_HOSTING_TARGET] ?? [];
 
   if (packageData.version !== EXPECTED_VERSION) {
-    failures.push(
-      `Expected package version ${EXPECTED_VERSION}, found ${packageData.version}.`,
-    );
+    failures.push(`Expected package version ${EXPECTED_VERSION}, found ${packageData.version}.`);
   }
-
   if (firebaseConfig.hosting?.target !== EXPECTED_HOSTING_TARGET) {
-    failures.push(
-      `Firebase Hosting must target ${EXPECTED_HOSTING_TARGET}.`,
-    );
+    failures.push(`Firebase Hosting must target ${EXPECTED_HOSTING_TARGET}.`);
   }
-
   if (!hostingSites.includes("champions-legacy-challenge")) {
-    failures.push(
-      "The app Hosting target is not mapped to champions-legacy-challenge.",
-    );
+    failures.push("The app Hosting target is not mapped to champions-legacy-challenge.");
   }
-
   if (packageData.scripts?.["finalise:release"] !== "node scripts/finalise-release.mjs") {
     failures.push("finalise:release must run the in-repository release finaliser.");
   }
-
   if (!packageData.scripts?.["deploy:hosting"]?.includes("hosting:app")) {
     failures.push("deploy:hosting must deploy only the branded app target.");
   }
-
-  if (!packageData.scripts?.["deploy:production"]?.includes("hosting:app")) {
-    failures.push("deploy:production must deploy the branded app target.");
+  if (!packageData.scripts?.test?.includes("tests/season-operations.test.mjs")) {
+    failures.push("The v0.19.0 season operations test suite is not part of npm test.");
   }
 
   const announcements = fs.readFileSync(

@@ -3,37 +3,27 @@
 <!-- RELEASE_STATUS: DEPLOYED -->
 Last updated: 4 August 2026
 
-## v0.18.0 external-evidence ruleset
+## v0.19.0 season operations read model
 
-Status: Implementation, Windows verification and production deployment complete; release commit pending
+Status: Implementation, Windows verification and Hosting deployment complete; release commit pending
 
-- New seasons freeze `season-houses-v2` with `whatsapp-proof-v1` evidence settings.
-- New collections appear only when used: `seasonEvidenceClaims`, `seasonEvidenceDecisions`, `leagueEvidenceReviewers` and `leagueLeaderboardSnapshots`.
-- `challengeEntries` may carry `evidenceClaimIds` so verification IDs cannot become detached from source facts.
-- New evidence-linked entries are not ordinarily deletable from the client.
-- `leagueContributions` may include `evidenceClaimId`, `evidenceDecisionId` and `pointGroup: evidenceBonus`.
-- League documents may store the latest published snapshot pointer, publication date and revision.
+No data migration is required.
 
-## Compatibility
-
-No bulk migration is required.
-
-- Existing v1 seasons remain readable and keep their original live-standing behaviour.
-- Existing entries without `evidenceClaimIds` remain compatible.
-- Existing contributions and House snapshots are untouched.
-- v2 season creation requires explicit evidence-policy confirmation.
-- v2 Pocket redemption blocks Running and Steps to prevent proof bypass.
+- The command centre derives its state from existing `leagues`, `leagueHouses`, `leagueMemberships`, `leadershipElections`, `seasonEvidenceClaims`, `seasonEvidenceDecisions`, `leagueEvidenceReviewers`, `leagueContributions` and `leagueLeaderboardSnapshots` records.
+- No record is rewritten merely to appear in the command centre.
+- Operations reports are generated in the browser and downloaded locally; they are not stored in Firebase.
+- Existing v1 seasons remain readable and do not receive the v2 evidence command centre.
 
 ## Deployment dependency
 
-Firestore Rules and the v0.18.0 frontend must deploy together after all 39 Rules tests pass. Deploying only one side may cause permission or shape mismatches.
+Firestore Rules are unchanged. After all release gates pass, deploy Hosting only with `npm run deploy:hosting`.
 
 ## Release completion workflow
 
 1. Apply the main updater.
 2. Run `npm install`, `npm run check`, `npm run test:rules`, `npm run check:release` and `npm audit`.
-3. After approval, run `npm run deploy:production`.
-4. Run the included `FINALISE_RELEASE.ps1` from the extracted updater.
+3. After approval, run `npm run deploy:hosting`.
+4. Run the included `FINALISE_RELEASE.ps1`.
 5. Commit the finalised source and documentation.
 
 No separate documentation package is required.

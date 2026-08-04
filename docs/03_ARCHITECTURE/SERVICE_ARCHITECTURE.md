@@ -26,3 +26,9 @@ Current release target: v0.18.0
 ## Rule
 
 Pages render model/service output. They must not reimplement points, deadline, reviewer, snapshot or House-attribution logic.
+
+## v0.19 season operations services
+
+- `seasonOperationsModel.js` contains pure workload, leadership, publication, action-plan and report-shape derivation.
+- `seasonOperationsService.js` contains Firestore subscriptions for immutable evidence decisions and leaderboard snapshot history plus local report download.
+- `SeasonCommandCentre.jsx` orchestrates subscriptions and presentation but does not calculate points or mutate season state.

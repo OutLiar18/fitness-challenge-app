@@ -1,5 +1,16 @@
 # Champions Legacy Challenge — Release Notes
 
+## v0.19.0 — Season Command Centre
+
+<!-- RELEASE_STATUS: DEPLOYED -->
+
+Champions Legacy Challenge now gives authorised v2 season operators one focused command centre instead of forcing them to reconcile several workspaces manually. The summary covers player assignment, House completion, C.H.A.O.S. readiness, weekly leadership, WhatsApp proof workload and daily leaderboard publication.
+
+Next actions are derived from the existing source records and link back to Houses, Evidence Operations or Honours. Recent evidence decisions and leaderboard snapshots remain immutable and readable as operational history.
+
+Administrators and assigned reviewers may download a portable JSON report containing only the records visible to their role. The report is generated locally, saved nowhere in Firebase and includes no WhatsApp media or message contents.
+
+This release changes no scoring rule, Firestore collection or Security Rule. Windows verification passed clean ESLint, 85 domain tests, the Vite build, all 39 Rules tests and release-readiness. Branded Firebase Hosting deployed successfully. v0.19.0 remains pre-v1.0.
 
 ## v0.18.0 — External Evidence and Published Standings
 
@@ -11,7 +22,7 @@ Qualifying Running keeps Cardio immediate while Running points wait for proof. S
 
 Administrators see live standings for operations. Players see immutable daily snapshots, with manual/corrected publication and a 10:00 Africa/Johannesburg administrator-session fallback. The fallback is not a background scheduler.
 
-The candidate passes clean lint, 80 domain tests and the Windows Vite build. The first Rules run exposed Firestore's 1,000-expression ceiling in two valid atomic workflows; the included candidate hotfix must now pass all 39 Rules tests and release-readiness before combined Rules/Hosting deployment. v0.18.0 remains pre-v1.0.
+Windows verification passed clean lint, 80 domain tests, the Vite build, all 39 Rules tests and release-readiness. Firestore Rules and branded Hosting deployed together successfully. v0.18.0 remains pre-v1.0.
 
 ## v0.17.0 — Player Readiness and Account Control
 
