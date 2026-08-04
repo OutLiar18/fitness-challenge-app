@@ -3,56 +3,45 @@
 Current engine: **Points Engine v2**  
 Public guide: **points-v2**
 
-## Purpose
+## Principle
 
-Points reward measurable effort without allowing athletic ability to overwhelm consistency. Difficulty changes scores moderately. Personal points, experience points and league ranking values remain separate.
-
-## Calculation sources
-
-- `src/constants/points/points.js` — Water, Reading, Skill, Running, Cardio and Steps thresholds.
-- `src/constants/points/workoutPoints.js` — Effective Repetitions thresholds.
-- `src/constants/libraries/difficulty.js` — Tier multipliers.
-- `src/services/points/categoryPoints.js` — category-specific calculation, including Fruit.
-- `src/services/points/pointsGuideModel.js` — player-facing guide generated from those sources.
-- `/points-guide` — public scoring presentation.
-
-The old 2025 points image is historical reference only and must never be used for calculation.
+Points reward measurable effort without allowing athletic ability to overwhelm consistency. Factual activity, evidence decisions, competitive Points and Experience Points remain distinct.
 
 ## Public activity scoring
 
-- Water, Steps, Reading, Skill, Running and workout thresholds are shown as complete ranges, including zero-point ranges.
+- Water, Steps, Reading, Skill, Running and workout thresholds come from central constants/services.
 - Fruit earns five points per complete qualifying serving.
-- Cardio applies the configured difficulty multiplier after base duration points.
-- Workouts apply exercise difficulty to repetitions before the Effective Repetitions table.
-- A Running entry earns Running points only when distance is at least 3 kilometres and pace is 11:00 per kilometre or faster.
-- Running duration also earns Cardio points at Tier 3 automatically.
+- Cardio applies its configured difficulty multiplier after base duration points.
+- Workouts use Effective Repetitions and moderate difficulty multipliers.
+- Running earns Running points only at three kilometres or more and 11:00 per kilometre or faster.
+- Running duration also earns Cardio points at Tier 3.
 
-## Public visible bonuses
+## v2 season evidence effects
 
-The Points Guide may show:
+- Qualifying Running: Cardio points are immediate; Running points remain pending until proof is accepted.
+- Non-qualifying Running: Cardio only; no Running evidence claim is required.
+- Steps: competitive Steps points remain pending until proof is accepted.
+- Water: normal points remain immediate; accepted proof may add one configured daily evidence bonus.
+- Fruit: normal points remain immediate up to the season's daily serving cap; accepted proof may add one configured daily evidence bonus.
+- Current defaults are three bonus points after 750 photographed millilitres of Water and three bonus points after three photographed Fruit servings.
 
-- one point per completed daily goal;
-- three additional points for completing every daily goal;
-- two points per completed weekly goal;
-- eight additional points for completing every weekly goal;
-- league daily activity cap and active-day participation bonus.
+Evidence bonuses:
 
-## Intentionally undisclosed progression rewards
-
-The public Points Guide omits one-off or discovery-oriented progression details such as streak milestone points and achievement/experience surprises. The engine and tests remain authoritative; omission from the guide does not alter calculation.
+- count toward individual and historical House totals;
+- are Points, not Experience Points;
+- are stored as `pointGroup: evidenceBonus`;
+- sit outside the ordinary league activity cap;
+- are reversible only through signed audited contributions.
 
 ## League scoring
 
-The default `consistency-v1` league day score is:
-
-`min(20, activity points) + 5 when the player is active that day`
-
-This is a seasonal ranking value and does not replace personal points. A league freezes its ruleset version when created.
+The existing consistency ranking logic remains versioned and season-frozen. v2 adds evidence-aware activity allocation and a five-serving Fruit scoring cap without rewriting v1 seasons.
 
 ## Change rules
 
-- Never hardcode scoring tables in React pages.
-- Update central constants/services and let the guide regenerate.
-- Add domain tests for every balancing change.
-- Never retrospectively rewrite completed league standings.
-- Keep hidden rewards separate from repeatable public activity calculations.
+- Never hardcode scoring tables in pages.
+- Never silently edit calculated points.
+- Correct factual mistakes through a future audited correction workflow.
+- Correct evidence decisions through reversal and replacement.
+- Add domain and Rules tests for every scoring or trust-boundary change.
+- Never retrospectively rewrite completed season standings.

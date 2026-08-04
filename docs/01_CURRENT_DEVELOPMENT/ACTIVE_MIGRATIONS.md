@@ -1,35 +1,39 @@
 # Champions Legacy Challenge — Active Migrations
 
+<!-- RELEASE_STATUS: DEPLOYED -->
 Last updated: 4 August 2026
 
-## v0.17.0 player-readiness foundation
+## v0.18.0 external-evidence ruleset
 
-Status: Implementation, automated verification and production deployment complete; documentation sync and Git commit pending
+Status: Implementation, Windows verification and production deployment complete; release commit pending
 
-- Adds onboarding fields to new user profiles.
-- Adds the `accountDeletionRequests` collection on first player request.
-- Extends Security Rules for onboarding updates, request ownership and audited administrator acknowledgement.
-- Allows players to read/list their own sanitised export records where previously only administrators could list them.
+- New seasons freeze `season-houses-v2` with `whatsapp-proof-v1` evidence settings.
+- New collections appear only when used: `seasonEvidenceClaims`, `seasonEvidenceDecisions`, `leagueEvidenceReviewers` and `leagueLeaderboardSnapshots`.
+- `challengeEntries` may carry `evidenceClaimIds` so verification IDs cannot become detached from source facts.
+- New evidence-linked entries are not ordinarily deletable from the client.
+- `leagueContributions` may include `evidenceClaimId`, `evidenceDecisionId` and `pointGroup: evidenceBonus`.
+- League documents may store the latest published snapshot pointer, publication date and revision.
 
 ## Compatibility
 
 No bulk migration is required.
 
-- Legacy profiles without `onboardingVersion` are treated as already onboarded.
-- Replaying the guide adds the fields through an allowed profile update.
-- Existing entries, memberships, contributions, Pocket balances and notifications remain unchanged.
-- `accountDeletionRequests` does not appear until the first request is created.
+- Existing v1 seasons remain readable and keep their original live-standing behaviour.
+- Existing entries without `evidenceClaimIds` remain compatible.
+- Existing contributions and House snapshots are untouched.
+- v2 season creation requires explicit evidence-policy confirmation.
+- v2 Pocket redemption blocks Running and Steps to prevent proof bypass.
 
-## Release completion
+## Deployment dependency
 
-- Windows release gates passed: clean lint, 71 domain tests, Vite production build, 30 Rules tests and release-readiness.
-- Firestore Rules compiled and deployed successfully.
-- Firebase Hosting released 62 frontend files to the branded `app` target.
-- Remaining release administration: apply this documentation sync and commit v0.17.0.
+Firestore Rules and the v0.18.0 frontend must deploy together after all 39 Rules tests pass. Deploying only one side may cause permission or shape mismatches.
 
-## Deferred controlled migrations
+## Release completion workflow
 
-- Trusted server-side account deletion and anonymisation.
-- Paginated personal history with appropriate aggregates.
-- Server-authoritative contribution scoring before prize-bearing competition.
-- Full Transfer Market and late-season data models after product confirmation.
+1. Apply the main updater.
+2. Run `npm install`, `npm run check`, `npm run test:rules`, `npm run check:release` and `npm audit`.
+3. After approval, run `npm run deploy:production`.
+4. Run the included `FINALISE_RELEASE.ps1` from the extracted updater.
+5. Commit the finalised source and documentation.
+
+No separate documentation package is required.

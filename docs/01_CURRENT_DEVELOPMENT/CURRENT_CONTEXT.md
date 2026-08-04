@@ -1,13 +1,29 @@
-# Current Context
+# Champions Legacy Challenge — Current Context
 
-Last updated: 4 August 2026
+<!-- RELEASE_STATUS: DEPLOYED -->
+**v0.18.0 — External Evidence and Published Standings** is verified and deployed to production.
 
-**v0.17.0 — Player Readiness and Account Control** is verified and deployed to production.
+## Why this phase exists
 
-The release adds onboarding only for newly created profiles, while legacy profiles remain uninterrupted. Help & Privacy becomes the single route for getting started, understanding stored versus derived data, reviewing privacy boundaries, downloading personal data and requesting account deletion.
+Media uploads are deliberately excluded because of storage and cost barriers. Players submit pictures or screenshots in a WhatsApp group and include the in-app verification ID. The app records only structured administrator decisions.
 
-The export is generated on demand as JSON from account-owned Firestore records. Account deletion is intentionally represented as a reviewable request rather than a misleading browser-only erase. Players can request, cancel or reopen; Platform Administrators can acknowledge with an audit event. Final Authentication/data deletion remains a trusted operational process.
+## Core rules
 
-Security Rules now validate onboarding fields, account-request ownership and audited acknowledgement. Players may list their own private leadership votes and read their own sanitised error reports for export. No scoring, progression, Pocket, House allocation or season standings logic changed.
+- Running proof shows date, distance and duration; pace is calculated automatically.
+- Qualifying Running points wait for proof; Running Cardio points remain immediate.
+- Steps proof shows date, total daily steps and a recognisable app/device screen; Steps points wait for proof.
+- Water: maximum three-point daily proof bonus after 750 photographed millilitres.
+- Fruit: maximum three-point daily proof bonus after three photographed servings; normal Fruit points cap at five servings per day.
+- Proof is due within 24 hours; late acceptance is Platform-Administrator-only with a reason.
+- Player standings are published snapshots; administrators see live standings.
+- Daily fallback publication is due at 10:00 Africa/Johannesburg but requires an authorised administrator session.
 
-Authoritative Windows verification passed clean lint, 71 domain tests, the Vite production build, 30 Firestore Rules tests and release-readiness. Firestore Rules compiled and deployed successfully, and Firebase Hosting released 62 files to the branded production site. The full manual integrated review remains deferred until the final pre-v1.0 stage.
+## Verification target
+
+- 80 domain tests.
+- 39 Firestore Security Rules tests.
+- Candidate Rules expression-budget hotfix pending verification after the first run passed 37 of 39 tests.
+- Clean ESLint and Vite build.
+- Release-readiness for v0.18.0 on Hosting target `app`.
+
+Do not deploy or commit until Windows verification passes. Do not run `npm audit fix --force`. Do not call or tag v1.0.

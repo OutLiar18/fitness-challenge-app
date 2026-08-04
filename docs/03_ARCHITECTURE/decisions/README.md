@@ -18,3 +18,5 @@ Accepted decisions are permanent historical records. Superseding a decision requ
 - ADR-022 — Consolidated Navigation, Inbox and Derived Analytics.
 - ADR-023 — Progressive Disclosure for Dense Route Workspaces.
 - `ADR-024-guided-onboarding-and-trusted-account-requests.md` — versioned onboarding, personal export and audited account-request lifecycle.
+
+- `ADR-025-external-evidence-and-published-standings.md` — no-cost WhatsApp proof, least-privilege review and immutable player-facing leaderboard snapshots.

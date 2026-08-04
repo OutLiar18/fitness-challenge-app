@@ -1,16 +1,7 @@
-This chat continues the Champions Legacy Challenge React + Vite + Firebase project.
+Continue the Champions Legacy Challenge React + Vite + Firebase project as a senior engineer. Read docs/06_CHAT_HANDOVER/CHAT_BRIEFING.md, RECENT_SESSION_SUMMARY.md, docs/01_CURRENT_DEVELOPMENT/CURRENT_STATE.md, ACTIVE_MIGRATIONS.md, NEXT_SESSION.md and docs/02_GAME_DESIGN/EVIDENCE_AND_PUBLISHED_STANDINGS.md first.
 
-Read these current documents first:
-1. docs/06_CHAT_HANDOVER/CHAT_BRIEFING.md
-2. docs/06_CHAT_HANDOVER/RECENT_SESSION_SUMMARY.md
-3. docs/01_CURRENT_DEVELOPMENT/CURRENT_STATE.md
-4. docs/01_CURRENT_DEVELOPMENT/ACTIVE_MIGRATIONS.md
-5. docs/01_CURRENT_DEVELOPMENT/NEXT_SESSION.md
-6. docs/02_GAME_DESIGN/ACCOUNT_AND_PRIVACY.md
-7. docs/03_ARCHITECTURE/decisions/ADR-024-guided-onboarding-and-trusted-account-requests.md
+Current source and production are v0.18.0 External Evidence and Published Standings. Windows verification and combined Rules/Hosting deployment succeeded.
 
-Current source and production are v0.17.0. v0.17.0 adds new-player onboarding, Help & Privacy, personal JSON export, player account-deletion requests and audited administrator acknowledgement. It does not change scoring, XP, Pocket Week, roster history or House contribution snapshots.
+The app stores no proof media. Players send WhatsApp proof with a verification ID. Running/Steps are proof-gated as documented; Water/Fruit have limited daily evidence bonuses; player leaderboards are immutable published snapshots while administrators see live standings. The 10:00 Johannesburg fallback requires an administrator session.
 
-Windows verification passed 71 domain tests, 30 Firestore Rules tests, clean lint/build and release-readiness. Firestore Rules and Hosting deployed successfully, with 62 frontend files released. Apply the deployment documentation sync and commit v0.17.0. Do not use npm audit fix --force. Do not call or tag v1.0 without explicit approval.
-
-Account-request acknowledgement is not completed deletion. Final Firebase Authentication/data deletion remains a trusted deferred operation. Keep instructions concise and practical for a beginner.
+Release evidence: 80 domain tests, 39 Firestore Rules tests, clean lint/build, v0.18.0 release-readiness and successful combined Rules/Hosting deployment. Do not use npm audit fix --force. Commit v0.18.0 cleanly; do not create a separate documentation sync. Do not call or tag v1.0 without explicit approval.

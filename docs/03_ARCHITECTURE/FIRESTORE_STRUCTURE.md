@@ -1,8 +1,8 @@
 # Champions Legacy Challenge — Firestore Structure
 
 Last updated: 4 August 2026  
-Current release target: v0.17.0  
-Current production: v0.16.0
+Current release target: v0.18.0  
+Current production: v0.17.0
 
 ## Player and activity
 
@@ -26,7 +26,16 @@ Current production: v0.16.0
 - `pocketActivities/{pocketId}`
 - `pocketRedemptions/{redemptionId}`
 - `playerNotifications/{notificationId}`
-- `leagueContributions/{leagueId_entryId}`
+- `leagueContributions/{contributionId}`
+
+## v0.18.0 evidence and publication
+
+- `seasonEvidenceClaims/{claimId}`
+- `seasonEvidenceDecisions/{decisionId}`
+- `leagueEvidenceReviewers/{leagueId_userId}`
+- `leagueLeaderboardSnapshots/{leagueId_dateKey_revision}`
+
+Collections appear only after their first document is created.
 
 ## Administrative and library collections
 
@@ -44,20 +53,15 @@ Current production: v0.16.0
 - `playerTeams`
 - `teamInvites`
 
-Firestore Rules deny all use of these permanent-Team collections from v0.14 onward.
-
-## Account-request rules
-
-- The request document ID equals the Firebase user ID.
-- The player may get, create, cancel and reopen only their own request.
-- Platform Administrators may list and acknowledge requests.
-- Acknowledgement requires a matching immutable audit event in the same batch.
-- Client deletion is denied; final trusted removal remains external to this collection.
+Rules deny all use of permanent-Team collections.
 
 ## Data rules
 
 - Invitation collections support direct known-code reads, not enumeration.
 - Membership and participant counts change atomically.
-- C.H.A.O.S., swaps, Pocket redemption and privileged lifecycle actions use atomic writes.
-- Own private votes and sanitised own error reports are readable for personal export.
-- Contribution updates are denied and completed/archived contribution history remains permanent.
+- Claim creation is linked to the newly created source entry through `evidenceClaimIds`.
+- Reviewer assignment changes require an audit record and preserve original creation metadata.
+- Evidence decisions, claim status, contribution release/reversal, notification and audit records are atomic.
+- Player leaderboard snapshots are immutable and player-readable only after publication.
+- Players cannot read another player's live contribution stream in v2.
+- Completed contribution and snapshot history remains permanent.

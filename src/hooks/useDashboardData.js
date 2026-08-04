@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 
 import { subscribeToEntries } from "../services/entries";
+import { subscribeToUserEvidenceClaims } from "../services/evidence/evidenceService";
 import { subscribeToUserProfile } from "../services/users/userRepository";
 
 const EMPTY_STATE = Object.freeze({
   profile: null,
   entries: [],
+  evidenceClaims: [],
   loading: true,
   error: "",
 });
@@ -15,6 +17,7 @@ const INITIAL_STATE = {
   ownerId: "",
   profileLoaded: false,
   entriesLoaded: false,
+  evidenceLoaded: false,
 };
 
 export default function useDashboardData(userId) {
@@ -41,7 +44,7 @@ export default function useDashboardData(userId) {
 
         return {
           ...next,
-          loading: !(next.profileLoaded && next.entriesLoaded),
+          loading: !(next.profileLoaded && next.entriesLoaded && next.evidenceLoaded),
         };
       });
     }
@@ -94,10 +97,35 @@ export default function useDashboardData(userId) {
       },
     );
 
+    const unsubscribeEvidence = subscribeToUserEvidenceClaims(
+      userId,
+      (evidenceClaims) => {
+        if (active) {
+          updateForCurrentUser((current) => ({
+            ...current,
+            evidenceClaims,
+            evidenceLoaded: true,
+          }));
+        }
+      },
+      (error) => {
+        if (active) {
+          updateForCurrentUser((current) => ({
+            ...current,
+            evidenceLoaded: true,
+            error:
+              error.message ||
+              "Your proof statuses could not be loaded.",
+          }));
+        }
+      },
+    );
+
     return () => {
       active = false;
       unsubscribeProfile();
       unsubscribeEntries();
+      unsubscribeEvidence();
     };
   }, [userId]);
 
@@ -108,6 +136,7 @@ export default function useDashboardData(userId) {
   return {
     profile: state.profile,
     entries: state.entries,
+    evidenceClaims: state.evidenceClaims,
     loading: state.loading,
     error: state.error,
   };

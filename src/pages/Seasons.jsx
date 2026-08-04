@@ -2,11 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import Toast from "../components/common/Toast/Toast";
+import EvidenceWorkspace from "../components/seasons/EvidenceWorkspace";
 import WorkspaceTabs, {
   WorkspacePanel,
 } from "../components/common/WorkspaceTabs";
 import PageHeader from "../components/layout/PageHeader";
 import LegacyAvatar from "../components/profile/LegacyAvatar";
+import { DEFAULT_SEASON_EVIDENCE_POLICY } from "../constants/evidence";
 import { LEAGUE_PARTICIPANT_LIMIT, LEAGUE_TYPES } from "../constants/leagues";
 import { SEASON_HOUSE_LIMITS, getHouseEmblem } from "../constants/seasons";
 import useLeagues from "../hooks/useLeagues";
@@ -32,6 +34,10 @@ import {
   transitionLeague,
 } from "../services/leagues/leagueService";
 import { copyTextToClipboard } from "../utils/clipboard";
+import {
+  subscribeToLeaderboardSnapshot,
+  subscribeToReviewerAssignmentsForUser,
+} from "../services/evidence/evidenceService";
 import { resolveWorkspaceTab } from "../services/ui/workspaceModel";
 import {
   formatNumber,
@@ -61,6 +67,12 @@ const SEASON_DETAIL_TABS = Object.freeze([
     icon: "🏆",
     description: "Provisional or final season champions",
   },
+  {
+    id: "evidence",
+    label: "Evidence operations",
+    icon: "✅",
+    description: "Review WhatsApp proof and publish player standings",
+  },
 ]);
 
 const SEASONS_PAGE_TABS = Object.freeze([
@@ -88,10 +100,22 @@ const dateFormatter = new Intl.DateTimeFormat("en-ZA", {
   month: "long",
   year: "numeric",
 });
+const publishedDateTimeFormatter = new Intl.DateTimeFormat("en-ZA", {
+  dateStyle: "medium",
+  timeStyle: "short",
+  timeZone: "Africa/Johannesburg",
+});
 
 function formatDate(value) {
   const date = toDate(value);
   return date ? dateFormatter.format(date) : "Date unavailable";
+}
+
+function formatPublishedDateTime(value) {
+  const date = toDate(value);
+  return date
+    ? publishedDateTimeFormatter.format(date)
+    : "Waiting for the first published snapshot";
 }
 
 function getMembershipStatusLabel(status) {
@@ -119,6 +143,17 @@ function LeagueCreationForm({ actorId, notify }) {
     pocketEnabled: true,
     startDate: formatDateInputValue(start),
     endDate: formatDateInputValue(end),
+    evidencePolicy: {
+      ...DEFAULT_SEASON_EVIDENCE_POLICY,
+      confirmed: false,
+      running: { ...DEFAULT_SEASON_EVIDENCE_POLICY.running },
+      steps: { ...DEFAULT_SEASON_EVIDENCE_POLICY.steps },
+      waterBonus: { ...DEFAULT_SEASON_EVIDENCE_POLICY.waterBonus },
+      fruitBonus: { ...DEFAULT_SEASON_EVIDENCE_POLICY.fruitBonus },
+      leaderboardPublication: {
+        ...DEFAULT_SEASON_EVIDENCE_POLICY.leaderboardPublication,
+      },
+    },
   });
   const [saving, setSaving] = useState(false);
 
@@ -299,6 +334,138 @@ function LeagueCreationForm({ actorId, notify }) {
           </small>
         </span>
       </label>
+      <section className="season-evidence-config" aria-labelledby="season-evidence-heading">
+        <div>
+          <p className="section-kicker">WhatsApp proof workflow</p>
+          <h3 id="season-evidence-heading">Configure evidence and leaderboard publication</h3>
+          <p>
+            The app stores structured decisions only. Players send proof in the
+            season WhatsApp group using the verification ID shown on their entry.
+          </p>
+        </div>
+        <div className="season-evidence-config__grid">
+          <label className="form-field">
+            <span>Proof deadline</span>
+            <select
+              value={form.evidencePolicy.proofDeadlineHours}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  evidencePolicy: {
+                    ...current.evidencePolicy,
+                    proofDeadlineHours: Number(event.target.value),
+                  },
+                }))
+              }
+            >
+              <option value={12}>12 hours</option>
+              <option value={24}>24 hours</option>
+              <option value={48}>48 hours</option>
+            </select>
+          </label>
+          <label className="form-field">
+            <span>Player leaderboard publication</span>
+            <input
+              type="time"
+              value={form.evidencePolicy.leaderboardPublication.automaticTime}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  evidencePolicy: {
+                    ...current.evidencePolicy,
+                    leaderboardPublication: {
+                      ...current.evidencePolicy.leaderboardPublication,
+                      automaticTime: event.target.value,
+                    },
+                  },
+                }))
+              }
+            />
+          </label>
+          <label className="form-field">
+            <span>Water photo target</span>
+            <select
+              value={form.evidencePolicy.waterBonus.thresholdMillilitres}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  evidencePolicy: {
+                    ...current.evidencePolicy,
+                    waterBonus: {
+                      ...current.evidencePolicy.waterBonus,
+                      thresholdMillilitres: Number(event.target.value),
+                    },
+                  },
+                }))
+              }
+            >
+              <option value={750}>750 millilitres for 3 points</option>
+            </select>
+          </label>
+          <label className="form-field">
+            <span>Fruit photo target</span>
+            <select
+              value={form.evidencePolicy.fruitBonus.thresholdServings}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  evidencePolicy: {
+                    ...current.evidencePolicy,
+                    fruitBonus: {
+                      ...current.evidencePolicy.fruitBonus,
+                      thresholdServings: Number(event.target.value),
+                    },
+                  },
+                }))
+              }
+            >
+              <option value={3}>3 servings for 3 points</option>
+            </select>
+          </label>
+          <label className="form-field">
+            <span>Daily Fruit scoring cap</span>
+            <select
+              value={form.evidencePolicy.fruitDailyServingCap}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  evidencePolicy: {
+                    ...current.evidencePolicy,
+                    fruitDailyServingCap: Number(event.target.value),
+                  },
+                }))
+              }
+            >
+              <option value={5}>5 servings per day</option>
+            </select>
+          </label>
+        </div>
+        <ul className="season-evidence-config__rules">
+          <li>Running proof must show the date, distance and duration; pace is calculated automatically.</li>
+          <li>Steps proof must show the date, total steps and a recognisable app or device.</li>
+          <li>Platform Administrators can review all categories; assigned reviewers are configured after registration opens.</li>
+          <li>Players see a daily published snapshot while administrators retain live standings.</li>
+        </ul>
+        <label className="league-pocket-toggle">
+          <input
+            type="checkbox"
+            checked={form.evidencePolicy.confirmed}
+            onChange={(event) =>
+              setForm((current) => ({
+                ...current,
+                evidencePolicy: {
+                  ...current.evidencePolicy,
+                  confirmed: event.target.checked,
+                },
+              }))
+            }
+          />
+          <span>
+            <strong>Confirm these season evidence rules</strong>
+            <small>They are frozen when the season draft is created.</small>
+          </span>
+        </label>
+      </section>
       <button
         className="button button--primary"
         type="submit"
@@ -427,13 +594,40 @@ function LeagueDetail({
     leagueId: "",
     items: [],
   });
+  const [reviewerAssignments, setReviewerAssignments] = useState([]);
+  const [publishedSnapshot, setPublishedSnapshot] = useState(null);
   const [workingAction, setWorkingAction] = useState("");
   const [activeTab, setActiveTab] = useState("overview");
   const isManager =
     canManage && canManageLeague(league, userId, isPlatformAdmin);
   const isHouseSeason =
-    league.mode === "season" && league.ruleset?.version === "season-houses-v1";
-  const canViewStandings = Boolean(membership || isManager);
+    league.mode === "season" && String(league.ruleset?.version ?? "").startsWith("season-houses-v");
+  const reviewerAssignment = reviewerAssignments.find(
+    (assignment) => assignment.leagueId === league.id && assignment.status !== "inactive",
+  );
+  const isEvidenceReviewer = Boolean(reviewerAssignment?.categories?.length);
+  const evidenceEnabled = Boolean(
+    league.rulesVersion === "season-houses-v2"
+      && league.ruleset?.evidencePolicy,
+  );
+  const canViewLiveStandings = Boolean(
+    isManager
+      || (evidenceEnabled && isEvidenceReviewer)
+      || (!evidenceEnabled && membership),
+  );
+  const canViewStandings = Boolean(membership || canViewLiveStandings);
+  const canOperateEvidence = Boolean(
+    evidenceEnabled && (isManager || isEvidenceReviewer),
+  );
+
+  useEffect(() => {
+    if (!userId) return undefined;
+    return subscribeToReviewerAssignmentsForUser(
+      userId,
+      setReviewerAssignments,
+      (error) => notify(error.message || "Evidence reviewer access could not be loaded.", "error"),
+    );
+  }, [notify, userId]);
 
   useEffect(() => {
     if (!canViewStandings) return undefined;
@@ -443,37 +637,61 @@ function LeagueDetail({
       (error) =>
         notify(error.message || "Season members could not be loaded.", "error"),
     );
-    const unsubscribeContributions = subscribeToLeagueContributions(
-      league.id,
-      (items) => setContributionState({ leagueId: league.id, items }),
-      (error) =>
-        notify(
-          error.message || "Season standings could not be loaded.",
-          "error",
-        ),
-    );
+    const unsubscribeContributions = canViewLiveStandings
+      ? subscribeToLeagueContributions(
+          league.id,
+          (items) => setContributionState({ leagueId: league.id, items }),
+          (error) =>
+            notify(
+              error.message || "Live season standings could not be loaded.",
+              "error",
+            ),
+        )
+      : () => {};
     return () => {
       unsubscribeMembers();
       unsubscribeContributions();
     };
-  }, [canViewStandings, league.id, notify]);
+  }, [canViewLiveStandings, canViewStandings, league.id, notify]);
+
+  useEffect(() => {
+    if (canViewLiveStandings || !canViewStandings) return undefined;
+    return subscribeToLeaderboardSnapshot(
+      league.publishedLeaderboardSnapshotId,
+      setPublishedSnapshot,
+      (error) => notify(error.message || "Published standings could not be loaded.", "error"),
+    );
+  }, [canViewLiveStandings, canViewStandings, league.publishedLeaderboardSnapshotId, notify]);
 
   const members =
     canViewStandings && memberState.leagueId === league.id
       ? memberState.items
       : EMPTY_ITEMS;
   const contributions =
-    canViewStandings && contributionState.leagueId === league.id
+    canViewLiveStandings && contributionState.leagueId === league.id
       ? contributionState.items
       : EMPTY_ITEMS;
-  const standings = useMemo(
+  const liveStandings = useMemo(
     () => calculateLeagueStandings(contributions, members, league.ruleset),
     [contributions, league.ruleset, members],
   );
-  const honours = useMemo(
+  const liveHonours = useMemo(
     () => calculateSeasonHonours(contributions, members, league.ruleset),
     [contributions, league.ruleset, members],
   );
+  const standings = canViewLiveStandings
+    ? liveStandings
+    : {
+        players: publishedSnapshot?.players ?? EMPTY_ITEMS,
+        houses: publishedSnapshot?.houses ?? EMPTY_ITEMS,
+      };
+  const honours = canViewLiveStandings
+    ? liveHonours
+    : publishedSnapshot?.honours ?? {
+        individual: EMPTY_ITEMS,
+        houseChampions: EMPTY_ITEMS,
+        houseOfChampions: null,
+      };
   const nextStatus = isHouseSeason
     ? {
         draft: "registration",
@@ -604,11 +822,13 @@ function LeagueDetail({
       <WorkspaceTabs
         idPrefix={`season-${league.id}`}
         label={`${league.name} sections`}
-        tabs={SEASON_DETAIL_TABS.map((tab) =>
-          tab.id === "standings"
-            ? { ...tab, badge: members.length }
-            : tab,
-        )}
+        tabs={SEASON_DETAIL_TABS
+          .filter((tab) => tab.id !== "evidence" || canOperateEvidence)
+          .map((tab) =>
+            tab.id === "standings"
+              ? { ...tab, badge: members.length }
+              : tab,
+          )}
         activeId={activeTab}
         onChange={setActiveTab}
       />
@@ -696,16 +916,42 @@ function LeagueDetail({
             <section className="league-standings card">
               <div className="community-section-heading">
                 <div><p className="section-kicker">Personal contest</p><h2>Individual leaderboard</h2></div>
-                <span>{getLeagueStatusLabel(league.status)}</span>
+                <span>
+                  {canViewLiveStandings
+                    ? "Live administrator view"
+                    : publishedSnapshot
+                      ? `Last updated ${formatPublishedDateTime(publishedSnapshot.publishedAt)}`
+                      : "Waiting for the first published snapshot"}
+                </span>
               </div>
-              <StandingsTable rows={standings.players} kind="player" />
+              {!canViewLiveStandings && !publishedSnapshot ? (
+                <div className="empty-state">
+                  No player-facing leaderboard has been published yet. Your own
+                  entries and proof statuses remain visible while the public table
+                  stays frozen.
+                </div>
+              ) : (
+                <StandingsTable rows={standings.players} kind="player" />
+              )}
             </section>
             <section className="league-standings card">
               <div className="community-section-heading">
                 <div><p className="section-kicker">Collective impact</p><h2>House leaderboard</h2></div>
-                <span>Historical allocation</span>
+                <span>
+                  {canViewLiveStandings
+                    ? "Live historical allocation"
+                    : publishedSnapshot
+                      ? "Published daily snapshot"
+                      : "Waiting for the first published snapshot"}
+                </span>
               </div>
-              <StandingsTable rows={standings.houses} kind="house" />
+              {!canViewLiveStandings && !publishedSnapshot ? (
+                <div className="empty-state">
+                  House standings will appear after the first daily publication.
+                </div>
+              ) : (
+                <StandingsTable rows={standings.houses} kind="house" />
+              )}
             </section>
           </>
         ) : (
@@ -732,10 +978,18 @@ function LeagueDetail({
               <span>
                 {league.status === "completed" || league.status === "archived"
                   ? "Final"
-                  : "Updates live"}
+                  : canViewLiveStandings
+                    ? "Live administrator view"
+                    : publishedSnapshot
+                      ? "Published snapshot"
+                      : "Awaiting first snapshot"}
               </span>
             </div>
-            {honours.individual.length === 0 ? (
+            {!canViewLiveStandings && !publishedSnapshot ? (
+              <div className="empty-state">
+                Honours will appear after the first daily leaderboard snapshot is published.
+              </div>
+            ) : honours.individual.length === 0 ? (
               <div className="empty-state">Honours appear after qualifying points are earned.</div>
             ) : (
               <div className="season-honours__grid">
@@ -776,6 +1030,20 @@ function LeagueDetail({
           <section className="empty-state card">Join this season to view its honours.</section>
         )}
       </WorkspacePanel>
+
+      {canOperateEvidence && (
+        <WorkspacePanel id="evidence" activeId={activeTab} idPrefix={`season-${league.id}`}>
+          <EvidenceWorkspace
+            league={league}
+            members={members}
+            contributions={contributions}
+            actorId={userId}
+            isPlatformAdmin={isPlatformAdmin}
+            isLeagueAdministrator={isManager}
+            notify={notify}
+          />
+        </WorkspacePanel>
+      )}
     </div>
   );
 }

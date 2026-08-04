@@ -18,6 +18,8 @@ const QUERY_SECTIONS = Object.freeze([
   ["challengeEntries", "challengeEntries", "userId"],
   ["leagueMemberships", "leagueMemberships", "userId"],
   ["leagueContributions", "leagueContributions", "userId"],
+  ["seasonEvidenceClaims", "seasonEvidenceClaims", "userId"],
+  ["seasonEvidenceDecisions", "seasonEvidenceDecisions", "userId"],
   ["pocketActivities", "pocketActivities", "userId"],
   ["pocketRedemptions", "pocketRedemptions", "userId"],
   ["playerNotifications", "playerNotifications", "userId"],

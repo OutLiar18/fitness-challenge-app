@@ -15,6 +15,34 @@ import {
   sortNotificationsNewestFirst,
 } from "./notificationModel";
 
+
+export function createPlayerNotificationWrite(batchOrTransaction, {
+  userId,
+  type,
+  title,
+  message,
+  leagueId,
+  houseId = "",
+  actionPath = "/inbox",
+  evidenceClaimId = "",
+}) {
+  const reference = doc(collection(db, "playerNotifications"));
+  batchOrTransaction.set(reference, {
+    userId,
+    type,
+    title,
+    message,
+    leagueId,
+    houseId,
+    actionPath,
+    ...(evidenceClaimId ? { evidenceClaimId } : {}),
+    createdAt: serverTimestamp(),
+    readAt: null,
+    readBy: "",
+  });
+  return reference;
+}
+
 export function subscribeToPlayerNotifications(userId, onUpdate, onError) {
   if (!userId) {
     onUpdate?.([]);

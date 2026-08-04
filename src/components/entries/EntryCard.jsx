@@ -1,4 +1,7 @@
+import { useState } from "react";
+
 import { WORKOUT_CATEGORIES } from "../../constants/categories";
+import { getEvidenceDisplayStatus } from "../../services/evidence/evidenceModel";
 import { getEntryPointBreakdown } from "../../services/points";
 import {
   formatKilometres,
@@ -8,6 +11,7 @@ import {
   pluralize,
 } from "../../utils/displayFormatters";
 import { getCategory } from "../../utils/categoryHelpers";
+import { copyTextToClipboard } from "../../utils/clipboard";
 import { formatDuration, formatPace } from "../../utils/timeHelpers";
 import "./EntryCard.css";
 
@@ -252,7 +256,92 @@ function PointBreakdown({ result }) {
   );
 }
 
-export default function EntryCard({ entry, onDelete, readOnly = false }) {
+
+const evidenceDeadlineFormatter = new Intl.DateTimeFormat("en-ZA", {
+  dateStyle: "medium",
+  timeStyle: "short",
+});
+
+function formatEvidenceDeadline(value) {
+  const date = typeof value?.toDate === "function"
+    ? value.toDate()
+    : new Date(value ?? 0);
+  return date instanceof Date && !Number.isNaN(date.getTime())
+    ? evidenceDeadlineFormatter.format(date)
+    : "Deadline unavailable";
+}
+
+function getEvidencePointMessage(claim) {
+  if (claim.claimType === "daily-bonus") {
+    return `Up to ${formatPoints(claim.bonusPointsAvailable)} bonus season points after proof review.`;
+  }
+  if (claim.category === "running") {
+    return `${formatPoints(claim.pendingPoints)} Running points are waiting for proof. Cardio points still count immediately.`;
+  }
+  return `${formatPoints(claim.pendingPoints)} Steps points are waiting for proof.`;
+}
+
+function EvidenceStatus({ claims = [] }) {
+  const [copiedCode, setCopiedCode] = useState("");
+  if (claims.length === 0) return null;
+
+  async function copyCode(code) {
+    try {
+      await copyTextToClipboard(code);
+      setCopiedCode(code);
+      window.setTimeout(() => setCopiedCode(""), 1800);
+    } catch (error) {
+      console.error(error);
+      setCopiedCode("");
+    }
+  }
+
+  return (
+    <section className="entry-evidence" aria-label="Season proof status">
+      <div className="entry-evidence__heading">
+        <div>
+          <span>WhatsApp proof</span>
+          <strong>Send the verification ID with your picture or screenshot</strong>
+        </div>
+      </div>
+      <p className="entry-evidence__note">
+        Proof media stays in WhatsApp. The app stores only the review status,
+        points decision and audit history. Player-facing standings update from
+        the latest published daily snapshot.
+      </p>
+      <div className="entry-evidence__claims">
+        {claims.map((claim) => {
+          const status = getEvidenceDisplayStatus(claim);
+          return (
+            <article className="entry-evidence__claim" key={claim.id}>
+              <div>
+                <span className={`entry-evidence__status entry-evidence__status--${status?.tone ?? "warning"}`}>
+                  {status?.label ?? "Evidence status unavailable"}
+                </span>
+                <strong>{claim.leagueName || "Season evidence"}</strong>
+                <small>{getEvidencePointMessage(claim)}</small>
+                <small>Submit within 24 hours · deadline {formatEvidenceDeadline(claim.deadlineAt)}</small>
+                {claim.reviewReason && <small>{claim.reviewReason}</small>}
+              </div>
+              <div className="entry-evidence__code">
+                <code>{claim.verificationCode}</code>
+                <button
+                  className="button button--secondary"
+                  type="button"
+                  onClick={() => copyCode(claim.verificationCode)}
+                >
+                  {copiedCode === claim.verificationCode ? "Copied" : "Copy ID"}
+                </button>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+export default function EntryCard({ entry, onDelete, readOnly = false, evidenceClaims = [] }) {
   if (!entry?.category) {
     return null;
   }
@@ -266,6 +355,7 @@ export default function EntryCard({ entry, onDelete, readOnly = false }) {
   const data = entry.data ?? {};
   const pointBreakdown = getEntryPointBreakdown(entry);
   const isWorkout = WORKOUT_CATEGORIES.has(entry.category);
+  const isEvidenceLocked = (entry.evidenceClaimIds ?? []).length > 0;
 
   return (
     <article className="entry-card">
@@ -306,8 +396,17 @@ export default function EntryCard({ entry, onDelete, readOnly = false }) {
       </div>
 
       <PointBreakdown result={pointBreakdown} />
+      <EvidenceStatus claims={evidenceClaims} />
 
-      {!readOnly && (
+      {!readOnly && isEvidenceLocked && (
+        <div className="inline-alert">
+          This entry is locked because it has a season verification ID. An
+          administrator must use the audited correction process if its scoring
+          record needs to change.
+        </div>
+      )}
+
+      {!readOnly && !isEvidenceLocked && (
         <div className="entry-card__actions">
           <button
             className="button button--danger"

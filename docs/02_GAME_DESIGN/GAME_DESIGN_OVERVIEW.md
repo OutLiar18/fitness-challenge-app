@@ -1,5 +1,10 @@
 # Champions Legacy Challenge
 
+
+## v0.18.0 evidence and publication extension
+
+Fairness now includes an external WhatsApp proof workflow without in-app media storage. Factual entries remain primary; evidence decisions release only proof-dependent season points or limited daily proof bonuses. Administrators see live standings while players see deliberate daily snapshots, reducing tactical live-score chasing. See `EVIDENCE_AND_PUBLISHED_STANDINGS.md`.
+
 ## v0.17.0 player-readiness extension
 
 The current game experience now includes a versioned new-player guide and Help & Privacy route. These explain the challenge philosophy, factual logging, the separation between competitive points and personal progression, season-scoped Houses and account controls. Onboarding completion is not a reward and never changes score, Experience Points or membership.

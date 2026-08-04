@@ -3,6 +3,7 @@ import {
   formatDateInputValue,
   isToday,
   parseDateInputValue,
+  getLocalDateKey,
 } from "../../services/dateService";
 import EntryCard from "../entries/EntryCard";
 import "./Journal.css";
@@ -26,6 +27,7 @@ export default function Journal({
   onDelete,
   readOnly = false,
   loading = false,
+  evidenceClaims = [],
 }) {
   const viewingToday = isToday(selectedDate);
   const heading = formatJournalHeading(selectedDate);
@@ -131,6 +133,13 @@ export default function Journal({
                 entry={entry}
                 onDelete={onDelete}
                 readOnly={readOnly}
+                evidenceClaims={evidenceClaims.filter((claim) =>
+                  claim.entryId === entry.id ||
+                  claim.entryIds?.includes(entry.id) ||
+                  (claim.claimType === "daily-bonus" &&
+                    claim.category === entry.category &&
+                    getLocalDateKey(claim.challengeDate) === getLocalDateKey(entry.challengeDate)),
+                )}
               />
             ))}
           </div>

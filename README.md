@@ -1,8 +1,9 @@
 # Champions Legacy Challenge
 
-Source version: **0.17.0**  
-Production version: **0.17.0**  
-Status: **v0.17.0 verified and deployed; release documentation sync and commit pending; pre-v1.0**
+<!-- RELEASE_STATUS: DEPLOYED -->
+Source version: **0.18.0**  
+Production version: **0.18.0**  
+Status: **v0.18.0 verified, deployed and ready to commit; pre-v1.0**
 
 Champions Legacy Challenge is a gamified personal-development platform that rewards consistent, factual progress across fitness, reading, nutrition, movement and skill development.
 
@@ -11,26 +12,31 @@ Champions Legacy Challenge is a gamified personal-development platform that rewa
 - Firebase Authentication, protected routes and branded Firebase Hosting.
 - Ten factual activity categories with one central explainable Points Engine.
 - Daily and weekly goals, streaks, shields, Experience Points, achievements, records and timeline.
-- Calm adaptive navigation and accessible progressive-disclosure workspaces.
-- Unified Inbox presentation for public announcements and private season notifications while preserving separate permissions.
-- Personal Analytics derived from factual entries and the existing Points Engine.
-- Searchable Rulebook and a Points Guide generated from live scoring constants.
+- Personal Analytics, accessible workspaces, a unified Inbox, Rulebook and generated Points Guide.
 - Trusted administration, immutable audit history, moderation, shared libraries and first-party error reporting.
-- Season-scoped Houses with C.H.A.O.S., weekly leadership, balanced roster movement and immutable historical contribution snapshots.
-- One seven-day pre-season Pocket Week; reserves earn zero points until deliberately redeemed.
-- Transparent local Legacy Coach guidance.
+- Season-scoped Houses with C.H.A.O.S., weekly leadership, balanced roster movement and historical House snapshots.
+- One seven-day pre-season Pocket Week with private zero-point reserves.
+- Guided onboarding, Help & Privacy, personal JSON export and an audited account-deletion request workflow.
 
-## v0.17.0
+## v0.18.0 — External Evidence and Published Standings
 
-v0.17.0 adds a versioned new-player guide, a Help & Privacy route, on-demand personal JSON export and a trusted account-deletion request workflow. Players may submit, cancel or reopen their request. Platform Administrators may acknowledge it only with an immutable audit event.
+v0.18.0 adds a no-media-cost evidence workflow for proof submitted through the season WhatsApp group:
 
-Acknowledgement is not final deletion. Removing Firebase Authentication and eligible records while preserving legitimate shared season history remains a trusted server/Admin SDK operation before public launch.
+- short verification IDs link WhatsApp proof to the correct in-app activity;
+- qualifying Running points and Steps points remain pending until proof is accepted;
+- Running Cardio points and statistics remain immediate;
+- Water and Fruit may receive one audited three-point photo bonus per day after their season threshold is met;
+- category reviewers see only assigned evidence queues, while Platform Administrators may review everything;
+- late proof requires a Platform Administrator exception and reason;
+- evidence decisions use immutable audit, reversal and replacement records;
+- administrators see live standings while players see the latest published daily snapshot;
+- manual, corrected and 10:00 Africa/Johannesburg administrator-session fallback publication are supported.
 
-No scoring, Experience Points, Pocket balance, roster or historical House-allocation logic changes in this release.
+No media is stored by the app. Season evidence rules are configured and frozen when the season is created.
 
 ## Production
 
-v0.17.0 is deployed at:
+v0.18.0 is deployed at:
 
 `https://champions-legacy-challenge.web.app`
 
@@ -45,7 +51,11 @@ npm run check:release
 npm audit
 ```
 
-Automated Windows verification passed clean ESLint, 71 domain tests, 30 Firestore Security Rules tests, the Vite production build and release-readiness for Hosting target `app`. Firestore Rules compiled and deployed successfully, and Firebase Hosting released 62 frontend files on 4 August 2026. The Firestore Emulator requires Java 21. Do not run `npm audit fix --force` for the current React Router React Server Components advisory.
+Authoritative Windows verification passed clean ESLint, **80 domain tests**, **39 Firestore Security Rules tests**, the Vite production build and release-readiness for Hosting target `app`. Firestore Rules and branded Firebase Hosting deployed together successfully. The Firestore Emulator requires Java 21. Do not run `npm audit fix --force` for the current React Router React Server Components advisory.
+
+## Included release finalisation
+
+The main update package includes all documentation and a `FINALISE_RELEASE.ps1` script. After a successful production deployment, run that included script to convert candidate release records to deployed records before committing. No separate documentation package is required.
 
 ## Documentation
 
@@ -54,8 +64,9 @@ Start with:
 - `docs/06_CHAT_HANDOVER/CHAT_BRIEFING.md`
 - `docs/06_CHAT_HANDOVER/RECENT_SESSION_SUMMARY.md`
 - `docs/01_CURRENT_DEVELOPMENT/CURRENT_STATE.md`
-- `docs/02_GAME_DESIGN/ACCOUNT_AND_PRIVACY.md`
+- `docs/02_GAME_DESIGN/EVIDENCE_AND_PUBLISHED_STANDINGS.md`
+- `docs/03_ARCHITECTURE/decisions/ADR-025-external-evidence-and-published-standings.md`
 
 ## Release boundary
 
-v0.17.0 is **not** v1.0. Full functional, responsive, visual, dark-mode and accessibility review remains deferred until the final pre-v1.0 stage. Power Plays, Diamonds, the full Transfer Market, Buddy Bonuses, Five Fires and late-season twists remain inactive until their rules are separately confirmed.
+v0.18.0 is **not** v1.0. Full functional, responsive, visual, dark-mode and accessibility review remains deferred until the final pre-v1.0 stage. Power Plays, Diamonds, the full Transfer Market, Buddy Bonuses, Five Fires and late-season twists remain inactive until their rules are separately confirmed.

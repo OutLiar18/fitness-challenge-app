@@ -13,6 +13,10 @@ import {
 import { db } from "../../firebase";
 import { calculateEntryPoints } from "../points";
 import { normalizeChallengeDate } from "../dateService";
+import {
+  allocateEntryPointsForEvidence,
+  createEvidenceClaimIdentity,
+} from "../evidence/evidenceModel";
 import { isEntryWithinLeague } from "../leagues/leagueModel";
 
 function getCreatedAtMillis(entry) {
@@ -61,6 +65,45 @@ export async function createEntry(
     challengeDate,
   };
   const activityPoints = calculateEntryPoints(entry);
+  const activeLeagueContexts = leagueContexts.filter(({ league }) =>
+    isEntryWithinLeague(entry, league),
+  );
+  const leaguePlans = activeLeagueContexts.map(({ league, membership }) => {
+    const policy = league.ruleset?.evidencePolicy;
+    const allocation = policy
+      ? allocateEntryPointsForEvidence(entry, policy)
+      : {
+          immediatePoints: activityPoints,
+          pendingPoints: 0,
+          claimRequired: false,
+          claimType: "none",
+        };
+    const identity = policy && allocation.claimRequired
+      ? createEvidenceClaimIdentity({
+          leagueId: league.id,
+          userId,
+          category,
+          entryId: entryReference.id,
+          challengeDate,
+        })
+      : null;
+    return { league, membership, policy, allocation, identity };
+  });
+  const evidenceClaimIds = [
+    ...new Set(leaguePlans.map((plan) => plan.identity?.id).filter(Boolean)),
+  ];
+  const dailyClaimSnapshots = new Map();
+
+  await Promise.all(
+    leaguePlans.map(async ({ identity }) => {
+      if (!identity || identity.claimType !== "daily-bonus") return;
+      dailyClaimSnapshots.set(
+        identity.id,
+        await getDoc(doc(db, "seasonEvidenceClaims", identity.id)),
+      );
+    }),
+  );
+
   const batch = writeBatch(db);
 
   batch.set(entryReference, {
@@ -71,13 +114,18 @@ export async function createEntry(
     sourceLeagueId: metadata.sourceLeagueId || "",
     sourcePocketId: metadata.sourcePocketId || "",
     sourceRedemptionId: metadata.sourceRedemptionId || "",
+    evidenceClaimIds,
     createdAt: serverTimestamp(),
     challengeDate: Timestamp.fromDate(challengeDate),
   });
 
-  leagueContexts
-    .filter(({ league }) => isEntryWithinLeague(entry, league))
-    .forEach(({ league, membership }) => {
+  const evidenceClaims = [];
+
+  leaguePlans.forEach(({ league, membership, policy, allocation, identity }) => {
+    const baseScoreCategory =
+      policy && category === "running" ? "cardio" : category;
+
+    if (allocation.immediatePoints > 0) {
       const contributionReference = doc(
         db,
         "leagueContributions",
@@ -96,17 +144,96 @@ export async function createEntry(
         teamId: membership.currentHouseId || "",
         teamName: membership.currentHouseName || "Unassigned",
         category,
+        scoreCategory: baseScoreCategory,
+        pointGroup: "activity",
         challengeDate: Timestamp.fromDate(challengeDate),
-        activityPoints: Math.max(0, Math.round(activityPoints * 100) / 100),
+        activityPoints: Math.max(
+          0,
+          Math.round(Number(allocation.immediatePoints ?? 0) * 100) / 100,
+        ),
         rulesVersion: league.rulesVersion,
         source: metadata.source || "activity",
         sourceRedemptionId: metadata.sourceRedemptionId || "",
+        evidenceClaimId: "",
+        evidenceDecisionId: "",
         createdAt: serverTimestamp(),
       });
+    }
+
+    if (!policy || !allocation.claimRequired) return;
+
+    if (!identity) return;
+
+    const claimReference = doc(db, "seasonEvidenceClaims", identity.id);
+    const deadlineAt = Timestamp.fromDate(
+      new Date(Date.now() + Number(policy.proofDeadlineHours ?? 24) * 60 * 60 * 1000),
+    );
+    const commonClaim = {
+      leagueId: league.id,
+      leagueName: league.name,
+      userId,
+      displayName: membership.displayName || "Champion",
+      avatarId: membership.avatarId || "legacy-trophy",
+      houseId: membership.currentHouseId || "",
+      houseName: membership.currentHouseName || "Unassigned",
+      houseEmblemId: membership.currentHouseEmblemId || "springbok",
+      category,
+      claimType: identity.claimType,
+      verificationCode: identity.verificationCode,
+      dateKey: identity.dateKey,
+      challengeDate: Timestamp.fromDate(challengeDate),
+      status: "pending",
+      pendingPoints: Math.max(0, Number(allocation.pendingPoints ?? 0)),
+      bonusPointsAvailable: Math.max(
+        0,
+        Number(allocation.bonusPointsAvailable ?? 0),
+      ),
+      rulesVersion: league.rulesVersion,
+      releasedPoints: 0,
+      releasedPointGroup: "",
+      reviewedAt: null,
+      reviewedBy: "",
+      reviewReason: "",
+      whatsappSubmittedAt: null,
+      verifiedQuantity: 0,
+      decisionId: "",
+      releasedContributionId: "",
+      reversedByDecisionId: "",
+    };
+
+    if (identity.claimType === "daily-bonus") {
+      const existing = dailyClaimSnapshots.get(identity.id);
+      if (!existing?.exists()) {
+        batch.set(claimReference, {
+          ...commonClaim,
+          entryId: "",
+          entryIds: [entryReference.id],
+          deadlineAt,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+      }
+    } else {
+      batch.set(claimReference, {
+        ...commonClaim,
+        entryId: entryReference.id,
+        entryIds: [entryReference.id],
+        deadlineAt,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+    }
+
+    evidenceClaims.push({
+      id: identity.id,
+      verificationCode: identity.verificationCode,
+      category,
+      claimType: identity.claimType,
     });
+  });
 
   await batch.commit();
-  return entryReference;
+  return { reference: entryReference, evidenceClaims };
 }
 
 export function subscribeToEntries(userId, onUpdate, onError) {
@@ -146,6 +273,14 @@ export async function deleteEntry(entryId, userId) {
   const entrySnapshot = await getDoc(doc(db, "challengeEntries", entryId));
   if (entrySnapshot.exists() && entrySnapshot.data().source === "pocket") {
     throw new Error("Pocket redemptions are final and cannot be deleted.");
+  }
+  if (
+    entrySnapshot.exists()
+    && (entrySnapshot.data().evidenceClaimIds ?? []).length > 0
+  ) {
+    throw new Error(
+      "This season entry is linked to a verification ID and cannot be deleted. Ask an administrator to record an audited correction.",
+    );
   }
 
   const contributionSnapshot = await getDocs(

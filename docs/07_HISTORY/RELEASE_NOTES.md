@@ -1,5 +1,18 @@
 # Champions Legacy Challenge — Release Notes
 
+
+## v0.18.0 — External Evidence and Published Standings
+
+<!-- RELEASE_STATUS: DEPLOYED -->
+
+This release introduces the real-world WhatsApp proof workflow without adding media-storage cost. Players receive verification IDs for proof-related activity, authorised reviewers record structured decisions, and released points remain traceable to immutable evidence records.
+
+Qualifying Running keeps Cardio immediate while Running points wait for proof. Steps waits for proof. Water and Fruit may receive one configured daily evidence bonus, and v2 Fruit scoring caps at five servings per day.
+
+Administrators see live standings for operations. Players see immutable daily snapshots, with manual/corrected publication and a 10:00 Africa/Johannesburg administrator-session fallback. The fallback is not a background scheduler.
+
+The candidate passes clean lint, 80 domain tests and the Windows Vite build. The first Rules run exposed Firestore's 1,000-expression ceiling in two valid atomic workflows; the included candidate hotfix must now pass all 39 Rules tests and release-readiness before combined Rules/Hosting deployment. v0.18.0 remains pre-v1.0.
+
 ## v0.17.0 — Player Readiness and Account Control
 
 Date: 4 August 2026

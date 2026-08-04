@@ -621,6 +621,15 @@ export async function redeemPocketActivity({ league, pocket, userId, quantity, t
       throw new Error("This category is not included in the active season.");
     }
 
+    if (
+      String(liveLeague.rulesVersion || "").startsWith("season-houses-v2")
+      && ["running", "steps"].includes(livePocket.category)
+    ) {
+      throw new Error(
+        "Running and Steps Pocket redemptions are temporarily unavailable in evidence-enabled seasons because proof must be linked to the original activity. Other Pocket categories remain available.",
+      );
+    }
+
     const categoryConfig = CATEGORY_MAP.get(livePocket.category);
     if (!categoryConfig) {
       throw new Error("This Pocket category is no longer supported.");
@@ -679,11 +688,15 @@ export async function redeemPocketActivity({ league, pocket, userId, quantity, t
       teamId: liveMembership.currentHouseId || "",
       teamName: liveMembership.currentHouseName || "Unassigned",
       category: livePocket.category,
+      scoreCategory: livePocket.category,
+      pointGroup: "activity",
       challengeDate: Timestamp.fromDate(challengeDate),
       activityPoints: Math.max(0, Math.round(activityPoints * 100) / 100),
       rulesVersion: liveLeague.rulesVersion,
       source: "pocket",
       sourceRedemptionId: redemptionReference.id,
+      evidenceClaimId: "",
+      evidenceDecisionId: "",
       createdAt: serverTimestamp(),
     });
     transaction.update(pocketReference, {

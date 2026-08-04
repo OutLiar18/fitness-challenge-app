@@ -1,60 +1,48 @@
 # Champions Legacy Challenge — Security Model
 
 Last updated: 4 August 2026  
-Current release target: v0.17.0  
-Current production: v0.16.0
+Current release target: v0.18.0  
+Current production: v0.17.0
 
 ## Principles
 
-Firebase Authentication establishes identity. Firestore Rules enforce ownership, trusted authority, document shape, atomic relationships and historical immutability. React visibility is never treated as security.
+- Authentication identifies the caller.
+- Firestore Rules enforce authority and atomic relationships.
+- Client visibility never substitutes for Rules.
+- Trusted changes require immutable audit records where specified.
+- External WhatsApp media is not protected by Firestore and is never represented as stored app data.
 
-## Player profiles and onboarding
+## Evidence claims
 
-- New profile creation is owner-only and begins with role `user` and onboarding version `0`.
-- Players may change only constrained presentation and onboarding fields.
-- Completing or replaying onboarding cannot alter role, membership, score or competition history.
-- Legacy profiles without onboarding fields remain valid.
-- Trusted role changes require a Platform Administrator and a matching audit event.
+- Players create claims only for their own new entries and active v2 memberships.
+- The claim ID must be present in the source entry's `evidenceClaimIds`.
+- Required-proof claim IDs are deterministic per season/entry; daily bonus IDs are deterministic per season/user/date/category.
+- Claim category, House identity, dates and pending values must match the source entry and frozen season policy.
+- Players may read their own claims but cannot change review state.
 
-## Account deletion requests
+## Reviewer scope
 
-- One request document is keyed by the requesting user ID.
-- Players may create, cancel or reopen only their own request and only through the constrained lifecycle.
-- Platform Administrators may list requests and acknowledge a newly requested item.
-- Acknowledgement must set the acting administrator, timestamp and audit identifier in one batch.
-- Rules deny client deletion of the request document and do not grant the client authority to delete Authentication or shared history.
+- Platform Administrators may review all categories.
+- Assigned reviewers are resolved through `leagueEvidenceReviewers/{leagueId_userId}`.
+- Assigned reviewers may query/read only their assigned categories.
+- Season Administrators may manage assignments and publication but do not automatically pass evidence-decision checks.
+- Only Platform Administrators may accept late proof.
 
-## Personal export access
+## Atomic decisions
 
-Players may query records that are already account-owned, including their own entries, memberships, contributions, Pocket records, notifications, suggestions, leadership votes and sanitised error reports. Queries must still satisfy owner predicates; unrelated records remain inaccessible. Administrator-only audit history is not part of the personal export.
+Rules validate the decision, claim update, audit event, optional contribution and notification together. Contributions use signed deltas for reversals. Existing decisions and snapshots cannot be updated or deleted.
 
-## Seasons, Houses and C.H.A.O.S.
+## Published standings
 
-- Only authorised operators create season Drafts and advance audited lifecycle stages.
-- Houses are created only in an administrator-managed Draft.
-- C.H.A.O.S. requires Registration, a complete House set and at least two registered players per House.
-- Assignment, state, audit and private notifications commit atomically.
-- Permanent global Team collections are denied.
+- Administrators/evidence operators may read live contributions as needed for operations.
+- v2 players read published snapshots instead of another player's live contributions.
+- Snapshot creation is restricted to authorised season operators with matching audit metadata.
+- Snapshot revision identifiers and league latest-snapshot pointers must remain consistent.
 
-## Leadership, swaps and Pocket Week
+## Existing protections
 
-- Current House members cast one private vote per election.
-- Leadership finalisation must match the election and audit history.
-- Weekly swaps update two memberships, two House locks, one swap record and an audit event atomically; current leaders cannot be moved.
-- Pocket deposits are private zero-point reserves in the official pre-season window.
-- Redemption creates the source update, receipt, challenge entry, House contribution and notification atomically from stored facts.
-
-## Trust boundary
-
-Rules do not reproduce the complete Points Engine. Friendly competition is supported; prizes or money require trusted server-side recalculation. Complete account deletion likewise requires a trusted server/Admin SDK process with an explicit shared-history policy.
-
-## Rule implementation guardrails
-
-- Optional authentication claims use safe defaults.
-- Mutually exclusive operations dispatch through only the applicable validation branch.
-- Category-shaped entry validation dispatches by category to stay below the Rules expression ceiling.
-- Direct get of a missing own account request is allowed so the UI can distinguish “no request” from “permission denied.”
+Profile roles, account requests, season lifecycle, C.H.A.O.S., leadership, swaps, Pocket Week, libraries, announcements and error reports retain their existing least-privilege Rules.
 
 ## Test requirement
 
-`npm run test:rules` must pass all 30 v0.17.0 Rules tests using Java 21 before deploying `firestore.rules`.
+`npm run test:rules` must pass all **39 v0.18.0 Rules tests** using Java 21 before deploying `firestore.rules`. Expected `PERMISSION_DENIED` logs from negative assertions are not failures when the suite passes.

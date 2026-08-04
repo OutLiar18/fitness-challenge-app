@@ -409,6 +409,45 @@ function currentSeasonRuleset() {
   };
 }
 
+function currentEvidencePolicy() {
+  return {
+    version: "whatsapp-proof-v1",
+    timezone: "Africa/Johannesburg",
+    proofDeadlineHours: 24,
+    fruitDailyServingCap: 5,
+    running: {
+      proofRequired: true,
+      requiredFields: ["activityDate", "distance", "duration"],
+      calculatePaceAutomatically: true,
+    },
+    steps: {
+      proofRequired: true,
+      requiredFields: ["activityDate", "totalSteps", "recognisableAppOrDevice"],
+    },
+    waterBonus: {
+      enabled: true, thresholdMillilitres: 750, points: 3, maximumAwardsPerDay: 1,
+    },
+    fruitBonus: {
+      enabled: true, thresholdServings: 3, points: 3, maximumAwardsPerDay: 1,
+    },
+    leaderboardPublication: {
+      timezone: "Africa/Johannesburg",
+      automaticTime: "10:00",
+      manualPublicationAllowed: true,
+      correctedReplacementAllowed: true,
+      automaticFallbackMode: "administrator-session",
+    },
+  };
+}
+
+function currentSeasonRulesetV2() {
+  return {
+    ...currentSeasonRuleset(),
+    version: "season-houses-v2",
+    evidencePolicy: currentEvidencePolicy(),
+  };
+}
+
 function seasonDates({ active = false } = {}) {
   const now = Date.now();
   const start = active
@@ -618,11 +657,15 @@ test("season drafts require an authorised operator, invite and matching audit ev
       chaosStatus: "not-started",
       chaosActivatedAt: null,
       chaosActivatedBy: "",
-      rulesVersion: "season-houses-v1",
-      ruleset: currentSeasonRuleset(),
+      rulesVersion: "season-houses-v2",
+      ruleset: currentSeasonRulesetV2(),
       administratorIds: [actorId],
       participantCount: 0,
       participantLimit: 160,
+      publishedLeaderboardSnapshotId: "",
+      publishedLeaderboardAt: null,
+      publishedLeaderboardBy: "",
+      publishedLeaderboardRevision: 0,
       inviteCode,
       createdAt: serverTimestamp(),
       createdBy: actorId,
@@ -1583,4 +1626,581 @@ test("players can export their own private votes and sanitised error reports", a
       ),
     ),
   );
+});
+
+function seasonDataV2(options = {}) {
+  return {
+    ...seasonData(options),
+    rulesVersion: "season-houses-v2",
+    ruleset: currentSeasonRulesetV2(),
+    publishedLeaderboardSnapshotId: "",
+    publishedLeaderboardAt: null,
+    publishedLeaderboardBy: "",
+    publishedLeaderboardRevision: 0,
+  };
+}
+
+function runningEntryData() {
+  return {
+    distance: 5,
+    hours: 0,
+    minutes: 30,
+    seconds: 0,
+    totalSeconds: 1800,
+    totalMinutes: 30,
+    averagePaceSecondsPerKm: 360,
+  };
+}
+
+function evidenceClaimData({
+  leagueId = "season-v2",
+  entryId = "run-entry",
+  userId = "player-one",
+  category = "running",
+  claimType = "required-proof",
+  challengeDate = Timestamp.now(),
+  house = houseData({ leagueId: "season-v2" }),
+  deadlineAt = Timestamp.fromMillis(Date.now() + 24 * 60 * 60 * 1000),
+  pendingPoints = 18,
+  bonusPointsAvailable = 0,
+} = {}) {
+  const date = challengeDate.toDate();
+  const dateKey = [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0"),
+  ].join("-");
+  const daily = claimType === "daily-bonus";
+  const prefix = { running: "RUN", steps: "STEP", water: "WATER", fruit: "FRUIT" }[category];
+  return {
+    leagueId,
+    leagueName: "Legacy House Season",
+    userId,
+    displayName: userId.replace("-", " "),
+    avatarId: "legacy-trophy",
+    houseId: house.id,
+    houseName: house.data.name,
+    houseEmblemId: house.data.emblemId,
+    category,
+    claimType,
+    verificationCode: `${prefix}-ABC234`,
+    dateKey,
+    challengeDate,
+    status: "pending",
+    pendingPoints,
+    bonusPointsAvailable,
+    rulesVersion: "season-houses-v2",
+    releasedPoints: 0,
+    releasedPointGroup: "",
+    reviewedAt: null,
+    reviewedBy: "",
+    reviewReason: "",
+    whatsappSubmittedAt: null,
+    verifiedQuantity: 0,
+    decisionId: "",
+    releasedContributionId: "",
+    reversedByDecisionId: "",
+    entryId: daily ? "" : entryId,
+    entryIds: [entryId],
+    deadlineAt,
+    createdAt: Timestamp.now(),
+    updatedAt: Timestamp.now(),
+  };
+}
+
+async function seedActiveEvidenceSeason({
+  claim,
+  reviewerCategories = [],
+  includeSecondMember = true,
+} = {}) {
+  const leagueId = claim?.leagueId ?? "season-v2";
+  const house = houseData({ leagueId });
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", leagueId), seasonDataV2({
+      status: "active",
+      participantCount: includeSecondMember ? 2 : 1,
+      chaosStatus: "activated",
+      active: true,
+    }));
+    await setDoc(doc(firestore, "leagueHouses", house.id), house.data);
+    await setDoc(
+      doc(firestore, "leagueMemberships", `${leagueId}_player-one`),
+      membershipData({ leagueId, status: "active", house }),
+    );
+    if (includeSecondMember) {
+      await setDoc(
+        doc(firestore, "leagueMemberships", `${leagueId}_player-two`),
+        membershipData({ leagueId, userId: "player-two", status: "active", house }),
+      );
+    }
+    if (reviewerCategories.length > 0) {
+      await setDoc(doc(firestore, "leagueEvidenceReviewers", `${leagueId}_player-two`), {
+        leagueId,
+        userId: "player-two",
+        displayName: "player two",
+        avatarId: "legacy-trophy",
+        categories: reviewerCategories,
+        status: "active",
+        createdAt: Timestamp.now(),
+        createdBy: "admin-one",
+        updatedAt: Timestamp.now(),
+        updatedBy: "admin-one",
+        lastAuditId: "seed-audit",
+      });
+    }
+    if (claim) {
+      await setDoc(doc(firestore, "seasonEvidenceClaims", claim.id), claim.data);
+    }
+  });
+  return house;
+}
+
+function commitEvidenceVerification({
+  firestore,
+  actorId,
+  claim,
+  decisionId,
+  contributionId,
+  submittedAt = Timestamp.now(),
+  late = false,
+  reason = "",
+}) {
+  const batch = writeBatch(firestore);
+  batch.set(doc(firestore, "seasonEvidenceDecisions", decisionId), {
+    claimId: claim.id,
+    leagueId: claim.data.leagueId,
+    userId: claim.data.userId,
+    entryId: claim.data.entryId,
+    category: claim.data.category,
+    verificationCode: claim.data.verificationCode,
+    decisionType: late ? "late-verify" : "verify",
+    previousStatus: "pending",
+    nextStatus: "verified",
+    pointsDelta: claim.data.pendingPoints || claim.data.bonusPointsAvailable,
+    verifiedQuantity: claim.data.category === "water" ? 750 : claim.data.category === "fruit" ? 3 : 0,
+    whatsappSubmittedAt: submittedAt,
+    reason,
+    lateException: late,
+    actorId,
+    contributionId,
+    createdAt: serverTimestamp(),
+  });
+  batch.update(doc(firestore, "seasonEvidenceClaims", claim.id), {
+    status: "verified",
+    reviewedAt: serverTimestamp(),
+    reviewedBy: actorId,
+    reviewReason: reason,
+    whatsappSubmittedAt: submittedAt,
+    verifiedQuantity: claim.data.category === "water" ? 750 : claim.data.category === "fruit" ? 3 : 0,
+    decisionId,
+    releasedContributionId: contributionId,
+    releasedPoints: claim.data.pendingPoints || claim.data.bonusPointsAvailable,
+    releasedPointGroup: claim.data.claimType === "daily-bonus" ? "evidenceBonus" : "activity",
+    reversedByDecisionId: "",
+    updatedAt: serverTimestamp(),
+  });
+  batch.set(doc(firestore, "leagueContributions", contributionId), {
+    leagueId: claim.data.leagueId,
+    entryId: claim.data.entryId || claim.data.entryIds[0],
+    userId: claim.data.userId,
+    displayName: claim.data.displayName,
+    avatarId: claim.data.avatarId,
+    houseId: claim.data.houseId,
+    houseName: claim.data.houseName,
+    houseEmblemId: claim.data.houseEmblemId,
+    teamId: claim.data.houseId,
+    teamName: claim.data.houseName,
+    category: claim.data.category,
+    scoreCategory: claim.data.category,
+    pointGroup: claim.data.claimType === "daily-bonus" ? "evidenceBonus" : "activity",
+    challengeDate: claim.data.challengeDate,
+    activityPoints: claim.data.pendingPoints || claim.data.bonusPointsAvailable,
+    rulesVersion: claim.data.rulesVersion,
+    source: claim.data.claimType === "daily-bonus" ? "evidence-bonus" : "evidence-release",
+    sourceRedemptionId: "",
+    evidenceClaimId: claim.id,
+    evidenceDecisionId: decisionId,
+    createdAt: serverTimestamp(),
+  });
+  batch.set(doc(firestore, "playerNotifications", `evidence-note_${decisionId}`), {
+    userId: claim.data.userId,
+    type: claim.data.claimType === "daily-bonus" ? "evidence-bonus-awarded" : "evidence-accepted",
+    title: "Proof accepted",
+    message: "The relevant season points were released after WhatsApp proof review.",
+    leagueId: claim.data.leagueId,
+    houseId: claim.data.houseId,
+    evidenceClaimId: claim.id,
+    actionPath: "/activity?tab=journal",
+    createdAt: serverTimestamp(),
+    readAt: null,
+    readBy: "",
+  });
+  return batch.commit();
+}
+
+test("v2 qualifying Running creates only Cardio points immediately and a pending proof claim", async () => {
+  const leagueId = "season-v2";
+  const house = await seedActiveEvidenceSeason({ includeSecondMember: false });
+  const firestore = playerContext().firestore();
+  const challengeDate = Timestamp.fromDate(new Date(new Date().setHours(0, 0, 0, 0)));
+  const entryId = "run-entry";
+  const claimId = `${leagueId}_${entryId}`;
+  const claim = evidenceClaimData({ leagueId, entryId, challengeDate, house });
+  const batch = writeBatch(firestore);
+
+  batch.set(doc(firestore, "challengeEntries", entryId), {
+    userId: "player-one",
+    category: "running",
+    data: runningEntryData(),
+    source: "activity",
+    sourceLeagueId: "",
+    sourcePocketId: "",
+    sourceRedemptionId: "",
+    evidenceClaimIds: [claimId],
+    createdAt: serverTimestamp(),
+    challengeDate,
+  });
+  batch.set(doc(firestore, "leagueContributions", `${leagueId}_${entryId}`), {
+    leagueId,
+    entryId,
+    userId: "player-one",
+    displayName: "player one",
+    avatarId: "legacy-trophy",
+    houseId: house.id,
+    houseName: house.data.name,
+    houseEmblemId: house.data.emblemId,
+    teamId: house.id,
+    teamName: house.data.name,
+    category: "running",
+    scoreCategory: "cardio",
+    pointGroup: "activity",
+    challengeDate,
+    activityPoints: 7,
+    rulesVersion: "season-houses-v2",
+    source: "activity",
+    sourceRedemptionId: "",
+    evidenceClaimId: "",
+    evidenceDecisionId: "",
+    createdAt: serverTimestamp(),
+  });
+  batch.set(doc(firestore, "seasonEvidenceClaims", claimId), {
+    ...claim,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+
+  await assertSucceeds(batch.commit());
+  const saved = await getDoc(doc(firestore, "seasonEvidenceClaims", claimId));
+  assert.equal(saved.data().pendingPoints, 18);
+  assert.equal(saved.data().verificationCode, "RUN-ABC234");
+});
+
+test("v2 Steps cannot enter competitive standings before proof is verified", async () => {
+  const leagueId = "season-v2";
+  const house = await seedActiveEvidenceSeason({ includeSecondMember: false });
+  const firestore = playerContext().firestore();
+  const challengeDate = Timestamp.now();
+  const batch = writeBatch(firestore);
+  batch.set(doc(firestore, "challengeEntries", "steps-entry"), {
+    userId: "player-one",
+    category: "steps",
+    data: { steps: 12000 },
+    source: "activity",
+    sourceLeagueId: "",
+    sourcePocketId: "",
+    sourceRedemptionId: "",
+    createdAt: serverTimestamp(),
+    challengeDate,
+  });
+  batch.set(doc(firestore, "leagueContributions", `${leagueId}_steps-entry`), {
+    leagueId,
+    entryId: "steps-entry",
+    userId: "player-one",
+    displayName: "player one",
+    avatarId: "legacy-trophy",
+    houseId: house.id,
+    houseName: house.data.name,
+    houseEmblemId: house.data.emblemId,
+    teamId: house.id,
+    teamName: house.data.name,
+    category: "steps",
+    scoreCategory: "steps",
+    pointGroup: "activity",
+    challengeDate,
+    activityPoints: 12,
+    rulesVersion: "season-houses-v2",
+    source: "activity",
+    sourceRedemptionId: "",
+    evidenceClaimId: "",
+    evidenceDecisionId: "",
+    createdAt: serverTimestamp(),
+  });
+  await assertFails(batch.commit());
+});
+
+test("season administrators assign multiple proof categories without rewriting reviewer history", async () => {
+  const leagueId = "season-v2";
+  await seedActiveEvidenceSeason();
+  const firestore = adminContext().firestore();
+  const assignmentId = `${leagueId}_player-two`;
+  const createBatch = writeBatch(firestore);
+  createBatch.set(doc(firestore, "auditEvents", "reviewer-create-audit"), auditData({
+    action: "evidence.reviewer.assigned",
+    entityId: leagueId,
+    summary: "Assigned evidence reviewer",
+  }));
+  createBatch.set(doc(firestore, "leagueEvidenceReviewers", assignmentId), {
+    leagueId,
+    userId: "player-two",
+    displayName: "player two",
+    avatarId: "legacy-trophy",
+    categories: ["running", "steps"],
+    status: "active",
+    createdAt: serverTimestamp(),
+    createdBy: "admin-one",
+    updatedAt: serverTimestamp(),
+    updatedBy: "admin-one",
+    lastAuditId: "reviewer-create-audit",
+  });
+  await assertSucceeds(createBatch.commit());
+
+  const created = await getDoc(doc(firestore, "leagueEvidenceReviewers", assignmentId));
+  const updateBatch = writeBatch(firestore);
+  updateBatch.set(doc(firestore, "auditEvents", "reviewer-update-audit"), auditData({
+    action: "evidence.reviewer.assigned",
+    entityId: leagueId,
+    summary: "Updated evidence reviewer",
+  }));
+  updateBatch.update(doc(firestore, "leagueEvidenceReviewers", assignmentId), {
+    categories: ["running", "steps", "water", "fruit"],
+    status: "active",
+    updatedAt: serverTimestamp(),
+    updatedBy: "admin-one",
+    lastAuditId: "reviewer-update-audit",
+  });
+  await assertSucceeds(updateBatch.commit());
+  const updated = await getDoc(doc(firestore, "leagueEvidenceReviewers", assignmentId));
+  assert.deepEqual(updated.data().createdAt, created.data().createdAt);
+  assert.equal(updated.data().createdBy, "admin-one");
+});
+
+test("assigned category reviewers release proof-dependent points atomically", async () => {
+  const leagueId = "season-v2";
+  const house = houseData({ leagueId });
+  const base = evidenceClaimData({ leagueId, house });
+  const claim = { id: `${leagueId}_run-entry`, data: base };
+  await seedActiveEvidenceSeason({ claim, reviewerCategories: ["running"] });
+
+  await assertSucceeds(commitEvidenceVerification({
+    firestore: playerContext("player-two").firestore(),
+    actorId: "player-two",
+    claim,
+    decisionId: "decision-reviewer",
+    contributionId: `${leagueId}_${claim.id}_decision-reviewer`,
+  }));
+  await assertSucceeds(getDoc(doc(
+    playerContext().firestore(),
+    "seasonEvidenceClaims",
+    claim.id,
+  )));
+});
+
+test("unassigned reviewers cannot decide another evidence category", async () => {
+  const leagueId = "season-v2";
+  const house = houseData({ leagueId });
+  const claim = {
+    id: `${leagueId}_run-entry`,
+    data: evidenceClaimData({ leagueId, house }),
+  };
+  await seedActiveEvidenceSeason({ claim, reviewerCategories: ["steps"] });
+  await assertFails(commitEvidenceVerification({
+    firestore: playerContext("player-two").firestore(),
+    actorId: "player-two",
+    claim,
+    decisionId: "decision-forbidden",
+    contributionId: `${leagueId}_${claim.id}_decision-forbidden`,
+  }));
+});
+
+test("unassigned season administrators cannot bypass category reviewer assignments", async () => {
+  const leagueId = "season-v2";
+  const house = houseData({ leagueId });
+  const claim = {
+    id: `${leagueId}_run-entry`,
+    data: evidenceClaimData({ leagueId, house }),
+  };
+  await seedActiveEvidenceSeason({ claim });
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await updateDoc(doc(context.firestore(), "leagues", leagueId), {
+      administratorIds: ["admin-one", "player-three"],
+    });
+  });
+
+  await assertFails(commitEvidenceVerification({
+    firestore: playerContext("player-three").firestore(),
+    actorId: "player-three",
+    claim,
+    decisionId: "decision-unassigned-season-admin",
+    contributionId: `${leagueId}_${claim.id}_decision-unassigned-season-admin`,
+  }));
+});
+
+test("category reviewers can read only the evidence categories assigned to them", async () => {
+  const leagueId = "season-v2";
+  const house = houseData({ leagueId });
+  const runningClaim = {
+    id: `${leagueId}_run-entry`,
+    data: evidenceClaimData({ leagueId, house }),
+  };
+  const stepsClaim = {
+    id: `${leagueId}_steps-entry`,
+    data: evidenceClaimData({
+      leagueId,
+      entryId: "steps-entry",
+      category: "steps",
+      house,
+      pendingPoints: 12,
+    }),
+  };
+  await seedActiveEvidenceSeason({
+    claim: runningClaim,
+    reviewerCategories: ["running"],
+  });
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(
+      doc(context.firestore(), "seasonEvidenceClaims", stepsClaim.id),
+      stepsClaim.data,
+    );
+  });
+
+  const reviewerFirestore = playerContext("player-two").firestore();
+  await assertSucceeds(getDoc(doc(
+    reviewerFirestore,
+    "seasonEvidenceClaims",
+    runningClaim.id,
+  )));
+  await assertFails(getDoc(doc(
+    reviewerFirestore,
+    "seasonEvidenceClaims",
+    stepsClaim.id,
+  )));
+});
+
+test("late proof requires a Platform Administrator and an audit reason", async () => {
+  const leagueId = "season-v2";
+  const house = houseData({ leagueId });
+  const deadlineAt = Timestamp.fromMillis(Date.now() - 60 * 60 * 1000);
+  const claim = {
+    id: `${leagueId}_run-entry`,
+    data: evidenceClaimData({ leagueId, house, deadlineAt }),
+  };
+  await seedActiveEvidenceSeason({ claim, reviewerCategories: ["running"] });
+  const lateSubmission = Timestamp.now();
+
+  await assertFails(commitEvidenceVerification({
+    firestore: playerContext("player-two").firestore(),
+    actorId: "player-two",
+    claim,
+    decisionId: "late-reviewer",
+    contributionId: `${leagueId}_${claim.id}_late-reviewer`,
+    submittedAt: lateSubmission,
+    late: true,
+    reason: "Delayed WhatsApp delivery",
+  }));
+  await assertSucceeds(commitEvidenceVerification({
+    firestore: adminContext().firestore(),
+    actorId: "admin-one",
+    claim,
+    decisionId: "late-admin",
+    contributionId: `${leagueId}_${claim.id}_late-admin`,
+    submittedAt: lateSubmission,
+    late: true,
+    reason: "Delayed WhatsApp delivery",
+  }));
+});
+
+test("v2 players read published snapshots but not another player's live contributions", async () => {
+  const leagueId = "season-v2";
+  const house = await seedActiveEvidenceSeason();
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagueContributions", "live-player-two"), {
+      leagueId,
+      entryId: "other-entry",
+      userId: "player-two",
+      displayName: "player two",
+      avatarId: "legacy-trophy",
+      houseId: house.id,
+      houseName: house.data.name,
+      houseEmblemId: house.data.emblemId,
+      teamId: house.id,
+      teamName: house.data.name,
+      category: "water",
+      scoreCategory: "water",
+      pointGroup: "activity",
+      challengeDate: Timestamp.now(),
+      activityPoints: 3,
+      rulesVersion: "season-houses-v2",
+      source: "activity",
+      sourceRedemptionId: "",
+      evidenceClaimId: "",
+      evidenceDecisionId: "",
+      createdAt: Timestamp.now(),
+    });
+  });
+
+  await assertFails(getDoc(doc(
+    playerContext().firestore(),
+    "leagueContributions",
+    "live-player-two",
+  )));
+  await assertSucceeds(getDoc(doc(
+    adminContext().firestore(),
+    "leagueContributions",
+    "live-player-two",
+  )));
+
+  const firestore = adminContext().firestore();
+  const snapshotId = "snapshot-one";
+  const auditId = "snapshot-audit";
+  const batch = writeBatch(firestore);
+  batch.set(doc(firestore, "auditEvents", auditId), auditData({
+    action: "leaderboard.snapshot.published",
+    entityId: leagueId,
+    summary: "Published player leaderboard snapshot",
+  }));
+  batch.set(doc(firestore, "leagueLeaderboardSnapshots", snapshotId), {
+    leagueId,
+    rulesVersion: "season-houses-v2",
+    publicationType: "manual",
+    replacesSnapshotId: "",
+    publicationDateKey: "2026-08-04",
+    players: [{ userId: "player-one", displayName: "player one", totalPoints: 10, rank: 1 }],
+    houses: [{ houseId: house.id, houseName: house.data.name, totalPoints: 10, rank: 1 }],
+    honours: { individual: [], houseChampions: [], houseOfChampions: null },
+    publishedAt: serverTimestamp(),
+    publishedBy: "admin-one",
+    lastAuditId: auditId,
+  });
+  batch.update(doc(firestore, "leagues", leagueId), {
+    publishedLeaderboardSnapshotId: snapshotId,
+    publishedLeaderboardAt: serverTimestamp(),
+    publishedLeaderboardBy: "admin-one",
+    publishedLeaderboardRevision: 1,
+    updatedAt: serverTimestamp(),
+    updatedBy: "admin-one",
+    lastAuditId: auditId,
+  });
+  await assertSucceeds(batch.commit());
+  await assertSucceeds(getDoc(doc(
+    playerContext().firestore(),
+    "leagueLeaderboardSnapshots",
+    snapshotId,
+  )));
+  await assertFails(updateDoc(doc(
+    adminContext().firestore(),
+    "leagueLeaderboardSnapshots",
+    snapshotId,
+  ), { publicationType: "automatic-fallback" }));
 });

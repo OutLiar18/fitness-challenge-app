@@ -1,5 +1,10 @@
 # Champions Legacy Challenge — Account, Onboarding and Privacy
 
+
+## v0.18.0 external-evidence privacy boundary
+
+Champions Legacy Challenge does not upload or store WhatsApp proof media. The personal export may include structured evidence claims, decisions visible to the owner and published snapshot metadata, but it cannot export the external images or WhatsApp retention history. UI copy must never imply otherwise.
+
 Last updated: 4 August 2026
 
 ## Purpose

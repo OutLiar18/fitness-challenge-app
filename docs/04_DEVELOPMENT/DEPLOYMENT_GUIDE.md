@@ -1,24 +1,20 @@
 # Champions Legacy Challenge — Deployment Guide
 
-Last updated: 3 August 2026
-
 ## Hosting
 
-The static Vite application is hosted on Firebase Hosting target `app`, mapped to:
-
-`https://champions-legacy-challenge.web.app`
-
-Firestore, Authentication and Hosting remain in project `fitnesschallengeapp-9e87f`.
+Production target: `app`  
+Site: `champions-legacy-challenge`  
+URL: `https://champions-legacy-challenge.web.app`
 
 ## Prerequisites
 
-- Firebase project access and CLI authentication.
-- Java 21 for the Firestore Emulator.
-- Correct local `.env` values.
-- Completion of the season migration review for any existing permanent Team or pre-season league data.
-- Passing release checks.
+- Node/npm installed.
+- Firebase CLI available through project scripts.
+- Java 21 for Rules tests.
+- Correct Firebase project mapping in `.firebaserc`.
+- Local `.env` preserved outside update packages.
 
-## Local verification
+## Verification
 
 ```powershell
 npm install
@@ -28,42 +24,22 @@ npm run check:release
 npm audit
 ```
 
-## Rules deployment
+## v0.18.0 deployment
 
-```powershell
-npm run deploy:rules
-```
-
-Deploy Rules only after completing the season migration checks in `docs/01_CURRENT_DEVELOPMENT/ACTIVE_MIGRATIONS.md`. Export any legacy permanent Team data that still needs to be retained before the new Rules make those collections inaccessible.
-
-## Preview and live Hosting
-
-```powershell
-npm run deploy:preview
-npm run deploy:hosting
-```
-
-Both commands target the branded `app` site. The preview expires after seven days; the Hosting command publishes only the frontend.
-
-## Combined deployment
+Evidence document shapes and Rules change together. After all gates pass:
 
 ```powershell
 npm run deploy:production
 ```
 
-This verifies and then deploys Rules plus `hosting:app`. Do not use it until the release is approved for that environment.
+This reruns release-readiness and deploys `firestore:rules,hosting:app` together.
 
-## Hosting behaviour
+## Included documentation finalisation
 
-- `dist` is the public directory.
-- All application routes rewrite to `index.html`.
-- Fingerprinted assets receive long immutable caching.
-- Security headers prevent MIME sniffing and framing and disable camera, microphone and geolocation permissions.
-- Production chunk-preload failures receive one guarded reload to recover an old open tab after deployment.
+After Firebase reports a successful Rules and Hosting deployment, run `FINALISE_RELEASE.ps1` from the extracted main updater. It calls the in-repository finalisation script, changes candidate release records to deployed records and is idempotent.
+
+Do not create or download a separate documentation-sync package.
 
 ## Rollback
 
-- Restore a previous Firebase Hosting release from Hosting history.
-- Restore Firestore Rules from Git and redeploy them.
-- Never remove factual player entries during a frontend rollback.
-- Completed league contributions remain historical records even when a recent source entry is later deleted.
+Firebase Hosting versions can be rolled back independently, but v0.18.0 frontend and Rules should remain aligned. Preserve the pre-update timestamped backup created by `APPLY_UPDATE.ps1` until the release is verified and committed.

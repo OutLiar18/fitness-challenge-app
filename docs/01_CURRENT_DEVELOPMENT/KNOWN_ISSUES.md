@@ -1,39 +1,33 @@
 # Champions Legacy Challenge — Known Issues
 
+<!-- RELEASE_STATUS: DEPLOYED -->
 Last updated: 4 August 2026
 
-## v0.17.0 release status
+## v0.18.0 candidate status
 
-Automated Windows release verification and production deployment succeeded. Clean ESLint, 71 domain tests, the Vite production build, 30 Firestore Rules tests and release-readiness all passed. Firestore Rules compiled and deployed successfully, and Firebase Hosting released 62 frontend files. The full manual integrated review remains deferred.
+Packaging lint, 80 domain tests and the Windows Vite build pass. The first Rules run found two expression-budget failures; the candidate includes a targeted hotfix and awaits a clean 39-test rerun, release-readiness and production deployment.
 
-## Deferred integrated review
+## Rules evaluation budget
 
-The product owner has deferred the complete functional, responsive, visual, dark-mode and accessibility review until the final pre-v1.0 stage. New onboarding and account tools are designed around existing accessible patterns but still require that final manual matrix.
+- The first v0.18.0 Windows Rules run hit Firestore's 1,000-expression evaluation limit in two valid atomic workflows.
+- The candidate hotfix replaces broad OR validation with branch-directed ternaries, removes redundant full-policy validation from claim creation and fixes the Running proof test fixture to include the production `evidenceClaimIds` link.
+- This remains a release blocker until all 39 Rules tests pass cleanly. Do not deploy the pre-hotfix Rules.
 
-## Account deletion boundary
+## Evidence operations
 
-The app records and acknowledges deletion requests but does not automatically delete Firebase Authentication or every eligible record. A trusted server/Admin SDK worker, operational completion record and shared-history anonymisation policy remain required before public launch.
+- The app stores no WhatsApp media. Administrators must visually compare external proof and record the message timestamp.
+- The 10:00 leaderboard fallback is administrator-session based, not a guaranteed background job. Without an authorised session, the previous player snapshot remains visible.
+- Evidence-linked entries are locked from ordinary deletion to preserve the verification chain. A complete audited factual-correction workflow is still required.
+- Running and Steps Pocket redemption is disabled in new v2 seasons because proof cannot safely be attached to the reserved whole session.
 
-## Privacy and support readiness
+## Existing technical limitations
 
-Help & Privacy is plain-language product guidance, not final legal text. A confirmed public support contact and formal legal/privacy review remain required.
+- The Firebase vendor bundle remains above Vite's 500-kilobyte warning threshold. This is recorded as a future measured optimisation, not a release blocker.
+- `npm audit` reports a React Router React Server Components advisory. The app does not use React Server Components, and the available forced remediation is breaking. Do not run `npm audit fix --force`.
+- Personal history still subscribes to the complete signed-in user's entries. Pagination remains future work.
+- Account deletion requires trusted operational handling outside the client.
+- Prize-bearing competition should eventually use trusted server-side recalculation and scheduled publication.
 
-## Performance warning
+## Review boundary
 
-The production build reports a Firebase vendor chunk of approximately 575.67 kB minified and 169.22 kB gzip, above Vite's 500 kB warning threshold. The warning does not block deployment. Treat optimisation as measured work rather than suppressing the warning without evidence.
-
-## Operational boundaries
-
-- Ballots require authorised manual opening and administrator finalisation; there is no server scheduler.
-- Invitation codes are bearer codes, not passwords.
-- Firestore Rules validate ownership, shape and atomic relationships but do not run the full Points Engine.
-- Prize-bearing competition requires trusted server-side contribution recalculation.
-- Personal activity history is not yet paginated.
-
-## Inactive mechanics
-
-Power Plays, Diamonds, player prices, House Immunity, the full Transfer Market, Buddy Bonuses, Five Fires and late-season twists remain inactive. Pocket Week remains one pre-season window.
-
-## Dependency advisory
-
-`npm audit` reports two high-severity advisories in React Router's React Server Components mode. This is a client-rendered Vite application and does not use that mode. Do not run `npm audit fix --force`; reassess when a non-breaking compatible fix is available.
+The complete functional, responsive, dark-mode, keyboard and accessibility review remains deferred until the final pre-v1.0 stage by user choice.

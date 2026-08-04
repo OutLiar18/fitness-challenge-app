@@ -123,13 +123,14 @@ export async function saveChallengeEntry({
 
   const leagueContexts = await getLeagueContextsForEntry(userId);
 
-  const documentReference = await createEntry(
+  const creationResult = await createEntry(
     userId,
     category,
     normalizedData,
     selectedDate,
     leagueContexts,
   );
+  const documentReference = creationResult.reference;
 
   const postSaveTasks = createPostSaveTasks({
     userId,
@@ -169,6 +170,7 @@ export async function saveChallengeEntry({
     entry: temporaryEntry,
     normalizedData,
     nextCategory,
+    evidenceClaims: creationResult.evidenceClaims ?? [],
     warning:
       failedTasks.length > 0
         ? "Your entry was saved, but one background update could not be completed."

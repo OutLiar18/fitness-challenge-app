@@ -53,6 +53,7 @@ test("Season drafts freeze the House and Pocket ruleset", () => {
     houseCount: 6,
     startDate: new Date(2026, 8, 8, 12),
     endDate: new Date(2026, 9, 5, 12),
+    evidencePolicy: { confirmed: true },
   });
 
   assert.equal(result.valid, true);

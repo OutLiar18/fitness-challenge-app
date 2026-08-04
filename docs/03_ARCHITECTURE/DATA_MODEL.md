@@ -1,49 +1,43 @@
 # Champions Legacy Challenge — Data Model
 
 Last updated: 4 August 2026  
-Current release target: v0.17.0  
-Current production: v0.16.0
+Current release target: v0.18.0  
+Current production: v0.17.0
 
 ## Principle
 
-Store factual activity, trusted decisions, request state and immutable competitive snapshots. Derive presentation and progress.
+Store factual activity, trusted decisions and immutable competitive snapshots. Derive presentation, progress and live standings.
 
-## Player and account entities
+## Player and activity entities
 
-- **Player profile** — identity, trusted role, local avatar and versioned onboarding state.
-- **Challenge entry** — factual category data and selected challenge date.
-- **Personal/shared library definitions** — reusable activity definitions and moderation history.
-- **Announcement read record** — private per-player read state.
-- **Coach preferences** — private optional recommendation settings.
-- **Account deletion request** — one document per player with `requested`, `acknowledged` or `cancelled` status.
-- **Client error report** — sanitised first-party diagnostic record.
-- **Immutable audit event** — trusted administrative action history.
+- **Player profile** — identity, trusted role, avatar and onboarding state.
+- **Challenge entry** — factual category data, challenge date and optional `evidenceClaimIds`.
+- **Account deletion request** — requested, acknowledged or cancelled state.
+- **Personal/shared library definitions**, announcement reads, Coach preferences and sanitised error reports.
 
 ## Season competition entities
 
-- **League/season** — identity, theme, lifecycle, dates, House count, Pocket window, frozen rules, administrators and participant count.
-- **League membership** — player identity, status and current House assignment.
-- **House** — season identity, emblem, accent, Captain, Vice-Captains and last election.
-- **Leadership election/vote** — weekly 24-hour ballot and one private vote per member.
-- **Roster swap/lock** — one atomic balanced move and one weekly lock per participating House.
-- **Pocket activity** — private zero-point reserve and remaining balance.
-- **Pocket redemption** — immutable receipt linking reserve, target day and challenge entry.
-- **League contribution** — immutable entry/category/date/point/rules/Historical-House snapshot.
-- **Player notification** — private assignment, ballot, leadership, roster and Pocket event.
+- **League/season** — identity, lifecycle, dates, Houses, frozen ruleset/evidence policy and latest snapshot pointer.
+- **League membership** — current House assignment and player presentation snapshot.
+- **House**, leadership election/vote, roster swap/lock, Pocket activity/redemption.
+- **League contribution** — immutable points and historical House attribution, optionally linked to evidence claim/decision.
+- **Player notification** — private season, evidence and account communication.
 
-## Onboarding compatibility
+## Evidence entities
 
-New profiles store `onboardingVersion`, `onboardingCompletedAt` and `onboardingUpdatedAt`. Legacy profiles without these fields are treated as already onboarded so no bulk migration or forced interruption is required. Replaying the guide adds the fields through a constrained owner update.
+- **Evidence claim** — source user, season, category, date, verification code, deadline, pending/bonus points, House snapshot and current status.
+- **Evidence reviewer assignment** — one document per season/user with one or more assigned categories.
+- **Evidence decision** — immutable accept, reject, late-accept or reversal record with actor, timestamp, quantity, reason and point delta.
+- **Leaderboard snapshot** — immutable publication revision containing player/House standings and honours.
 
-## Personal export
-
-The export is a generated JSON representation, not a Firestore entity. Firestore timestamps are serialised to ISO strings. Any section that cannot be read is listed in export metadata instead of being silently omitted.
+Water and Fruit use one daily claim per category. Running and Steps use one claim per entry.
 
 ## Historical stability
 
 - Published activity definitions are copied into entries.
-- Season rules are frozen in the league document.
-- Every contribution copies House identity at earning time.
-- A roster move changes membership only; earlier contributions remain unchanged.
-- Account-request state does not rewrite entries or shared competition history.
+- Season rules and evidence policy are frozen.
+- Claim and contribution documents copy House identity at activity time.
+- Roster movement affects only future activity.
+- Decisions and snapshots are appended, not edited.
+- Evidence-linked entries are locked from ordinary deletion.
 - Completed and archived competitive history cannot be deleted by the client.

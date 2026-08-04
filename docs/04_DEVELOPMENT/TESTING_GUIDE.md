@@ -1,6 +1,6 @@
 # Champions Legacy Challenge — Testing Guide
 
-Current release target: v0.17.0
+Current release target: v0.18.0
 
 ## Standard release commands
 
@@ -12,28 +12,47 @@ npm run check:release
 npm audit
 ```
 
-`npm run check` runs ESLint, all domain tests and the Vite production build. The Firestore Emulator requires Java 21.
+The Firestore Emulator requires Java 21.
 
-## v0.17.0 expected baseline
+## v0.18.0 expected baseline
 
-- 71 domain tests.
-- 30 Firestore Security Rules tests.
+- 80 domain tests.
+- 39 Firestore Security Rules tests.
 - Clean ESLint.
 - Successful Vite production build.
-- Release-readiness confirmed for version 0.17.0 and Hosting target `app`.
+- Release-readiness confirmed for 0.18.0 and Hosting target `app`.
 
-Expected negative `PERMISSION_DENIED` emulator output is normal when a test asserts that an unauthorised write fails. The final test summary must still report zero failures.
+## Evidence domain coverage
 
-## Required account-foundation coverage
+- frozen policy normalization and explicit confirmation;
+- stable verification IDs;
+- Running immediate/pending allocation;
+- nonqualifying Running behaviour;
+- Steps proof gate;
+- daily Water/Fruit claims and bonus thresholds;
+- deadline/late-exception logic;
+- reviewer category scope;
+- Johannesburg publication due time;
+- Fruit cap and evidence-bonus cap separation.
 
-- New profiles begin at onboarding version `0`.
-- Legacy profiles without onboarding fields are not forced into the guide.
-- Completion and replay cannot alter trusted role fields.
-- Deletion request create, cancel and reopen are owner-only.
-- Administrator acknowledgement requires a matching audit event.
-- Personal export serialises timestamps and records unavailable sections.
-- Players can read/query only their own private votes and sanitised error reports.
+## Rules coverage
+
+The Rules suite includes existing account/season/Pocket protections plus evidence claim creation, assigned review, rejection, late proof, atomic contribution release, reviewer query scope and player snapshot privacy/immutability.
+
+`PERMISSION_DENIED` output is expected for negative assertions. Judge success by the final test counts and process exit code.
+
+## v0.18.0 Rules evaluation-budget regression
+
+The first Windows run exposed Firestore's 1,000-expression ceiling in valid multi-write operations. The candidate hotfix must preserve these two regressions:
+
+- an authorised Platform Administrator can atomically create a draft season, its closed invite and matching audit event;
+- a qualifying v2 Running entry can atomically create the factual entry, immediate Cardio contribution and pending proof claim.
+
+Rules should dispatch only the relevant validation branch. A passing negative assertion may still print `PERMISSION_DENIED`, but `maximum of 1000 expressions` must not appear for a valid positive workflow.
 
 ## Release rules
 
-Do not deploy when lint, domain tests, Rules tests, build or release-readiness fails. Do not run `npm audit fix --force`; review advisories and upgrade only through a deliberate compatible change.
+- Do not deploy when lint, domain, build, Rules or readiness fails.
+- Do not use `npm audit fix --force`.
+- Deploy Rules and Hosting together for v0.18.0.
+- Run the included finaliser only after successful production deployment.

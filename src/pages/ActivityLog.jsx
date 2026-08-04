@@ -45,7 +45,7 @@ const ACTIVITY_TABS = Object.freeze([
 ]);
 
 function ActivityLogWorkspace({ categoryId, onCategoryChange }) {
-  const { user, entries, loading } = usePlayerData();
+  const { user, entries, evidenceClaims, loading } = usePlayerData();
   const { toast, showToast, dismissToast } = useToast();
   const [selectedDate, setSelectedDate] = useState(() =>
     normalizeChallengeDate(new Date()),
@@ -121,10 +121,16 @@ function ActivityLogWorkspace({ categoryId, onCategoryChange }) {
         onCategoryChange(nextCategory);
       }
 
+      const evidenceCodes = (result.evidenceClaims ?? [])
+        .map((claim) => claim.verificationCode)
+        .filter(Boolean);
+      const successMessage = evidenceCodes.length > 0
+        ? `Entry saved. Send WhatsApp proof with ID ${evidenceCodes.join(" or ")}.`
+        : "Entry saved successfully.";
       showToast(
-        result.warning || "Entry saved successfully.",
+        result.warning || successMessage,
         result.warning ? "warning" : "success",
-        result.warning ? 5000 : undefined,
+        result.warning || evidenceCodes.length > 0 ? 6500 : undefined,
       );
     } catch (error) {
       console.error(error);
@@ -215,6 +221,7 @@ function ActivityLogWorkspace({ categoryId, onCategoryChange }) {
           onDelete={handleDeleteEntry}
           readOnly={readOnly}
           loading={loading}
+          evidenceClaims={evidenceClaims}
         />
       </WorkspacePanel>
 

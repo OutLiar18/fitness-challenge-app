@@ -1,57 +1,62 @@
 # Champions Legacy Challenge — Season League System
 
-Last updated: 3 August 2026  
-Current implementation target: v0.15.0 (foundation introduced in v0.14.0)
+Last updated: 4 August 2026
 
 ## Purpose
 
-A season is a time-limited themed competition with simultaneous individual and House standings. Personal progression remains permanent while each season begins its own competitive chapter.
+A season provides a fresh, time-bounded competition with individual and House recognition while permanent personal progress continues separately.
 
 ## Lifecycle
 
-1. **Draft** — create identity, dates, theme, rules and Houses.
-2. **Registration** — invitation opens and players register as individuals.
-3. **C.H.A.O.S.** — administrator assigns every registered player to a House.
-4. **Active** — entries and Pocket redemptions create eligible contributions.
-5. **Completed** — scoring closes and honours become final.
-6. **Archived** — historical read-only season.
+`Draft → Registration → Active → Completed → Archived`
 
-Firestore stores Draft, Registration, Active, Completed and Archived as the formal status sequence. C.H.A.O.S. is a one-time Registration action.
+Each transition is forward-only and audited. A season freezes its dates, theme, Houses, scoring rules, Pocket window, evidence policy and publication settings before competition begins.
 
 ## Frozen rules
 
-Every new season stores `season-houses-v1`:
+New v2 seasons use:
 
-- Points Engine `points-v2`;
-- all ten factual categories;
-- 20-point daily raw-activity cap per player;
-- five-point daily participation bonus;
-- Houses, C.H.A.O.S., leadership elections, roster swaps and Pocket Week enabled;
-- Power Play, full Transfer Market, Buddy Bonus and Five Fires disabled.
+- `points-v2` for factual activity calculation;
+- `season-houses-v2` for competition and evidence integration;
+- `whatsapp-proof-v1` for external evidence;
+- one pre-season seven-day Pocket Week;
+- the season's configured Fruit cap, evidence thresholds, deadlines and publication time.
 
-## Dual standings
+Existing v1 seasons retain their historical behaviour.
 
-For each player/day, eligible activity points are capped and the participation bonus is added. Individual standings sum those daily scores.
+## Contributions and House history
 
-House standings repeat the same day calculation against each contribution’s historical House snapshot. Current membership is never used to rewrite earlier House totals.
+Every contribution stores the player, category, challenge date, rules version and House identity at earning time. Roster movement affects future contributions only. Evidence review after a move still releases points to the original House.
+
+## Evidence-aware scoring
+
+- Qualifying Running holds Running points for proof but releases Cardio immediately.
+- Steps holds all Steps points for proof.
+- Water and Fruit normal points remain immediate; accepted daily proof can add one configured evidence bonus.
+- Evidence releases and reversals are separate immutable contribution records.
+
+## Standings views
+
+### Live administrator standings
+
+Authorised administrators and evidence operators may inspect the latest contribution stream for operations and review.
+
+### Published player standings
+
+Players read the latest immutable `leagueLeaderboardSnapshots` record rather than live contributions. A corrected publication creates a new revision. The previous snapshot persists when no new one is published.
+
+## Publication modes
+
+- manual administrator publication;
+- corrected replacement revision;
+- administrator-session fallback at or after the configured time, currently 10:00 Africa/Johannesburg.
+
+The fallback is not a background scheduler and requires an authorised administrator session.
 
 ## Season honours
 
-- Legacy Champion.
-- Category champions in the established prestige order, with one individual title per player.
-- One House Champion per House.
-- House of Champions.
-
-Honours are provisional during an Active season and final after completion.
+Season honours are derived from the authoritative contribution stream and may be copied into a published snapshot. Completed season results remain immutable.
 
 ## Trust boundary
 
-The client calculates category points while Rules enforce active membership, source-entry linkage, historical House identity, frozen rule version and immutability. Friendly competition is supported; prize-bearing competition requires trusted backend recalculation.
-
----
-
-# v0.15 Season Navigation
-
-Current player-facing language uses **Seasons** and **Houses**. Firestore/service names may continue to use `league` where they represent the established season container and changing them would create unnecessary data migration risk.
-
-Legacy `/leagues` and `/teams` URLs redirect to `/seasons` and `/houses` so stored notification links and bookmarks remain safe.
+Client-side calculation supports the current private challenge iteration. Prize-bearing or public competition should eventually add trusted server-side recalculation, reliable scheduling and reconciliation without rewriting historical contribution records.

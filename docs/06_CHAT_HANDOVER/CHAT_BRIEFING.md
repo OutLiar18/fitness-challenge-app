@@ -1,50 +1,43 @@
 # Champions Legacy Challenge — Chat Briefing
 
+<!-- RELEASE_STATUS: DEPLOYED -->
 Last updated: 4 August 2026
 
 ## Release state
 
-- Current source and production: v0.17.0 — Player Readiness and Account Control.
-- Status: automated verification and production deployment complete; documentation sync and release commit pending; pre-v1.0.
-- Never declare or tag v1.0 without explicit product-owner approval.
+- Current source candidate: v0.18.0 — External Evidence and Published Standings.
+- Current production: v0.17.0.
+- Packaging lint, 80 domain tests and the Windows Vite build pass.
+- The first Windows Rules run exposed Firestore's 1,000-expression evaluation limit in two valid atomic workflows.
+- The candidate now includes a Rules evaluation-budget hotfix and corrected Running proof fixture; 39 Rules tests and release-readiness must be rerun before deployment.
+- Never call or tag v1.0 without explicit approval.
 
-## v0.17.0 scope
+## v0.18.0 scope
 
-- Versioned four-step onboarding for new profiles.
-- Legacy profiles remain uninterrupted; guide can be replayed.
-- Help & Privacy route under More.
-- On-demand account-readable JSON export.
-- Player deletion request/cancel/reopen lifecycle.
-- Platform Administrator request queue and audited acknowledgement.
-- Own private votes and sanitised own error reports readable for export.
-- No scoring, Experience Points, Pocket, roster or historical House changes.
+- No in-app media uploads; proof is sent through WhatsApp.
+- Verification IDs link WhatsApp proof to entries/daily claims.
+- Running points and Steps points are proof-gated; Running Cardio remains immediate.
+- Water/Fruit may receive one configured three-point daily proof bonus.
+- Fruit activity is capped at five servings/day in v2 seasons.
+- Category reviewers are least-privilege; Platform Admin reviews all and handles late exceptions.
+- Decisions use immutable audit/reversal contributions.
+- Administrators see live standings; players see immutable published snapshots.
+- The 10:00 Johannesburg fallback requires an authorised administrator session.
+- Existing v1 seasons remain compatible; v2 blocks Running/Steps Pocket redemption.
 
 ## Required next commands
 
-Apply the v0.17.0 deployment documentation sync, then commit:
-
 ```powershell
 cd C:\Users\Kylep\fitness-tracker
-git status
-git add -A
-git commit -m "release: deploy v0.17.0 player readiness and account control"
-git status
+npm install
+npm run check
+npm run test:rules
+npm run check:release
+npm audit
 ```
 
-Release evidence: 71 domain tests, 30 Rules tests, clean lint/build, v0.17.0 release-readiness, successful Firestore Rules deployment and 62 Hosting files released.
+Expected after the included hotfix: 80 domain and 39 Rules tests. Do not run `npm audit fix --force`. Do not deploy until the rerun output is reviewed.
 
-Do not run `npm audit fix --force`.
+## Packaging preference
 
-## Core product rules
-
-- Store factual activity and derive scoring.
-- Points and Experience Points remain separate.
-- Running earns Running points only at 3 km or more and 11:00 minutes per kilometre or faster; its duration still contributes to Cardio.
-- Houses are season-scoped and contributions preserve earning-time House identity.
-- Pocket Week is one seven-day pre-season window.
-- Do not invent inactive mechanics.
-- Account-request acknowledgement is not deletion.
-
-## Working style
-
-The user is learning React/Firebase. Keep instructions practical and limited to two or three actions. For substantial changes, provide a complete updater and recovery source package. Documentation changes are part of the release.
+All documentation is included in the main updater. After later successful deployment, use the included `FINALISE_RELEASE.ps1`; never issue a separate documentation sync.

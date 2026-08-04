@@ -1,70 +1,58 @@
-# v0.16.0 — Progressive Disclosure and Page Breathing Room
+# Champions Legacy Challenge — Changelog
 
-## v0.17.0 — Player Readiness and Account Control
+## v0.18.0 — External Evidence and Published Standings
 
-Date: 4 August 2026
+<!-- RELEASE_STATUS: DEPLOYED -->
+Date: 4 August 2026  
+Status: Verified and deployed; release commit pending
 
 ### Added
 
-- Versioned four-step onboarding for newly created profiles with legacy-profile compatibility and replay.
-- Help & Privacy route covering getting started, stored-versus-derived data, privacy boundaries and account tools.
-- On-demand JSON export of account-owned readable data with portable timestamps and explicit unavailable-section reporting.
-- Player account-deletion request, cancellation and reopen lifecycle.
-- Platform Administrator request queue and audited acknowledgement.
-- Security Rule access for players to export their own private leadership votes and sanitised error reports.
-- ADR-024 and the Account, Onboarding and Privacy product source of truth.
+- External WhatsApp proof workflow with human-readable verification IDs.
+- Per-entry Running/Steps claims and daily Water/Fruit bonus claims.
+- Assigned category reviewers with least-privilege queue access.
+- Immutable evidence decisions, notifications, reversals and signed contribution corrections.
+- Live administrator standings and immutable player-facing leaderboard snapshots.
+- Manual, corrected and 10:00 Johannesburg administrator-session publication modes.
+- Canonical evidence documentation, ADR-025 and an in-package release finaliser.
 
-### Verification state
+### Changed
 
-- 71 domain tests passed in the packaging environment.
-- Source syntax and relative import resolution passed.
-- Windows verification passed clean ESLint, 71 domain tests, the Vite production build, 30 Firestore Rules tests and release-readiness.
-- Firestore Rules compiled and deployed successfully.
-- Firebase Hosting released 62 frontend files to the branded production site.
-- Full manual integrated review remains deferred until the final pre-v1.0 stage.
+- New seasons use `season-houses-v2` and freeze `whatsapp-proof-v1` settings.
+- Qualifying Running holds Running points but releases Cardio immediately.
+- Steps points remain pending until proof acceptance.
+- Fruit activity scoring caps at five servings per v2 season day.
+- Running and Steps Pocket redemption is blocked in v2.
+- Evidence-linked entries are locked from ordinary client deletion.
 
-### Boundaries
+### Verification
 
-- Production remains v0.16.0.
-- Acknowledgement is not final account deletion.
-- No scoring, XP, Pocket, roster or historical House contribution logic changed.
+- Clean ESLint passed in the packaging environment.
+- 80 domain tests passed in the packaging environment.
+- Windows Vite build passed. A candidate hotfix now addresses two Firestore Rules expression-budget failures; 39 Rules tests, release-readiness and production deployment remain pending.
 
+## v0.17.0 — Player Readiness and Account Control
+
+Date: 4 August 2026  
+Status: Verified and deployed to production; pre-v1.0
+
+- Added guided onboarding with legacy-profile compatibility and replay.
+- Added Help & Privacy, portable personal JSON export and account-deletion requests.
+- Added Platform Administrator acknowledgement with immutable audit history.
+- Added Security Rule access for owner export of private votes and sanitised error reports.
+- Passed 71 domain tests, 30 Rules tests, clean lint/build and release-readiness.
+- Deployed Firestore Rules and 62 Hosting files successfully.
+
+## v0.16.0 — Progressive Disclosure and Page Breathing Room
 
 Date: 3 August 2026  
 Status: Verified and deployed to production; pre-v1.0
 
-## Shared interaction pattern
-
-- Added reusable `WorkspaceTabs` and `WorkspacePanel` components for dense route-level content.
-- Added desktop Arrow-key, Home/End and focus movement support.
-- Added a labelled native section selector for small screens.
-- Added reduced-motion handling and pure active-section fallback helpers.
-
-## Page refinement
-
-- Progress now defaults to Overview and separates Achievements, Records, Timeline and Level Journey.
-- Activity Log separates logging and Journal.
-- Analytics separates Trends, Consistency, Category Balance and Insights.
-- Profile, Legacy Coach and Points Guide use focused section workspaces.
-- Seasons separates Browse, Join and Create; selected seasons separate Overview, Standings and Honours.
-- Houses separates player-facing overview, roster, leadership, roster turn and authorised management while retaining visible C.H.A.O.S. readiness.
-- Pocket Week uses phase-aware Store, Wallet and Guide sections.
-- Administration uses the shared full-width workspace instead of an internal vertical navigation column.
-- Dashboard, Inbox and Rulebook retain their more appropriate existing patterns.
-
-## Architecture, testing and cleanup
-
-- Added `services/ui/workspaceModel.js` and two regression tests.
-- Added ADR-023.
-- Static audit found no unresolved imports, unreferenced source modules or unreferenced stylesheets.
-- ESLint and 68 domain tests passed in the packaging environment.
-- Authoritative Windows verification passed the Vite production build, all 25 Firestore Rules tests and release-readiness for Hosting target `app`.
-- Firebase Hosting deployed 60 frontend files successfully to the branded production site.
-- Firestore Rules were unchanged and were not redeployed.
-- The full manual integrated review remains deferred until the final pre-v1.0 stage.
-- No Firestore, Security Rule, scoring or season-history changes were introduced.
-
----
+- Added reusable accessible route workspaces with desktop tabs and mobile native selectors.
+- Refined Progress, Activity, Analytics, Profile, Coach, Points Guide, Seasons, Houses, Pocket Week and Administration.
+- Preserved Dashboard, Inbox and Rulebook patterns where tabs would reduce clarity.
+- Passed 68 domain tests, 25 Rules tests, clean lint/build and release-readiness.
+- Deployed 60 Hosting files; Firestore Rules were unchanged.
 
 # v0.15.0 — Navigation, Inbox, Analytics and C.H.A.O.S. Readiness
 

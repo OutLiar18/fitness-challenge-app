@@ -2,33 +2,47 @@
 
 Last updated: 4 August 2026
 
-## Completed foundations
+## Current candidate — v0.18.0
 
-1. Core factual tracking, validation and Points Engine v2.
-2. Goals, streaks, Experience Points, achievements, records and timeline.
-3. Trusted administration, audit history, announcements, moderation and shared libraries.
-4. Rulebook, Points Guide, Legacy Coach, error monitoring and Firebase Hosting.
-5. Season-scoped Houses, C.H.A.O.S., weekly leadership, balanced roster swaps, Pocket Week, dual standings and honours.
-6. Grouped navigation, unified Inbox, Personal Analytics and visible C.H.A.O.S. readiness.
-7. Shared progressive-disclosure workspaces and focused responsive route layouts.
-8. New-player onboarding, Help & Privacy, personal export and audited account-deletion requests.
+External WhatsApp evidence administration and published daily standings:
 
-## Next pre-v1.0 foundations
+- verification IDs;
+- Running and Steps proof gates;
+- Water and Fruit daily evidence bonuses;
+- assigned category reviewers;
+- audited decisions and reversals;
+- live administrator standings;
+- immutable player-facing snapshots;
+- 10:00 Africa/Johannesburg administrator-session fallback.
 
-- Trusted server-side account-deletion worker and confirmed support/legal process.
-- Personal-history pagination and appropriate derived aggregates.
-- Measured performance and bundle optimisation.
-- Trusted server-side contribution recalculation before prize-bearing competition.
-- Real-season operational runbook and recovery procedures.
+## Recommended next phases
 
-## Remaining before v1.0
+### v0.19.0 — Operational resilience and corrections
 
-- Apply user-approved competition mechanics only after rules are explicit.
-- Complete the final integrated desktop/mobile/tablet, keyboard, visual, dark-mode and accessibility review.
-- Resolve defects found by that review and add regression coverage.
-- Confirm operational readiness for a real season.
-- Obtain explicit product-owner approval of v1.0.
+- Audited factual entry correction instead of direct point editing.
+- Review-decision history and operational reporting.
+- Better season command-centre diagnostics.
+- History pagination and measured performance optimisation.
 
-## Guardrail
+### v0.20.0 — Trusted competition operations
 
-New systems must consume factual entries, shared point breakdowns and season snapshots. UI code must never duplicate scoring, imply deletion that has not happened or rewrite historical House allocation.
+- Trusted server/Admin SDK recalculation for prize-bearing seasons.
+- Reliable scheduled leaderboard publication.
+- Trusted account deletion execution.
+- Recovery and reconciliation tools.
+
+### Final pre-v1.0 review
+
+- Full desktop, tablet and mobile workflows.
+- Dark-mode and visual consistency.
+- Keyboard, screen-reader and reduced-motion verification.
+- Complete end-to-end season rehearsal with test accounts.
+- Security, privacy and operational sign-off.
+
+## Deferred until separately defined
+
+Power Plays, Diamonds, full Transfer Market, Buddy Bonus, Five Fires, gender scoring and late-season twists remain inactive. Do not infer or implement their rules.
+
+## v1.0 boundary
+
+No v1.0 declaration or Git tag without explicit user approval after the final review.

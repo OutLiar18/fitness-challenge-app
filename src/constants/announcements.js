@@ -1,5 +1,18 @@
 export const ANNOUNCEMENTS = Object.freeze([
   {
+    id: "v0-18-whatsapp-evidence-published-standings",
+    type: "release",
+    icon: "✅",
+    title: "WhatsApp proof now connects cleanly to season scoring",
+    summary:
+      "Verification IDs, category review queues and controlled daily leaderboard snapshots keep proof practical without storing media in the app.",
+    body:
+      "Running and Steps submissions now hold proof-dependent season points until an authorised reviewer accepts the matching WhatsApp evidence. Water and Fruit can earn one daily three-point proof bonus after their configured target is met. Players send the short verification ID shown beside the entry, while the app stores only structured decisions and audit history. Administrators retain live standings; players see the latest published daily snapshot, with a 10:00 Johannesburg administrator-session fallback when no manual snapshot has been published.",
+    publishedAt: "2026-08-04",
+    featured: true,
+    version: "0.18.0",
+  },
+  {
     id: "v0-17-player-readiness-account-control",
     type: "release",
     icon: "🛟",
@@ -9,7 +22,7 @@ export const ANNOUNCEMENTS = Object.freeze([
     body:
       "New accounts now begin with an accessible four-step introduction to honest logging, progression and season competition. Help & Privacy provides getting-started guidance, a plain-language data map, personal JSON export and a reviewable account deletion request workflow. Platform Administrators can acknowledge those requests with an audit record, while the app remains honest that final Firebase deletion requires a trusted operational process.",
     publishedAt: "2026-08-04",
-    featured: true,
+    featured: false,
     version: "0.17.0",
   },
   {

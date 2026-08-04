@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const EXPECTED_VERSION = "0.17.0";
+const EXPECTED_VERSION = "0.18.0";
 const EXPECTED_HOSTING_TARGET = "app";
 const projectRoot = process.cwd();
 const requiredFiles = [
@@ -43,10 +43,21 @@ const requiredFiles = [
   "docs/02_GAME_DESIGN/ACCOUNT_AND_PRIVACY.md",
   "docs/03_ARCHITECTURE/decisions/ADR-024-guided-onboarding-and-trusted-account-requests.md",
   "src/services/auth/authService.js",
+  "src/constants/evidence.js",
+  "src/services/evidence/evidenceModel.js",
+  "src/services/evidence/evidenceService.js",
+  "src/components/seasons/EvidenceWorkspace.jsx",
+  "src/components/seasons/EvidenceWorkspace.css",
+  "tests/evidence-system.test.mjs",
+  "docs/02_GAME_DESIGN/EVIDENCE_AND_PUBLISHED_STANDINGS.md",
+  "docs/03_ARCHITECTURE/decisions/ADR-025-external-evidence-and-published-standings.md",
+  "docs/01_CURRENT_DEVELOPMENT/SOURCE_AUDIT_V0180.md",
+  "scripts/finalise-release.mjs",
 ];
 const forbiddenUpdaterArtifacts = [
   "payload",
   "APPLY_UPDATE.ps1",
+  "FINALISE_RELEASE.ps1",
   "README_UPDATE.md",
   "src/src",
   "tests/tests",
@@ -107,6 +118,10 @@ if (failures.length === 0) {
     failures.push(
       "The app Hosting target is not mapped to champions-legacy-challenge.",
     );
+  }
+
+  if (packageData.scripts?.["finalise:release"] !== "node scripts/finalise-release.mjs") {
+    failures.push("finalise:release must run the in-repository release finaliser.");
   }
 
   if (!packageData.scripts?.["deploy:hosting"]?.includes("hosting:app")) {

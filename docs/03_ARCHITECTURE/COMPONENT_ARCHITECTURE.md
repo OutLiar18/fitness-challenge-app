@@ -1,40 +1,28 @@
 # Champions Legacy Challenge — Component Architecture
 
-Current release target: v0.17.0  
-Current production: v0.16.0
+Last updated: 4 August 2026  
+Current release target: v0.18.0
 
 ## Protected application shell
 
-`ProtectedApp` composes the authenticated providers, then wraps `AppShell` with `OnboardingGate`. The gate renders the normal application underneath an accessible modal only when a loaded profile explicitly has onboarding version `0`.
+Adaptive navigation, profile entry, Inbox, Help & Privacy and role-aware destinations remain shared through the protected shell.
 
 ## Route-level workspaces
 
-- `Dashboard.jsx` — current status and focused next actions.
-- `ActivityLog.jsx` — logging and Journal workspaces.
-- `Progress.jsx` — overview, achievements, records, timeline and level journey.
-- `Analytics.jsx` — trends, consistency, category balance and insights.
-- `Inbox.jsx` — public announcements and private notifications.
-- `Profile.jsx` — identity, personalisation and protections.
-- `Help.jsx` — getting started, data explanation, privacy boundaries and account tools.
-- `Seasons.jsx`, `Houses.jsx`, `PocketWeek.jsx` — season participation and operations.
-- `Admin.jsx` — progressive-disclosure operational console including account requests.
+Dense routes use `WorkspaceTabs` on desktop and a native section selector on mobile. Progress, Activity, Analytics, Profile, Coach, Points Guide, Seasons, Houses, Pocket Week and Administration expose only the selected workspace.
 
-## Shared disclosure pattern
+## Evidence components
 
-`WorkspaceTabs` provides labelled desktop tabs, a native small-screen selector, keyboard movement and one visible panel. It is used only where content represents peer workspaces; it is not added to simple pages merely for decoration.
-
-## Onboarding
-
-`OnboardingGate` owns step state, focus containment, body scroll lock, progress indication and completion feedback. It writes only onboarding fields through `onboardingService` and cannot change scoring or membership.
-
-## Help and account tools
-
-`Help` keeps explanatory content and account actions in separate workspaces. Export and deletion-request controls use explicit busy, success and error states. The deletion confirmation states that the action creates a request rather than immediate erasure.
+- `EvidenceWorkspace` lives inside the Seasons route and is available only when the selected v2 season and current role allow it.
+- The queue supports verification-code/player search, category/status filtering and status explanations.
+- Decision controls are disabled for unassigned Season Administrators even when they may manage reviewer assignments or publish snapshots.
+- Player-facing evidence status lives in `EntryCard` and the Journal rather than a second duplicate activity list.
+- Copy controls expose only the verification ID, not private profile information.
 
 ## Administration
 
-`AccountDeletionRequests` presents filtered request cards. The component calls an administrative service that writes the acknowledgement and audit event atomically. The UI never exposes a false “deleted” state.
+Account requests, moderation, shared libraries, errors and audit history remain in the Administration route. Season evidence operations remain season-scoped inside Seasons to preserve context.
 
-## Navigation
+## Accessibility
 
-Help & Privacy appears under More/Support rather than primary navigation. Desktop Profile remains available through the player identity footer; mobile Profile remains inside More. This preserves a focused primary path.
+Evidence statuses use text and tone together, IDs are copyable with feedback, forms retain native controls, workspaces preserve keyboard behaviour and no function depends only on colour.
