@@ -1,5 +1,12 @@
 # Champions Legacy Challenge
 
+## v0.17.0 player-readiness extension
+
+The current game experience now includes a versioned new-player guide and Help & Privacy route. These explain the challenge philosophy, factual logging, the separation between competitive points and personal progression, season-scoped Houses and account controls. Onboarding completion is not a reward and never changes score, Experience Points or membership.
+
+Players may export account-owned readable data and create a trusted account-deletion request. These are account-control features, not game mechanics. Shared completed season history remains truthful and is not silently rewritten.
+
+
 # Game Design Overview
 
 ---

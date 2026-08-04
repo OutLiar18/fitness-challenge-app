@@ -1,55 +1,40 @@
 # Champions Legacy Challenge — Component Architecture
 
-Current release target: v0.16.0
+Current release target: v0.17.0  
+Current production: v0.16.0
+
+## Protected application shell
+
+`ProtectedApp` composes the authenticated providers, then wraps `AppShell` with `OnboardingGate`. The gate renders the normal application underneath an accessible modal only when a loaded profile explicitly has onboarding version `0`.
 
 ## Route-level workspaces
 
-- `Dashboard.jsx` — current status and focused next actions; intentionally direct rather than tabbed.
-- `ActivityLog.jsx` — separate Log Activity and Journal workspaces.
-- `Progress.jsx` — Overview plus selectable Achievements, Records, Timeline and Level Journey.
-- `Analytics.jsx` — persistent summary cards plus Trends, Consistency, Category Balance and Insights.
-- `Seasons.jsx` — Browse, Join and Create workspaces; selected-season Overview, Standings and Honours.
-- `Houses.jsx` — Overview, Roster, Leadership, Roster Turn and authorised Management.
-- `PocketWeek.jsx` — phase-aware Store Activity, Your Pocket and How It Works.
-- `Inbox.jsx` — purpose-built public announcements and private notifications tabs.
-- `LegacyCoach.jsx` — Recommendations, Evidence and Preferences.
-- `PointsGuide.jsx` — Activity Scoring, Bonuses and Difficulty, Season Scoring and Formula Reference.
-- `Profile.jsx` — Overview, Personalise and Protections.
-- `Admin.jsx` — seven operational workspaces using the same full-width section pattern.
-- `Rulebook.jsx` — native disclosure sections remain the correct pattern for searchable reference content.
+- `Dashboard.jsx` — current status and focused next actions.
+- `ActivityLog.jsx` — logging and Journal workspaces.
+- `Progress.jsx` — overview, achievements, records, timeline and level journey.
+- `Analytics.jsx` — trends, consistency, category balance and insights.
+- `Inbox.jsx` — public announcements and private notifications.
+- `Profile.jsx` — identity, personalisation and protections.
+- `Help.jsx` — getting started, data explanation, privacy boundaries and account tools.
+- `Seasons.jsx`, `Houses.jsx`, `PocketWeek.jsx` — season participation and operations.
+- `Admin.jsx` — progressive-disclosure operational console including account requests.
 
-## Shared workspace pattern
+## Shared disclosure pattern
 
-`components/common/WorkspaceTabs.jsx` owns route-level progressive disclosure.
+`WorkspaceTabs` provides labelled desktop tabs, a native small-screen selector, keyboard movement and one visible panel. It is used only where content represents peer workspaces; it is not added to simple pages merely for decoration.
 
-- Receives declarative tab metadata and the active identifier.
-- Uses an accessible tablist on desktop.
-- Supports Arrow keys, Home and End.
-- Uses a labelled native select on small screens.
-- Renders active content through `WorkspacePanel` with tab/panel relationships.
-- Optional badges communicate counts or readiness without becoming the only source of meaning.
-- `services/ui/workspaceModel.js` contains pure selection and keyboard-navigation helpers.
+## Onboarding
 
-Pages remain responsible for choosing which summary content is always visible and which sections are available for the current role or season phase. Pages must resolve dynamic section availability before passing the active identifier to panels.
+`OnboardingGate` owns step state, focus containment, body scroll lock, progress indication and completion feedback. It writes only onboarding fields through `onboardingService` and cannot change scoring or membership.
 
-## Shared shell
+## Help and account tools
 
-`AppShell` owns responsive navigation, player identity, compact progression status and the More dialog. It does not calculate progression or permissions itself.
+`Help` keeps explanatory content and account actions in separate workspaces. Export and deletion-request controls use explicit busy, success and error states. The deletion confirmation states that the action creates a request rather than immediate erasure.
 
-Desktop navigation is grouped by Journey, Competition and Communications. Profile is reached through the player identity block rather than a duplicate desktop route. Mobile uses four direct destinations plus More.
+## Administration
 
-## Communications boundary
+`AccountDeletionRequests` presents filtered request cards. The component calls an administrative service that writes the acknowledgement and audit event atomically. The UI never exposes a false “deleted” state.
 
-Inbox is one presentation surface, not one data model. `AnnouncementProvider` and `NotificationProvider` remain separate because public announcements and owner-scoped private messages have different read rules, lifecycle and security requirements.
+## Navigation
 
-## Analytics boundary
-
-`Analytics.jsx` renders results from `services/analytics/analyticsModel.js`. The model consumes factual entries and point breakdowns. Components do not calculate category scoring.
-
-## Reuse rules
-
-- Business logic belongs in services.
-- Repeated interface behaviour belongs in reusable components.
-- Route-level tabs organise presentation; they must not own domain state or scoring.
-- Route redirects protect old bookmarks but old page implementations remain removed.
-- Presentational components receive derived data through props or existing providers.
+Help & Privacy appears under More/Support rather than primary navigation. Desktop Profile remains available through the player identity footer; mobile Profile remains inside More. This preserves a focused primary path.

@@ -7,6 +7,7 @@ export default function AdminOverview({
   auditEvents,
   libraryItems = [],
   errorReports = [],
+  accountDeletionRequests = [],
 }) {
   const pendingSuggestions = suggestions.filter(
     (suggestion) => suggestion.status === "pending",
@@ -22,6 +23,9 @@ export default function AdminOverview({
   ).length;
   const openErrors = errorReports.filter(
     (report) => report.status === "open",
+  ).length;
+  const activeDeletionRequests = accountDeletionRequests.filter(
+    (request) => request.status === "requested" || request.status === "acknowledged",
   ).length;
 
   const metrics = [
@@ -70,6 +74,15 @@ export default function AdminOverview({
       icon: "🚨",
       value: openErrors,
       label: pluralize(openErrors, "open error report", "open error reports"),
+    },
+    {
+      icon: "🧹",
+      value: activeDeletionRequests,
+      label: pluralize(
+        activeDeletionRequests,
+        "active deletion request",
+        "active deletion requests",
+      ),
     },
   ];
 

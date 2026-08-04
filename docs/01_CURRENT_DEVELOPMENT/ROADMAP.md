@@ -1,6 +1,6 @@
 # Champions Legacy Challenge — Roadmap
 
-Last updated: 3 August 2026
+Last updated: 4 August 2026
 
 ## Completed foundations
 
@@ -9,17 +9,17 @@ Last updated: 3 August 2026
 3. Trusted administration, audit history, announcements, moderation and shared libraries.
 4. Rulebook, Points Guide, Legacy Coach, error monitoring and Firebase Hosting.
 5. Season-scoped Houses, C.H.A.O.S., weekly leadership, balanced roster swaps, Pocket Week, dual standings and honours.
-6. v0.15.0 grouped navigation, unified Inbox, Personal Analytics, visible C.H.A.O.S. readiness and production deployment.
-7. v0.16.0 shared progressive-disclosure workspaces, focused defaults, mobile-native section selection and production deployment.
+6. Grouped navigation, unified Inbox, Personal Analytics and visible C.H.A.O.S. readiness.
+7. Shared progressive-disclosure workspaces and focused responsive route layouts.
+8. New-player onboarding, Help & Privacy, personal export and audited account-deletion requests.
 
 ## Next pre-v1.0 foundations
 
-- First-use onboarding.
-- Privacy and support content.
-- Personal-data export and account deletion.
-- Personal-history pagination.
+- Trusted server-side account-deletion worker and confirmed support/legal process.
+- Personal-history pagination and appropriate derived aggregates.
 - Measured performance and bundle optimisation.
 - Trusted server-side contribution recalculation before prize-bearing competition.
+- Real-season operational runbook and recovery procedures.
 
 ## Remaining before v1.0
 
@@ -31,4 +31,4 @@ Last updated: 3 August 2026
 
 ## Guardrail
 
-New systems must consume factual entries, shared point breakdowns and season snapshots. UI code must never duplicate scoring or rewrite historical House allocation.
+New systems must consume factual entries, shared point breakdowns and season snapshots. UI code must never duplicate scoring, imply deletion that has not happened or rewrite historical House allocation.

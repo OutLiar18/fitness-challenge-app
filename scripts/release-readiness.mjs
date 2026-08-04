@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const EXPECTED_VERSION = "0.16.0";
+const EXPECTED_VERSION = "0.17.0";
 const EXPECTED_HOSTING_TARGET = "app";
 const projectRoot = process.cwd();
 const requiredFiles = [
@@ -28,6 +28,21 @@ const requiredFiles = [
   "src/components/common/WorkspaceTabs.jsx",
   "src/components/common/WorkspaceTabs.css",
   "src/services/ui/workspaceModel.js",
+  "src/pages/Help.jsx",
+  "src/pages/Help.css",
+  "src/components/onboarding/OnboardingGate.jsx",
+  "src/components/onboarding/OnboardingGate.css",
+  "src/services/account/accountModel.js",
+  "src/services/account/accountRequestService.js",
+  "src/services/account/dataExportModel.js",
+  "src/services/account/dataExportService.js",
+  "src/services/account/onboardingService.js",
+  "src/services/admin/accountRequestService.js",
+  "src/components/admin/AccountDeletionRequests.jsx",
+  "tests/account-foundations.test.mjs",
+  "docs/02_GAME_DESIGN/ACCOUNT_AND_PRIVACY.md",
+  "docs/03_ARCHITECTURE/decisions/ADR-024-guided-onboarding-and-trusted-account-requests.md",
+  "src/services/auth/authService.js",
 ];
 const forbiddenUpdaterArtifacts = [
   "payload",

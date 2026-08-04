@@ -1,60 +1,60 @@
 # Champions Legacy Challenge — Security Model
 
-Last updated: 3 August 2026  
-Current release target: v0.16.0
+Last updated: 4 August 2026  
+Current release target: v0.17.0  
+Current production: v0.16.0
 
 ## Principles
 
 Firebase Authentication establishes identity. Firestore Rules enforce ownership, trusted authority, document shape, atomic relationships and historical immutability. React visibility is never treated as security.
 
-## Season creation and lifecycle
+## Player profiles and onboarding
 
-- Only a Platform Administrator or trusted League Administrator creates a season Draft.
-- The season, closed invite and audit event are created together.
-- Lifecycle moves forward only and remains audited.
-- An Active House season requires C.H.A.O.S. to have completed.
-- Participant count is transactionally paired with registration membership.
+- New profile creation is owner-only and begins with role `user` and onboarding version `0`.
+- Players may change only constrained presentation and onboarding fields.
+- Completing or replaying onboarding cannot alter role, membership, score or competition history.
+- Legacy profiles without onboarding fields remain valid.
+- Trusted role changes require a Platform Administrator and a matching audit event.
 
-## Houses and C.H.A.O.S.
+## Account deletion requests
 
+- One request document is keyed by the requesting user ID.
+- Players may create, cancel or reopen only their own request and only through the constrained lifecycle.
+- Platform Administrators may list requests and acknowledge a newly requested item.
+- Acknowledgement must set the acting administrator, timestamp and audit identifier in one batch.
+- Rules deny client deletion of the request document and do not grant the client authority to delete Authentication or shared history.
+
+## Personal export access
+
+Players may query records that are already account-owned, including their own entries, memberships, contributions, Pocket records, notifications, suggestions, leadership votes and sanitised error reports. Queries must still satisfy owner predicates; unrelated records remain inaccessible. Administrator-only audit history is not part of the personal export.
+
+## Seasons, Houses and C.H.A.O.S.
+
+- Only authorised operators create season Drafts and advance audited lifecycle stages.
 - Houses are created only in an administrator-managed Draft.
 - C.H.A.O.S. requires Registration, a complete House set and at least two registered players per House.
-- Membership assignment, league state, audit event and private assignment notifications commit atomically.
+- Assignment, state, audit and private notifications commit atomically.
 - Permanent global Team collections are denied.
 
-## Leadership and swaps
+## Leadership, swaps and Pocket Week
 
-- A current House member casts one private vote per election.
-- Ballots are readable only according to player/admin scope.
-- House leadership finalisation must match a finalised election and audit event.
-- A Captain may add one additional current-House Vice-Captain without changing the elected primary role.
-- Weekly swaps require two membership updates, two House locks, one swap record and an audit event in one transaction.
-- Current leaders cannot be moved.
-
-## Pocket Week
-
-- Deposits require owner registration, official Pocket dates and category-shaped data.
-- Pocket documents are private.
-- Deposits remain zero-point reserves.
-- Redemption requires Active membership and creates the source update, receipt, challenge entry, House contribution and notification atomically.
-- The scored entry must match the quantity redeemed from the stored Pocket document; complete-session data must match exactly and Cardio difficulty metadata cannot be substituted.
-- Whole-number categories reject fractional quantities, and the service rebuilds redemptions from live Firestore data rather than caller-supplied activity details.
-- Pocket entries cannot be deleted to restore balance.
-
-## Notifications
-
-Notification creation is event-specific. Administrators may send season/assignment/result notices; a House leader may announce only their own House ballot; roster notices must match the recipient’s post-transaction House; Pocket notices are self-created by the redemption transaction. Players read only their own notifications.
+- Current House members cast one private vote per election.
+- Leadership finalisation must match the election and audit history.
+- Weekly swaps update two memberships, two House locks, one swap record and an audit event atomically; current leaders cannot be moved.
+- Pocket deposits are private zero-point reserves in the official pre-season window.
+- Redemption creates the source update, receipt, challenge entry, House contribution and notification atomically from stored facts.
 
 ## Trust boundary
 
-Rules do not reproduce the complete Points Engine. Friendly competition is supported; prizes or money require trusted server-side recalculation.
+Rules do not reproduce the complete Points Engine. Friendly competition is supported; prizes or money require trusted server-side recalculation. Complete account deletion likewise requires a trusted server/Admin SDK process with an explicit shared-history policy.
 
 ## Rule implementation guardrails
 
-- Optional authentication claims are read with defaults so an ordinary player without an `admin` claim is evaluated as non-administrative rather than producing a Rules evaluation error.
-- Mutually exclusive operations such as election finalisation and Captain appointment dispatch through only the applicable validation branch.
-- Category-shaped challenge-entry validation dispatches by category instead of evaluating every category branch, keeping atomic Pocket redemption below the Rules expression ceiling.
+- Optional authentication claims use safe defaults.
+- Mutually exclusive operations dispatch through only the applicable validation branch.
+- Category-shaped entry validation dispatches by category to stay below the Rules expression ceiling.
+- Direct get of a missing own account request is allowed so the UI can distinguish “no request” from “permission denied.”
 
 ## Test requirement
 
-`npm run test:rules` must pass all 25 current Rules tests before deploying `firestore.rules`.
+`npm run test:rules` must pass all 30 v0.17.0 Rules tests using Java 21 before deploying `firestore.rules`.

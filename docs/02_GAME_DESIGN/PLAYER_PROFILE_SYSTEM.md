@@ -1,53 +1,43 @@
 # Champions Legacy Challenge — Player Profile System
 
-Last updated: 1 August 2026  
-Current release target: v0.15.0
+Last updated: 4 August 2026
 
 ## Purpose
 
-The profile makes identity and personal growth visible without turning private activity into an uncontrolled public comparison system.
+A player profile provides a stable identity, safe personalisation, trusted role context and versioned onboarding state. It must not become an alternate source for points, House history or achievements.
 
-## Profile identity
+## Profile fields
 
-`/profile` displays the player’s display name, email, Legacy Avatar, trusted role, joined date, progression summary and current season/House memberships.
+- Firebase user ID and email.
+- First name, last name, full name and display name.
+- Local Legacy Avatar identifier.
+- Trusted platform role.
+- Legacy `team` compatibility field while permanent Teams remain retired.
+- Joined timestamp.
+- Onboarding version and completion/update timestamps.
+- Profile update timestamp.
 
-Players may edit only display name and an approved local avatar. Email, role, ownership and join date remain protected.
+## Player-controlled fields
 
-## Legacy Avatars
+Players may update only:
 
-Only an approved `avatarId` is stored. The artwork is bundled locally, avoiding uploaded-media cost, arbitrary external URLs and image moderation.
+- display name;
+- avatar identifier;
+- constrained onboarding state through the guide/replay service.
 
-## Season and House identity
+They cannot self-assign administrative roles, season membership, House leadership or competitive history.
 
-House identity comes from `leagueMemberships/{leagueId_userId}` and is scoped to one season. It is never a freely editable profile field. Moving Houses changes only current membership and future contributions; previous House snapshots remain historical.
+## Onboarding behaviour
 
-## Legacy Coach preferences
+- New profiles start at version `0` and receive the guided introduction after sign-in.
+- Completion or Skip stores the current version and timestamps.
+- Legacy profiles without the fields are considered already onboarded.
+- Replay resets only onboarding fields and does not change entries, points, progression or memberships.
 
-Private settings live at `users/{userId}/coach/preferences` and control enabled state, tone and focus. They do not change scoring or expose recommendations publicly.
+## Profile protections
 
-## Trusted role presentation
+The Profile protections workspace links to Help & Privacy for data explanations, personal export and account requests. Account closure is not represented as an immediate profile delete because trusted Authentication and shared-history operations are required.
 
-Profiles may display Player, League Administrator or Platform Administrator. House Captain and Vice-Captain are presented within the season House experience and remain separate from trusted platform roles.
+## Identity in season history
 
-## Data principles
-
-- Store identity and membership facts.
-- Derive progress from factual entries.
-- Keep competitive points separate from experience points.
-- Require explicit privacy design before public activity or league-history profiles.
-- Do not make custom image uploads available until storage, consent, moderation and cost rules exist.
-
----
-
-# v0.15 Personal Analytics
-
-Personal Analytics is a reflection surface attached to the player’s factual history. It may show weekly activity points, active days, category balance, recent momentum and consistency windows.
-
-Analytics must:
-
-- reuse the existing Points Engine and point breakdown;
-- keep Running/Cardio cross-contribution accurate;
-- persist no alternate score;
-- never alter competitive Points or Experience Points;
-- avoid shame, diagnosis or hidden recommendations;
-- explain the date range and measurements used.
+Memberships and contributions snapshot display name, avatar and House identity where needed. Later profile changes do not rewrite historical competition facts.

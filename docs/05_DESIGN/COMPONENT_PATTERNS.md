@@ -1,5 +1,18 @@
 # Champions Legacy Challenge
 
+## Onboarding gate
+
+Use a modal onboarding gate only when a loaded profile explicitly requires the current guide version. Render the protected application beneath it, trap focus within the dialog, prevent background scrolling and write only onboarding fields when completed or replayed.
+
+## Account request card
+
+Show status, player identity, request date, reason and the operational boundary. Administrator acknowledgement must be a single clear action; do not provide a misleading “delete account” client button. Requested, acknowledged and cancelled states require visibly distinct labels in addition to colour.
+
+## Personal export action
+
+Use one primary action with a busy state. Report partial exports honestly by listing unavailable sections in the generated file and displaying an informational status rather than claiming completeness.
+
+
 # Component Patterns
 
 Version: 2.0

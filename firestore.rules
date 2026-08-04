@@ -136,6 +136,9 @@ service cloud.firestore {
           "team",
           "avatarId",
           "joinedAt",
+          "onboardingVersion",
+          "onboardingCompletedAt",
+          "onboardingUpdatedAt",
           "profileUpdatedAt"
         ])
         && request.resource.data.uid == userId
@@ -152,20 +155,51 @@ service cloud.firestore {
         && request.resource.data.team.size() <= 80
         && validAvatarId(request.resource.data.avatarId)
         && request.resource.data.joinedAt is timestamp
-        && request.resource.data.profileUpdatedAt is timestamp;
+        && request.resource.data.onboardingVersion == 0
+        && request.resource.data.onboardingCompletedAt == null
+        && request.resource.data.onboardingUpdatedAt == request.time
+        && request.resource.data.profileUpdatedAt == request.time;
+    }
+
+    function validOnboardingProfileUpdate() {
+      let affected = request.resource.data.diff(resource.data).affectedKeys();
+      return !affected.hasAny([
+          "onboardingVersion",
+          "onboardingCompletedAt",
+          "onboardingUpdatedAt"
+        ])
+        || (
+          request.resource.data.onboardingVersion is int
+          && request.resource.data.onboardingVersion in [0, 1]
+          && request.resource.data.onboardingUpdatedAt == request.time
+          && (
+            (
+              request.resource.data.onboardingVersion == 0
+              && request.resource.data.onboardingCompletedAt == null
+            )
+            || (
+              request.resource.data.onboardingVersion == 1
+              && request.resource.data.onboardingCompletedAt == request.time
+            )
+          )
+        );
     }
 
     function validPlayerProfileUpdate() {
       return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           "displayName",
           "avatarId",
+          "onboardingVersion",
+          "onboardingCompletedAt",
+          "onboardingUpdatedAt",
           "profileUpdatedAt"
         ])
         && request.resource.data.displayName is string
         && request.resource.data.displayName.size() >= 2
         && request.resource.data.displayName.size() <= 40
         && validAvatarId(request.resource.data.avatarId)
-        && request.resource.data.profileUpdatedAt == request.time;
+        && request.resource.data.profileUpdatedAt == request.time
+        && validOnboardingProfileUpdate();
     }
 
     function validAdministratorUserUpdate(userId) {
@@ -1656,6 +1690,117 @@ service cloud.firestore {
         && request.resource.data.readBy == request.auth.uid;
     }
 
+    function validAccountDeletionReason(reasonCode) {
+      return reasonCode in [
+        "prefer-not-to-say",
+        "privacy",
+        "not-using",
+        "duplicate-account",
+        "technical",
+        "other"
+      ];
+    }
+
+    function validAccountDeletionRequestCreate(requestId) {
+      return requestId == request.auth.uid
+        && request.resource.data.keys().hasOnly([
+          "userId",
+          "email",
+          "displayName",
+          "status",
+          "reasonCode",
+          "acknowledgementVersion",
+          "requestedAt",
+          "updatedAt",
+          "cancelledAt",
+          "acknowledgedAt",
+          "acknowledgedBy",
+          "lastAuditId"
+        ])
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.email is string
+        && request.resource.data.email.size() <= 320
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() >= 2
+        && request.resource.data.displayName.size() <= 80
+        && request.resource.data.status == "requested"
+        && validAccountDeletionReason(request.resource.data.reasonCode)
+        && request.resource.data.acknowledgementVersion == 1
+        && request.resource.data.requestedAt == request.time
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.cancelledAt == null
+        && request.resource.data.acknowledgedAt == null
+        && request.resource.data.acknowledgedBy == ""
+        && request.resource.data.lastAuditId == "";
+    }
+
+    function validAccountDeletionRequestCancel() {
+      return resource.data.userId == request.auth.uid
+        && resource.data.status in ["requested", "acknowledged"]
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          "status",
+          "cancelledAt",
+          "updatedAt"
+        ])
+        && request.resource.data.status == "cancelled"
+        && request.resource.data.cancelledAt == request.time
+        && request.resource.data.updatedAt == request.time;
+    }
+
+    function validAccountDeletionRequestReopen() {
+      return resource.data.userId == request.auth.uid
+        && resource.data.status == "cancelled"
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          "email",
+          "displayName",
+          "status",
+          "reasonCode",
+          "acknowledgementVersion",
+          "requestedAt",
+          "updatedAt",
+          "cancelledAt",
+          "acknowledgedAt",
+          "acknowledgedBy",
+          "lastAuditId"
+        ])
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.email is string
+        && request.resource.data.email.size() <= 320
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() >= 2
+        && request.resource.data.displayName.size() <= 80
+        && request.resource.data.status == "requested"
+        && validAccountDeletionReason(request.resource.data.reasonCode)
+        && request.resource.data.acknowledgementVersion == 1
+        && request.resource.data.requestedAt == request.time
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.cancelledAt == null
+        && request.resource.data.acknowledgedAt == null
+        && request.resource.data.acknowledgedBy == ""
+        && request.resource.data.lastAuditId == "";
+    }
+
+    function validAccountDeletionRequestAcknowledge(requestId) {
+      return resource.data.status == "requested"
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          "status",
+          "acknowledgedAt",
+          "acknowledgedBy",
+          "updatedAt",
+          "lastAuditId"
+        ])
+        && request.resource.data.status == "acknowledged"
+        && request.resource.data.acknowledgedAt == request.time
+        && request.resource.data.acknowledgedBy == request.auth.uid
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.lastAuditId is string
+        && validAuditAfter(
+          request.resource.data.lastAuditId,
+          "accountDeletionRequest",
+          requestId
+        );
+    }
+
     match /users/{userId} {
       allow create: if isOwner(userId) && validUserProfile(userId);
       allow read: if isOwner(userId) || isPlatformAdmin();
@@ -1689,6 +1834,25 @@ service cloud.firestore {
       allow create, update: if isOwner(userId)
         && documentId == "preferences"
         && validCoachPreferences();
+      allow delete: if false;
+    }
+
+    match /accountDeletionRequests/{requestId} {
+      allow get: if isPlatformAdmin()
+        || (signedIn() && requestId == request.auth.uid);
+      allow list: if isPlatformAdmin()
+        || (signedIn() && resource.data.userId == request.auth.uid);
+      allow create: if signedIn()
+        && validAccountDeletionRequestCreate(requestId);
+      allow update: if signedIn()
+        && (
+          validAccountDeletionRequestCancel()
+          || validAccountDeletionRequestReopen()
+          || (
+            isPlatformAdmin()
+            && validAccountDeletionRequestAcknowledge(requestId)
+          )
+        );
       allow delete: if false;
     }
 
@@ -1790,7 +1954,8 @@ service cloud.firestore {
         || isLeagueAdministrator(resource.data.leagueId)
         || (signedIn() && resource.data.voterId == request.auth.uid);
       allow list: if isPlatformAdmin()
-        || isLeagueAdministrator(resource.data.leagueId);
+        || isLeagueAdministrator(resource.data.leagueId)
+        || (signedIn() && resource.data.voterId == request.auth.uid);
       allow create: if signedIn() && validLeadershipVoteCreate(voteId);
       allow update, delete: if false;
     }
@@ -1917,7 +2082,8 @@ service cloud.firestore {
 
     match /clientErrorReports/{reportId} {
       allow create: if signedIn() && validClientErrorReportCreate();
-      allow read: if isPlatformAdmin();
+      allow read: if isPlatformAdmin()
+        || (signedIn() && resource.data.userId == request.auth.uid);
       allow update: if isPlatformAdmin()
         && validClientErrorReportResolve(reportId);
       allow delete: if false;

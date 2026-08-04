@@ -1,59 +1,63 @@
 # Champions Legacy Challenge — Current State
 
-Version: 0.16.0  
-Production version: 0.16.0  
-Last updated: 3 August 2026  
+Version: 0.17.0  
+Production version: 0.17.0  
+Last updated: 4 August 2026  
 Status: Verified and deployed; documentation synchronisation and commit pending; pre-v1.0
 
 ## Product state
 
-Champions Legacy Challenge combines factual personal tracking, progression and season-scoped competition. Permanent global Teams remain retired. Houses belong to one season, and contribution snapshots preserve the House represented when points were earned.
+Champions Legacy Challenge combines factual personal tracking, progression and season-scoped competition. v0.17.0 adds player-readiness and account-control foundations without changing scoring, Experience Points, season contribution history or Pocket Week.
 
-v0.16.0 keeps all v0.15.0 data and security contracts intact while reducing visual density across the application.
+## Delivered in v0.17.0
 
-## Delivered in v0.16.0
+### Guided first-use experience
 
-### Shared progressive-disclosure workspace
+- New profiles receive explicit onboarding state.
+- An accessible four-step guide explains honest logging, derived scoring, personal progression and season competition.
+- Legacy profiles without onboarding state are not interrupted.
+- Players can replay the guide from Help & Privacy.
 
-- Added `WorkspaceTabs` and `WorkspacePanel` as the single reusable route-section pattern.
-- Desktop tabs include icons, labels, supporting descriptions and optional counts/status badges.
-- At 760 pixels and below, the same sections become a labelled native select control.
-- Desktop tabs support Arrow keys, Home and End in addition to normal click, Tab and focus behaviour.
-- Reduced-motion preferences remove the panel entrance animation.
-- Pure workspace helpers safely resolve unavailable sections and keyboard movement.
+### Help & Privacy
 
-### Page refinement
+- Added one responsive route for getting started, data explanations, privacy boundaries and account tools.
+- Added a clear More-menu destination without crowding primary navigation.
+- Profile protections link directly to the new route.
 
-- **Progress:** Overview is the calm default; Achievements, Records, Timeline and Level Journey are selectable sections.
-- **Activity Log:** logging and Journal are separate workspaces without changing date/category behaviour.
-- **Analytics:** summary cards remain visible while Trends, Consistency, Category Balance and Insights are separated.
-- **Profile:** identity remains immediate; Overview, Personalise and Protections are separated.
-- **Legacy Coach:** weekly metrics remain visible; Recommendations, Evidence and Preferences are separated.
-- **Points Guide:** Activity Scoring, Bonuses and Difficulty, Season Scoring and Formula Reference are separated.
-- **Seasons:** browsing, joining and creation are separated; selected-season Overview, Standings and Honours are separated.
-- **Houses:** overview, roster, leadership, weekly roster turn and pre-season management are separated. C.H.A.O.S. remains discoverable from Overview.
-- **Pocket Week:** Store Activity, Your Pocket and How It Works are separated according to the current season phase.
-- **Administration:** seven operational areas use the shared full-width workspace rather than a second internal sidebar.
+### Personal data control
 
-### Deliberate non-changes
+- Added on-demand JSON export of account-owned records readable by the signed-in player.
+- Firestore timestamps are converted to portable ISO strings.
+- Unavailable export sections are recorded inside the file instead of being silently omitted.
+- Own private leadership votes and sanitised own client error reports are now readable for export.
 
-- Dashboard remains direct because its purpose is current status and next action.
-- Inbox retains its purpose-built public/private message tabs.
-- Rulebook retains native disclosure sections.
-- Authentication, error and future-feature pages remain simple.
-- No scoring, progression, Firestore collection, Security Rule or season-history logic changed.
+### Account deletion requests
+
+- Added `accountDeletionRequests/{userId}` with requested, acknowledged and cancelled states.
+- Players can submit, cancel and reopen their own request.
+- Platform Administrators receive a filtered request queue and operational metric.
+- Administrator acknowledgement requires an immutable audit event.
+- The UI states clearly that acknowledgement is not final Firebase deletion.
+
+## Security and data changes
+
+- New profile creates require onboarding fields.
+- Existing profiles remain compatible and may add onboarding fields only through constrained updates.
+- Added narrowly scoped Security Rules for account request ownership and audited acknowledgement.
+- No bulk data migration is required.
 
 ## Verified release state
 
 - `npm install` completed successfully.
 - ESLint passed without warnings.
-- 68 of 68 domain tests passed.
-- The Vite production build passed with 264 modules transformed.
-- 25 of 25 Firestore Security Rules tests passed.
+- 71 of 71 domain tests passed.
+- The Vite production build passed with 275 modules transformed.
+- 30 of 30 Firestore Security Rules tests passed.
 - Expected `PERMISSION_DENIED` logs came from negative Rules tests and did not indicate failures.
-- Release-readiness verified v0.16.0 on branded Hosting target `app`.
-- Firebase Hosting deployed 60 frontend files successfully to `https://champions-legacy-challenge.web.app`.
-- Firestore Rules were unchanged and did not require redeployment.
+- Release-readiness verified v0.17.0 on branded Hosting target `app`.
+- Firestore Rules compiled and deployed successfully.
+- Firebase Hosting deployed 62 frontend files successfully to `https://champions-legacy-challenge.web.app`.
+- Static syntax, import and reachability audits passed with no unresolved or unreferenced source files.
 
 ## Existing complete systems
 
@@ -61,14 +65,13 @@ Authentication, profiles, Legacy Avatars, ten activity categories, Points Engine
 
 ## Known limitations
 
-- Full functional, responsive, visual, dark-mode and accessibility review remains deferred until the final pre-v1.0 stage by product-owner decision.
-- Power Plays, Diamonds, the complete Transfer Market, Buddy Bonuses, Five Fires and late-season twists remain inactive.
-- Trusted server-side contribution recalculation is required before prize-bearing competition.
-- Account deletion, personal-data export, privacy/support content and first-use onboarding remain pre-v1.0 work.
-- Personal history still uses a complete user subscription; pagination remains a controlled scale improvement.
-- The production build reports a non-blocking Firebase vendor chunk warning.
-- `npm audit` reports two high-severity React Router advisories for React Server Components mode. This client-rendered Vite app does not use that mode; do not force a breaking downgrade.
+- Final integrated desktop/mobile/tablet, keyboard, visual, dark-mode and accessibility review remains deferred until the final pre-v1.0 stage.
+- Account deletion is a trusted request workflow, not automatic erasure.
+- Formal legal/privacy review and a confirmed public support contact remain required.
+- Personal history still uses a complete user subscription; pagination remains future work.
+- Prize-bearing competition still requires trusted server-side contribution recalculation.
+- Inactive competition mechanics remain undefined and unimplemented.
 
 ## Immediate next step
 
-Synchronise these deployment records and commit v0.16.0. After that, choose one scoped pre-v1.0 phase rather than mixing unrelated systems. No v1.0 tag or declaration is permitted without explicit approval.
+Synchronise these deployment records and commit v0.17.0. After that, continue with one scoped pre-v1.0 phase at a time. No v1.0 tag or declaration is permitted without explicit approval.

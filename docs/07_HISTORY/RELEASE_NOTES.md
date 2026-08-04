@@ -1,5 +1,16 @@
 # Champions Legacy Challenge — Release Notes
 
+## v0.17.0 — Player Readiness and Account Control
+
+Date: 4 August 2026
+
+New players receive a concise four-stage introduction to honest logging, derived scoring, personal progression and season competition. Existing players are not interrupted, and the guide can be replayed from the new Help & Privacy route.
+
+Help & Privacy also provides plain-language data explanations, a personal JSON export and an account-deletion request workflow. Players can cancel or reopen requests; Platform Administrators can acknowledge them only with a matching audit event. The app clearly distinguishes acknowledgement from final Firebase Authentication/data deletion.
+
+This release changes profile shape and Firestore Rules but does not alter scoring, Experience Points, Pocket balances, roster logic or historical House contributions. Windows verification passed clean ESLint, 71 domain tests, the Vite production build, 30 Firestore Rules tests and release-readiness. Firestore Rules compiled and deployed successfully, and Firebase Hosting released 62 frontend files to the branded production site. The full manual integrated review remains deferred until the final pre-v1.0 stage.
+
+
 ## v0.16.0 — Progressive Disclosure and Page Breathing Room
 
 Date: 3 August 2026  

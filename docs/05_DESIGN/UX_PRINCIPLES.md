@@ -1,5 +1,16 @@
 # Champions Legacy Challenge
 
+## v0.17.0 guidance and account-control principles
+
+- Introduce the product in four short stages instead of presenting every feature at once.
+- Never force legacy players through new onboarding merely because a field is absent.
+- Place Help & Privacy under More so primary navigation remains focused.
+- Explain stored facts, derived results and trusted operational boundaries in plain language.
+- Use explicit busy, success and error states for export and account requests.
+- Never label a request acknowledgement as completed deletion.
+- Destructive-looking actions require a visible acknowledgement checkbox and clear consequences.
+
+
 # UX Principles
 
 Version: 2.0

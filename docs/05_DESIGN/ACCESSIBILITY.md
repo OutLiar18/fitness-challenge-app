@@ -1,5 +1,15 @@
 # Champions Legacy Challenge
 
+## v0.17.0 onboarding and account tools
+
+- The onboarding overlay uses `role="dialog"`, `aria-modal`, a labelled title/description, focus containment and body scroll lock.
+- Progress is exposed as an ordered list with `aria-current="step"`.
+- Every step remains operable by keyboard and respects reduced-motion styling.
+- Help & Privacy uses the shared accessible workspace pattern and native form controls.
+- Export/request feedback uses `role="status"` or `role="alert"` according to urgency.
+- The deletion acknowledgement remains a native checkbox with visible explanatory text.
+
+
 # Accessibility
 
 Version: 2.0

@@ -17,3 +17,4 @@ Accepted decisions are permanent historical records. Superseding a decision requ
 - ADR-020 — Versioned Rulebook and Generated Points Guide.
 - ADR-022 — Consolidated Navigation, Inbox and Derived Analytics.
 - ADR-023 — Progressive Disclosure for Dense Route Workspaces.
+- `ADR-024-guided-onboarding-and-trusted-account-requests.md` — versioned onboarding, personal export and audited account-request lifecycle.

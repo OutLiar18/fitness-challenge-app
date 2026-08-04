@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import AccountDeletionRequests from "../components/admin/AccountDeletionRequests";
 import AdminOverview from "../components/admin/AdminOverview";
 import AnnouncementManager from "../components/admin/AnnouncementManager";
 import AuditLog from "../components/admin/AuditLog";
@@ -24,6 +25,7 @@ const ADMIN_TABS = Object.freeze([
   { id: "library", label: "Library releases", icon: "📚" },
   { id: "users", label: "Players and roles", icon: "👥" },
   { id: "errors", label: "Error reports", icon: "🚨" },
+  { id: "account-requests", label: "Account requests", icon: "🧹" },
   { id: "audit", label: "Audit history", icon: "🕵️" },
 ]);
 
@@ -91,6 +93,15 @@ export default function Admin() {
           />
         );
 
+      case "account-requests":
+        return (
+          <AccountDeletionRequests
+            requests={adminData.accountDeletionRequests}
+            actorId={user?.uid}
+            notify={showToast}
+          />
+        );
+
       case "audit":
         return (
           <AuditLog
@@ -110,6 +121,7 @@ export default function Admin() {
             auditEvents={adminData.auditEvents}
             libraryItems={adminData.libraryItems}
             errorReports={adminData.errorReports}
+            accountDeletionRequests={adminData.accountDeletionRequests}
           />
         );
     }
@@ -165,6 +177,7 @@ export default function Admin() {
                   library: "Prepare and publish versioned library releases",
                   users: "Manage trusted access and player roles",
                   errors: "Inspect first-party client error reports",
+                  "account-requests": "Acknowledge player account deletion requests",
                   audit: "Review immutable administrative history",
                 }[tab.id],
             }))}

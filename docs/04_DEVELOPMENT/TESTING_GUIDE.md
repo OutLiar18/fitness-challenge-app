@@ -1,37 +1,39 @@
 # Champions Legacy Challenge — Testing Guide
 
-Last updated: 3 August 2026
+Current release target: v0.17.0
 
-## Domain suite
-
-```powershell
-npm test
-```
-
-v0.16.0 target: **68 passing tests**.
-
-Coverage includes scoring, goals, progression, navigation information architecture, Inbox helpers, Rulebook/Points Guide, season lifecycle, C.H.A.O.S. balance and readiness, House identity, elections, roster identifiers, Pocket redemption, standings, honours, Personal Analytics and the shared workspace selection/keyboard model.
-
-The workspace tests verify safe active-section fallback, wrapped Arrow-key movement and Home/End behaviour without depending on browser rendering.
-
-## Firestore Rules suite
+## Standard release commands
 
 ```powershell
-npm run test:rules
-```
-
-Target: **25 passing tests**. v0.16.0 does not change Rules. Expected `PERMISSION_DENIED` logs are deliberate forbidden-action tests; the final pass/fail count is authoritative.
-
-## Full checks
-
-```powershell
+npm install
 npm run check
+npm run test:rules
 npm run check:release
 npm audit
 ```
 
-Java 21 is required for the Emulator Suite. Do not deploy after any failed gate and do not use `npm audit fix --force`.
+`npm run check` runs ESLint, all domain tests and the Vite production build. The Firestore Emulator requires Java 21.
 
-## Packaging-environment limitation
+## v0.17.0 expected baseline
 
-The Linux handover environment can run ESLint and domain tests using the uploaded Windows dependency tree, but it cannot execute Vite because Rolldown requires a platform-specific Linux native binding. The Windows build remains the release authority.
+- 71 domain tests.
+- 30 Firestore Security Rules tests.
+- Clean ESLint.
+- Successful Vite production build.
+- Release-readiness confirmed for version 0.17.0 and Hosting target `app`.
+
+Expected negative `PERMISSION_DENIED` emulator output is normal when a test asserts that an unauthorised write fails. The final test summary must still report zero failures.
+
+## Required account-foundation coverage
+
+- New profiles begin at onboarding version `0`.
+- Legacy profiles without onboarding fields are not forced into the guide.
+- Completion and replay cannot alter trusted role fields.
+- Deletion request create, cancel and reopen are owner-only.
+- Administrator acknowledgement requires a matching audit event.
+- Personal export serialises timestamps and records unavailable sections.
+- Players can read/query only their own private votes and sanitised error reports.
+
+## Release rules
+
+Do not deploy when lint, domain tests, Rules tests, build or release-readiness fails. Do not run `npm audit fix --force`; review advisories and upgrade only through a deliberate compatible change.

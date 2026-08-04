@@ -8,6 +8,7 @@ import {
   MOBILE_NAV_ITEMS,
   REFERENCE_NAV_ITEMS,
   SECONDARY_NAV_ITEMS,
+  SUPPORT_NAV_ITEMS,
   getNavigationItemByPath,
 } from "../../constants/navigation";
 import useAnnouncements from "../../hooks/useAnnouncements";
@@ -130,6 +131,13 @@ function MoreMenu({
         ))}
       </div>
 
+      <div className="app-more-panel__section">
+        <p>Support and account</p>
+        {SUPPORT_NAV_ITEMS.map((item) => (
+          <NavigationLink key={item.id} item={item} onNavigate={onNavigate} />
+        ))}
+      </div>
+
       {isAdmin && (
         <div className="app-more-panel__section">
           <p>Operations</p>
@@ -167,7 +175,8 @@ export default function AppShell() {
     activeItem &&
       (activeItem.id === "admin" ||
         SECONDARY_NAV_ITEMS.some((item) => item.id === activeItem.id) ||
-        REFERENCE_NAV_ITEMS.some((item) => item.id === activeItem.id)),
+        REFERENCE_NAV_ITEMS.some((item) => item.id === activeItem.id) ||
+        SUPPORT_NAV_ITEMS.some((item) => item.id === activeItem.id)),
   );
   const mobileMoreIsActive = Boolean(
     activeItem && !MOBILE_NAV_ITEMS.some((item) => item.id === activeItem.id),

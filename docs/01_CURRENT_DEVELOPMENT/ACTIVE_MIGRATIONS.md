@@ -1,31 +1,35 @@
 # Champions Legacy Challenge — Active Migrations
 
-Last updated: 3 August 2026
+Last updated: 4 August 2026
 
-## v0.16.0 route-workspace refinement
+## v0.17.0 player-readiness foundation
 
-Status: Implementation, automated verification and production Hosting deployment complete; documentation sync and Git commit pending
+Status: Implementation, automated verification and production deployment complete; documentation sync and Git commit pending
 
-- Introduced a shared progressive-disclosure component for dense route pages.
-- Reorganised existing UI sections without changing stored data or business rules.
-- Keeps frequent summaries visible and moves lower-frequency detail behind labelled selection.
-- Preserves legacy URLs, current providers, scoring services and Firestore contracts.
-- Keeps Inbox and Rulebook on their existing appropriate disclosure patterns.
+- Adds onboarding fields to new user profiles.
+- Adds the `accountDeletionRequests` collection on first player request.
+- Extends Security Rules for onboarding updates, request ownership and audited administrator acknowledgement.
+- Allows players to read/list their own sanitised export records where previously only administrators could list them.
 
-## No data migration required
+## Compatibility
 
-v0.16.0 is a presentation and component-architecture release. It does not alter Firestore collection shapes, deployed Security Rules, activity facts, point formulas, Experience Points, season contribution snapshots, Pocket balances or notification documents.
+No bulk migration is required.
+
+- Legacy profiles without `onboardingVersion` are treated as already onboarded.
+- Replaying the guide adds the fields through an allowed profile update.
+- Existing entries, memberships, contributions, Pocket balances and notifications remain unchanged.
+- `accountDeletionRequests` does not appear until the first request is created.
 
 ## Release completion
 
-- Windows release gates passed: clean lint, 68 domain tests, Vite build, 25 Rules tests and release-readiness.
-- Hosting-only deployment completed on the branded `app` target.
-- Firestore Rules remained unchanged.
-- Remaining release administration: apply this documentation sync and commit v0.16.0.
+- Windows release gates passed: clean lint, 71 domain tests, Vite production build, 30 Rules tests and release-readiness.
+- Firestore Rules compiled and deployed successfully.
+- Firebase Hosting released 62 frontend files to the branded `app` target.
+- Remaining release administration: apply this documentation sync and commit v0.17.0.
 
 ## Deferred controlled migrations
 
-- Trusted server-authoritative contribution scoring before prize-bearing competition.
-- Paginated personal history.
-- Account deletion and personal-data export.
+- Trusted server-side account deletion and anonymisation.
+- Paginated personal history with appropriate aggregates.
+- Server-authoritative contribution scoring before prize-bearing competition.
 - Full Transfer Market and late-season data models after product confirmation.

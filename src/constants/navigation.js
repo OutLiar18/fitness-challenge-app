@@ -112,6 +112,17 @@ export const REFERENCE_NAV_ITEMS = Object.freeze([
   },
 ]);
 
+export const SUPPORT_NAV_ITEMS = Object.freeze([
+  {
+    id: "help",
+    label: "Help & Privacy",
+    icon: "🛟",
+    to: "/help",
+    tone: "cyan",
+    description: "Getting started, data handling, privacy and account controls.",
+  },
+]);
+
 export const ADMIN_NAV_ITEM = Object.freeze({
   id: "admin",
   label: "Administration",
@@ -141,6 +152,7 @@ export function getNavigationItemByPath(pathname) {
     ...PRIMARY_NAV_ITEMS,
     ...SECONDARY_NAV_ITEMS,
     ...REFERENCE_NAV_ITEMS,
+    ...SUPPORT_NAV_ITEMS,
     ADMIN_NAV_ITEM,
   ];
 

@@ -1,5 +1,10 @@
 # Champions Legacy Challenge — Version History
 
+## 0.17.0
+
+Versioned new-player onboarding, Help & Privacy, personal JSON export and audited account-deletion request acknowledgement. Verified and deployed to production.
+
+
 ## 0.16.0
 
 Shared progressive-disclosure workspaces, accessible desktop/mobile section selection and visual-density refinement across dense route pages. Verified and deployed to production.
@@ -44,6 +49,7 @@ Version: 2.0
 
 | Version | Date | Milestone |
 |---------|------|-----------|
+| 0.17.0 | 4 August 2026 | Player readiness and account control; verified production deployment |
 | 0.16.0 | 3 August 2026 | Progressive disclosure and route-page visual refinement; verified production deployment |
 | 0.15.0 | 3 August 2026 | Navigation, Inbox, Analytics, C.H.A.O.S. readiness and production deployment |
 | 0.14.0 | 3 August 2026 | Season Houses, C.H.A.O.S. and Pocket Week |

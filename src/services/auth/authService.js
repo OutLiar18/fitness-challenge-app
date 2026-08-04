@@ -49,6 +49,9 @@ export async function registerUser({ firstName, lastName, email, password }) {
       team: "",
       avatarId: DEFAULT_AVATAR_ID,
       joinedAt: serverTimestamp(),
+      onboardingVersion: 0,
+      onboardingCompletedAt: null,
+      onboardingUpdatedAt: serverTimestamp(),
       profileUpdatedAt: serverTimestamp(),
     });
   } catch (error) {

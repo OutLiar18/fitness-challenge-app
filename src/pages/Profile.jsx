@@ -343,6 +343,10 @@ export default function Profile() {
             <span>Immutable league history</span>
             <span>Local built-in avatars</span>
           </div>
+
+          <Link className="button button--secondary" to="/help">
+            Open Help & Privacy
+          </Link>
         </section>
 
         <section className="profile-easter-egg card">

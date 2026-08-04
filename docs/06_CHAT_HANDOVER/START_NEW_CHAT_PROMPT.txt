@@ -1,16 +1,16 @@
-This chat continues development of Champions Legacy Challenge.
+This chat continues the Champions Legacy Challenge React + Vite + Firebase project.
 
-Read these project files first and treat them as the current source of truth:
+Read these current documents first:
 1. docs/06_CHAT_HANDOVER/CHAT_BRIEFING.md
 2. docs/06_CHAT_HANDOVER/RECENT_SESSION_SUMMARY.md
 3. docs/01_CURRENT_DEVELOPMENT/CURRENT_STATE.md
 4. docs/01_CURRENT_DEVELOPMENT/ACTIVE_MIGRATIONS.md
 5. docs/01_CURRENT_DEVELOPMENT/NEXT_SESSION.md
-6. docs/01_CURRENT_DEVELOPMENT/KNOWN_ISSUES.md
-7. ADR-021, ADR-022 and ADR-023
+6. docs/02_GAME_DESIGN/ACCOUNT_AND_PRIVACY.md
+7. docs/03_ARCHITECTURE/decisions/ADR-024-guided-onboarding-and-trusted-account-requests.md
 
-Current production is v0.16.0. It introduces shared progressive-disclosure workspaces across dense pages and changes presentation only: no scoring, Firestore shape or Security Rule changes.
+Current source and production are v0.17.0. v0.17.0 adds new-player onboarding, Help & Privacy, personal JSON export, player account-deletion requests and audited administrator acknowledgement. It does not change scoring, XP, Pocket Week, roster history or House contribution snapshots.
 
-Windows verification passed clean lint, 68 domain tests, the Vite build, 25 Firestore Rules tests and release-readiness. Firebase Hosting deployed 60 files successfully. The remaining immediate action is documentation synchronisation and a clean v0.16.0 Git commit. Do not use npm audit fix --force. Do not call or tag v1.0 without explicit approval.
+Windows verification passed 71 domain tests, 30 Firestore Rules tests, clean lint/build and release-readiness. Firestore Rules and Hosting deployed successfully, with 62 frontend files released. Apply the deployment documentation sync and commit v0.17.0. Do not use npm audit fix --force. Do not call or tag v1.0 without explicit approval.
 
-Keep instructions practical for a beginner: 2–3 actions at a time, complete replacement files for substantial edits, and update documentation with behaviour changes.
+Account-request acknowledgement is not completed deletion. Final Firebase Authentication/data deletion remains a trusted deferred operation. Keep instructions concise and practical for a beginner.

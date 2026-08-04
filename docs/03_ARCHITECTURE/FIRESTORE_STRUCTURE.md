@@ -1,7 +1,8 @@
 # Champions Legacy Challenge — Firestore Structure
 
-Last updated: 3 August 2026  
-Current release target: v0.16.0
+Last updated: 4 August 2026  
+Current release target: v0.17.0  
+Current production: v0.16.0
 
 ## Player and activity
 
@@ -10,6 +11,7 @@ Current release target: v0.16.0
   - `announcementReads/{announcementId}`
   - `coach/preferences`
 - `challengeEntries/{entryId}`
+- `accountDeletionRequests/{userId}`
 
 ## Season competition
 
@@ -26,23 +28,36 @@ Current release target: v0.16.0
 - `playerNotifications/{notificationId}`
 - `leagueContributions/{leagueId_entryId}`
 
+## Administrative and library collections
+
+- `announcements`
+- `exerciseSuggestions`
+- `librarySuggestions`
+- `publishedLibraryItems`
+- `libraryReleases`
+- `clientErrorReports`
+- `auditEvents`
+
 ## Retired collections
 
 - `teams`
 - `playerTeams`
 - `teamInvites`
 
-Firestore Rules deny all use of these permanent-Team collections from v0.14 onward. Existing data must be inspected before deployment and is not automatically converted.
+Firestore Rules deny all use of these permanent-Team collections from v0.14 onward.
 
-## Administrative collections
+## Account-request rules
 
-Announcements, moderation queues, published library items/releases, client error reports and audit events remain unchanged.
+- The request document ID equals the Firebase user ID.
+- The player may get, create, cancel and reopen only their own request.
+- Platform Administrators may list and acknowledge requests.
+- Acknowledgement requires a matching immutable audit event in the same batch.
+- Client deletion is denied; final trusted removal remains external to this collection.
 
 ## Data rules
 
 - Invitation collections support direct known-code reads, not enumeration.
 - Membership and participant counts change atomically.
-- House leadership must match a finalised election or a valid Captain appointment.
 - C.H.A.O.S., swaps, Pocket redemption and privileged lifecycle actions use atomic writes.
-- Contribution updates are denied.
-- Completed/archived contributions are permanent.
+- Own private votes and sanitised own error reports are readable for personal export.
+- Contribution updates are denied and completed/archived contribution history remains permanent.

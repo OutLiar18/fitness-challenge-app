@@ -1370,3 +1370,217 @@ test("House leaders can announce their ballot but cannot impersonate another Hou
     ),
   );
 });
+
+test("new player profiles begin with explicit onboarding state", async () => {
+  const firestore = playerContext("new-player").firestore();
+
+  await assertSucceeds(
+    setDoc(doc(firestore, "users", "new-player"), {
+      uid: "new-player",
+      firstName: "New",
+      lastName: "Champion",
+      fullName: "New Champion",
+      displayName: "New Champion",
+      email: "new-player@example.com",
+      role: "user",
+      team: "",
+      avatarId: "legacy-trophy",
+      joinedAt: serverTimestamp(),
+      onboardingVersion: 0,
+      onboardingCompletedAt: null,
+      onboardingUpdatedAt: serverTimestamp(),
+      profileUpdatedAt: serverTimestamp(),
+    }),
+  );
+});
+
+test("players can complete and replay onboarding without changing trusted fields", async () => {
+  const firestore = playerContext().firestore();
+
+  await assertSucceeds(
+    updateDoc(doc(firestore, "users", "player-one"), {
+      onboardingVersion: 1,
+      onboardingCompletedAt: serverTimestamp(),
+      onboardingUpdatedAt: serverTimestamp(),
+      profileUpdatedAt: serverTimestamp(),
+    }),
+  );
+
+  await assertSucceeds(
+    updateDoc(doc(firestore, "users", "player-one"), {
+      onboardingVersion: 0,
+      onboardingCompletedAt: null,
+      onboardingUpdatedAt: serverTimestamp(),
+      profileUpdatedAt: serverTimestamp(),
+    }),
+  );
+
+  await assertFails(
+    updateDoc(doc(firestore, "users", "player-one"), {
+      onboardingVersion: 1,
+      onboardingCompletedAt: serverTimestamp(),
+      onboardingUpdatedAt: serverTimestamp(),
+      profileUpdatedAt: serverTimestamp(),
+      role: "admin",
+    }),
+  );
+});
+
+test("players can request, cancel and reopen their own account deletion workflow", async () => {
+  const firestore = playerContext().firestore();
+  const requestReference = doc(
+    firestore,
+    "accountDeletionRequests",
+    "player-one",
+  );
+
+  await assertSucceeds(
+    setDoc(requestReference, {
+      userId: "player-one",
+      email: "player-one@example.com",
+      displayName: "Test Player",
+      status: "requested",
+      reasonCode: "privacy",
+      acknowledgementVersion: 1,
+      requestedAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      cancelledAt: null,
+      acknowledgedAt: null,
+      acknowledgedBy: "",
+      lastAuditId: "",
+    }),
+  );
+
+  await assertSucceeds(getDoc(requestReference));
+  await assertFails(
+    getDoc(
+      doc(
+        playerContext("player-two").firestore(),
+        "accountDeletionRequests",
+        "player-one",
+      ),
+    ),
+  );
+
+  await assertSucceeds(
+    updateDoc(requestReference, {
+      status: "cancelled",
+      cancelledAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    }),
+  );
+
+  await assertSucceeds(
+    updateDoc(requestReference, {
+      email: "player-one@example.com",
+      displayName: "Test Player",
+      status: "requested",
+      reasonCode: "not-using",
+      acknowledgementVersion: 1,
+      requestedAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      cancelledAt: null,
+      acknowledgedAt: null,
+      acknowledgedBy: "",
+      lastAuditId: "",
+    }),
+  );
+});
+
+test("Platform Administrators acknowledge deletion requests with an audit record", async () => {
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(
+      doc(context.firestore(), "accountDeletionRequests", "player-one"),
+      {
+        userId: "player-one",
+        email: "player-one@example.com",
+        displayName: "Test Player",
+        status: "requested",
+        reasonCode: "prefer-not-to-say",
+        acknowledgementVersion: 1,
+        requestedAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+        cancelledAt: null,
+        acknowledgedAt: null,
+        acknowledgedBy: "",
+        lastAuditId: "",
+      },
+    );
+  });
+
+  await assertFails(
+    updateDoc(
+      doc(
+        playerContext("player-two").firestore(),
+        "accountDeletionRequests",
+        "player-one",
+      ),
+      { status: "acknowledged" },
+    ),
+  );
+
+  const firestore = adminContext().firestore();
+  const batch = writeBatch(firestore);
+  const auditId = "account-request-audit";
+  batch.set(doc(firestore, "auditEvents", auditId), {
+    actorId: "admin-one",
+    action: "account.deletion.acknowledged",
+    entityType: "accountDeletionRequest",
+    entityId: "player-one",
+    summary: "Acknowledged an account deletion request",
+    details: { userId: "player-one" },
+    createdAt: serverTimestamp(),
+  });
+  batch.update(doc(firestore, "accountDeletionRequests", "player-one"), {
+    status: "acknowledged",
+    acknowledgedAt: serverTimestamp(),
+    acknowledgedBy: "admin-one",
+    updatedAt: serverTimestamp(),
+    lastAuditId: auditId,
+  });
+
+  await assertSucceeds(batch.commit());
+});
+
+test("players can export their own private votes and sanitised error reports", async () => {
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leadershipVotes", "vote-one"), {
+      leagueId: "league-one",
+      voterId: "player-one",
+      candidateId: "player-two",
+    });
+    await setDoc(doc(firestore, "leadershipVotes", "vote-two"), {
+      leagueId: "league-one",
+      voterId: "player-two",
+      candidateId: "player-one",
+    });
+    await setDoc(doc(firestore, "clientErrorReports", "player-one-report"), {
+      userId: "player-one",
+      status: "open",
+    });
+  });
+
+  const firestore = playerContext().firestore();
+  await assertSucceeds(
+    getDocs(
+      query(
+        collection(firestore, "leadershipVotes"),
+        where("voterId", "==", "player-one"),
+      ),
+    ),
+  );
+  await assertFails(getDocs(collection(firestore, "leadershipVotes")));
+  await assertSucceeds(
+    getDoc(doc(firestore, "clientErrorReports", "player-one-report")),
+  );
+  await assertFails(
+    getDoc(
+      doc(
+        playerContext("player-two").firestore(),
+        "clientErrorReports",
+        "player-one-report",
+      ),
+    ),
+  );
+});

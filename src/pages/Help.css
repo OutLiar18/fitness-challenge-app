@@ -1,0 +1,221 @@
+.help-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.help-grid--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.help-card,
+.help-callout,
+.account-tool {
+  padding: 24px;
+}
+
+.help-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 16px;
+}
+
+.help-card__icon,
+.help-card__symbol {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border-radius: 14px;
+  color: var(--primary);
+  background: var(--primary-soft);
+  font-weight: 900;
+}
+
+.help-card__symbol {
+  font-size: 1.25rem;
+}
+
+.help-card h2,
+.help-callout h2,
+.account-tool h2 {
+  margin-bottom: 9px;
+  font-size: 1.16rem;
+}
+
+.help-card p,
+.help-callout p,
+.account-tool p,
+.help-boundary-list p {
+  color: var(--text-muted);
+}
+
+.help-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.help-data-stack,
+.help-privacy-stack,
+.account-tools {
+  display: grid;
+  gap: 18px;
+}
+
+.help-callout {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 18px;
+  border-color: color-mix(in srgb, var(--primary) 34%, var(--border));
+  background:
+    linear-gradient(120deg, var(--primary-soft), transparent 60%),
+    var(--surface);
+}
+
+.help-callout > span {
+  display: grid;
+  width: 68px;
+  height: 68px;
+  place-items: center;
+  border-radius: 20px;
+  background: var(--surface);
+  font-size: 2rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.help-boundary-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.help-boundary-list article {
+  padding: 21px;
+}
+
+.help-boundary-list strong {
+  display: block;
+  margin-bottom: 7px;
+}
+
+.account-tool {
+  display: grid;
+  gap: 15px;
+}
+
+.account-tool--danger {
+  border-color: color-mix(in srgb, var(--danger) 34%, var(--border));
+}
+
+.account-tool__heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.account-tool__heading > span {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  place-items: center;
+  border-radius: 15px;
+  background: var(--surface-strong);
+  font-size: 1.35rem;
+}
+
+.account-request-status {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-soft);
+}
+
+.account-request-status h3 {
+  margin: 10px 0 7px;
+  font-size: 1rem;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 0.67rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.status-pill--requested {
+  color: var(--warning);
+  background: var(--warning-soft);
+}
+
+.status-pill--acknowledged {
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.status-pill--cancelled {
+  color: var(--text-muted);
+  background: var(--surface-strong);
+}
+
+.account-confirmation {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  padding: 14px;
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-soft);
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.account-confirmation input {
+  width: 19px;
+  min-height: 19px;
+  margin-top: 2px;
+  padding: 0;
+}
+
+@media (max-width: 860px) {
+  .help-grid--two,
+  .help-boundary-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .help-card,
+  .help-callout {
+    grid-template-columns: 1fr;
+  }
+
+  .help-callout > span {
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
+    font-size: 1.55rem;
+  }
+
+  .account-request-status {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .account-request-status .button,
+  .account-tool > .button {
+    width: 100%;
+  }
+}

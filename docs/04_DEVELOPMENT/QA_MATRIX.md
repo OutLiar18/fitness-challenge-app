@@ -1,35 +1,35 @@
 # Champions Legacy Challenge — QA Matrix
 
-Last updated: 3 August 2026
+Current release target: v0.17.0
 
-## Core regression
+## Automated release matrix
 
-Authentication, factual entries, Journal dates/deletion, scoring, goals, progression, Profile, Administration, Rulebook, Points Guide and Legacy Coach.
+| Area | Required result |
+|---|---|
+| Domain services | 71 tests pass |
+| Firestore Rules | 30 tests pass using Java 21 |
+| Lint | No errors or warnings |
+| Production build | Vite build passes |
+| Release structure | v0.17.0, Hosting target `app`, required source present |
+| Dependency review | Audit reviewed; no forced breaking fix |
 
-## Navigation and Inbox
+## Final manual pre-v1.0 matrix
 
-- Desktop groups Journey, Competition and Communications.
-- Desktop Profile exists only in player identity; mobile Profile remains in More.
-- Mobile tabs: Home, Log, Progress, Inbox, More.
-- Combined unread badge equals public announcement plus private notification unread counts.
-- Inbox tab/query state, filters, read/unread actions and related links.
-- Redirects from `/houses`, `/seasons`, `/inbox` and `/inbox?tab=private` preserve useful query state.
+The product owner has deferred the complete manual matrix until the final pre-v1.0 stage. That review must cover:
 
-## Analytics
+- desktop, tablet and mobile layouts;
+- light and dark appearance;
+- keyboard-only operation, focus order/traps and reduced motion;
+- new-account onboarding, skip, completion and replay;
+- Help & Privacy wording and workspace behaviour;
+- personal export success and unavailable-section messaging;
+- deletion request, cancellation, reopen and administrator acknowledgement;
+- existing activity, progression, Inbox, analytics and season workflows;
+- screen-reader labels, alerts, dialogs and native selectors.
 
-- Empty history, one entry and long history.
-- 4/8/12/26-week ranges.
-- Local calendar boundaries and Monday grouping.
-- Running points appear under Running and Cardio through shared breakdowns.
-- No writes, no score changes and supportive language.
+## Safety assertions
 
-## Season workflow
-
-- Draft House count and identity.
-- C.H.A.O.S. checklist in Draft and Registration.
-- Registration code, capacity, minimum two players per House and one-time activation.
-- Ballot, Captain appointment, roster swap, historical contribution, Pocket reserve/redemption, standings and honours.
-
-## Responsive checks
-
-320, 375, 430, 768, 1024, 1280 and 1920 pixel widths; light/dark mode; keyboard-only; reduced motion; slow network; direct refresh on nested routes.
+- Onboarding never changes score or membership.
+- Export never writes a second copy to Firestore.
+- Acknowledgement is never labelled completed deletion.
+- Shared House history is not rewritten by profile or account-request changes.

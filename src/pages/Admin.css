@@ -849,3 +849,112 @@
 .user-access-row__scope small {
   line-height: 1.35;
 }
+
+.admin-account-requests {
+  display: grid;
+  gap: 18px;
+}
+
+.account-request-list {
+  display: grid;
+  gap: 14px;
+}
+
+.account-request-card {
+  display: grid;
+  gap: 16px;
+  padding: 22px;
+}
+
+.account-request-card--requested {
+  border-color: color-mix(in srgb, var(--warning) 34%, var(--border));
+}
+
+.account-request-card--acknowledged {
+  border-color: color-mix(in srgb, var(--primary) 34%, var(--border));
+}
+
+.account-request-card > header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.account-request-card header h3 {
+  margin: 10px 0 4px;
+}
+
+.account-request-card header p,
+.account-request-card header time {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.account-request-card dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.account-request-card dl > div {
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-soft);
+}
+
+.account-request-card dt {
+  margin-bottom: 4px;
+  color: var(--text-subtle);
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.account-request-card dd {
+  overflow-wrap: anywhere;
+  color: var(--text);
+  font-size: 0.84rem;
+}
+
+.account-request-card__note {
+  padding: 14px;
+  border: 1px solid var(--warning-border);
+  border-radius: var(--radius-md);
+  background: var(--warning-soft);
+}
+
+.account-request-card__note p,
+.account-request-card__acknowledged,
+.account-request-card__cancelled {
+  margin: 5px 0 0;
+  color: var(--text-muted);
+}
+
+.status-pill--requested {
+  color: var(--warning);
+  background: var(--warning-soft);
+}
+
+.status-pill--acknowledged {
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.status-pill--cancelled {
+  color: var(--text-muted);
+  background: var(--surface-strong);
+}
+
+@media (max-width: 680px) {
+  .account-request-card > header {
+    flex-direction: column;
+  }
+
+  .account-request-card dl {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,5 +1,18 @@
 export const ANNOUNCEMENTS = Object.freeze([
   {
+    id: "v0-17-player-readiness-account-control",
+    type: "release",
+    icon: "🛟",
+    title: "A clearer start and stronger account control",
+    summary:
+      "New players receive a concise guided introduction, while Help & Privacy explains data boundaries, personal exports and account deletion requests.",
+    body:
+      "New accounts now begin with an accessible four-step introduction to honest logging, progression and season competition. Help & Privacy provides getting-started guidance, a plain-language data map, personal JSON export and a reviewable account deletion request workflow. Platform Administrators can acknowledge those requests with an audit record, while the app remains honest that final Firebase deletion requires a trusted operational process.",
+    publishedAt: "2026-08-04",
+    featured: true,
+    version: "0.17.0",
+  },
+  {
     id: "v0-16-progressive-disclosure",
     type: "release",
     icon: "🪟",
@@ -9,7 +22,7 @@ export const ANNOUNCEMENTS = Object.freeze([
     body:
       "Progress, logging, analytics, profile, Legacy Coach, Points Guide, Seasons, Houses, Pocket Week and Administration now share a clearer section workspace. Desktop tabs include descriptions and keyboard navigation, while smaller screens use a straightforward section selector. Nothing about your points, activity history or season contributions has changed—this release simply makes the same tools calmer to explore.",
     publishedAt: "2026-08-03",
-    featured: true,
+    featured: false,
     version: "0.16.0",
   },
   {

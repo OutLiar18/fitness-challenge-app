@@ -1,5 +1,35 @@
 # v0.16.0 — Progressive Disclosure and Page Breathing Room
 
+## v0.17.0 — Player Readiness and Account Control
+
+Date: 4 August 2026
+
+### Added
+
+- Versioned four-step onboarding for newly created profiles with legacy-profile compatibility and replay.
+- Help & Privacy route covering getting started, stored-versus-derived data, privacy boundaries and account tools.
+- On-demand JSON export of account-owned readable data with portable timestamps and explicit unavailable-section reporting.
+- Player account-deletion request, cancellation and reopen lifecycle.
+- Platform Administrator request queue and audited acknowledgement.
+- Security Rule access for players to export their own private leadership votes and sanitised error reports.
+- ADR-024 and the Account, Onboarding and Privacy product source of truth.
+
+### Verification state
+
+- 71 domain tests passed in the packaging environment.
+- Source syntax and relative import resolution passed.
+- Windows verification passed clean ESLint, 71 domain tests, the Vite production build, 30 Firestore Rules tests and release-readiness.
+- Firestore Rules compiled and deployed successfully.
+- Firebase Hosting released 62 frontend files to the branded production site.
+- Full manual integrated review remains deferred until the final pre-v1.0 stage.
+
+### Boundaries
+
+- Production remains v0.16.0.
+- Acknowledgement is not final account deletion.
+- No scoring, XP, Pocket, roster or historical House contribution logic changed.
+
+
 Date: 3 August 2026  
 Status: Verified and deployed to production; pre-v1.0
 

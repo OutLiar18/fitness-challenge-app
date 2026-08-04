@@ -24,6 +24,7 @@ const LegacyCoach = lazy(() => import("./pages/LegacyCoach"));
 const Rulebook = lazy(() => import("./pages/Rulebook"));
 const PointsGuide = lazy(() => import("./pages/PointsGuide"));
 const PocketWeek = lazy(() => import("./pages/PocketWeek"));
+const Help = lazy(() => import("./pages/Help"));
 const FutureFeature = lazy(() => import("./pages/FutureFeature"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -56,6 +57,7 @@ export default function App() {
           <Route path="/rules" element={<Rulebook />} />
           <Route path="/points-guide" element={<PointsGuide />} />
           <Route path="/pocket" element={<PocketWeek />} />
+          <Route path="/help" element={<Help />} />
           <Route path="/future/:featureId" element={<FutureFeature />} />
 
           <Route path="/teams" element={<LegacyRouteRedirect to="/houses" />} />

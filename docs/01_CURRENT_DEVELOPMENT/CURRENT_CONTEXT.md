@@ -1,13 +1,13 @@
 # Current Context
 
-Last updated: 3 August 2026
+Last updated: 4 August 2026
 
-**v0.16.0 — Progressive Disclosure and Page Breathing Room** is verified and deployed to production.
+**v0.17.0 — Player Readiness and Account Control** is verified and deployed to production.
 
-Dense route-level pages now use a shared accessible workspace pattern. Desktop presents labelled tabs with descriptions and optional counts; small screens use a native section selector. Only the active section is rendered, while page identity, key summaries and primary actions remain visible.
+The release adds onboarding only for newly created profiles, while legacy profiles remain uninterrupted. Help & Privacy becomes the single route for getting started, understanding stored versus derived data, reviewing privacy boundaries, downloading personal data and requesting account deletion.
 
-Progress defaults to Overview and places Achievements, Records, Timeline and Level Journey behind deliberate selection. Similar refinement is applied to Activity Log, Analytics, Profile, Legacy Coach, Points Guide, Seasons, Houses, Pocket Week and Administration. Inbox already used an appropriate tabbed pattern, Rulebook already used disclosure controls, and Dashboard remains intentionally direct.
+The export is generated on demand as JSON from account-owned Firestore records. Account deletion is intentionally represented as a reviewable request rather than a misleading browser-only erase. Players can request, cancel or reopen; Platform Administrators can acknowledge with an audit event. Final Authentication/data deletion remains a trusted operational process.
 
-The work is presentation-only. It does not alter scoring, Firestore shapes, Security Rules, season history or Pocket Week. C.H.A.O.S. remains visible through an overview status callout and a dedicated management workspace.
+Security Rules now validate onboarding fields, account-request ownership and audited acknowledgement. Players may list their own private leadership votes and read their own sanitised error reports for export. No scoring, progression, Pocket, House allocation or season standings logic changed.
 
-Authoritative Windows verification passed clean lint, 68 domain tests, the production build, 25 Rules tests and release-readiness. Firebase Hosting released 60 files to the branded production site. Firestore Rules were unchanged. The full manual integrated review remains deferred until the final pre-v1.0 stage.
+Authoritative Windows verification passed clean lint, 71 domain tests, the Vite production build, 30 Firestore Rules tests and release-readiness. Firestore Rules compiled and deployed successfully, and Firebase Hosting released 62 files to the branded production site. The full manual integrated review remains deferred until the final pre-v1.0 stage.

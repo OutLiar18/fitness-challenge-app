@@ -6,6 +6,7 @@ import {
 } from "react";
 
 import { subscribeToAllAnnouncements } from "../services/admin/announcementAdminService";
+import { subscribeToAccountDeletionRequests } from "../services/admin/accountRequestService";
 import { getAuditEventPage } from "../services/admin/auditService";
 import { getErrorReportPage } from "../services/admin/errorReportService";
 import {
@@ -33,6 +34,7 @@ const INITIAL_STATE = {
   librarySuggestions: [],
   libraryItems: [],
   libraryReleases: [],
+  accountDeletionRequests: [],
   usersPage: createEmptyPage(),
   auditPage: createEmptyPage(),
   errorPage: createEmptyPage(),
@@ -126,6 +128,16 @@ export default function useAdminData(enabled) {
           setState((current) => ({ ...current, libraryReleases }));
         },
         (error) => reportError("Library releases", error),
+      ),
+      subscribeToAccountDeletionRequests(
+        (accountDeletionRequests) => {
+          if (!active) {
+            return;
+          }
+
+          setState((current) => ({ ...current, accountDeletionRequests }));
+        },
+        (error) => reportError("Account deletion requests", error),
       ),
     ];
 

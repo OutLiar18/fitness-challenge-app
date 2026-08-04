@@ -1,4 +1,5 @@
 import AppShell from "../components/layout/AppShell";
+import OnboardingGate from "../components/onboarding/OnboardingGate";
 import { AnnouncementProvider } from "../context/AnnouncementProvider";
 import { CoachProvider } from "../context/CoachProvider";
 import { GlobalLibraryProvider } from "../context/GlobalLibraryProvider";
@@ -16,7 +17,9 @@ export default function ProtectedApp() {
             <LeagueProvider>
               <NotificationProvider>
                 <CoachProvider>
-                  <AppShell />
+                  <OnboardingGate>
+                    <AppShell />
+                  </OnboardingGate>
                 </CoachProvider>
               </NotificationProvider>
             </LeagueProvider>

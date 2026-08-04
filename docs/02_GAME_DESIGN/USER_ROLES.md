@@ -1,75 +1,51 @@
 # Champions Legacy Challenge — User Roles
 
-Last updated: 3 August 2026
-
-## Purpose
-
-Roles control trusted responsibilities. They never change activity points, goal bonuses, experience points, achievements or season contribution formulas.
-
-## Player
-
-Identifier: `user`
-
-A Player may manage their profile identity, factual entries, personal library, announcement reads, Legacy Coach preferences and season registrations. During a House season, a Player may store and redeem their own Pocket Week activities, vote once in their current House’s weekly leadership election and view the standings and private notifications available to them.
-
-A Player may not change their own trusted role, rewrite another player’s activity, review suggestions, manage another account, alter completed season contributions or assign themselves to a House.
-
-## League Administrator
-
-Identifier: `leagueAdmin`
-
-A League Administrator may:
-
-- create a season Draft with a frozen supported ruleset;
-- become an explicitly assigned administrator of that season;
-- create themed Houses for the assigned season;
-- open Registration and activate C.H.A.O.S.;
-- open and resolve weekly House leadership elections;
-- complete permitted weekly House roster swaps;
-- move the assigned season through Registration, Active, Completed and Archived stages;
-- create the matching season-scoped audit events.
-
-A League Administrator may not:
-
-- administer a season to which they are not assigned;
-- manage platform announcements, users, global libraries or client error reports;
-- grant trusted roles;
-- modify frozen scoring rules after creation;
-- rewrite historical House contributions;
-- receive competitive advantages.
-
-## Platform Administrator
-
-Identifier: `admin`
-
-A Platform Administrator may perform platform administration, including announcements, moderation, global library releases, trusted user-role management, audit review, error resolution and all season operations.
-
-Platform Administrators may not change their own role through the client, delete immutable audit history, permanently assign a player to a global team or receive competitive advantages.
-
-## House Captain
-
-House Captain is a weekly season role, not a trusted platform role.
-
-The Captain is normally determined by the highest valid vote total after a complete 24-hour House ballot. The Captain may open the next eligible weekly ballot, appoint one additional Vice-Captain and participate in the House’s permitted weekly roster swap.
-
-Captain authority ends or changes when the next weekly election is finalised, the player changes House or the season ends.
-
-## Primary Vice-Captain
-
-The primary Vice-Captain is normally the player with the second-highest valid vote total after the weekly ballot.
-
-The primary Vice-Captain may open the next eligible ballot and participate in the House’s permitted weekly roster swap. They remain the primary Vice-Captain for that week even when the Captain appoints one additional Vice-Captain.
-
-## Additional Vice-Captain
-
-The current Captain may appoint one additional current House member as a second Vice-Captain for the week.
-
-This appointment does not replace the elected primary Vice-Captain and is reset when the next weekly leadership election is finalised.
-
-## Authorization source
-
-Platform authority comes from a trusted Firebase custom claim or protected Firestore profile role. League operations additionally require explicit assignment in the season document. House leadership comes from the current season’s protected House document. Player placement comes from the current season membership document and never from a permanent profile field.
+Last updated: 4 August 2026
 
 ## Principle
 
-Authority must be narrow, visible, auditable, temporary where appropriate and unrelated to score.
+Roles grant the minimum authority needed for a task. Client navigation may hide unavailable controls, but Firestore Rules are the actual authority.
+
+## Player
+
+A Player can:
+
+- manage their constrained profile and onboarding state;
+- record and delete eligible recent personal activity;
+- view their progress, analytics, Inbox and account-owned records;
+- join open seasons through a known invitation code;
+- participate in House ballots when eligible;
+- use Pocket Week and other confirmed season actions;
+- download personal data;
+- submit, cancel or reopen their own account-deletion request.
+
+A Player cannot grant themselves a trusted role, assign Houses, acknowledge account requests or rewrite shared competition history.
+
+## House Captain and Vice-Captain
+
+These are season-scoped leadership responsibilities, not platform roles. Confirmed leaders may perform the House actions allowed by current season rules, including the constrained weekly roster mechanism and their own ballot communication. Authority ends with the season or leadership change.
+
+## League Administrator
+
+A League Administrator manages only assigned seasons and may perform authorised lifecycle, House, election and roster operations. This role does not grant platform-wide user-role management or account-request access.
+
+## Platform Administrator
+
+A Platform Administrator may:
+
+- manage trusted user roles;
+- publish announcements and shared library releases;
+- moderate suggestions and resolve client error reports;
+- create/manage seasons and perform authorised competition operations;
+- read immutable audit history;
+- list and acknowledge account-deletion requests with an audit event.
+
+Acknowledging a request confirms receipt only. It does not constitute complete deletion.
+
+## Trusted deletion operator
+
+This is a deferred operational capability rather than a current client role. A future trusted server/Admin SDK process must handle Authentication deletion, eligible private-record removal, shared-history treatment and completion evidence.
+
+## Audit rule
+
+Privileged changes that alter trusted authority, published content, competition lifecycle or account-request state must produce a matching immutable audit event where specified by Firestore Rules.
