@@ -1,10 +1,40 @@
 # Champions Legacy Challenge — Changelog
 
+## 0.20.0 — Audited Factual Corrections and History Resilience
+
+Status: Verified and deployed; release commit pending
+
+### Added
+
+- Platform Administrator Entry Integrity workspace.
+- Immutable replacement entries, correction heads and correction records.
+- Contribution reversal/replacement reconciliation with preserved House attribution.
+- Required-proof claim supersession and replacement verification IDs.
+- Active personal-history resolution and correction visibility in the Journal.
+- Seven-recorded-day Journal pagination and date index.
+- Targeted integrity diagnostics and portable JSON report.
+- Personal export schema version 2 with correction history.
+- 11 domain tests and 5 Firestore Rules tests for correction behaviour.
+
+### Changed
+
+- Corrected source and evidence-linked entries cannot be deleted.
+- Goals, records, analytics and progression use only active entry versions.
+- Evidence operations recognise `superseded` claims.
+- Production deployment now includes changed Firestore Rules.
+
+### Preserved boundaries
+
+- No arbitrary point editing.
+- No change to Running, Steps, Water, Fruit, House or leaderboard rules.
+- Pocket redemption correction remains deferred.
+- Release remains pre-v1.0.
+
 ## v0.19.0 — Season Command Centre
 
 <!-- RELEASE_STATUS: DEPLOYED -->
 Date: 4 August 2026  
-Status: Verified and deployed; release commit pending
+Status: Verified, deployed and committed
 
 ### Added
 
@@ -32,7 +62,7 @@ Status: Verified and deployed; release commit pending
 
 <!-- RELEASE_STATUS: DEPLOYED -->
 Date: 4 August 2026  
-Status: Verified and deployed; release commit pending
+Status: Verified, deployed and committed
 
 ### Added
 

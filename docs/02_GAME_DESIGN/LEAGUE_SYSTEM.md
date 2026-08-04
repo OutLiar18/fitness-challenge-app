@@ -64,3 +64,7 @@ Client-side calculation supports the current private challenge iteration. Prize-
 ## v0.19 Season Command Centre
 
 Configured v2 seasons expose a role-aware operations summary to authorised administrators and evidence reviewers. It derives next actions from lifecycle, House, C.H.A.O.S., leadership, proof and publication records. Detailed actions remain in the existing Houses, Evidence Operations and Honours workspaces. The command centre stores no alternate score and creates no season-state document.
+
+## Factual correction reconciliation
+
+League totals never edit an earlier contribution. The correction workflow adds negative reversal records for the source entry's net activity points and positive replacement records for the new immediate points. Both preserve the original House snapshot, so roster movement cannot reassign historical credit.

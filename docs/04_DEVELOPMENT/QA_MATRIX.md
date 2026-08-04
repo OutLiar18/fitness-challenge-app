@@ -1,6 +1,6 @@
 # Champions Legacy Challenge — QA Matrix
 
-Current release target: v0.18.0
+Current release target: v0.20.0
 
 ## Automated release matrix
 
@@ -40,3 +40,16 @@ Current release target: v0.18.0
 ## Safety assertions
 
 No media upload, no direct point editing, no silent evidence mutation, no false scheduler claim, no undefined mechanic activation and no v1.0 tag.
+
+## v0.20.0 correction matrix
+
+- Search by entry ID and verification ID.
+- Correct ordinary, qualifying Running, non-qualifying Running, Steps, Water and Fruit entries.
+- Confirm category/date/House attribution cannot change.
+- Confirm old entry and proof remain visible but inactive/superseded.
+- Confirm personal goals, records, analytics and progression use only the replacement.
+- Confirm reversal/replacement points net correctly for administrators.
+- Confirm ordinary players cannot write correction documents.
+- Confirm Journal recorded-day pagination and keyboard focus.
+- Confirm integrity JSON uses ISO timestamps and excludes WhatsApp media.
+- Confirm Pocket entries are diagnosed but correction submission is unavailable.

@@ -42,3 +42,10 @@ Deferred trusted operations include Firebase Authentication deletion, reliable s
 ## Audit rule
 
 Privileged changes affecting authority, evidence, published standings, competition lifecycle or account-request state must produce matching immutable audit records where required.
+
+## Entry correction authority
+
+- **Player:** may read correction history for their own entries; cannot create, update or delete corrections.
+- **Category reviewer:** evidence authority remains limited to assigned categories and does not grant entry-correction authority.
+- **Season Administrator:** does not gain factual correction authority merely by managing a season.
+- **Platform Administrator:** may create audited factual replacements and targeted integrity reports across the platform.

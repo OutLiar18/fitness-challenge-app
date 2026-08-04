@@ -5,6 +5,7 @@ import AdminOverview from "../components/admin/AdminOverview";
 import AnnouncementManager from "../components/admin/AnnouncementManager";
 import AuditLog from "../components/admin/AuditLog";
 import ErrorReports from "../components/admin/ErrorReports";
+import EntryIntegrityWorkspace from "../components/admin/EntryIntegrityWorkspace";
 import LibraryPublisher from "../components/admin/LibraryPublisher";
 import SuggestionModeration from "../components/admin/SuggestionModeration";
 import UserManagement from "../components/admin/UserManagement";
@@ -26,6 +27,7 @@ const ADMIN_TABS = Object.freeze([
   { id: "users", label: "Players and roles", icon: "👥" },
   { id: "errors", label: "Error reports", icon: "🚨" },
   { id: "account-requests", label: "Account requests", icon: "🧹" },
+  { id: "entry-integrity", label: "Entry integrity", icon: "🧾" },
   { id: "audit", label: "Audit history", icon: "🕵️" },
 ]);
 
@@ -102,6 +104,14 @@ export default function Admin() {
           />
         );
 
+      case "entry-integrity":
+        return (
+          <EntryIntegrityWorkspace
+            actorId={user?.uid}
+            notify={showToast}
+          />
+        );
+
       case "audit":
         return (
           <AuditLog
@@ -132,7 +142,7 @@ export default function Admin() {
       <PageHeader
         eyebrow="Secure operations"
         title="Platform administration"
-        description="Publish announcements, review community suggestions and manage trusted access with an immutable audit trail."
+        description="Publish announcements, review community suggestions, reconcile factual entry history and manage trusted access with an immutable audit trail."
         icon="⚙️"
       />
 
@@ -178,6 +188,7 @@ export default function Admin() {
                   users: "Manage trusted access and player roles",
                   errors: "Inspect first-party client error reports",
                   "account-requests": "Acknowledge player account deletion requests",
+                  "entry-integrity": "Inspect and replace incorrect factual entries with immutable correction chains",
                   audit: "Review immutable administrative history",
                 }[tab.id],
             }))}

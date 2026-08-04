@@ -549,6 +549,7 @@ export default function EvidenceWorkspace({
                 <option value="verified">Accepted</option>
                 <option value="rejected">Rejected</option>
                 <option value="reversed">Reversed</option>
+                <option value="superseded">Corrected</option>
                 <option value="all">All claims</option>
               </select>
             </label>

@@ -2,32 +2,27 @@
 
 Last updated: 4 August 2026
 
-## Current candidate — v0.19.0
+## Current candidate — v0.20.0
 
-Season Command Centre and operational reporting:
+Audited factual correction and history resilience:
 
-- role-aware season health summary;
-- ordered next-action guidance;
-- evidence workload by category;
-- immutable decision history;
-- leaderboard snapshot history;
-- downloadable role-scoped operations report.
+- replacement-entry workflow instead of direct edits;
+- immutable correction heads and correction records;
+- contribution reversal/replacement reconciliation;
+- proof-claim supersession for evidence-linked mistakes;
+- active personal-history resolution;
+- seven-recorded-day Journal pagination;
+- targeted integrity diagnostics and report export.
 
 ## Recommended next phases
-
-### v0.20.0 — Audited factual correction and history resilience
-
-- Replacement-entry workflow instead of direct point editing.
-- Explicit correction chains for evidence-linked factual mistakes.
-- Journal/history pagination and measured performance optimisation.
-- Reconciliation diagnostics for missing or duplicated derived records.
 
 ### v0.21.0 — Trusted competition operations
 
 - Trusted server/Admin SDK recalculation for prize-bearing seasons.
 - Reliable scheduled leaderboard publication.
 - Trusted account deletion execution.
-- Recovery and reconciliation tools.
+- Recovery and whole-season reconciliation tools.
+- Cursor-based underlying history loading after real usage measurements justify it.
 
 ### Final pre-v1.0 review
 

@@ -200,3 +200,7 @@ The app must never imply that WhatsApp media is stored, encrypted, retained or d
 ## v0.19 operational visibility
 
 Authorised v2 season operators receive a derived command centre that summarises evidence workload, reviewer coverage, immutable decision history and leaderboard snapshot history. The command centre does not change evidence status or points by itself. Category reviewers see only their assigned evidence categories, and downloaded operations reports contain no WhatsApp media.
+
+## Corrected evidence-linked entries
+
+A required Running or Steps proof claim can be marked `superseded` only through an audited Platform Administrator correction. A qualifying replacement receives its own verification ID; a non-qualifying replacement run receives no Running claim. Earlier verified points are neutralised through immutable correction-reversal contributions. Water and Fruit keep one daily claim and append the replacement/correction link.

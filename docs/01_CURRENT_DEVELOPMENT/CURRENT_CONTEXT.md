@@ -1,26 +1,22 @@
 # Champions Legacy Challenge — Current Context
 
 <!-- RELEASE_STATUS: DEPLOYED -->
-**v0.19.0 — Season Command Centre** is verified and deployed to production.
+**v0.20.0 — Audited Factual Corrections and History Resilience** is verified and deployed to production.
 
 ## Why this phase exists
 
-v0.18.0 introduced evidence queues, reviewer assignments, live administrator standings and immutable player snapshots. Those systems work, but season operators still need a single place to see what requires attention next.
+Entries can be factually wrong even when the original logging action was honest. Direct editing would destroy evidence history, alter past House attribution and make published competition records difficult to audit. Direct deletion is already blocked for evidence-linked records. The product therefore needs a replacement-and-reconciliation workflow rather than a conventional edit button.
 
 ## Candidate behaviour
 
-- One command centre appears inside eligible v2 seasons.
-- Next actions are derived from current season status, House readiness, ballots, proof workload and publication state.
-- Decision history and snapshot history remain immutable and visible in operational order.
-- Downloaded reports contain only records already visible to the current role.
-- No WhatsApp media is stored or exported.
-- No scoring or Security Rule change is included.
+- Platform Administrator searches for an entry or verification ID.
+- The current active entry and all preserved versions are resolved.
+- The administrator changes only factual activity fields and supplies a reason.
+- One transaction creates the replacement entry, correction record, correction head, audit event, contribution reversals/replacements and proof-claim transitions.
+- Players' personal calculations use the replacement while the full chain remains visible.
+- Journal history is paginated by recorded date.
+- Diagnostics report broken links but never repair data automatically.
 
-## Verification target
+## Trust boundary
 
-- 85 domain tests.
-- 39 unchanged Firestore Security Rules tests.
-- Clean ESLint and Vite build.
-- Release-readiness for v0.19.0 on Hosting target `app`.
-
-Do not deploy or commit until Windows verification passes. Do not run `npm audit fix --force`. Do not call or tag v1.0.
+This is an audited Platform Administrator operation implemented with Firestore transactions and Security Rules. It does not provide arbitrary point fields or editable competition totals. A future trusted backend remains recommended for prize-bearing seasons and large-scale automated reconciliation.

@@ -1,7 +1,7 @@
 # Champions Legacy Challenge — Service Architecture
 
 Last updated: 4 August 2026  
-Current release target: v0.18.0
+Current release target: v0.20.0
 
 ## Pure domain services
 
@@ -32,3 +32,11 @@ Pages render model/service output. They must not reimplement points, deadline, r
 - `seasonOperationsModel.js` contains pure workload, leadership, publication, action-plan and report-shape derivation.
 - `seasonOperationsService.js` contains Firestore subscriptions for immutable evidence decisions and leaderboard snapshot history plus local report download.
 - `SeasonCommandCentre.jsx` orchestrates subscriptions and presentation but does not calculate points or mutate season state.
+
+## Entry correction services
+
+- `entryHistoryModel` resolves raw immutable entries into active and superseded versions, builds a date index and paginates recorded-day summaries.
+- `entryCorrectionModel` validates replacement invariants, calculates net contribution groups and produces targeted diagnostics.
+- `entryCorrectionService` loads one integrity bundle and executes the Platform Administrator transaction that creates replacement, correction, audit, contribution and claim records.
+
+Personal providers expose both `rawEntries` and resolved active `entries`. All existing progression/analytics consumers continue to read `entries`, so they automatically ignore superseded versions.

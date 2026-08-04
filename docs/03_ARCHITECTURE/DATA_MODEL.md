@@ -1,8 +1,8 @@
 # Champions Legacy Challenge — Data Model
 
 Last updated: 4 August 2026  
-Current release target: v0.18.0  
-Current production: v0.17.0
+Current release target: v0.20.0  
+Current production: v0.19.0
 
 ## Principle
 
@@ -45,3 +45,25 @@ Water and Fruit use one daily claim per category. Running and Steps use one clai
 ## v0.19 derived season operations model
 
 The Season Command Centre is a read model only. It combines existing league, House, membership, election, evidence, reviewer, contribution and snapshot documents in memory. No `seasonCommandCentres` collection exists. Downloaded reports serialize the currently visible records locally and are not persisted.
+
+## v0.20.0 correction records
+
+### `entryCorrectionHeads/{rootEntryId}`
+
+Forward-only pointer to the current immutable entry version. Fields include root/current entry IDs, user, category, sequence, status, last correction/audit IDs and creation/update actors/timestamps.
+
+### `entryCorrections/{correctionId}`
+
+Immutable correction transaction record. Stores source/replacement IDs, root, sequence, mandatory reason, personal point delta, affected league IDs, linked contribution/claim IDs, actor, audit ID and timestamp.
+
+### `challengeEntries` correction metadata
+
+New entries include `sourceCorrectionId`, `replacesEntryId`, `correctionRootEntryId` and `correctionSequence`. Existing ordinary/Pocket entries use empty defaults. The factual data remains category-shaped and points remain derived.
+
+### Contribution correction metadata
+
+Correction contributions use `correctionId`, `correctionRole` (`reversal` or `replacement`) and `replacesContributionIds`. Existing activity/evidence contributions use empty defaults.
+
+### Evidence correction metadata
+
+Claims may use `supersededByClaimId`, `correctionId`, `replacesClaimId` and `correctionIds`. The new terminal display state `superseded` preserves the earlier claim instead of deleting it.

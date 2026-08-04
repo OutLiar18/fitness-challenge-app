@@ -245,3 +245,6 @@ Accurate documentation is a feature, not an afterthought.
 ---
 
 # End of Document
+## v0.20.0 additions
+
+When correction behaviour changes, update `AUDITED_ENTRY_CORRECTIONS.md`, ADR-027, data/firestore/security/service architecture, Rules tests, personal export documentation, current-state/handover files and release history in the same updater.

@@ -43,3 +43,7 @@ Do not create or download a separate documentation-sync package.
 ## Rollback
 
 Firebase Hosting versions can be rolled back independently, but v0.18.0 frontend and Rules should remain aligned. Preserve the pre-update timestamped backup created by `APPLY_UPDATE.ps1` until the release is verified and committed.
+
+## v0.20.0 deployment note
+
+This release changes Firestore Security Rules. After `npm run check:release` passes, deploy Rules and Hosting together with `npm run deploy:production`. Do not use the Hosting-only command for this release.

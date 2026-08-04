@@ -1,7 +1,7 @@
 # Champions Legacy Challenge — Component Architecture
 
 Last updated: 4 August 2026  
-Current release target: v0.18.0
+Current release target: v0.20.0
 
 ## Protected application shell
 
@@ -26,3 +26,7 @@ Account requests, moderation, shared libraries, errors and audit history remain 
 ## Accessibility
 
 Evidence statuses use text and tone together, IDs are copyable with feedback, forms retain native controls, workspaces preserve keyboard behaviour and no function depends only on colour.
+
+## Entry Integrity workspace
+
+`EntryIntegrityWorkspace` is a Platform Administration tab. It reuses category-specific `EntryForm` components for factual fields, displays targeted diagnostics and immutable chain history, requires a correction reason and exports a portable integrity report. `EntryCard` exposes correction history to the player without offering edit controls.

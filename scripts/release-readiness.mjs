@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const EXPECTED_VERSION = "0.19.0";
+const EXPECTED_VERSION = "0.20.0";
 const EXPECTED_HOSTING_TARGET = "app";
 const projectRoot = process.cwd();
 const requiredFiles = [
@@ -11,15 +11,15 @@ const requiredFiles = [
   "firestore.rules",
   ".env.example",
   "docs/01_CURRENT_DEVELOPMENT/RELEASE_CANDIDATE_CHECKLIST.md",
-  "src/pages/Seasons.jsx",
-  "src/components/seasons/SeasonCommandCentre.jsx",
-  "src/components/seasons/SeasonCommandCentre.css",
-  "src/services/seasons/seasonOperationsModel.js",
-  "src/services/seasons/seasonOperationsService.js",
-  "tests/season-operations.test.mjs",
-  "docs/02_GAME_DESIGN/SEASON_COMMAND_CENTRE.md",
-  "docs/03_ARCHITECTURE/decisions/ADR-026-season-command-centre-and-role-scoped-reports.md",
-  "docs/01_CURRENT_DEVELOPMENT/SOURCE_AUDIT_V0190.md",
+  "docs/01_CURRENT_DEVELOPMENT/SOURCE_AUDIT_V0200.md",
+  "src/services/entries/entryCorrectionModel.js",
+  "src/services/entries/entryCorrectionService.js",
+  "src/services/entries/entryHistoryModel.js",
+  "src/components/admin/EntryIntegrityWorkspace.jsx",
+  "src/components/admin/EntryIntegrityWorkspace.css",
+  "tests/entry-corrections.test.mjs",
+  "docs/02_GAME_DESIGN/AUDITED_ENTRY_CORRECTIONS.md",
+  "docs/03_ARCHITECTURE/decisions/ADR-027-audited-entry-corrections-and-active-history.md",
   "scripts/finalise-release.mjs",
 ];
 const forbiddenUpdaterArtifacts = [
@@ -76,11 +76,11 @@ if (failures.length === 0) {
   if (packageData.scripts?.["finalise:release"] !== "node scripts/finalise-release.mjs") {
     failures.push("finalise:release must run the in-repository release finaliser.");
   }
-  if (!packageData.scripts?.["deploy:hosting"]?.includes("hosting:app")) {
-    failures.push("deploy:hosting must deploy only the branded app target.");
+  if (!packageData.scripts?.["deploy:production"]?.includes("firestore:rules,hosting:app")) {
+    failures.push("deploy:production must deploy Firestore Rules and the branded app target together.");
   }
-  if (!packageData.scripts?.test?.includes("tests/season-operations.test.mjs")) {
-    failures.push("The v0.19.0 season operations test suite is not part of npm test.");
+  if (!packageData.scripts?.test?.includes("tests/entry-corrections.test.mjs")) {
+    failures.push("The v0.20.0 entry-correction test suite is not part of npm test.");
   }
 
   const announcements = fs.readFileSync(
@@ -89,6 +89,24 @@ if (failures.length === 0) {
   );
   if (!announcements.includes(`version: "${EXPECTED_VERSION}"`)) {
     failures.push(`Bundled announcements do not include v${EXPECTED_VERSION}.`);
+  }
+
+  const rules = fs.readFileSync(path.join(projectRoot, "firestore.rules"), "utf8");
+  for (const marker of [
+    "match /entryCorrectionHeads/{rootEntryId}",
+    "match /entryCorrections/{correctionId}",
+    "validCorrectionLeagueContributionCreate",
+    "validEvidenceClaimSupersede",
+  ]) {
+    if (!rules.includes(marker)) failures.push(`Firestore Rules are missing: ${marker}`);
+  }
+
+  const exportModel = fs.readFileSync(
+    path.join(projectRoot, "src/services/account/dataExportModel.js"),
+    "utf8",
+  );
+  if (!exportModel.includes("PERSONAL_DATA_EXPORT_SCHEMA_VERSION = 2")) {
+    failures.push("Personal export schema must be version 2 for correction history.");
   }
 }
 

@@ -230,12 +230,15 @@ function SimpleEntryDetails({ category, data = {} }) {
   });
 }
 
-function PointBreakdown({ result }) {
+function PointBreakdown({ result, historical = false }) {
   return (
-    <section className="entry-points" aria-label="Points earned">
+    <section
+      className={`entry-points${historical ? " entry-points--historical" : ""}`}
+      aria-label={historical ? "Historical points no longer counted" : "Points earned"}
+    >
       <div className="entry-points__heading">
-        <span>Points earned</span>
-        <strong>+{formatPoints(result.total)}</strong>
+        <span>{historical ? "Historical points · no longer counted" : "Points earned"}</span>
+        <strong>{historical ? formatPoints(result.total) : `+${formatPoints(result.total)}`}</strong>
       </div>
 
       <div className="entry-points__rows">
@@ -248,7 +251,7 @@ function PointBreakdown({ result }) {
                 {item.detail && <small>{item.detail}</small>}
               </span>
             </span>
-            <strong>+{formatPoints(item.points)}</strong>
+            <strong>{historical ? formatPoints(item.points) : `+${formatPoints(item.points)}`}</strong>
           </div>
         ))}
       </div>
@@ -279,6 +282,52 @@ function getEvidencePointMessage(claim) {
     return `${formatPoints(claim.pendingPoints)} Running points are waiting for proof. Cardio points still count immediately.`;
   }
   return `${formatPoints(claim.pendingPoints)} Steps points are waiting for proof.`;
+}
+
+
+function formatCorrectionTimestamp(value) {
+  const date = typeof value?.toDate === "function"
+    ? value.toDate()
+    : new Date(value ?? 0);
+  return date instanceof Date && !Number.isNaN(date.getTime())
+    ? new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(date)
+    : "Time unavailable";
+}
+
+function CorrectionHistory({ correction }) {
+  if (!correction?.isCorrected || correction.chain?.length === 0) return null;
+
+  return (
+    <details className="entry-correction">
+      <summary>
+        <span aria-hidden="true">🧾</span>
+        Audited correction history · {correction.chain.length}{" "}
+        {correction.chain.length === 1 ? "replacement" : "replacements"}
+      </summary>
+      <div className="entry-correction__content">
+        <p>
+          Earlier versions remain preserved for audit and personal export. Only the
+          correction chain’s current factual record contributes to personal statistics.
+          Competition changes use immutable reversal and replacement records.
+        </p>
+        <ol>
+          {correction.chain.map((item) => (
+            <li key={item.id}>
+              <div>
+                <strong>Correction {item.sequence}</strong>
+                <span>{formatCorrectionTimestamp(item.createdAt)}</span>
+              </div>
+              <p>{item.reason}</p>
+              <small>
+                Point change: {Number(item.pointDelta ?? 0) >= 0 ? "+" : ""}
+                {formatPoints(item.pointDelta ?? 0)} · source {item.sourceEntryId} · replacement {item.replacementEntryId}
+              </small>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </details>
+  );
 }
 
 function EvidenceStatus({ claims = [] }) {
@@ -356,15 +405,24 @@ export default function EntryCard({ entry, onDelete, readOnly = false, evidenceC
   const pointBreakdown = getEntryPointBreakdown(entry);
   const isWorkout = WORKOUT_CATEGORIES.has(entry.category);
   const isEvidenceLocked = (entry.evidenceClaimIds ?? []).length > 0;
+  const isCorrectionLocked =
+    entry.source === "correction" || entry.correction?.isCorrected === true;
+  const isSuperseded = entry.correction?.isSuperseded === true;
 
   return (
-    <article className="entry-card">
+    <article className={`entry-card${isSuperseded ? " entry-card--superseded" : ""}`}>
       <header className="entry-card__header">
         <span className="entry-card__emoji" aria-hidden="true">
           {category.emoji}
         </span>
         <div>
-          <p className="entry-card__type">Challenge entry</p>
+          <p className="entry-card__type">
+            {isSuperseded
+              ? "Superseded entry · preserved history"
+              : isCorrectionLocked
+                ? "Current corrected entry"
+                : "Challenge entry"}
+          </p>
           <h3>{category.name}</h3>
         </div>
       </header>
@@ -395,18 +453,21 @@ export default function EntryCard({ entry, onDelete, readOnly = false, evidenceC
         )}
       </div>
 
-      <PointBreakdown result={pointBreakdown} />
+      <PointBreakdown result={pointBreakdown} historical={isSuperseded} />
       <EvidenceStatus claims={evidenceClaims} />
+      <CorrectionHistory correction={entry.correction} />
 
-      {!readOnly && isEvidenceLocked && (
+      {(isSuperseded || (!readOnly && (isEvidenceLocked || isCorrectionLocked))) && (
         <div className="inline-alert">
-          This entry is locked because it has a season verification ID. An
-          administrator must use the audited correction process if its scoring
-          record needs to change.
+          {isSuperseded
+            ? "This preserved version is no longer included in your current points or statistics. It remains visible so the factual correction history can be audited."
+            : isCorrectionLocked
+              ? "This is the current version of an audited correction chain. It cannot be deleted or edited silently; a Platform Administrator must create another replacement if the factual record is still wrong."
+              : "This entry is locked because it has a season verification ID. A Platform Administrator must use the audited correction process if its factual record needs to change."}
         </div>
       )}
 
-      {!readOnly && !isEvidenceLocked && (
+      {!readOnly && !isEvidenceLocked && !isCorrectionLocked && (
         <div className="entry-card__actions">
           <button
             className="button button--danger"

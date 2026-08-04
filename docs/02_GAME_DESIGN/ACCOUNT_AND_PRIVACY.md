@@ -58,3 +58,7 @@ A server-side or trusted Firebase Admin SDK process is still required to:
 - record operational completion outside the client.
 
 The client must never pretend that a request has completed this process.
+
+## Correction history in personal exports
+
+Personal export schema version 2 includes owner-readable correction heads and immutable correction records. Exported timestamps are portable ISO strings. Shared administrator audit events and WhatsApp media remain outside the personal export.

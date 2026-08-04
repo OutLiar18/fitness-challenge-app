@@ -1,5 +1,18 @@
 # Champions Legacy Challenge — Release Notes
 
+## v0.20.0 — Audited Factual Corrections and History Resilience
+
+Date: 4 August 2026  
+Status: Verified production deployment
+
+Incorrect activity facts can now be replaced without erasing history. Platform Administrators use the Entry Integrity workspace to search for an entry, review proof and competition links, change only factual fields and provide a mandatory reason. The app creates a new immutable entry, preserves every earlier version and reconciles season activity points with negative reversal and positive replacement records.
+
+Running and Steps proof claims remain traceable: earlier claims become superseded, qualifying replacements receive a new verification ID, and corrected non-qualifying runs retain only immediate Cardio. Historical House attribution and challenge date remain fixed.
+
+Players' goals, records, progression and analytics use only the current resolved version. Journal recorded-day history now renders seven days at a time. Personal export schema version 2 includes correction records.
+
+Windows verification passed clean ESLint, 96 domain tests, the Vite production build, 44 Firestore Rules tests and release-readiness. Firestore Rules and branded Hosting deployed successfully. This release is pre-v1.0.
+
 ## v0.19.0 — Season Command Centre
 
 <!-- RELEASE_STATUS: DEPLOYED -->

@@ -3,25 +3,28 @@
 <!-- RELEASE_STATUS: DEPLOYED -->
 Last updated: 4 August 2026
 
-## v0.19.0 candidate status
+## Verification environment
 
-Windows verification passed clean ESLint, 85 domain tests, the Vite production build, 39 Rules tests and release-readiness. Branded Firebase Hosting deployed successfully.
+- The packaging environment could not install the full npm dependency tree because its internal registry did not contain one ESLint transitive package.
+- 96 domain tests and static JavaScript/import audits pass.
+- Authoritative Windows verification passed the Vite build, ESLint, all 44 Firestore Rules tests and release-readiness.
 
-## Season operations
+## Current correction-workflow boundaries
 
-- The command centre is a derived operational view; it does not replace detailed controls in Houses or Evidence Operations.
-- Snapshot publication remains administrator-session based. There is still no guaranteed background scheduler.
-- Operations reports can contain private season administration data and should be handled as trusted operational exports.
-- Category-reviewer reports are scoped to assigned evidence categories, but still contain shared season records the reviewer may already read as a member.
+- Correction transactions run from the trusted Platform Administrator client. A trusted backend remains preferable for prize-bearing competition.
+- Pocket redemption records are diagnosed but not replaceable in v0.20.0 because they are immutable activation receipts tied to reserve balances.
+- Daily Water/Fruit evidence bonuses remain attached to their one-per-day claim. A factual entry correction links the replacement entry but does not automatically revoke an already reviewed photo bonus.
+- Reconciliation diagnostics are targeted to one correction chain and do not run as a background whole-database scan. Blocking errors stop another correction until the missing records are reconciled.
+- The active-history resolver can fall back to the newest readable replacement when documents arrive out of order; the warning still requires administrator review.
 
-## Existing technical limitations
+## Existing operational boundaries
 
-- The Firebase vendor bundle remains above Vite's 500-kilobyte warning threshold.
-- `npm audit` reports the known React Router React Server Components advisory. The app does not use RSC mode, and forced remediation is breaking. Do not run `npm audit fix --force`.
-- Personal history still subscribes to the complete signed-in user's entries; pagination remains future work.
-- Account deletion still requires trusted operational execution outside the client.
-- Prize-bearing competition should eventually use trusted server-side recalculation and scheduled publication.
+- The 10:00 leaderboard fallback requires an authorised administrator session; there is no guaranteed no-cost background scheduler.
+- Account deletion remains an audited request workflow rather than automatic Firebase Authentication/data deletion.
+- Full personal history still uses a live owner query; v0.20.0 limits rendered Journal date rows but does not yet cursor-page the underlying Firestore subscription.
+- The Firebase vendor bundle remains larger than 500 kB after minification; this is a non-blocking build warning.
+- `npm audit` reports the known React Router RSC-mode advisory. This app does not use RSC mode. Do not run `npm audit fix --force` because it applies a breaking downgrade.
 
-## Review boundary
+## Deferred review
 
-The complete functional, responsive, dark-mode, keyboard and accessibility review remains deferred until the final pre-v1.0 stage by user choice.
+Full desktop/mobile, dark-mode, visual, keyboard, screen-reader and reduced-motion review remains deferred to the final pre-v1.0 stage.

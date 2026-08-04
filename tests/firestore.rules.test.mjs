@@ -1700,6 +1700,10 @@ function evidenceClaimData({
     decisionId: "",
     releasedContributionId: "",
     reversedByDecisionId: "",
+    supersededByClaimId: "",
+    correctionId: "",
+    replacesClaimId: "",
+    correctionIds: [],
     entryId: daily ? "" : entryId,
     entryIds: [entryId],
     deadlineAt,
@@ -2203,4 +2207,373 @@ test("v2 players read published snapshots but not another player's live contribu
     "leagueLeaderboardSnapshots",
     snapshotId,
   ), { publicationType: "automatic-fallback" }));
+});
+
+
+function ordinaryEntryData({
+  userId = "player-one",
+  category = "water",
+  data = { amount: 500 },
+  challengeDate = Timestamp.now(),
+} = {}) {
+  return {
+    userId,
+    category,
+    data,
+    source: "activity",
+    sourceLeagueId: "",
+    sourcePocketId: "",
+    sourceRedemptionId: "",
+    sourceCorrectionId: "",
+    replacesEntryId: "",
+    correctionRootEntryId: "",
+    correctionSequence: 0,
+    evidenceClaimIds: [],
+    createdAt: Timestamp.now(),
+    challengeDate,
+  };
+}
+
+async function seedOrdinaryCorrectionSource(entryId = "correction-source") {
+  const challengeDate = Timestamp.fromDate(new Date(new Date().setHours(0, 0, 0, 0)));
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(
+      doc(context.firestore(), "challengeEntries", entryId),
+      ordinaryEntryData({ challengeDate }),
+    );
+  });
+  return challengeDate;
+}
+
+function commitOrdinaryCorrection({
+  firestore,
+  actorId = "admin-one",
+  sourceEntryId = "correction-source",
+  replacementEntryId = "correction-replacement",
+  correctionId = "correction-one",
+  auditId = "correction-audit",
+  challengeDate,
+} = {}) {
+  const batch = writeBatch(firestore);
+  const reason = "The recorded bottle amount was entered incorrectly.";
+
+  batch.set(doc(firestore, "auditEvents", auditId), {
+    actorId,
+    action: "entry.correction.completed",
+    entityType: "entryCorrection",
+    entityId: correctionId,
+    summary: "Created an audited factual entry replacement",
+    details: { sourceEntryId, replacementEntryId },
+    createdAt: serverTimestamp(),
+  });
+  batch.set(doc(firestore, "challengeEntries", replacementEntryId), {
+    userId: "player-one",
+    category: "water",
+    data: { amount: 750 },
+    source: "correction",
+    sourceLeagueId: "",
+    sourcePocketId: "",
+    sourceRedemptionId: "",
+    sourceCorrectionId: correctionId,
+    replacesEntryId: sourceEntryId,
+    correctionRootEntryId: sourceEntryId,
+    correctionSequence: 1,
+    evidenceClaimIds: [],
+    createdAt: serverTimestamp(),
+    challengeDate,
+  });
+  batch.set(doc(firestore, "entryCorrections", correctionId), {
+    rootEntryId: sourceEntryId,
+    sourceEntryId,
+    replacementEntryId,
+    userId: "player-one",
+    category: "water",
+    challengeDate,
+    sequence: 1,
+    reason,
+    actorId,
+    sourcePoints: 2,
+    replacementPoints: 3,
+    pointDelta: 1,
+    affectedLeagueIds: [],
+    sourceContributionIds: [],
+    reversalContributionIds: [],
+    replacementContributionIds: [],
+    sourceClaimIds: [],
+    replacementClaimIds: [],
+    dailyClaimIds: [],
+    status: "completed",
+    lastAuditId: auditId,
+    createdAt: serverTimestamp(),
+  });
+  batch.set(doc(firestore, "entryCorrectionHeads", sourceEntryId), {
+    rootEntryId: sourceEntryId,
+    currentEntryId: replacementEntryId,
+    userId: "player-one",
+    category: "water",
+    sequence: 1,
+    status: "active",
+    lastCorrectionId: correctionId,
+    lastAuditId: auditId,
+    createdAt: serverTimestamp(),
+    createdBy: actorId,
+    updatedAt: serverTimestamp(),
+    updatedBy: actorId,
+  });
+  return batch.commit();
+}
+
+test("Platform Administrators create an immutable audited factual replacement", async () => {
+  const challengeDate = await seedOrdinaryCorrectionSource();
+  const firestore = adminContext().firestore();
+
+  await assertSucceeds(commitOrdinaryCorrection({ firestore, challengeDate }));
+  const replacement = await getDoc(doc(firestore, "challengeEntries", "correction-replacement"));
+  const head = await getDoc(doc(firestore, "entryCorrectionHeads", "correction-source"));
+  assert.equal(replacement.data().source, "correction");
+  assert.equal(head.data().currentEntryId, "correction-replacement");
+});
+
+test("ordinary players cannot create correction records or replacement entries", async () => {
+  const challengeDate = await seedOrdinaryCorrectionSource();
+  await assertFails(commitOrdinaryCorrection({
+    firestore: playerContext().firestore(),
+    actorId: "player-one",
+    challengeDate,
+  }));
+});
+
+test("entry owners can read correction history but cannot rewrite it", async () => {
+  const challengeDate = await seedOrdinaryCorrectionSource();
+  await commitOrdinaryCorrection({
+    firestore: adminContext().firestore(),
+    challengeDate,
+  });
+  const firestore = playerContext().firestore();
+
+  await assertSucceeds(getDoc(doc(firestore, "entryCorrectionHeads", "correction-source")));
+  await assertSucceeds(getDoc(doc(firestore, "entryCorrections", "correction-one")));
+  await assertFails(updateDoc(doc(firestore, "entryCorrectionHeads", "correction-source"), {
+    currentEntryId: "correction-source",
+  }));
+});
+
+test("an original entry cannot be deleted after a correction head exists", async () => {
+  const challengeDate = await seedOrdinaryCorrectionSource();
+  await commitOrdinaryCorrection({
+    firestore: adminContext().firestore(),
+    challengeDate,
+  });
+
+  await assertFails(deleteDoc(doc(
+    playerContext().firestore(),
+    "challengeEntries",
+    "correction-source",
+  )));
+});
+
+test("a qualifying Running correction atomically reverses points and supersedes proof", async () => {
+  const leagueId = "season-v2";
+  const house = await seedActiveEvidenceSeason({ includeSecondMember: false });
+  const challengeDate = Timestamp.fromDate(new Date(new Date().setHours(0, 0, 0, 0)));
+  const sourceEntryId = "run-source";
+  const replacementEntryId = "run-replacement";
+  const sourceContributionId = `${leagueId}_${sourceEntryId}`;
+  const reversalContributionId = "run-correction_reversal_1";
+  const replacementContributionId = `${leagueId}_${replacementEntryId}`;
+  const oldClaimId = `${leagueId}_${sourceEntryId}`;
+  const newClaimId = `${leagueId}_${replacementEntryId}`;
+  const correctionId = "run-correction";
+  const auditId = "run-correction-audit";
+  const reason = "The original Running distance was entered incorrectly.";
+  const oldClaim = evidenceClaimData({
+    leagueId,
+    entryId: sourceEntryId,
+    challengeDate,
+    house,
+    pendingPoints: 18,
+  });
+
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "challengeEntries", sourceEntryId), {
+      ...ordinaryEntryData({
+        category: "running",
+        data: runningEntryData(),
+        challengeDate,
+      }),
+      evidenceClaimIds: [oldClaimId],
+    });
+    await setDoc(doc(firestore, "leagueContributions", sourceContributionId), {
+      leagueId,
+      entryId: sourceEntryId,
+      userId: "player-one",
+      displayName: "player one",
+      avatarId: "legacy-trophy",
+      houseId: house.id,
+      houseName: house.data.name,
+      houseEmblemId: house.data.emblemId,
+      teamId: house.id,
+      teamName: house.data.name,
+      category: "running",
+      scoreCategory: "cardio",
+      pointGroup: "activity",
+      challengeDate,
+      activityPoints: 7,
+      rulesVersion: "season-houses-v2",
+      source: "activity",
+      sourceRedemptionId: "",
+      evidenceClaimId: "",
+      evidenceDecisionId: "",
+      createdAt: Timestamp.now(),
+    });
+    await setDoc(doc(firestore, "seasonEvidenceClaims", oldClaimId), oldClaim);
+  });
+
+  const firestore = adminContext().firestore();
+  const batch = writeBatch(firestore);
+  batch.set(doc(firestore, "auditEvents", auditId), {
+    actorId: "admin-one",
+    action: "entry.correction.completed",
+    entityType: "entryCorrection",
+    entityId: correctionId,
+    summary: "Corrected a qualifying Running activity",
+    details: { sourceEntryId, replacementEntryId },
+    createdAt: serverTimestamp(),
+  });
+  batch.set(doc(firestore, "challengeEntries", replacementEntryId), {
+    userId: "player-one",
+    category: "running",
+    data: { ...runningEntryData(), distance: 6, averagePaceSecondsPerKm: 300 },
+    source: "correction",
+    sourceLeagueId: "",
+    sourcePocketId: "",
+    sourceRedemptionId: "",
+    sourceCorrectionId: correctionId,
+    replacesEntryId: sourceEntryId,
+    correctionRootEntryId: sourceEntryId,
+    correctionSequence: 1,
+    evidenceClaimIds: [newClaimId],
+    createdAt: serverTimestamp(),
+    challengeDate,
+  });
+  batch.set(doc(firestore, "leagueContributions", reversalContributionId), {
+    leagueId,
+    entryId: sourceEntryId,
+    userId: "player-one",
+    displayName: "player one",
+    avatarId: "legacy-trophy",
+    houseId: house.id,
+    houseName: house.data.name,
+    houseEmblemId: house.data.emblemId,
+    teamId: house.id,
+    teamName: house.data.name,
+    category: "running",
+    scoreCategory: "cardio",
+    pointGroup: "activity",
+    challengeDate,
+    activityPoints: -7,
+    rulesVersion: "season-houses-v2",
+    source: "correction-reversal",
+    sourceRedemptionId: "",
+    evidenceClaimId: "",
+    evidenceDecisionId: "",
+    correctionId,
+    correctionRole: "reversal",
+    replacesContributionIds: [sourceContributionId],
+    createdAt: serverTimestamp(),
+  });
+  batch.set(doc(firestore, "leagueContributions", replacementContributionId), {
+    leagueId,
+    entryId: replacementEntryId,
+    userId: "player-one",
+    displayName: "player one",
+    avatarId: "legacy-trophy",
+    houseId: house.id,
+    houseName: house.data.name,
+    houseEmblemId: house.data.emblemId,
+    teamId: house.id,
+    teamName: house.data.name,
+    category: "running",
+    scoreCategory: "cardio",
+    pointGroup: "activity",
+    challengeDate,
+    activityPoints: 7,
+    rulesVersion: "season-houses-v2",
+    source: "correction-replacement",
+    sourceRedemptionId: "",
+    evidenceClaimId: "",
+    evidenceDecisionId: "",
+    correctionId,
+    correctionRole: "replacement",
+    replacesContributionIds: [],
+    createdAt: serverTimestamp(),
+  });
+  batch.set(doc(firestore, "seasonEvidenceClaims", newClaimId), {
+    ...evidenceClaimData({
+      leagueId,
+      entryId: replacementEntryId,
+      challengeDate,
+      house,
+      pendingPoints: 23,
+    }),
+    correctionId,
+    replacesClaimId: oldClaimId,
+    correctionIds: [correctionId],
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+  batch.update(doc(firestore, "seasonEvidenceClaims", oldClaimId), {
+    status: "superseded",
+    reviewedAt: serverTimestamp(),
+    reviewedBy: "admin-one",
+    reviewReason: reason,
+    supersededByClaimId: newClaimId,
+    correctionId,
+    correctionIds: [correctionId],
+    updatedAt: serverTimestamp(),
+  });
+  batch.set(doc(firestore, "entryCorrections", correctionId), {
+    rootEntryId: sourceEntryId,
+    sourceEntryId,
+    replacementEntryId,
+    userId: "player-one",
+    category: "running",
+    challengeDate,
+    sequence: 1,
+    reason,
+    actorId: "admin-one",
+    sourcePoints: 25,
+    replacementPoints: 30,
+    pointDelta: 5,
+    affectedLeagueIds: [leagueId],
+    sourceContributionIds: [sourceContributionId],
+    reversalContributionIds: [reversalContributionId],
+    replacementContributionIds: [replacementContributionId],
+    sourceClaimIds: [oldClaimId],
+    replacementClaimIds: [newClaimId],
+    dailyClaimIds: [],
+    status: "completed",
+    lastAuditId: auditId,
+    createdAt: serverTimestamp(),
+  });
+  batch.set(doc(firestore, "entryCorrectionHeads", sourceEntryId), {
+    rootEntryId: sourceEntryId,
+    currentEntryId: replacementEntryId,
+    userId: "player-one",
+    category: "running",
+    sequence: 1,
+    status: "active",
+    lastCorrectionId: correctionId,
+    lastAuditId: auditId,
+    createdAt: serverTimestamp(),
+    createdBy: "admin-one",
+    updatedAt: serverTimestamp(),
+    updatedBy: "admin-one",
+  });
+
+  await assertSucceeds(batch.commit());
+  const oldClaimAfter = await getDoc(doc(firestore, "seasonEvidenceClaims", oldClaimId));
+  assert.equal(oldClaimAfter.data().status, "superseded");
+  assert.equal(oldClaimAfter.data().supersededByClaimId, newClaimId);
 });

@@ -114,6 +114,10 @@ export async function createEntry(
     sourceLeagueId: metadata.sourceLeagueId || "",
     sourcePocketId: metadata.sourcePocketId || "",
     sourceRedemptionId: metadata.sourceRedemptionId || "",
+    sourceCorrectionId: "",
+    replacesEntryId: "",
+    correctionRootEntryId: "",
+    correctionSequence: 0,
     evidenceClaimIds,
     createdAt: serverTimestamp(),
     challengeDate: Timestamp.fromDate(challengeDate),
@@ -199,6 +203,10 @@ export async function createEntry(
       decisionId: "",
       releasedContributionId: "",
       reversedByDecisionId: "",
+      supersededByClaimId: "",
+      correctionId: "",
+      replacesClaimId: "",
+      correctionIds: [],
     };
 
     if (identity.claimType === "daily-bonus") {
@@ -273,6 +281,18 @@ export async function deleteEntry(entryId, userId) {
   const entrySnapshot = await getDoc(doc(db, "challengeEntries", entryId));
   if (entrySnapshot.exists() && entrySnapshot.data().source === "pocket") {
     throw new Error("Pocket redemptions are final and cannot be deleted.");
+  }
+  if (entrySnapshot.exists() && entrySnapshot.data().source === "correction") {
+    throw new Error("Corrected entries are immutable and cannot be deleted.");
+  }
+  if (entrySnapshot.exists()) {
+    const rootEntryId = entrySnapshot.data().correctionRootEntryId || entryId;
+    const correctionHead = await getDoc(doc(db, "entryCorrectionHeads", rootEntryId));
+    if (correctionHead.exists()) {
+      throw new Error(
+        "This entry belongs to an audited correction chain and cannot be deleted.",
+      );
+    }
   }
   if (
     entrySnapshot.exists()

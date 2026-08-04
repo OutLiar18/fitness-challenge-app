@@ -673,6 +673,11 @@ export async function redeemPocketActivity({ league, pocket, userId, quantity, t
       sourceLeagueId: liveLeague.id,
       sourcePocketId: livePocket.id,
       sourceRedemptionId: redemptionReference.id,
+      sourceCorrectionId: "",
+      replacesEntryId: "",
+      correctionRootEntryId: "",
+      correctionSequence: 0,
+      evidenceClaimIds: [],
       createdAt: serverTimestamp(),
       challengeDate: Timestamp.fromDate(challengeDate),
     });

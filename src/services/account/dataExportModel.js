@@ -1,4 +1,4 @@
-export const PERSONAL_DATA_EXPORT_SCHEMA_VERSION = 1;
+export const PERSONAL_DATA_EXPORT_SCHEMA_VERSION = 2;
 
 export function serializeExportValue(value) {
   if (value == null || typeof value !== "object") {

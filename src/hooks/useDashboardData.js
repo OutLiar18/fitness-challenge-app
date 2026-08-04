@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 
 import { subscribeToEntries } from "../services/entries";
+import {
+  subscribeToEntryCorrectionHeads,
+  subscribeToEntryCorrections,
+} from "../services/entries/entryCorrectionService";
 import { subscribeToUserEvidenceClaims } from "../services/evidence/evidenceService";
 import { subscribeToUserProfile } from "../services/users/userRepository";
 
@@ -8,6 +12,8 @@ const EMPTY_STATE = Object.freeze({
   profile: null,
   entries: [],
   evidenceClaims: [],
+  correctionHeads: [],
+  entryCorrections: [],
   loading: true,
   error: "",
 });
@@ -18,6 +24,8 @@ const INITIAL_STATE = {
   profileLoaded: false,
   entriesLoaded: false,
   evidenceLoaded: false,
+  correctionHeadsLoaded: false,
+  correctionsLoaded: false,
 };
 
 export default function useDashboardData(userId) {
@@ -44,7 +52,13 @@ export default function useDashboardData(userId) {
 
         return {
           ...next,
-          loading: !(next.profileLoaded && next.entriesLoaded && next.evidenceLoaded),
+          loading: !(
+            next.profileLoaded &&
+            next.entriesLoaded &&
+            next.evidenceLoaded &&
+            next.correctionHeadsLoaded &&
+            next.correctionsLoaded
+          ),
         };
       });
     }
@@ -121,11 +135,57 @@ export default function useDashboardData(userId) {
       },
     );
 
+    const unsubscribeCorrectionHeads = subscribeToEntryCorrectionHeads(
+      userId,
+      (correctionHeads) => {
+        if (active) {
+          updateForCurrentUser((current) => ({
+            ...current,
+            correctionHeads,
+            correctionHeadsLoaded: true,
+          }));
+        }
+      },
+      (error) => {
+        if (active) {
+          updateForCurrentUser((current) => ({
+            ...current,
+            correctionHeadsLoaded: true,
+            error: error.message || "Your correction history could not be loaded.",
+          }));
+        }
+      },
+    );
+
+    const unsubscribeCorrections = subscribeToEntryCorrections(
+      userId,
+      (entryCorrections) => {
+        if (active) {
+          updateForCurrentUser((current) => ({
+            ...current,
+            entryCorrections,
+            correctionsLoaded: true,
+          }));
+        }
+      },
+      (error) => {
+        if (active) {
+          updateForCurrentUser((current) => ({
+            ...current,
+            correctionsLoaded: true,
+            error: error.message || "Your correction records could not be loaded.",
+          }));
+        }
+      },
+    );
+
     return () => {
       active = false;
       unsubscribeProfile();
       unsubscribeEntries();
       unsubscribeEvidence();
+      unsubscribeCorrectionHeads();
+      unsubscribeCorrections();
     };
   }, [userId]);
 
@@ -137,6 +197,8 @@ export default function useDashboardData(userId) {
     profile: state.profile,
     entries: state.entries,
     evidenceClaims: state.evidenceClaims,
+    correctionHeads: state.correctionHeads,
+    entryCorrections: state.entryCorrections,
     loading: state.loading,
     error: state.error,
   };

@@ -1,8 +1,8 @@
 # Champions Legacy Challenge — Firestore Structure
 
 Last updated: 4 August 2026  
-Current release target: v0.18.0  
-Current production: v0.17.0
+Current release target: v0.20.0  
+Current production: v0.19.0
 
 ## Player and activity
 
@@ -69,3 +69,10 @@ Rules deny all use of permanent-Team collections.
 ## v0.19 command-centre reads
 
 The command centre reads existing collections only: `leagues`, `leagueHouses`, `leagueMemberships`, `leadershipElections`, `seasonEvidenceClaims`, `seasonEvidenceDecisions`, `leagueEvidenceReviewers`, `leagueContributions` and `leagueLeaderboardSnapshots`. Security Rules are unchanged from v0.18.0. Queries remain role-scoped and no command-centre collection is introduced.
+
+## v0.20.0 additions
+
+- `entryCorrectionHeads` — owner-readable current-version pointers; Platform Administrator create/update only; no delete.
+- `entryCorrections` — owner-readable immutable correction records; Platform Administrator create only.
+
+`challengeEntries`, `leagueContributions` and `seasonEvidenceClaims` receive backwards-compatible optional correction metadata. No bulk migration is required.

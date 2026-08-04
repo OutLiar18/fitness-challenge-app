@@ -2,15 +2,42 @@ import { useMemo } from "react";
 
 import useAuth from "../hooks/useAuth";
 import useDashboardData from "../hooks/useDashboardData";
+import {
+  buildEntryDateIndex,
+  buildJournalDateSummaries,
+  resolveEntryHistory,
+} from "../services/entries/entryHistoryModel";
 import { getProgressionSummary } from "../services/progression";
 import { PlayerDataContext } from "./PlayerDataContext";
 
 export function PlayerDataProvider({ children }) {
   const { user, claims } = useAuth();
   const data = useDashboardData(user?.uid);
+  const resolvedHistory = useMemo(
+    () =>
+      resolveEntryHistory({
+        entries: data.entries ?? [],
+        correctionHeads: data.correctionHeads ?? [],
+        corrections: data.entryCorrections ?? [],
+      }),
+    [data.correctionHeads, data.entries, data.entryCorrections],
+  );
+  const activeEntries = resolvedHistory.activeEntries;
+  const entryDateIndex = useMemo(
+    () => buildEntryDateIndex(activeEntries),
+    [activeEntries],
+  );
+  const entryHistoryDateIndex = useMemo(
+    () => buildEntryDateIndex(resolvedHistory.historyEntries),
+    [resolvedHistory.historyEntries],
+  );
+  const journalDateSummaries = useMemo(
+    () => buildJournalDateSummaries(activeEntries),
+    [activeEntries],
+  );
   const progression = useMemo(
-    () => getProgressionSummary(data.entries ?? []),
-    [data.entries],
+    () => getProgressionSummary(activeEntries),
+    [activeEntries],
   );
   const isPlatformAdmin =
     claims?.admin === true || data.profile?.role === "admin";
@@ -18,12 +45,31 @@ export function PlayerDataProvider({ children }) {
   const value = useMemo(
     () => ({
       ...data,
+      rawEntries: data.entries ?? [],
+      entries: activeEntries,
+      entryHistory: resolvedHistory.historyEntries,
+      entryHistoryWarnings: resolvedHistory.warnings,
+      entryDateIndex,
+      entryHistoryDateIndex,
+      journalDateSummaries,
       user,
       claims,
       isPlatformAdmin,
       progression,
     }),
-    [claims, data, isPlatformAdmin, progression, user],
+    [
+      activeEntries,
+      claims,
+      data,
+      entryDateIndex,
+      entryHistoryDateIndex,
+      isPlatformAdmin,
+      journalDateSummaries,
+      progression,
+      resolvedHistory.historyEntries,
+      resolvedHistory.warnings,
+      user,
+    ],
   );
 
   return (

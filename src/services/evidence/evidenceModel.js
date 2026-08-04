@@ -246,6 +246,9 @@ export function getEvidenceDisplayStatus(claim, referenceDate = new Date()) {
   if (claim.status === EVIDENCE_STATUS.REVERSED) {
     return { id: "reversed", label: "Previous proof decision reversed", tone: "warning" };
   }
+  if (claim.status === EVIDENCE_STATUS.SUPERSEDED) {
+    return { id: "superseded", label: "Replaced by a corrected entry", tone: "neutral" };
+  }
 
   const deadline = toDate(claim.deadlineAt);
   const reference = toDate(referenceDate) ?? new Date();
@@ -344,7 +347,7 @@ export function validateEvidenceDecision({
 
 export function getEvidenceClaimSortValue(claim) {
   const status = getEvidenceDisplayStatus(claim)?.id;
-  const priority = { pending: 0, expired: 1, rejected: 2, verified: 3, reversed: 4 }[status] ?? 5;
+  const priority = { pending: 0, expired: 1, rejected: 2, verified: 3, reversed: 4, superseded: 5 }[status] ?? 6;
   const deadline = toDate(claim?.deadlineAt)?.getTime() ?? Number.MAX_SAFE_INTEGER;
   return priority * 10 ** 15 + deadline;
 }

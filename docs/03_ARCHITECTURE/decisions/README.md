@@ -22,3 +22,5 @@ Accepted decisions are permanent historical records. Superseding a decision requ
 - `ADR-025-external-evidence-and-published-standings.md` — no-cost WhatsApp proof, least-privilege review and immutable player-facing leaderboard snapshots.
 
 - `ADR-026-season-command-centre-and-role-scoped-reports.md` — derived season operations, next-action guidance and local role-scoped reports.
+
+- `ADR-027-audited-entry-corrections-and-active-history.md` — immutable replacement entries, correction heads, derived reconciliation and active personal history.

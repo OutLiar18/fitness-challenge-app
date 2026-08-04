@@ -1,5 +1,18 @@
 export const ANNOUNCEMENTS = Object.freeze([
   {
+    id: "v0-20-audited-entry-corrections",
+    type: "release",
+    icon: "🧾",
+    title: "Incorrect activity facts can now be corrected without rewriting history",
+    summary:
+      "Platform Administrators can create immutable replacement entries, preserve earlier records and reconcile linked season points and proof claims.",
+    body:
+      "The new Entry Integrity workspace searches by entry ID or WhatsApp verification ID, diagnoses linked proof and competition records, and creates a factual replacement instead of silently editing or deleting history. Season activity points are reconciled through immutable reversal and replacement contributions, superseded proof remains visible, House attribution stays fixed to the original activity moment, and players see only the current factual version in goals and personal statistics. Journal history now renders seven recorded days at a time while retaining the complete active history for calculations.",
+    publishedAt: "2026-08-04",
+    featured: true,
+    version: "0.20.0",
+  },
+  {
     id: "v0-19-season-command-centre",
     type: "release",
     icon: "🎛️",
@@ -9,7 +22,7 @@ export const ANNOUNCEMENTS = Object.freeze([
     body:
       "The new Season Command Centre combines existing House, C.H.A.O.S., leadership, WhatsApp proof and leaderboard records without creating an alternate score. Administrators receive clear next-action guidance, evidence workload by category, immutable decision and snapshot history, plus a downloadable operations report. Category reviewers remain limited to their assigned evidence categories, and no WhatsApp media is stored or exported.",
     publishedAt: "2026-08-04",
-    featured: true,
+    featured: false,
     version: "0.19.0",
   },
   {

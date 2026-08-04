@@ -22,6 +22,7 @@ export const EVIDENCE_STATUS = Object.freeze({
   VERIFIED: "verified",
   REJECTED: "rejected",
   REVERSED: "reversed",
+  SUPERSEDED: "superseded",
 });
 
 export const EVIDENCE_DECISION_TYPES = Object.freeze({

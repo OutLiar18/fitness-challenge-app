@@ -1,8 +1,8 @@
 # Champions Legacy Challenge — Security Model
 
 Last updated: 4 August 2026  
-Current release target: v0.18.0  
-Current production: v0.17.0
+Current release target: v0.20.0  
+Current production: v0.19.0
 
 ## Principles
 
@@ -50,3 +50,7 @@ Profile roles, account requests, season lifecycle, C.H.A.O.S., leadership, swaps
 ## v0.19 role-scoped operations reporting
 
 The command centre does not expand Firestore authority. Platform and season administrators read records already permitted by v0.18.0 Rules. Category reviewers receive only assigned evidence claim/decision queries. Reports are generated from successfully read records, so unavailable data is not bypassed or inferred. Operations exports contain no proof media.
+
+## Audited factual correction authority
+
+Only Platform Administrators may create correction replacements, correction heads, correction records, correction contributions or correction-specific claim transitions. Rules keep user, category and challenge date fixed, block Pocket sources, require a matching audit event, enforce forward-only correction sequences and prevent corrected source entries from being deleted. Players may read only correction records that belong to them.

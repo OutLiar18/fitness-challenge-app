@@ -16,6 +16,8 @@ import {
 
 const QUERY_SECTIONS = Object.freeze([
   ["challengeEntries", "challengeEntries", "userId"],
+  ["entryCorrectionHeads", "entryCorrectionHeads", "userId"],
+  ["entryCorrections", "entryCorrections", "userId"],
   ["leagueMemberships", "leagueMemberships", "userId"],
   ["leagueContributions", "leagueContributions", "userId"],
   ["seasonEvidenceClaims", "seasonEvidenceClaims", "userId"],
@@ -128,7 +130,7 @@ export async function buildPersonalDataExport(userId) {
       scopeNotes: [
         "This file contains account-owned data readable by the signed-in player.",
         "Shared season documents, public announcements and administrator-only audit records are not duplicated in this personal export.",
-        "Derived points, streaks and analytics can be recalculated from the exported factual entries.",
+        "Derived points, streaks and analytics can be recalculated from the exported active factual entries and immutable correction chains.",
       ],
       unavailableSections,
     },

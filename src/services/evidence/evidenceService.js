@@ -300,6 +300,9 @@ export async function decideEvidenceClaim({
     const liveClaimSnapshot = await transaction.get(claimReference);
     if (!liveClaimSnapshot.exists()) throw new Error("That evidence claim no longer exists.");
     const liveClaim = { id: liveClaimSnapshot.id, ...liveClaimSnapshot.data() };
+    if (liveClaim.status === "superseded") {
+      throw new Error("This proof claim was replaced by an audited entry correction.");
+    }
     if (liveClaim.status === "verified" && action !== "reverse") {
       throw new Error("This proof has already been accepted.");
     }

@@ -40,6 +40,7 @@ export function summarizeEvidenceWorkload({
     verified: 0,
     rejected: 0,
     reversed: 0,
+    superseded: 0,
   };
   const categoryCounts = Object.fromEntries(
     EVIDENCE_CATEGORIES.map((category) => [

@@ -12,12 +12,12 @@ import PageHeader from "../components/layout/PageHeader";
 import usePlayerData from "../hooks/usePlayerData";
 import useToast from "../hooks/useToast";
 import {
+  getLocalDateKey,
   isEditableDate,
   normalizeChallengeDate,
 } from "../services/dateService";
 import { deleteEntry, saveChallengeEntry } from "../services/entries";
 import { getValidationMessage } from "../services/messageService";
-import { getEntriesForDate } from "../services/statistics";
 import { getCategory } from "../utils/categoryHelpers";
 import "./ActivityLog.css";
 
@@ -45,7 +45,14 @@ const ACTIVITY_TABS = Object.freeze([
 ]);
 
 function ActivityLogWorkspace({ categoryId, onCategoryChange }) {
-  const { user, entries, evidenceClaims, loading } = usePlayerData();
+  const {
+    user,
+    entries,
+    entryHistoryDateIndex,
+    journalDateSummaries,
+    evidenceClaims,
+    loading,
+  } = usePlayerData();
   const { toast, showToast, dismissToast } = useToast();
   const [selectedDate, setSelectedDate] = useState(() =>
     normalizeChallengeDate(new Date()),
@@ -60,8 +67,8 @@ function ActivityLogWorkspace({ categoryId, onCategoryChange }) {
   const readOnly = !isEditableDate(selectedDate);
 
   const selectedEntries = useMemo(
-    () => getEntriesForDate(entries, selectedDate),
-    [entries, selectedDate],
+    () => entryHistoryDateIndex.get(getLocalDateKey(selectedDate)) ?? [],
+    [entryHistoryDateIndex, selectedDate],
   );
 
   function resetForm(nextCategoryId) {
@@ -222,6 +229,8 @@ function ActivityLogWorkspace({ categoryId, onCategoryChange }) {
           readOnly={readOnly}
           loading={loading}
           evidenceClaims={evidenceClaims}
+          allEntries={entries}
+          dateSummaries={journalDateSummaries}
         />
       </WorkspacePanel>
 

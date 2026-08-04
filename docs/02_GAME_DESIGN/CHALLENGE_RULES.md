@@ -49,3 +49,7 @@ The player-facing source is the in-app Rulebook at `/rules`. It preserves histor
 ## Inactive rules
 
 Power Plays, Diamonds, full Transfer Market, Buddy Bonus, Five Fires, gender scoring and late-season twists award no points until explicitly activated in a future version.
+
+## Audited factual corrections
+
+Incorrect facts are not silently edited. A Platform Administrator creates an immutable replacement with a mandatory reason. The category, player, challenge date and historical House attribution stay fixed. Earlier versions, evidence claims and competition records remain visible. Only the newest resolved version contributes to personal goals, records, analytics and progression.

@@ -1,6 +1,7 @@
 # Champions Legacy Challenge — Testing Guide
 
-Current release target: v0.18.0
+Current release target: v0.20.0  
+Current production: v0.19.0
 
 ## Standard release commands
 
@@ -14,45 +15,58 @@ npm audit
 
 The Firestore Emulator requires Java 21.
 
-## v0.18.0 expected baseline
+## v0.20.0 expected baseline
 
-- 80 domain tests.
-- 39 Firestore Security Rules tests.
+- 96 domain tests.
+- 44 Firestore Security Rules tests.
 - Clean ESLint.
 - Successful Vite production build.
-- Release-readiness confirmed for 0.18.0 and Hosting target `app`.
+- Release-readiness confirmed for v0.20.0 and Hosting target `app`.
 
-## Evidence domain coverage
+## Correction domain coverage
 
-- frozen policy normalization and explicit confirmation;
-- stable verification IDs;
-- Running immediate/pending allocation;
-- nonqualifying Running behaviour;
-- Steps proof gate;
-- daily Water/Fruit claims and bonus thresholds;
-- deadline/late-exception logic;
-- reviewer category scope;
-- Johannesburg publication due time;
-- Fruit cap and evidence-bonus cap separation.
+`tests/entry-corrections.test.mjs` covers:
 
-## Rules coverage
+- active-version resolution through a correction head;
+- safe fallback when a head target is delayed or missing;
+- seven-recorded-day Journal pagination;
+- net contribution grouping and replacement allocation;
+- qualifying and nonqualifying Running correction outcomes;
+- immutable category/date/identity invariants;
+- mandatory correction reasons;
+- Pocket redemption exclusion;
+- healthy and broken-chain diagnostics.
 
-The Rules suite includes existing account/season/Pocket protections plus evidence claim creation, assigned review, rejection, late proof, atomic contribution release, reviewer query scope and player snapshot privacy/immutability.
+## Correction Rules coverage
+
+The Rules suite adds positive and negative assertions for:
+
+- Platform Administrator correction creation;
+- ordinary-player correction denial;
+- owner read-only correction history;
+- corrected-source deletion denial;
+- one full qualifying Running correction batch with signed point reversal, replacement contribution and proof-claim supersession.
 
 `PERMISSION_DENIED` output is expected for negative assertions. Judge success by the final test counts and process exit code.
 
-## v0.18.0 Rules evaluation-budget regression
+## Preserved evidence and season coverage
 
-The first Windows run exposed Firestore's 1,000-expression ceiling in valid multi-write operations. The candidate hotfix must preserve these two regressions:
+The suite continues to cover account boundaries, season creation, Houses, C.H.A.O.S., leadership, roster swaps, Pocket Week, evidence claim creation, assigned review, late proof, atomic contribution release, reviewer query scope and published-snapshot privacy.
+
+## Firestore evaluation-budget regression
+
+The v0.18.0 Windows run exposed Firestore's 1,000-expression ceiling in valid multi-write operations. Keep these positive regressions passing:
 
 - an authorised Platform Administrator can atomically create a draft season, its closed invite and matching audit event;
-- a qualifying v2 Running entry can atomically create the factual entry, immediate Cardio contribution and pending proof claim.
+- a qualifying v2 Running entry can atomically create the factual entry, immediate Cardio contribution and pending proof claim;
+- a qualifying Running correction can atomically create its replacement, correction records, contribution reconciliation and proof transition.
 
-Rules should dispatch only the relevant validation branch. A passing negative assertion may still print `PERMISSION_DENIED`, but `maximum of 1000 expressions` must not appear for a valid positive workflow.
+Rules should dispatch only the relevant validation branch. `maximum of 1000 expressions` must not appear for a valid positive workflow.
 
 ## Release rules
 
 - Do not deploy when lint, domain, build, Rules or readiness fails.
 - Do not use `npm audit fix --force`.
-- Deploy Rules and Hosting together for v0.18.0.
+- Because v0.20.0 changes Firestore Rules, deploy Rules and Hosting together with `npm run deploy:production`.
 - Run the included finaliser only after successful production deployment.
+- Do not create a v1.0 tag without explicit approval.

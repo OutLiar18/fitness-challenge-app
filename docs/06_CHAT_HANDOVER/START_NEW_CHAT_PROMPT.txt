@@ -1,7 +1,11 @@
-Continue the Champions Legacy Challenge React + Vite + Firebase project as a senior engineer. Read docs/06_CHAT_HANDOVER/CHAT_BRIEFING.md, RECENT_SESSION_SUMMARY.md, docs/01_CURRENT_DEVELOPMENT/CURRENT_STATE.md, ACTIVE_MIGRATIONS.md, NEXT_SESSION.md and docs/02_GAME_DESIGN/SEASON_COMMAND_CENTRE.md first.
+This chat continues the Champions Legacy Challenge React + Vite + Firebase project.
 
-Current source and production are v0.19.0 Season Command Centre.
+Read first:
+- docs/06_CHAT_HANDOVER/CHAT_BRIEFING.md
+- docs/06_CHAT_HANDOVER/RECENT_SESSION_SUMMARY.md
+- docs/01_CURRENT_DEVELOPMENT/CURRENT_STATE.md
+- docs/01_CURRENT_DEVELOPMENT/NEXT_SESSION.md
+- docs/02_GAME_DESIGN/AUDITED_ENTRY_CORRECTIONS.md
+- docs/03_ARCHITECTURE/decisions/ADR-027-audited-entry-corrections-and-active-history.md
 
-v0.19.0 adds a role-aware operations summary, ordered next actions, evidence workload, immutable decision/snapshot history and role-scoped JSON reports. It changes no scoring rule, Firestore collection or Security Rule and stores no WhatsApp media.
-
-Release evidence: 85 domain tests, 39 Firestore Rules tests, clean lint/build, v0.19.0 release-readiness and successful branded Hosting deployment. Do not use npm audit fix --force. Use the FINALISE_RELEASE.ps1 included in the main updater; do not create a separate documentation sync. Do not call or tag v1.0 without explicit approval.
+Current source and production are v0.20.0. Windows verification passed 96 domain tests, 44 Firestore Rules tests, ESLint, the Vite build and release-readiness. Firestore Rules and branded Hosting deployed successfully. Treat v0.20.0 as the production baseline, keep the project pre-v1.0 and do not run npm audit fix --force.

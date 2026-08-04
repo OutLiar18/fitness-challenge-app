@@ -41,3 +41,7 @@ v0.18.0 remains pre-v1.0. Do not create a v1.0 tag until explicit approval follo
 ## Audit safety
 
 Do not run `npm audit fix --force`. Record known non-applicable or breaking advisories and upgrade deliberately in a tested release.
+
+## v0.20.0 finalisation
+
+The authoritative gates are 96 domain tests, 44 Firestore Rules tests, clean ESLint/build, v0.20.0 release-readiness and npm audit review. Deploy with `npm run deploy:production`, run the updater's `FINALISE_RELEASE.ps1`, then commit. Do not generate a separate documentation archive.

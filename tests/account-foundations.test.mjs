@@ -57,7 +57,7 @@ test("personal export values preserve shape and convert dates to portable ISO st
     date: "2026-08-03T12:00:00.000Z",
     nested: [{ value: 3, nullable: null }],
   });
-  assert.equal(PERSONAL_DATA_EXPORT_SCHEMA_VERSION, 1);
+  assert.equal(PERSONAL_DATA_EXPORT_SCHEMA_VERSION, 2);
   assert.equal(
     createPersonalDataFilename(new Date("2026-08-04T11:00:00.000Z")),
     "champions-legacy-personal-data-2026-08-04.json",
