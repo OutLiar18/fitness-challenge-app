@@ -1,8 +1,8 @@
 # Champions Legacy Challenge — Chat Briefing
 
 <!-- RELEASE_STATUS: DEPLOYED -->
-Current source: v0.20.0  
-Current production: v0.20.0  
+Current source: v0.21.0  
+Current production: v0.21.0  
 Status: Verified and deployed; release commit pending; pre-v1.0
 
 ## Product identity
@@ -24,40 +24,40 @@ Release workflow:
 
 Never run `npm audit fix --force` for the known React Router RSC-mode advisory.
 
-## Current production — v0.20.0
+## Current candidate — v0.21.0
 
-Audited Factual Corrections and History Resilience:
+Trusted Standings and Season Reconciliation:
 
-- Platform Administrator Entry Integrity workspace;
-- search by entry ID or evidence verification ID;
-- immutable replacement entries and correction chains;
-- forward-only `entryCorrectionHeads`;
-- immutable `entryCorrections` records;
-- contribution reversals/replacements that preserve historical House attribution;
-- proof-claim supersession and replacement IDs;
-- active personal-history resolution;
-- seven-recorded-day Journal pagination;
-- targeted diagnostics, blocking-error protection and portable integrity report;
-- personal export schema version 2.
+- pure trusted season audit and deterministic fingerprint;
+- standings and honours rebuilt from frozen rules, memberships and immutable contributions;
+- evidence, correction and contribution integrity diagnostics;
+- comparison with the latest published snapshot;
+- free local Firebase Admin SDK dry run;
+- explicit guarded trusted publication;
+- immutable trusted snapshot, run and audit records;
+- idempotence for an unchanged trusted fingerprint;
+- trusted status and commands in the Season Command Centre;
+- client read boundary for authorised operators and no client writes;
+- no Cloud Functions, billing plan or automatic schedule.
 
-Pocket redemption entries remain final activation records and are not replaceable in this phase.
+A service-account JSON file is required only for real trusted operation and must remain outside the project.
 
-## Release verification
+## Verification target
 
-Packaging environment:
+Packaging:
 
-- 96 domain tests pass;
+- 104 domain tests pass;
 - JavaScript syntax and local-import audits pass;
-- no unresolved or unreferenced source modules;
-- npm dependency installation was unavailable because the internal Linux registry lacked one transitive ESLint package.
+- credentials, reports, dependencies, builds and logs are excluded.
 
-Authoritative Windows verification passed:
+Windows gates still required:
 
-- npm installation;
-- 96 domain tests;
-- 44 Firestore Rules tests using Java 21;
-- clean ESLint and Vite production build;
-- v0.20.0 release-readiness on Hosting target `app`;
+- `npm install` and lockfile refresh;
+- clean ESLint;
+- 104 domain tests;
+- successful Vite build;
+- 46 Firestore Rules tests using Java 21;
+- v0.21.0 release-readiness on Hosting target `app`;
 - npm audit review without a forced breaking fix.
 
 ## Core product rules
@@ -65,16 +65,15 @@ Authoritative Windows verification passed:
 - Points and Experience Points are separate.
 - Consistency matters more than athletic ability.
 - Running qualifies at at least 3 km and at most 11:00 per kilometre.
-- Qualifying Running earns Running points pending proof and immediate Cardio points/statistics.
-- Steps points remain pending until proof.
-- Water/Fruit may receive one audited three-point photo bonus per day under the frozen season policy.
+- Qualifying Running earns immediate Cardio and proof-dependent Running season points.
+- Steps season points remain pending until proof.
 - WhatsApp proof is external; the app stores no media.
 - Teams are retired; Houses exist only inside a season.
 - Historical House attribution never changes after roster movement or correction.
-- Players see the latest published standings snapshot; authorised operators see live standings.
-- The 10:00 fallback requires an administrator session.
-- Power Plays, Diamonds, full Transfer Market, Buddy Bonus, Five Fires and late twists remain inactive.
+- Players see the latest published snapshot; authorised operators see live operations.
+- The existing 10:00 fallback requires an administrator session; v0.21.0 does not replace it with scheduling.
+- Undefined legacy twists remain inactive.
 
 ## Next action
 
-Use v0.20.0 as the verified production baseline. Keep the project pre-v1.0 and plan the next trusted-operations phase without changing frozen competition rules.
+Apply the v0.21.0 updater to the committed v0.20.0 source and run the Windows release gates. Do not run the production reconciliation command before release deployment and secure credential setup.

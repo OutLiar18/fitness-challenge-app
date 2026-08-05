@@ -47,3 +47,9 @@ Firebase Hosting versions can be rolled back independently, but v0.18.0 frontend
 ## v0.20.0 deployment note
 
 This release changes Firestore Security Rules. After `npm run check:release` passes, deploy Rules and Hosting together with `npm run deploy:production`. Do not use the Hosting-only command for this release.
+
+## Trusted operations are not a deployed backend
+
+<!-- RELEASE_STATUS: DEPLOYED -->
+
+v0.21.0 deploys the browser UI and Firestore Rules only. `scripts/trusted-season-reconcile.mjs` stays in the source repository and runs manually from the trusted administrator computer. No function, scheduler or credential is uploaded by `npm run deploy:production`.

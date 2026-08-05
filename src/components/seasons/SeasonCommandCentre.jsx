@@ -14,6 +14,7 @@ import {
   downloadSeasonOperationsReport,
   subscribeToLeagueEvidenceDecisions,
   subscribeToLeagueLeaderboardSnapshots,
+  subscribeToTrustedSeasonRuns,
 } from "../../services/seasons/seasonOperationsService";
 import {
   subscribeToLeadershipElections,
@@ -91,6 +92,13 @@ function ActionButton({ action, leagueId, onOpenEvidence, onOpenHonours }) {
       </button>
     );
   }
+  if (action.target === "trusted") {
+    return (
+      <a className="button button--secondary" href="#trusted-season-operations">
+        View trusted command
+      </a>
+    );
+  }
   return null;
 }
 
@@ -137,9 +145,11 @@ function SnapshotHistory({ snapshots, currentSnapshotId }) {
             <span>
               {snapshot.publicationType === "automatic-fallback"
                 ? "10:00 fallback"
-                : snapshot.replacesSnapshotId
-                  ? "Corrected manual snapshot"
-                  : "Manual snapshot"}
+                : snapshot.publicationType === "trusted-local"
+                  ? "Trusted local snapshot"
+                  : snapshot.replacesSnapshotId
+                    ? "Corrected manual snapshot"
+                    : "Manual snapshot"}
             </span>
           </div>
           <div>
@@ -170,10 +180,12 @@ export default function SeasonCommandCentre({
   const [decisions, setDecisions] = useState([]);
   const [reviewerAssignments, setReviewerAssignments] = useState([]);
   const [snapshots, setSnapshots] = useState([]);
+  const [trustedRuns, setTrustedRuns] = useState([]);
   const [loadingErrors, setLoadingErrors] = useState([]);
   const [downloading, setDownloading] = useState(false);
 
   const canViewAllEvidence = Boolean(isPlatformAdmin || isLeagueAdministrator);
+  const canViewTrustedOperations = canViewAllEvidence;
   const categories = useMemo(
     () => [...new Set(reviewerCategories)].filter((category) => CATEGORY_LABELS[category]),
     [reviewerCategories],
@@ -229,6 +241,13 @@ export default function SeasonCommandCentre({
       setSnapshots,
       (error) => recordError(league.id, "Leaderboard history", error),
     );
+    const unsubscribeTrustedRuns = canViewTrustedOperations
+      ? subscribeToTrustedSeasonRuns(
+          league.id,
+          setTrustedRuns,
+          (error) => recordError(league.id, "Trusted reconciliation", error),
+        )
+      : () => {};
 
     return () => {
       unsubscribeHouses();
@@ -237,8 +256,9 @@ export default function SeasonCommandCentre({
       unsubscribeClaims();
       unsubscribeDecisions();
       unsubscribeSnapshots();
+      unsubscribeTrustedRuns();
     };
-  }, [canViewAllEvidence, categories, league.id, recordError]);
+  }, [canViewAllEvidence, canViewTrustedOperations, categories, league.id, recordError]);
 
   const visibleLoadingErrors = loadingErrors.filter((error) => error.leagueId === league.id);
 
@@ -253,8 +273,10 @@ export default function SeasonCommandCentre({
       reviewerAssignments,
       snapshots,
       contributions,
+      trustedRuns,
+      trustedOperationsEnabled: canViewTrustedOperations,
     }),
-    [claims, contributions, decisions, elections, houses, league, members, reviewerAssignments, snapshots],
+    [canViewTrustedOperations, claims, contributions, decisions, elections, houses, league, members, reviewerAssignments, snapshots, trustedRuns],
   );
   const health = healthCopy(commandCentre.health);
 
@@ -271,6 +293,7 @@ export default function SeasonCommandCentre({
         decisions,
         reviewerAssignments,
         snapshots,
+        trustedRuns,
         generatedAt: new Date(),
         generatedBy: actorId,
       });
@@ -360,6 +383,58 @@ export default function SeasonCommandCentre({
           ))}
         </div>
       </section>
+
+
+      {canViewTrustedOperations && (
+        <section
+          id="trusted-season-operations"
+          className={`season-ops-trusted card season-ops-trusted--${commandCentre.trusted.tone}`}
+          aria-labelledby="trusted-season-heading"
+        >
+          <div className="community-section-heading">
+            <div>
+              <p className="section-kicker">Free trusted operations</p>
+              <h2 id="trusted-season-heading">{commandCentre.trusted.label}</h2>
+            </div>
+            <span>{trustedRuns[0]?.fingerprint || "No fingerprint yet"}</span>
+          </div>
+          <p>{commandCentre.trusted.detail}</p>
+          <dl className="season-ops-facts season-ops-trusted__facts">
+            <div>
+              <dt>Last completed</dt>
+              <dd>{formatDateTime(trustedRuns[0]?.completedAt)}</dd>
+            </div>
+            <div>
+              <dt>Blocking issues</dt>
+              <dd>{formatNumber(trustedRuns[0]?.issueCounts?.blocking ?? 0, { whole: true })}</dd>
+            </div>
+            <div>
+              <dt>Warnings</dt>
+              <dd>{formatNumber(trustedRuns[0]?.issueCounts?.warning ?? 0, { whole: true })}</dd>
+            </div>
+            <div>
+              <dt>Published snapshot</dt>
+              <dd>{trustedRuns[0]?.snapshotId || "Not published by the trusted tool"}</dd>
+            </div>
+          </dl>
+          <div className="season-ops-command-grid">
+            <article>
+              <strong>1. Safe dry run</strong>
+              <code>npm run season:reconcile</code>
+              <small>Reads the season and creates a local report. It does not change competition data.</small>
+            </article>
+            <article>
+              <strong>2. Publish after review</strong>
+              <code>npm run season:reconcile:publish</code>
+              <small>Publishes only when the trusted audit has no blocking integrity errors.</small>
+            </article>
+          </div>
+          <p className="season-ops-trusted__privacy">
+            The private service-account file stays outside this project and must never be committed.
+            This free-first tool runs only when an administrator starts it on the trusted computer.
+          </p>
+        </section>
+      )}
 
       <div className="season-ops-grid">
         <section className="season-ops-card card">

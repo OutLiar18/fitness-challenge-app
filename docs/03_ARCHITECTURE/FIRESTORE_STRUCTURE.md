@@ -1,8 +1,8 @@
 # Champions Legacy Challenge — Firestore Structure
 
 Last updated: 4 August 2026  
-Current release target: v0.20.0  
-Current production: v0.19.0
+Current release target: v0.21.0  
+Current production: v0.21.0
 
 ## Player and activity
 
@@ -76,3 +76,16 @@ The command centre reads existing collections only: `leagues`, `leagueHouses`, `
 - `entryCorrections` — owner-readable immutable correction records; Platform Administrator create only.
 
 `challengeEntries`, `leagueContributions` and `seasonEvidenceClaims` receive backwards-compatible optional correction metadata. No bulk migration is required.
+
+## `seasonTrustedRuns` — v0.21.0
+
+<!-- RELEASE_STATUS: DEPLOYED -->
+
+Purpose: immutable summaries of successful trusted local publications.
+
+Client access:
+
+- read: Platform Administrators and administrators assigned to the referenced season;
+- create/update/delete: denied to every client role.
+
+Admin SDK publication also creates a trusted `leagueLeaderboardSnapshots` document and an `auditEvents` record, then advances the standard league publication pointer.

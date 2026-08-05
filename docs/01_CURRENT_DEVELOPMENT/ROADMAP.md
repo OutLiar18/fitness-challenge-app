@@ -1,41 +1,38 @@
 # Champions Legacy Challenge — Roadmap
 
-Last updated: 4 August 2026
+<!-- RELEASE_STATUS: DEPLOYED -->
+Last updated: 5 August 2026
 
-## Current candidate — v0.20.0
+## Current production — v0.21.0
 
-Audited factual correction and history resilience:
+Trusted Standings and Season Reconciliation:
 
-- replacement-entry workflow instead of direct edits;
-- immutable correction heads and correction records;
-- contribution reversal/replacement reconciliation;
-- proof-claim supersession for evidence-linked mistakes;
-- active personal-history resolution;
-- seven-recorded-day Journal pagination;
-- targeted integrity diagnostics and report export.
+- free local Firebase Admin SDK dry run;
+- immutable season-source fingerprint;
+- standings, honours and snapshot comparison;
+- evidence/correction/contribution integrity checks;
+- guarded immutable trusted publication;
+- Command Centre trusted status;
+- Rules, tests, documentation and recovery package.
 
-## Recommended next phases
+## After v0.21.0 deployment
 
-### v0.21.0 — Trusted competition operations
+1. Perform a controlled production dry run after secure credential setup.
+2. Review any real-data findings before publishing a trusted snapshot.
+3. Define the account-deletion and shared-history anonymisation policy before implementing deletion execution.
+4. Review large-season reconciliation/query limits using real season volume.
+5. Decide whether future reliable automatic publication justifies paid backend infrastructure.
 
-- Trusted server/Admin SDK recalculation for prize-bearing seasons.
-- Reliable scheduled leaderboard publication.
-- Trusted account deletion execution.
-- Recovery and whole-season reconciliation tools.
-- Cursor-based underlying history loading after real usage measurements justify it.
+## Final pre-v1.0 phase
 
-### Final pre-v1.0 review
+- complete end-to-end product review;
+- responsive and cross-device review;
+- keyboard and screen-reader review;
+- dark-mode and visual consistency review;
+- security and operational runbook review;
+- production data and recovery rehearsal;
+- explicit approval before any v1.0 declaration or tag.
 
-- Full desktop, tablet and mobile workflows.
-- Dark-mode and visual consistency.
-- Keyboard, screen-reader and reduced-motion verification.
-- Complete end-to-end season rehearsal with test accounts.
-- Security, privacy and operational sign-off.
+## Inactive until separately confirmed
 
-## Deferred until separately defined
-
-Power Plays, Diamonds, full Transfer Market, Buddy Bonus, Five Fires, gender scoring and late-season twists remain inactive.
-
-## v1.0 boundary
-
-No v1.0 declaration or Git tag without explicit user approval after the final review.
+Power Plays, Diamonds, full Transfer Market, Buddy Bonus, Five Fires and undefined late-season twists.

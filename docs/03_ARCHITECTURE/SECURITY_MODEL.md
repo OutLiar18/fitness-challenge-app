@@ -1,8 +1,8 @@
 # Champions Legacy Challenge — Security Model
 
 Last updated: 4 August 2026  
-Current release target: v0.20.0  
-Current production: v0.19.0
+Current release target: v0.21.0  
+Current production: v0.21.0
 
 ## Principles
 
@@ -54,3 +54,11 @@ The command centre does not expand Firestore authority. Platform and season admi
 ## Audited factual correction authority
 
 Only Platform Administrators may create correction replacements, correction heads, correction records, correction contributions or correction-specific claim transitions. Rules keep user, category and challenge date fixed, block Pocket sources, require a matching audit event, enforce forward-only correction sequences and prevent corrected source entries from being deleted. Players may read only correction records that belong to them.
+
+## Local Admin SDK trust boundary — v0.21.0
+
+<!-- RELEASE_STATUS: DEPLOYED -->
+
+The trusted reconciliation CLI runs outside the browser with a private service-account credential. Admin SDK access bypasses client Security Rules, so the command narrows its own authority through dry-run defaults, integrity gates, explicit publication confirmation, immutable writes and idempotent fingerprints.
+
+Credential files and local reports are ignored by Git. No client can write `seasonTrustedRuns`, and only authorised operators can read those summaries.

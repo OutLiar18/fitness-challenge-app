@@ -9,6 +9,7 @@ import {
   getChaosReadiness,
   getSeasonWeekKey,
 } from "./seasonModel";
+import { summarizeTrustedSeasonRun } from "./trustedSeasonModel";
 
 const EVIDENCE_CATEGORIES = Object.freeze([
   "water",
@@ -181,6 +182,8 @@ export function buildSeasonCommandCentre({
   reviewerAssignments = [],
   snapshots = [],
   contributions = [],
+  trustedRuns = [],
+  trustedOperationsEnabled = false,
   referenceDate = new Date(),
 } = {}) {
   const evidence = summarizeEvidenceWorkload({
@@ -199,6 +202,7 @@ export function buildSeasonCommandCentre({
     snapshots,
     referenceDate,
   });
+  const trusted = summarizeTrustedSeasonRun(trustedRuns[0] ?? null, referenceDate);
   const chaos = getChaosReadiness({ league, houses, memberships });
   const registeredCount = memberships.filter((member) => member.status === "registered").length;
   const activeCount = memberships.filter((member) => member.status === "active").length;
@@ -287,25 +291,57 @@ export function buildSeasonCommandCentre({
         "evidence",
       ));
     }
+    if (trustedOperationsEnabled && ["blocked", "failed"].includes(trusted.status)) {
+      actions.push(createAction(
+        "resolve-trusted-reconciliation",
+        trusted.label,
+        trusted.detail,
+        "danger",
+        "trusted",
+      ));
+    } else if (trustedOperationsEnabled && ["never-run", "stale"].includes(trusted.status)) {
+      actions.push(createAction(
+        "run-trusted-reconciliation",
+        trusted.label,
+        trusted.detail,
+        "warning",
+        "trusted",
+      ));
+    }
     if (publication.due) {
       actions.push(createAction(
         "publish-standings",
-        "Publish today’s leaderboard snapshot",
-        `The ${publication.automaticTime} ${publication.timezone} fallback is due. Players still see the previous snapshot until publication succeeds.`,
+        trustedOperationsEnabled
+          ? "Run trusted reconciliation and publish today’s standings"
+          : "Publish today’s leaderboard snapshot",
+        trustedOperationsEnabled
+          ? `Use the free local trusted command. Players still see the previous snapshot until the ${publication.automaticTime} ${publication.timezone} publication succeeds.`
+          : `The ${publication.automaticTime} ${publication.timezone} fallback is due. Players still see the previous snapshot until publication succeeds.`,
         "warning",
-        "evidence",
+        trustedOperationsEnabled ? "trusted" : "evidence",
       ));
     }
   }
 
   if (league?.status === "completed") {
+    if (trustedOperationsEnabled && ["blocked", "failed"].includes(trusted.status)) {
+      actions.push(createAction(
+        "resolve-final-reconciliation",
+        trusted.label,
+        trusted.detail,
+        "danger",
+        "trusted",
+      ));
+    }
     if (!publication.publishedToday) {
       actions.push(createAction(
         "publish-final-standings",
-        "Publish the final season snapshot",
+        trustedOperationsEnabled
+          ? "Run trusted reconciliation and publish the final snapshot"
+          : "Publish the final season snapshot",
         "Freeze the latest accepted evidence and final standings before archiving the season.",
         "warning",
-        "evidence",
+        trustedOperationsEnabled ? "trusted" : "evidence",
       ));
     } else {
       actions.push(createAction(
@@ -352,6 +388,7 @@ export function buildSeasonCommandCentre({
     decisionHistory,
     leadership,
     publication,
+    trusted,
     contributions: {
       count: contributions.length,
       pointsTotal,
@@ -368,6 +405,7 @@ export function buildSeasonOperationsReport({
   decisions = [],
   reviewerAssignments = [],
   snapshots = [],
+  trustedRuns = [],
   generatedAt = new Date(),
   generatedBy = "",
 } = {}) {
@@ -389,5 +427,6 @@ export function buildSeasonOperationsReport({
     evidenceDecisions: decisions,
     reviewerAssignments,
     leaderboardSnapshots: snapshots,
+    trustedSeasonRuns: trustedRuns,
   };
 }

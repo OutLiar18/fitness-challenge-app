@@ -1,7 +1,7 @@
 # Champions Legacy Challenge — Testing Guide
 
-Current release target: v0.20.0  
-Current production: v0.19.0
+Current release target: v0.21.0  
+Current production: v0.21.0
 
 ## Standard release commands
 
@@ -15,13 +15,13 @@ npm audit
 
 The Firestore Emulator requires Java 21.
 
-## v0.20.0 expected baseline
+## v0.21.0 expected baseline
 
-- 96 domain tests.
-- 44 Firestore Security Rules tests.
+- 104 domain tests.
+- 46 Firestore Security Rules tests.
 - Clean ESLint.
 - Successful Vite production build.
-- Release-readiness confirmed for v0.20.0 and Hosting target `app`.
+- Release-readiness confirmed for v0.21.0 and Hosting target `app`.
 
 ## Correction domain coverage
 
@@ -70,3 +70,9 @@ Rules should dispatch only the relevant validation branch. `maximum of 1000 expr
 - Because v0.20.0 changes Firestore Rules, deploy Rules and Hosting together with `npm run deploy:production`.
 - Run the included finaliser only after successful production deployment.
 - Do not create a v1.0 tag without explicit approval.
+
+## v0.21.0 trusted season coverage
+
+<!-- RELEASE_STATUS: DEPLOYED -->
+
+Domain tests cover deterministic fingerprints, publishable audits, snapshot comparison, broken evidence links, missing released contributions, incomplete corrections, stale run summaries and Command Centre actions. Firestore Rules tests confirm authorised trusted-run reads and deny every client write. The production Admin SDK command is not executed by release tests.

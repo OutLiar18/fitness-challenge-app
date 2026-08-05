@@ -1,8 +1,8 @@
 # Champions Legacy Challenge — Data Model
 
 Last updated: 4 August 2026  
-Current release target: v0.20.0  
-Current production: v0.19.0
+Current release target: v0.21.0  
+Current production: v0.21.0
 
 ## Principle
 
@@ -67,3 +67,11 @@ Correction contributions use `correctionId`, `correctionRole` (`reversal` or `re
 ### Evidence correction metadata
 
 Claims may use `supersededByClaimId`, `correctionId`, `replacesClaimId` and `correctionIds`. The new terminal display state `superseded` preserves the earlier claim instead of deleting it.
+
+## Trusted season publication records — v0.21.0
+
+<!-- RELEASE_STATUS: DEPLOYED -->
+
+`seasonTrustedRuns/{runId}` is an immutable operational summary containing season identity, model version, mode, status, source counts, issue counts, fingerprint, snapshot ID, actor and timestamps. It does not contain private service-account material or WhatsApp media.
+
+Trusted `leagueLeaderboardSnapshots` add `publicationType: trusted-local`, `trustedFingerprint`, `trustedRunId`, reconciliation status and source/issue counts. Existing player and House rows remain the player-facing standings payload.

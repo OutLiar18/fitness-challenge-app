@@ -1,7 +1,7 @@
 # Champions Legacy Challenge — Component Architecture
 
 Last updated: 4 August 2026  
-Current release target: v0.20.0
+Current release target: v0.21.0
 
 ## Protected application shell
 
@@ -30,3 +30,9 @@ Evidence statuses use text and tone together, IDs are copyable with feedback, fo
 ## Entry Integrity workspace
 
 `EntryIntegrityWorkspace` is a Platform Administration tab. It reuses category-specific `EntryForm` components for factual fields, displays targeted diagnostics and immutable chain history, requires a correction reason and exports a portable integrity report. `EntryCard` exposes correction history to the player without offering edit controls.
+
+## Trusted season operations — v0.21.0
+
+<!-- RELEASE_STATUS: DEPLOYED -->
+
+`SeasonCommandCentre` displays authorised trusted-publication status and command instructions. It does not receive a credential, run the Admin SDK or publish from the browser. Elevated operation remains in the local CLI.

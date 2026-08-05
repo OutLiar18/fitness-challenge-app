@@ -1,7 +1,7 @@
 # Champions Legacy Challenge — Service Architecture
 
 Last updated: 4 August 2026  
-Current release target: v0.20.0
+Current release target: v0.21.0
 
 ## Pure domain services
 
@@ -40,3 +40,12 @@ Pages render model/service output. They must not reimplement points, deadline, r
 - `entryCorrectionService` loads one integrity bundle and executes the Platform Administrator transaction that creates replacement, correction, audit, contribution and claim records.
 
 Personal providers expose both `rawEntries` and resolved active `entries`. All existing progression/analytics consumers continue to read `entries`, so they automatically ignore superseded versions.
+
+## Trusted season services — v0.21.0
+
+<!-- RELEASE_STATUS: DEPLOYED -->
+
+- `trustedSeasonModel.js` — pure canonicalisation, fingerprinting, integrity inspection, standings/honours recalculation, snapshot comparison and run-status summaries.
+- `trusted-season-reconcile.mjs` — local Admin SDK orchestration, interactive selection, report writing and guarded publication.
+- `seasonOperationsService.js` — authorised client subscription to immutable trusted-run summaries.
+- `seasonOperationsModel.js` — Command Centre actions and trusted status derived from the latest published run.

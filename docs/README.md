@@ -1,8 +1,8 @@
 # Champions Legacy Challenge Documentation
 
 <!-- RELEASE_STATUS: DEPLOYED -->
-Current source: **v0.20.0 — Audited Factual Corrections and History Resilience**  
-Current production: **v0.20.0**  
+Current source: **v0.21.0 — Trusted Standings and Season Reconciliation**  
+Current production: **v0.21.0**  
 Status: **Verified and deployed; release commit pending; pre-v1.0**
 
 Start with:
@@ -13,14 +13,12 @@ Start with:
 4. `01_CURRENT_DEVELOPMENT/ACTIVE_MIGRATIONS.md`
 5. `01_CURRENT_DEVELOPMENT/NEXT_SESSION.md`
 
-Key current product and architecture sources:
+Current trusted-operations sources:
 
-- `02_GAME_DESIGN/AUDITED_ENTRY_CORRECTIONS.md`
+- `02_GAME_DESIGN/TRUSTED_SEASON_RECONCILIATION.md`
+- `04_DEVELOPMENT/TRUSTED_SEASON_OPERATIONS.md`
 - `02_GAME_DESIGN/SEASON_COMMAND_CENTRE.md`
 - `02_GAME_DESIGN/EVIDENCE_AND_PUBLISHED_STANDINGS.md`
-- `02_GAME_DESIGN/LEAGUE_SYSTEM.md`
-- ADR-025 — External Evidence and Published Daily Standings.
-- ADR-026 — Season Command Centre and Role-scoped Reports.
-- ADR-027 — Audited Entry Corrections and Active History.
+- ADR-028 — Free-First Trusted Season Reconciliation.
 
-Historical ADRs remain records even when superseded. The main v0.20.0 updater includes all documentation and an in-package release finaliser; do not create a separate documentation-sync archive.
+Correction architecture remains defined by `AUDITED_ENTRY_CORRECTIONS.md` and ADR-027. Historical ADRs remain records even when later decisions extend them. Documentation and the release finaliser ship inside the main updater.

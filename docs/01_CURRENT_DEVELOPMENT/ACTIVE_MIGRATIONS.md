@@ -1,42 +1,33 @@
 # Champions Legacy Challenge — Active Migrations
 
 <!-- RELEASE_STATUS: DEPLOYED -->
-Last updated: 4 August 2026
+Last updated: 5 August 2026
 
-## v0.20.0 correction collections and compatibility
+## v0.21.0 trusted operations
 
 Status: Implementation, Windows verification and production deployment complete; release commit pending
 
-No bulk data migration is required.
+No bulk Firestore data migration is required.
 
-New documents are created only when a Platform Administrator performs a factual correction:
+New records appear only after a successful trusted publication:
 
-- `entryCorrectionHeads/{rootEntryId}` — mutable pointer to the current immutable entry version;
-- `entryCorrections/{correctionId}` — immutable audit and reconciliation record.
+- `seasonTrustedRuns/{runId}` — immutable operational summary readable by Platform and season administrators;
+- trusted fields on a new `leagueLeaderboardSnapshots` record;
+- one immutable `auditEvents` publication record.
 
-Existing entries remain valid without correction metadata. New ordinary and Pocket entries write empty correction defaults. Existing proof claims remain valid; correction-specific fields use safe empty defaults until a claim is superseded or linked to a correction.
+The existing league document advances only its published-snapshot pointer, revision and standard audit metadata.
 
-## Runtime read-model migration
+## Dependency installation
 
-- Player subscriptions now include correction heads and correction records owned by the signed-in player.
-- The active-history resolver filters superseded entry versions from goals, progression, analytics and records.
-- Personal export schema advances from 1 to 2 and includes correction history.
-- No existing Firestore document needs to be rewritten merely to support v0.20.0.
+`firebase-admin` is a new development dependency used only by the local Node.js command. The first Windows `npm install` must refresh `package-lock.json` before release gates are considered authoritative.
 
-## Deployment dependency
+## Credential setup
 
-Firestore Security Rules change in this release. After all release gates pass, deploy Rules and Hosting together with:
+No credential is included in the updater. After deployment, the administrator performs the one-time setup in `docs/04_DEVELOPMENT/TRUSTED_SEASON_OPERATIONS.md`. The private JSON file stays outside the project.
 
-```powershell
-npm run deploy:production
-```
+## Compatibility
 
-## Release completion workflow
-
-1. Apply the main updater.
-2. Run `npm install`, `npm run check`, `npm run test:rules`, `npm run check:release` and `npm audit`.
-3. After approval, run `npm run deploy:production`.
-4. Run the included `FINALISE_RELEASE.ps1`.
-5. Commit the finalised source and documentation.
-
-No separate documentation package is required.
+- Existing v1 and v2 season records remain readable.
+- Existing manual and administrator-session fallback snapshots remain valid.
+- Players continue to read the season's current published snapshot.
+- No scoring, evidence, correction or House-assignment document is rewritten merely to support v0.21.0.

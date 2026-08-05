@@ -2577,3 +2577,69 @@ test("a qualifying Running correction atomically reverses points and supersedes 
   assert.equal(oldClaimAfter.data().status, "superseded");
   assert.equal(oldClaimAfter.data().supersededByClaimId, newClaimId);
 });
+
+test("trusted season run status is visible only to Platform and season administrators", async () => {
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", "trusted-season"), seasonDataV2({
+      status: "active",
+      actorId: "player-one",
+      participantCount: 2,
+      chaosStatus: "activated",
+      active: true,
+    }));
+    await setDoc(doc(firestore, "seasonTrustedRuns", "trusted-run-one"), {
+      leagueId: "trusted-season",
+      leagueName: "Trusted Season",
+      modelVersion: "trusted-season-v1",
+      mode: "publish",
+      status: "published",
+      fingerprint: "abc12345",
+      snapshotId: "snapshot-one",
+      actorId: "admin-one",
+      sourceCounts: { memberships: 2, contributions: 4 },
+      issueCounts: { blocking: 0, warning: 0, information: 0 },
+      snapshotComparison: { status: "matching", playerDifferenceCount: 0, houseDifferenceCount: 0 },
+      issueSample: [],
+      startedAt: Timestamp.now(),
+      completedAt: Timestamp.now(),
+      createdAt: Timestamp.now(),
+      lastAuditId: "trusted-audit",
+    });
+  });
+
+  await assertSucceeds(
+    getDoc(doc(adminContext().firestore(), "seasonTrustedRuns", "trusted-run-one")),
+  );
+  await assertSucceeds(
+    getDoc(doc(playerContext("player-one").firestore(), "seasonTrustedRuns", "trusted-run-one")),
+  );
+  await assertFails(
+    getDoc(doc(playerContext("player-two").firestore(), "seasonTrustedRuns", "trusted-run-one")),
+  );
+});
+
+test("trusted season run records cannot be written by any client role", async () => {
+  const payload = {
+    leagueId: "trusted-season",
+    leagueName: "Trusted Season",
+    modelVersion: "trusted-season-v1",
+    mode: "dry-run",
+    status: "healthy",
+    fingerprint: "abc12345",
+    snapshotId: "",
+    actorId: "admin-one",
+    sourceCounts: {},
+    issueCounts: { blocking: 0, warning: 0, information: 0 },
+    snapshotComparison: { status: "missing", playerDifferenceCount: 0, houseDifferenceCount: 0 },
+    issueSample: [],
+    startedAt: Timestamp.now(),
+    completedAt: Timestamp.now(),
+    createdAt: Timestamp.now(),
+    lastAuditId: "",
+  };
+
+  await assertFails(
+    setDoc(doc(adminContext().firestore(), "seasonTrustedRuns", "client-created"), payload),
+  );
+});

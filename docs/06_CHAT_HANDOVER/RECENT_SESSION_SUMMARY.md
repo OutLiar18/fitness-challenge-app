@@ -1,44 +1,42 @@
-# Recent Session Summary — v0.20.0
+# Recent Session Summary — v0.21.0
 
 <!-- RELEASE_STATUS: DEPLOYED -->
-Date: 4 August 2026
+Date: 5 August 2026
 
 ## Baseline
 
-The work began from Kyle's clean committed/deployed v0.19.0 archive.
+The work began from Kyle's clean committed and deployed v0.20.0 archive.
+
+## Decision
+
+Kyle requested the simplest free option. The release therefore uses a manual local Firebase Admin SDK tool instead of paid Cloud Functions or scheduled infrastructure.
 
 ## Implemented
 
-- Added correction metadata defaults to ordinary and Pocket entry creation.
-- Added `entryHistoryModel`, `entryCorrectionModel` and `entryCorrectionService`.
-- Added Platform Administration `EntryIntegrityWorkspace` with blocking-error protection.
-- Added owner subscriptions for correction heads/records.
-- Resolved raw immutable entries into active personal history before progression and analytics.
-- Added Journal date index and seven-recorded-day pagination.
-- Added correction visibility to EntryCard.
-- Added superseded proof status and evidence filter.
-- Added correction records to personal export schema version 2.
-- Added Firestore Rules for correction entries, heads, records, contributions and proof transitions.
-- Added 11 domain tests and 5 Rules tests, bringing verified totals to 96 and 44.
-- Added announcement, ADR-027, canonical game-design documentation and release records.
+- Added `trustedSeasonModel` with stable fingerprints, standings/honours recalculation, integrity checks and snapshot comparison.
+- Added `trusted-season-reconcile.mjs` with interactive season selection, safe dry run, local report and guarded publication.
+- Added idempotent trusted snapshot publication plus immutable run and audit records.
+- Added trusted-run subscriptions and status to the Season Command Centre and its downloadable operations report.
+- Added client Rules that allow Platform/season administrators to read trusted runs and deny all client writes.
+- Added 8 domain tests and 2 Rules tests, bringing verified totals to 104 and 46.
+- Added Firebase Admin SDK development dependency, package scripts, credential/report ignore rules, announcement, ADR-028 and operating documentation.
+- Updated stale v0.20.0 release wording inside the current project documentation.
 
 ## Important invariants
 
-- Only Platform Administrators correct entries.
-- Player/category/challenge date remain fixed.
-- House attribution remains the original snapshot.
-- Earlier entries, contributions and proof decisions remain immutable.
-- Point reconciliation is reversal plus replacement, never direct editing.
-- A corrected non-qualifying run supersedes the old Running claim without creating a new one.
-- Pocket redemptions are not replaceable in v0.20.0.
+- The trusted model reuses existing league scoring.
+- Dry run does not change Firebase competition records.
+- Blocking integrity issues prevent publication.
+- Publication requires explicit intent and confirmation.
+- Unchanged trusted fingerprints do not create duplicate snapshots.
+- Service-account credentials remain outside the project.
+- No automatic scheduler, account deletion execution, scoring change or undefined twist is included.
 
 ## Packaging verification
 
-- 96/96 domain tests pass.
+- 104/104 domain tests pass.
 - JS/MJS syntax checks pass.
-- 210 source modules have zero unresolved local imports and zero unreferenced modules.
-- Full npm install/lint/build and Rules emulator execution could not run in Linux because the internal package registry lacked one transitive dependency and Firebase CLI was unavailable.
+- Local imports and Rules delimiters pass static audit.
+- Windows dependency install, ESLint, build and 46 Rules tests remain authoritative release gates.
 
-## Release verification
-
-Authoritative Windows verification passed 96 domain tests, 44 Firestore Rules tests, ESLint, the Vite production build and release-readiness for v0.20.0 on Hosting target `app`. Firestore Rules and branded Hosting deployed successfully. Do not run `npm audit fix --force` and do not create a v1.0 tag.
+Do not run `npm audit fix --force`, deploy, finalise, commit or create a v1.0 tag until those gates pass.

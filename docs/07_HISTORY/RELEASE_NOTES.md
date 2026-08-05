@@ -1,5 +1,18 @@
 # Champions Legacy Challenge — Release Notes
 
+<!-- RELEASE_STATUS: DEPLOYED -->
+
+## v0.21.0 — Trusted Standings and Season Reconciliation
+
+Date: 5 August 2026  
+Status: Verified production deployment; production is v0.21.0
+
+Platform Administrators can now rebuild season standings and honours from frozen rules, memberships and immutable contributions through a free local trusted command. The default dry run writes only a local report. Evidence, correction and contribution links are checked before publication, and blocking findings stop the operation. A successful explicit publication creates an immutable trusted snapshot, trusted-run summary and audit event with a deterministic source fingerprint.
+
+The Season Command Centre shows authorised operators whether a trusted publication is missing, stale or blocked. The release does not add paid Cloud Functions, automatic scheduling, account-deletion execution or new scoring rules.
+
+Expected release gates: 104 domain tests, 46 Firestore Rules tests, clean ESLint, successful Vite build and v0.21.0 release-readiness.
+
 ## v0.20.0 — Audited Factual Corrections and History Resilience
 
 Date: 4 August 2026  

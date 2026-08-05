@@ -24,3 +24,4 @@ Accepted decisions are permanent historical records. Superseding a decision requ
 - `ADR-026-season-command-centre-and-role-scoped-reports.md` — derived season operations, next-action guidance and local role-scoped reports.
 
 - `ADR-027-audited-entry-corrections-and-active-history.md` — immutable replacement entries, correction heads, derived reconciliation and active personal history.
+- `ADR-028-free-first-trusted-season-reconciliation.md` — local Admin SDK reconciliation before paid scheduled infrastructure.

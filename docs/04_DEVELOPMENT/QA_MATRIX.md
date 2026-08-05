@@ -1,16 +1,16 @@
 # Champions Legacy Challenge — QA Matrix
 
-Current release target: v0.20.0
+Current release target: v0.21.0
 
 ## Automated release matrix
 
 | Area | Required result |
 |---|---|
 | Lint | ESLint passes without warnings |
-| Domain | 80 tests pass |
-| Firestore Rules | 39 tests pass using Java 21 |
+| Domain | 104 tests pass |
+| Firestore Rules | 46 tests pass using Java 21 |
 | Build | Vite production build succeeds |
-| Release structure | v0.18.0, Hosting target `app`, required evidence/docs/finaliser present |
+| Release structure | v0.21.0, Hosting target `app`, trusted operations/docs/finaliser present |
 | Static audit | no unresolved local imports or unintended unreferenced source/styles |
 
 ## Evidence-specific assertions
@@ -53,3 +53,13 @@ No media upload, no direct point editing, no silent evidence mutation, no false 
 - Confirm Journal recorded-day pagination and keyboard focus.
 - Confirm integrity JSON uses ISO timestamps and excludes WhatsApp media.
 - Confirm Pocket entries are diagnosed but correction submission is unavailable.
+## v0.21.0 trusted reconciliation matrix
+
+- Fingerprint remains stable when Firestore source order changes.
+- Complete immutable records produce a publishable audit.
+- Missing evidence, decision, correction and replacement links block publication.
+- Matching snapshots are recognised without duplicate publication intent.
+- Platform/season administrators can read trusted-run summaries; ordinary players cannot.
+- No client role can create or mutate trusted-run records.
+- Dry-run operation changes no Firebase competition state.
+- Service-account credentials and reports remain outside source control.

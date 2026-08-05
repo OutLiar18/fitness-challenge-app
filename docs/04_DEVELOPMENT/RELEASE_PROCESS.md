@@ -45,3 +45,9 @@ Do not run `npm audit fix --force`. Record known non-applicable or breaking advi
 ## v0.20.0 finalisation
 
 The authoritative gates are 96 domain tests, 44 Firestore Rules tests, clean ESLint/build, v0.20.0 release-readiness and npm audit review. Deploy with `npm run deploy:production`, run the updater's `FINALISE_RELEASE.ps1`, then commit. Do not generate a separate documentation archive.
+
+## v0.21.0 dependency and credential boundary
+
+<!-- RELEASE_STATUS: DEPLOYED -->
+
+Run `npm install` before the release gates so `package-lock.json` records the Firebase Admin SDK dependency. Do not configure or execute production trusted reconciliation as part of deployment verification. Credential setup and the first production dry run occur only after the release is deployed and documented.

@@ -1,9 +1,12 @@
 # Champions Legacy Challenge — Version History
 
+<!-- RELEASE_STATUS: DEPLOYED -->
+
 ## Recorded releases
 
 | Version | Date | Milestone |
 |---|---|---|
+| 0.21.0 | 5 August 2026 | Trusted standings and free local season reconciliation; verified production deployment |
 | 0.20.0 | 4 August 2026 | Audited factual corrections and active-history resilience; verified production deployment |
 | 0.19.0 | 4 August 2026 | Season Command Centre and role-scoped operations reports; verified production deployment |
 | 0.18.0 | 4 August 2026 | External evidence and published standings; verified production deployment |

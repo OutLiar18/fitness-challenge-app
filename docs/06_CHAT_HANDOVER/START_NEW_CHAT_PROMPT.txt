@@ -1,11 +1,17 @@
-This chat continues the Champions Legacy Challenge React + Vite + Firebase project.
+This chat continues development of Champions Legacy Challenge.
 
-Read first:
-- docs/06_CHAT_HANDOVER/CHAT_BRIEFING.md
-- docs/06_CHAT_HANDOVER/RECENT_SESSION_SUMMARY.md
-- docs/01_CURRENT_DEVELOPMENT/CURRENT_STATE.md
-- docs/01_CURRENT_DEVELOPMENT/NEXT_SESSION.md
-- docs/02_GAME_DESIGN/AUDITED_ENTRY_CORRECTIONS.md
-- docs/03_ARCHITECTURE/decisions/ADR-027-audited-entry-corrections-and-active-history.md
+Read these files first:
+1. docs/06_CHAT_HANDOVER/CHAT_BRIEFING.md
+2. docs/06_CHAT_HANDOVER/RECENT_SESSION_SUMMARY.md
+3. docs/01_CURRENT_DEVELOPMENT/CURRENT_STATE.md
+4. docs/01_CURRENT_DEVELOPMENT/ACTIVE_MIGRATIONS.md
+5. docs/01_CURRENT_DEVELOPMENT/NEXT_SESSION.md
+6. docs/02_GAME_DESIGN/TRUSTED_SEASON_RECONCILIATION.md
+7. docs/04_DEVELOPMENT/TRUSTED_SEASON_OPERATIONS.md
+8. docs/03_ARCHITECTURE/decisions/ADR-028-free-first-trusted-season-reconciliation.md
 
-Current source and production are v0.20.0. Windows verification passed 96 domain tests, 44 Firestore Rules tests, ESLint, the Vite build and release-readiness. Firestore Rules and branded Hosting deployed successfully. Treat v0.20.0 as the production baseline, keep the project pre-v1.0 and do not run npm audit fix --force.
+Current source is the v0.21.0 release candidate. Production is v0.21.0 until Windows verification and deployment pass.
+
+The release adds free local trusted season reconciliation and guarded snapshot publication. It does not add Cloud Functions, billing, automatic scheduling, account-deletion execution or new scoring rules.
+
+Kyle is learning React/Firebase. Give two or three practical steps at a time. Keep all documentation in the main updater. Never run npm audit fix --force. Never declare or tag v1.0 without explicit approval.

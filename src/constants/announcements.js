@@ -1,5 +1,18 @@
 export const ANNOUNCEMENTS = Object.freeze([
   {
+    id: "v0-21-trusted-season-reconciliation",
+    type: "release",
+    icon: "🧮",
+    title: "Season standings can now be checked from a trusted calculation",
+    summary:
+      "Platform Administrators can run a free local reconciliation, inspect integrity findings and publish an immutable trusted leaderboard snapshot.",
+    body:
+      "The trusted season tool rebuilds individual and House standings from frozen season rules, memberships and immutable competition contributions. A safe dry run creates a local JSON report without changing Firebase. Publication is blocked when evidence, correction or contribution links are incomplete, and a successful publication records a stable fingerprint, immutable snapshot, trusted run and audit event. The tool uses a private administrator credential kept outside the project and runs manually, so no paid Cloud Functions or automatic background schedule are required.",
+    publishedAt: "2026-08-05",
+    featured: true,
+    version: "0.21.0",
+  },
+  {
     id: "v0-20-audited-entry-corrections",
     type: "release",
     icon: "🧾",
@@ -9,7 +22,7 @@ export const ANNOUNCEMENTS = Object.freeze([
     body:
       "The new Entry Integrity workspace searches by entry ID or WhatsApp verification ID, diagnoses linked proof and competition records, and creates a factual replacement instead of silently editing or deleting history. Season activity points are reconciled through immutable reversal and replacement contributions, superseded proof remains visible, House attribution stays fixed to the original activity moment, and players see only the current factual version in goals and personal statistics. Journal history now renders seven recorded days at a time while retaining the complete active history for calculations.",
     publishedAt: "2026-08-04",
-    featured: true,
+    featured: false,
     version: "0.20.0",
   },
   {

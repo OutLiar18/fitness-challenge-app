@@ -248,3 +248,6 @@ Accurate documentation is a feature, not an afterthought.
 ## v0.20.0 additions
 
 When correction behaviour changes, update `AUDITED_ENTRY_CORRECTIONS.md`, ADR-027, data/firestore/security/service architecture, Rules tests, personal export documentation, current-state/handover files and release history in the same updater.
+## v0.21.0 additions
+
+When trusted season operations change, update `TRUSTED_SEASON_RECONCILIATION.md`, `TRUSTED_SEASON_OPERATIONS.md`, ADR-028, data/firestore/security/service architecture, Rules tests, Season Command Centre documentation, current-state/handover files and release history in the same updater.

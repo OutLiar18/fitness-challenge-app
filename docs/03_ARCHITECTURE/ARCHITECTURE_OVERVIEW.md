@@ -1,8 +1,8 @@
 # Champions Legacy Challenge — Architecture Overview
 
 Last updated: 4 August 2026  
-Current release target: v0.20.0  
-Current production: v0.19.0
+Current release target: v0.21.0  
+Current production: v0.21.0
 
 ## Layers
 
@@ -48,3 +48,9 @@ The current no-cost iteration performs constrained transactions from the client,
 - Player standings read the latest published snapshot rather than all live contributions.
 - Journal rendering is paginated by recorded day, although the underlying owner entry subscription still loads the full personal history.
 - Whole-database reconciliation and trusted server recalculation remain future work.
+
+## v0.21.0 trusted operations boundary
+
+<!-- RELEASE_STATUS: DEPLOYED -->
+
+The browser application remains a Firebase client governed by Security Rules. Prize-bearing season reconciliation now has a separate local Node.js Admin SDK boundary. The pure `trustedSeasonModel` is shared with domain tests; the CLI loads production records, writes local reports and performs elevated publication only after explicit confirmation. No credential enters the client bundle or repository.

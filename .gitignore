@@ -17,3 +17,6 @@ firestore-export/
 payload/
 APPLY_UPDATE.ps1
 README_UPDATE.md
+trusted-reports/
+*service-account*.json
+*firebase-adminsdk*.json

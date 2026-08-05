@@ -1,5 +1,26 @@
 # Champions Legacy Challenge — Changelog
 
+<!-- RELEASE_STATUS: DEPLOYED -->
+
+## 0.21.0 — Trusted Standings and Season Reconciliation
+
+Date: 5 August 2026  
+Status: Verified production deployment
+
+### Added
+
+- Free local Firebase Admin SDK dry-run and guarded publication commands.
+- Deterministic trusted season fingerprint, integrity findings and snapshot comparison.
+- Immutable trusted publication run and audit records.
+- Season Command Centre trusted status and operating commands.
+- Eight domain tests and two Firestore Rules tests.
+
+### Security and operations
+
+- Browser clients cannot write trusted-run records.
+- Private service-account files and local reports are excluded from Git.
+- No paid Cloud Functions or automatic schedule are introduced.
+
 ## 0.20.0 — Audited Factual Corrections and History Resilience
 
 Status: Verified and deployed; release commit pending

@@ -65,3 +65,9 @@ The command centre does not:
 - replace Houses or Evidence Operations;
 - add a background scheduler;
 - activate Power Plays, Diamonds, Transfer Market or undefined twists.
+
+## Trusted publication status — v0.21.0
+
+<!-- RELEASE_STATUS: DEPLOYED -->
+
+Platform and season administrators receive a free trusted-operations section showing the latest successful trusted publication, fingerprint, blocking/warning counts and snapshot ID. The section exposes the dry-run and publication commands but does not execute elevated operations in the browser. A missing or stale trusted publication becomes a Command Centre action.

@@ -3111,6 +3111,12 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    match /seasonTrustedRuns/{runId} {
+      allow read: if isPlatformAdmin()
+        || isLeagueAdministrator(resource.data.leagueId);
+      allow create, update, delete: if false;
+    }
+
     match /playerNotifications/{notificationId} {
       allow read: if signedIn() && resource.data.userId == request.auth.uid;
       allow create: if signedIn() && validPlayerNotificationCreate(notificationId);

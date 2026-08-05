@@ -114,3 +114,18 @@ export function downloadSeasonOperationsReport(report, league, date = new Date()
   anchor.remove();
   window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
+
+export function subscribeToTrustedSeasonRuns(leagueId, onUpdate, onError) {
+  if (!leagueId) {
+    onUpdate?.([]);
+    return () => {};
+  }
+  return onSnapshot(
+    query(
+      collection(db, "seasonTrustedRuns"),
+      where("leagueId", "==", leagueId),
+    ),
+    (snapshot) => onUpdate?.(sortNewest(mapSnapshot(snapshot), "completedAt")),
+    onError,
+  );
+}

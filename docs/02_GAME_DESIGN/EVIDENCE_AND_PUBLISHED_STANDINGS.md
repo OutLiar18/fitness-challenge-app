@@ -204,3 +204,9 @@ Authorised v2 season operators receive a derived command centre that summarises 
 ## Corrected evidence-linked entries
 
 A required Running or Steps proof claim can be marked `superseded` only through an audited Platform Administrator correction. A qualifying replacement receives its own verification ID; a non-qualifying replacement run receives no Running claim. Earlier verified points are neutralised through immutable correction-reversal contributions. Water and Fruit keep one daily claim and append the replacement/correction link.
+
+## Trusted reconciliation extension — v0.21.0
+
+<!-- RELEASE_STATUS: DEPLOYED -->
+
+Before a trusted publication, evidence claims, decisions and released contribution links are checked alongside correction records. Broken proof relationships block publication. Accepted evidence remains represented by immutable contributions; the trusted command does not rereview WhatsApp media or alter reviewer decisions.
