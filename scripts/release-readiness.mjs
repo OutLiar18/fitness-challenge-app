@@ -19,6 +19,8 @@ const requiredFiles = [
   "docs/04_DEVELOPMENT/TRUSTED_SEASON_OPERATIONS.md",
   "src/services/seasons/trustedSeasonModel.js",
   "scripts/trusted-season-reconcile.mjs",
+  "scripts/register-loader.mjs",
+  "scripts/extension-loader.mjs",
   "tests/trusted-season.test.mjs",
   "scripts/finalise-release.mjs",
 ];
@@ -89,11 +91,14 @@ if (failures.length === 0) {
   if (!packageData.scripts?.["deploy:production"]?.includes("firestore:rules,hosting:app")) {
     failures.push("deploy:production must deploy Firestore Rules and the branded app target together.");
   }
-  if (packageData.scripts?.["season:reconcile"] !== "node scripts/trusted-season-reconcile.mjs") {
-    failures.push("season:reconcile must run the trusted local dry-run command.");
+  if (packageData.scripts?.["season:list"] !== "node --import=./scripts/register-loader.mjs scripts/trusted-season-reconcile.mjs --list") {
+    failures.push("season:list must run the trusted read-only season listing command through the source extension loader.");
   }
-  if (packageData.scripts?.["season:reconcile:publish"] !== "node scripts/trusted-season-reconcile.mjs --publish") {
-    failures.push("season:reconcile:publish must require the explicit publication mode.");
+  if (packageData.scripts?.["season:reconcile"] !== "node --import=./scripts/register-loader.mjs scripts/trusted-season-reconcile.mjs") {
+    failures.push("season:reconcile must run the trusted local dry-run command through the source extension loader.");
+  }
+  if (packageData.scripts?.["season:reconcile:publish"] !== "node --import=./scripts/register-loader.mjs scripts/trusted-season-reconcile.mjs --publish") {
+    failures.push("season:reconcile:publish must require the explicit publication mode through the source extension loader.");
   }
   if (!packageData.scripts?.test?.includes("tests/trusted-season.test.mjs")) {
     failures.push("The v0.21.0 trusted-season test suite is not part of npm test.");
@@ -111,6 +116,8 @@ if (failures.length === 0) {
   ]);
   requireText("scripts/trusted-season-reconcile.mjs", [
     "GOOGLE_APPLICATION_CREDENTIALS",
+    "CHAMPIONS_LEGACY_REPORT_DIR",
+    "champions-legacy-trusted-reports",
     "trusted-local",
     "Publish a new immutable trusted snapshot",
   ]);

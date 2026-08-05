@@ -17,8 +17,9 @@
     "deploy:preview": "npm run build && npx firebase-tools hosting:channel:deploy review --only app --expires 7d --project fitnesschallengeapp-9e87f",
     "deploy:hosting": "npm run build && npx firebase-tools deploy --only hosting:app --project fitnesschallengeapp-9e87f",
     "deploy:production": "npm run check:release && npx firebase-tools deploy --only firestore:rules,hosting:app --project fitnesschallengeapp-9e87f",
-    "season:reconcile": "node scripts/trusted-season-reconcile.mjs",
-    "season:reconcile:publish": "node scripts/trusted-season-reconcile.mjs --publish"
+    "season:list": "node --import=./scripts/register-loader.mjs scripts/trusted-season-reconcile.mjs --list",
+    "season:reconcile": "node --import=./scripts/register-loader.mjs scripts/trusted-season-reconcile.mjs",
+    "season:reconcile:publish": "node --import=./scripts/register-loader.mjs scripts/trusted-season-reconcile.mjs --publish"
   },
   "dependencies": {
     "firebase": "^12.15.0",

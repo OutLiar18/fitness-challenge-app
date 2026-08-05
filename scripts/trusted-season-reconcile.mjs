@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 import { createInterface } from "node:readline/promises";
@@ -14,7 +15,11 @@ import {
 } from "../src/services/seasons/trustedSeasonModel.js";
 
 const DEFAULT_PROJECT_ID = "fitnesschallengeapp-9e87f";
-const REPORT_DIRECTORY = "trusted-reports";
+const DEFAULT_REPORT_DIRECTORY = path.join(
+  os.homedir(),
+  "firebase-private",
+  "champions-legacy-trusted-reports",
+);
 
 function parseArguments(argv) {
   const options = {
@@ -22,6 +27,7 @@ function parseArguments(argv) {
     leagueId: "",
     actorId: "",
     credentialsPath: "",
+    reportDirectory: process.env.CHAMPIONS_LEGACY_REPORT_DIR || DEFAULT_REPORT_DIRECTORY,
     publish: false,
     yes: false,
     list: false,
@@ -38,13 +44,16 @@ function parseArguments(argv) {
     else if (value === "--actor") options.actorId = argv[++index] || "";
     else if (value === "--project") options.projectId = argv[++index] || DEFAULT_PROJECT_ID;
     else if (value === "--credentials") options.credentialsPath = argv[++index] || "";
+    else if (value === "--report-dir") {
+      options.reportDirectory = argv[++index] || DEFAULT_REPORT_DIRECTORY;
+    }
     else throw new Error(`Unknown argument: ${value}`);
   }
   return options;
 }
 
 function printHelp() {
-  console.log(`Champions Legacy Challenge trusted season reconciliation\n\nUsage:\n  npm run season:reconcile\n  npm run season:reconcile -- --league <leagueId>\n  npm run season:reconcile:publish -- --league <leagueId>\n\nOptions:\n  --league <id>       Select a season directly.\n  --actor <userId>    Platform Administrator recorded as the publisher.\n  --credentials <path> Use a service-account JSON file without changing your shell.\n  --project <id>      Override the Firebase project ID.\n  --publish           Publish a new immutable trusted snapshot when safe.\n  --yes               Skip the final publication confirmation.\n  --list              List available seasons and stop.\n  --help              Show this guide.\n\nDry run is the default. It reads production data and writes only a local JSON report.`);
+  console.log(`Champions Legacy Challenge trusted season reconciliation\n\nUsage:\n  npm run season:list\n  npm run season:reconcile\n  npm run season:reconcile -- --league <leagueId>\n  npm run season:reconcile:publish -- --league <leagueId>\n\nOptions:\n  --league <id>       Select a season directly.\n  --actor <userId>    Platform Administrator recorded as the publisher.\n  --credentials <path> Use a service-account JSON file without changing your shell.\n  --report-dir <path> Store local reports outside the repository.\n  --project <id>      Override the Firebase project ID.\n  --publish           Publish a new immutable trusted snapshot when safe.\n  --yes               Skip the final publication confirmation.\n  --list              List available seasons and stop.\n  --help              Show this guide.\n\nDry run is the default. It reads production data and writes only a local JSON report.`);
 }
 
 function initializeTrustedApp(options) {
@@ -180,8 +189,8 @@ function safeFilename(value) {
     .slice(0, 48) || "season";
 }
 
-function writeLocalReport(audit, mode, publication = {}) {
-  const directory = path.resolve(process.cwd(), REPORT_DIRECTORY);
+function writeLocalReport(audit, mode, publication = {}, reportDirectory = DEFAULT_REPORT_DIRECTORY) {
+  const directory = path.resolve(reportDirectory);
   fs.mkdirSync(directory, { recursive: true });
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
   const filename = `${safeFilename(audit.leagueName)}-${mode}-${timestamp}.json`;
@@ -384,7 +393,7 @@ async function main() {
     const audit = buildTrustedSeasonAudit({ league, ...sources });
     printAuditSummary(audit);
 
-    const dryRunPath = writeLocalReport(audit, "dry-run");
+    const dryRunPath = writeLocalReport(audit, "dry-run", {}, options.reportDirectory);
     console.log(`\nLocal dry-run report: ${dryRunPath}`);
 
     if (!options.publish) {
@@ -420,7 +429,12 @@ async function main() {
     });
     if (stableStringify(safetyFields(finalAudit)) !== stableStringify(safetyFields(audit))) {
       printAuditSummary(finalAudit);
-      const refreshedPath = writeLocalReport(finalAudit, "refreshed-dry-run");
+      const refreshedPath = writeLocalReport(
+        finalAudit,
+        "refreshed-dry-run",
+        {},
+        options.reportDirectory,
+      );
       console.error(
         `\nSeason records changed while the first report was being reviewed. Publication stopped. Review the refreshed report: ${refreshedPath}`,
       );
@@ -435,12 +449,17 @@ async function main() {
       actorId,
       sources: finalSources,
     });
-    const publishedPath = writeLocalReport(finalAudit, "published", {
-      actorId,
-      snapshotId: result.snapshotId,
-      runId: result.runId,
-      alreadyCurrent: result.alreadyCurrent,
-    });
+    const publishedPath = writeLocalReport(
+      finalAudit,
+      "published",
+      {
+        actorId,
+        snapshotId: result.snapshotId,
+        runId: result.runId,
+        alreadyCurrent: result.alreadyCurrent,
+      },
+      options.reportDirectory,
+    );
     console.log(result.alreadyCurrent
       ? `\nThe current trusted snapshot already matches fingerprint ${finalAudit.fingerprint}.`
       : `\nTrusted snapshot published: ${result.snapshotId}`);
