@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 
 import {
+  getAccountDeletionTiming,
   getAccountRequestReasonLabel,
   getAccountRequestStatus,
 } from "../../services/account/accountModel";
@@ -21,6 +22,7 @@ function formatDate(value) {
 function RequestCard({ request, actorId, notify }) {
   const [busy, setBusy] = useState(false);
   const status = getAccountRequestStatus(request.status);
+  const timing = getAccountDeletionTiming(request);
 
   async function handleAcknowledge() {
     setBusy(true);
@@ -70,9 +72,9 @@ function RequestCard({ request, actorId, notify }) {
       <div className="account-request-card__note">
         <strong>Operational boundary</strong>
         <p>
-          Acknowledging confirms that the request has been seen. It does not delete
-          Firebase Authentication or shared season history. Complete the trusted
-          manual deletion process before closing the external operational task.
+          Acknowledging starts a seven-day cancellation window. After the window,
+          use the trusted local deletion command. The command removes eligible private
+          records and anonymises shared competition history before deleting Authentication.
         </p>
       </div>
 
@@ -88,9 +90,18 @@ function RequestCard({ request, actorId, notify }) {
       )}
 
       {request.status === "acknowledged" && (
-        <p className="account-request-card__acknowledged">
-          Acknowledged {formatDate(request.acknowledgedAt)} by {request.acknowledgedBy || "an administrator"}.
-        </p>
+        <div className="account-request-card__acknowledged">
+          <p>Acknowledged {formatDate(request.acknowledgedAt)} by {request.acknowledgedBy || "an administrator"}.</p>
+          <p>{timing.eligible ? "Eligible for trusted processing now." : `Trusted processing becomes eligible ${formatDate(timing.eligibleAt)}.`}</p>
+        </div>
+      )}
+
+      {["processing", "failed", "completed"].includes(request.status) && (
+        <div className="account-request-card__acknowledged">
+          <p>{status.description}</p>
+          {request.executionId && <p>Execution: {request.executionId}</p>}
+          {request.failureMessage && <p>Last failure: {request.failureMessage}</p>}
+        </div>
       )}
 
       {request.status === "cancelled" && (
@@ -109,14 +120,14 @@ export default function AccountDeletionRequests({ requests, actorId, notify }) {
       requests.filter((request) => {
         if (statusFilter === "all") return true;
         if (statusFilter === "active") {
-          return request.status === "requested" || request.status === "acknowledged";
+          return ["requested", "acknowledged", "processing", "failed"].includes(request.status);
         }
         return request.status === statusFilter;
       }),
     [requests, statusFilter],
   );
   const activeCount = requests.filter(
-    (request) => request.status === "requested" || request.status === "acknowledged",
+    (request) => ["requested", "acknowledged", "processing", "failed"].includes(request.status),
   ).length;
 
   return (
@@ -126,8 +137,8 @@ export default function AccountDeletionRequests({ requests, actorId, notify }) {
           <p className="section-kicker">Player privacy operations</p>
           <h2>Account deletion requests</h2>
           <p>
-            Acknowledge player requests and continue the trusted operational process
-            outside the browser. Shared season history must not be silently rewritten.
+            Acknowledge player requests, respect the seven-day cancellation window,
+            then use the trusted local processor. Shared history is preserved under an anonymous identity.
           </p>
         </div>
         <strong>{activeCount} active</strong>
@@ -138,6 +149,9 @@ export default function AccountDeletionRequests({ requests, actorId, notify }) {
           { id: "active", label: "Active requests" },
           { id: "requested", label: "New requests" },
           { id: "acknowledged", label: "Acknowledged" },
+          { id: "processing", label: "Processing" },
+          { id: "failed", label: "Needs attention" },
+          { id: "completed", label: "Completed" },
           { id: "cancelled", label: "Cancelled" },
           { id: "all", label: "All requests" },
         ].map((filter) => (

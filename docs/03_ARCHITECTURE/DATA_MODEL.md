@@ -1,8 +1,8 @@
 # Champions Legacy Challenge — Data Model
 
 Last updated: 4 August 2026  
-Current release target: v0.21.0  
-Current production: v0.21.0
+Current release target: v0.22.0  
+Current production: v0.20.0
 
 ## Principle
 
@@ -75,3 +75,12 @@ Claims may use `supersededByClaimId`, `correctionId`, `replacesClaimId` and `cor
 `seasonTrustedRuns/{runId}` is an immutable operational summary containing season identity, model version, mode, status, source counts, issue counts, fingerprint, snapshot ID, actor and timestamps. It does not contain private service-account material or WhatsApp media.
 
 Trusted `leagueLeaderboardSnapshots` add `publicationType: trusted-local`, `trustedFingerprint`, `trustedRunId`, reconciliation status and source/issue counts. Existing player and House rows remain the player-facing standings payload.
+
+## v0.22.0 trusted account deletion
+
+- `accountDeletionRequests/{userId}` stores the request lifecycle, seven-day policy fields, execution link and anonymised completion display.
+- `accountDeletionExecutions/{executionId}` stores trusted-only resumable processing state and planned counts.
+- `accountDeletionReceipts/{receiptId}` stores a trusted-only immutable completion summary and audit link.
+- Preserved shared records may include `accountDeletionAnonymised`, `accountDeletionExecutionId` and `accountDeletionAnonymisedAt`.
+- The former identity uses a deterministic `former-...` identifier and `Former Player XXXX` display label.
+- A new Firebase account is a separate player and is never joined to these records.

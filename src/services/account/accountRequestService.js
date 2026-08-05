@@ -9,6 +9,7 @@ import {
 import { db } from "../../firebase";
 import {
   ACCOUNT_REQUEST_ACKNOWLEDGEMENT_VERSION,
+  createAccountDeletionRequestDefaults,
   normalizeAccountRequestReason,
 } from "./accountModel";
 
@@ -65,6 +66,7 @@ export async function submitAccountDeletionRequest({
         acknowledgedAt: null,
         acknowledgedBy: "",
         lastAuditId: "",
+        ...createAccountDeletionRequestDefaults(),
       });
       return;
     }
@@ -88,6 +90,7 @@ export async function submitAccountDeletionRequest({
       acknowledgedAt: null,
       acknowledgedBy: "",
       lastAuditId: "",
+      ...createAccountDeletionRequestDefaults(),
     });
   });
 }

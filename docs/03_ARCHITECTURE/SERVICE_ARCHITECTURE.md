@@ -1,7 +1,7 @@
 # Champions Legacy Challenge — Service Architecture
 
 Last updated: 4 August 2026  
-Current release target: v0.21.0
+Current release target: v0.22.0
 
 ## Pure domain services
 
@@ -49,3 +49,11 @@ Personal providers expose both `rawEntries` and resolved active `entries`. All e
 - `trusted-season-reconcile.mjs` — local Admin SDK orchestration, interactive selection, report writing and guarded publication.
 - `seasonOperationsService.js` — authorised client subscription to immutable trusted-run summaries.
 - `seasonOperationsModel.js` — Command Centre actions and trusted status derived from the latest published run.
+
+## Trusted account deletion services
+
+- `accountModel.js` owns lifecycle constants, timing, deterministic aliases and request defaults.
+- `trustedDeletionModel.js` is the pure audit/anonymisation model.
+- `trusted-account-delete.mjs` is the elevated local orchestrator for Auth and Firestore.
+- Client request services remain limited to request, cancel, reopen and acknowledge operations.
+- The trusted processor is deliberately not imported into the browser bundle.

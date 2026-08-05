@@ -314,7 +314,19 @@ function inspectCorrection(correction, maps, leagueId) {
     }
   });
   if (!maps.entries.has(correction.replacementEntryId)) {
-    issues.push(createIssue("blocking", "CORRECTION_REPLACEMENT_ENTRY_MISSING", "A completed correction points to a missing replacement entry.", "entryCorrection", id));
+    const accountDeletionRemoved = correction.accountDeletionEntryDataRemoved === true
+      || correction.accountDeletionAnonymised === true;
+    issues.push(createIssue(
+      accountDeletionRemoved ? "warning" : "blocking",
+      accountDeletionRemoved
+        ? "CORRECTION_ENTRY_REMOVED_BY_ACCOUNT_DELETION"
+        : "CORRECTION_REPLACEMENT_ENTRY_MISSING",
+      accountDeletionRemoved
+        ? "The private replacement entry was removed by trusted account deletion; immutable correction contributions remain available for reconciliation."
+        : "A completed correction points to a missing replacement entry.",
+      "entryCorrection",
+      id,
+    ));
   }
   return issues;
 }

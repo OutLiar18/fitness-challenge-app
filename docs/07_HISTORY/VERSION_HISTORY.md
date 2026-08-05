@@ -6,6 +6,7 @@
 
 | Version | Date | Milestone |
 |---|---|---|
+| 0.22.0 | 5 August 2026 | Trusted account deletion and anonymised shared history; verified production deployment |
 | 0.21.0 | 5 August 2026 | Trusted standings and free local season reconciliation; verified production deployment |
 | 0.20.0 | 4 August 2026 | Audited factual corrections and active-history resilience; verified production deployment |
 | 0.19.0 | 4 August 2026 | Season Command Centre and role-scoped operations reports; verified production deployment |

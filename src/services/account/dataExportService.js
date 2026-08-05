@@ -131,6 +131,7 @@ export async function buildPersonalDataExport(userId) {
         "This file contains account-owned data readable by the signed-in player.",
         "Shared season documents, public announcements and administrator-only audit records are not duplicated in this personal export.",
         "Derived points, streaks and analytics can be recalculated from the exported active factual entries and immutable correction chains.",
+        "An acknowledged account deletion request has a seven-day cancellation window before trusted processing can begin.",
       ],
       unavailableSections,
     },

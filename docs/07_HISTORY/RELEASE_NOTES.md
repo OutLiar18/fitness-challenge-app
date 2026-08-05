@@ -1,3 +1,14 @@
+# v0.22.0 — Trusted Account Deletion
+
+<!-- RELEASE_STATUS: DEPLOYED -->
+Date: 5 August 2026
+
+This candidate completes account closure without rewriting the shared season story. Players receive seven days to cancel after acknowledgement. A trusted local administrator tool audits the request before irreversible processing, removes Firebase Authentication and eligible private records, and replaces identity in legitimate shared history with a stable Former Player alias. The final Platform Administrator is protected, partial failures can resume, and completion produces trusted operational records. Fresh registration is allowed but previous history is never restored or reconnected.
+
+Expected verification: 108 domain tests, 47 Firestore Rules tests, clean ESLint, successful Vite build and release-readiness.
+
+---
+
 # Champions Legacy Challenge — Release Notes
 
 <!-- RELEASE_STATUS: DEPLOYED -->
@@ -5,7 +16,7 @@
 ## v0.21.0 — Trusted Standings and Season Reconciliation
 
 Date: 5 August 2026  
-Status: Verified production deployment; production is v0.21.0
+Status: Release candidate; production remains v0.20.0
 
 Platform Administrators can now rebuild season standings and honours from frozen rules, memberships and immutable contributions through a free local trusted command. The default dry run writes only a local report. Evidence, correction and contribution links are checked before publication, and blocking findings stop the operation. A successful explicit publication creates an immutable trusted snapshot, trusted-run summary and audit event with a deterministic source fingerprint.
 

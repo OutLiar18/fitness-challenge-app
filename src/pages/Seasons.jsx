@@ -131,6 +131,7 @@ function getMembershipStatusLabel(status) {
       registered: "Registered",
       active: "Active participant",
       completed: "Season completed",
+      withdrawn: "Former participant",
     }[status] ?? "Participant"
   );
 }

@@ -53,3 +53,7 @@ This release changes Firestore Security Rules. After `npm run check:release` pas
 <!-- RELEASE_STATUS: DEPLOYED -->
 
 v0.21.0 deploys the browser UI and Firestore Rules only. `scripts/trusted-season-reconcile.mjs` stays in the source repository and runs manually from the trusted administrator computer. No function, scheduler or credential is uploaded by `npm run deploy:production`.
+
+## v0.22.0 release note
+
+Deploy Firestore Rules and Hosting together. Do not run a real account deletion as part of release verification. Configure trusted credentials only from the private operations runbook after deployment/finalisation when an actual eligible request exists.

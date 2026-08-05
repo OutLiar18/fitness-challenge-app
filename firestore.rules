@@ -2636,7 +2636,18 @@ service cloud.firestore {
           "cancelledAt",
           "acknowledgedAt",
           "acknowledgedBy",
-          "lastAuditId"
+          "lastAuditId",
+          "deletionPolicyVersion",
+          "waitingPeriodDays",
+          "processingAt",
+          "processingBy",
+          "completedAt",
+          "completedBy",
+          "executionId",
+          "anonymizedPlayerId",
+          "anonymizedDisplayName",
+          "failureAt",
+          "failureMessage"
         ])
         && request.resource.data.userId == request.auth.uid
         && request.resource.data.email is string
@@ -2646,13 +2657,24 @@ service cloud.firestore {
         && request.resource.data.displayName.size() <= 80
         && request.resource.data.status == "requested"
         && validAccountDeletionReason(request.resource.data.reasonCode)
-        && request.resource.data.acknowledgementVersion == 1
+        && request.resource.data.acknowledgementVersion == 2
         && request.resource.data.requestedAt == request.time
         && request.resource.data.updatedAt == request.time
         && request.resource.data.cancelledAt == null
         && request.resource.data.acknowledgedAt == null
         && request.resource.data.acknowledgedBy == ""
-        && request.resource.data.lastAuditId == "";
+        && request.resource.data.lastAuditId == ""
+        && request.resource.data.deletionPolicyVersion == "trusted-deletion-v1"
+        && request.resource.data.waitingPeriodDays == 7
+        && request.resource.data.processingAt == null
+        && request.resource.data.processingBy == ""
+        && request.resource.data.completedAt == null
+        && request.resource.data.completedBy == ""
+        && request.resource.data.executionId == ""
+        && request.resource.data.anonymizedPlayerId == ""
+        && request.resource.data.anonymizedDisplayName == ""
+        && request.resource.data.failureAt == null
+        && request.resource.data.failureMessage == "";
     }
 
     function validAccountDeletionRequestCancel() {
@@ -2682,7 +2704,18 @@ service cloud.firestore {
           "cancelledAt",
           "acknowledgedAt",
           "acknowledgedBy",
-          "lastAuditId"
+          "lastAuditId",
+          "deletionPolicyVersion",
+          "waitingPeriodDays",
+          "processingAt",
+          "processingBy",
+          "completedAt",
+          "completedBy",
+          "executionId",
+          "anonymizedPlayerId",
+          "anonymizedDisplayName",
+          "failureAt",
+          "failureMessage"
         ])
         && request.resource.data.userId == resource.data.userId
         && request.resource.data.email is string
@@ -2692,13 +2725,24 @@ service cloud.firestore {
         && request.resource.data.displayName.size() <= 80
         && request.resource.data.status == "requested"
         && validAccountDeletionReason(request.resource.data.reasonCode)
-        && request.resource.data.acknowledgementVersion == 1
+        && request.resource.data.acknowledgementVersion == 2
         && request.resource.data.requestedAt == request.time
         && request.resource.data.updatedAt == request.time
         && request.resource.data.cancelledAt == null
         && request.resource.data.acknowledgedAt == null
         && request.resource.data.acknowledgedBy == ""
-        && request.resource.data.lastAuditId == "";
+        && request.resource.data.lastAuditId == ""
+        && request.resource.data.deletionPolicyVersion == "trusted-deletion-v1"
+        && request.resource.data.waitingPeriodDays == 7
+        && request.resource.data.processingAt == null
+        && request.resource.data.processingBy == ""
+        && request.resource.data.completedAt == null
+        && request.resource.data.completedBy == ""
+        && request.resource.data.executionId == ""
+        && request.resource.data.anonymizedPlayerId == ""
+        && request.resource.data.anonymizedDisplayName == ""
+        && request.resource.data.failureAt == null
+        && request.resource.data.failureMessage == "";
     }
 
     function validAccountDeletionRequestAcknowledge(requestId) {
@@ -2904,6 +2948,16 @@ service cloud.firestore {
           )
         );
       allow delete: if false;
+    }
+
+    match /accountDeletionExecutions/{executionId} {
+      allow read: if isPlatformAdmin();
+      allow create, update, delete: if false;
+    }
+
+    match /accountDeletionReceipts/{receiptId} {
+      allow read: if isPlatformAdmin();
+      allow create, update, delete: if false;
     }
 
     // Permanent global teams were retired in v0.14.0.

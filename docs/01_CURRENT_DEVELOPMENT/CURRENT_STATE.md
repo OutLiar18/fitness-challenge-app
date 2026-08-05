@@ -1,57 +1,40 @@
 # Champions Legacy Challenge — Current State
 
 <!-- RELEASE_STATUS: DEPLOYED -->
-Version: 0.21.0  
-Production version: 0.21.0  
+Version: 0.22.0  
+Production version: 0.22.0  
 Last updated: 5 August 2026  
 Status: Verified and deployed; release commit pending; pre-v1.0
 
 ## Product state
 
-Champions Legacy Challenge combines factual tracking, personal progression, season Houses, external WhatsApp proof, controlled standings, audited corrections and a Season Command Centre. v0.21.0 adds the first elevated recalculation and publication path for prize-bearing season standings without requiring paid cloud infrastructure.
+The app now combines factual personal tracking, progression, season Houses, WhatsApp evidence, audited corrections, controlled standings, Season Command Centre operations and free local trusted reconciliation. v0.22.0 completes the previously deferred irreversible account-deletion path.
 
-## Delivered in the v0.21.0 candidate
+## Delivered in the v0.22.0 candidate
 
-### Trusted recalculation model
-
-- Rebuilds individual standings, House standings and honours from the frozen season ruleset, memberships and immutable contributions.
-- Produces a deterministic fingerprint independent of Firestore query order.
-- Compares the trusted result with the latest published snapshot.
-- Reports blocking, warning and informational integrity findings.
-- Reuses the existing league calculation model rather than introducing alternate scoring.
-
-### Free local Admin SDK command
-
-- Dry run is the default and changes no Firebase competition state.
-- Detailed reports are written to ignored local `trusted-reports` JSON files.
-- Publication requires an explicit command and `PUBLISH` confirmation.
-- Publication is blocked while integrity errors remain.
-- Unchanged trusted fingerprints do not create duplicate snapshots.
-- Successful publication creates immutable snapshot, run and audit records, then advances the league publication pointer.
-
-### Command Centre and security
-
-- Platform and season administrators can read trusted publication summaries.
-- The Command Centre shows whether a trusted publication is missing, stale or blocked and displays the operating commands.
-- All browser clients are denied writes to `seasonTrustedRuns`.
-- Service-account credentials are explicitly excluded from the repository.
+- Seven-day cancellation period after administrator acknowledgement.
+- Player cancellation only before trusted processing starts.
+- Local Admin SDK commands to list requests, perform dry audits and process eligible requests.
+- Deterministic Former Player aliases that preserve shared history without names or email addresses.
+- Deletion of Firebase Authentication and eligible private account records.
+- Anonymisation of relevant memberships, contributions, evidence, corrections, Pocket records, votes, snapshots, House records and audits.
+- Final Platform Administrator protection, explicit confirmation and final live-plan refresh.
+- Resumable failed executions plus administrator-only completion receipts.
+- Fresh re-registration allowed with no restored or automatically linked history.
+- Personal export schema version 3.
 
 ## Verification state
 
-- 104 of 104 domain tests pass in the packaging environment.
+- 108 of 108 domain tests pass in the packaging environment.
 - JavaScript syntax and local-import audits pass.
-- Windows ESLint, Vite build, 46 Firestore Rules tests and release-readiness are pending.
-- Production is v0.21.0 until those gates pass and deployment is approved.
-
-## Existing complete systems
-
-Authentication, profiles, Legacy Avatars, ten activity categories, Points Engine v2, local-date Journal, goals, bonuses, streaks, shields, Experience Points, levels, achievements, records, timeline, Personal Analytics, trusted client administration, moderation, shared libraries, Inbox, Rulebook, Points Guide, error monitoring, Firebase Hosting, Legacy Coach, season Houses, C.H.A.O.S., leadership voting, roster swaps, Pocket Week, notifications, dual standings, honours, onboarding, personal export, account requests, external evidence, published standings, Season Command Centre and audited factual corrections.
+- Windows ESLint, Vite build, 47 Firestore Rules tests and release-readiness remain authoritative and pending.
+- Production is v0.22.0 until those gates pass and deployment is approved.
 
 ## Boundaries
 
-- No Cloud Functions, paid Firebase plan or automatic background schedule.
-- Actual reconciliation requires a private service-account key outside the project.
-- The tool reports integrity problems but does not silently repair them.
-- Account-deletion execution and anonymisation remain undefined.
+- No Cloud Functions, paid Firebase plan or automatic deletion schedule.
+- A private service-account key is required and must remain outside the project.
+- The tool does not bypass the seven-day window or silently repair unrelated malformed records.
+- Formal legal/privacy review and a confirmed support contact remain required before public launch.
 - Full final cross-device, keyboard, screen-reader, dark-mode and accessibility review remains deferred.
 - Do not call or tag v1.0 without explicit approval.

@@ -1,7 +1,7 @@
 # Champions Legacy Challenge — Testing Guide
 
-Current release target: v0.21.0  
-Current production: v0.21.0
+Current release target: v0.22.0  
+Current production: v0.20.0
 
 ## Standard release commands
 
@@ -14,6 +14,14 @@ npm audit
 ```
 
 The Firestore Emulator requires Java 21.
+
+## v0.22.0 expected baseline
+
+- 108 domain tests.
+- 47 Firestore Rules tests.
+- Clean ESLint and successful Vite build.
+- Release-readiness confirmed for v0.22.0 and Hosting target `app`.
+- Trusted deletion coverage includes timing, final-administrator protection, stable aliases, preserved competition facts and client denial of trusted execution/receipt writes.
 
 ## v0.21.0 expected baseline
 

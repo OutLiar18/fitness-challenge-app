@@ -1,11 +1,32 @@
 # Champions Legacy Challenge — Changelog
 
+## [0.22.0] — 5 August 2026 — Release candidate
+
+### Added
+
+- Seven-day account-deletion cancellation window after administrator acknowledgement.
+- Trusted local request listing, dry audit and confirmed processing commands.
+- Deterministic Former Player anonymisation for preserved shared competition history.
+- Administrator-only deletion execution and completion receipt records.
+- Resumable failed processing, final-administrator protection and final live-plan refresh.
+- Personal export schema version 3 and complete trusted deletion documentation.
+
+### Changed
+
+- Account request lifecycle now includes processing, failed and completed states.
+- Trusted season reconciliation tolerates deliberately removed private correction entries after anonymisation.
+
+### Security
+
+- Client writes to trusted execution and receipt records are denied.
+- Credentials and local reports remain outside the repository and release archives.
+
 <!-- RELEASE_STATUS: DEPLOYED -->
 
 ## 0.21.0 — Trusted Standings and Season Reconciliation
 
 Date: 5 August 2026  
-Status: Verified production deployment
+Status: Release candidate
 
 ### Added
 

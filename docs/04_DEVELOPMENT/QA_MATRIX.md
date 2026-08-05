@@ -1,6 +1,6 @@
 # Champions Legacy Challenge — QA Matrix
 
-Current release target: v0.21.0
+Current release target: v0.22.0
 
 ## Automated release matrix
 
@@ -10,7 +10,7 @@ Current release target: v0.21.0
 | Domain | 104 tests pass |
 | Firestore Rules | 46 tests pass using Java 21 |
 | Build | Vite production build succeeds |
-| Release structure | v0.21.0, Hosting target `app`, trusted operations/docs/finaliser present |
+| Release structure | v0.22.0, Hosting target `app`, trusted deletion operations/docs/finaliser present |
 | Static audit | no unresolved local imports or unintended unreferenced source/styles |
 
 ## Evidence-specific assertions
@@ -63,3 +63,15 @@ No media upload, no direct point editing, no silent evidence mutation, no false 
 - No client role can create or mutate trusted-run records.
 - Dry-run operation changes no Firebase competition state.
 - Service-account credentials and reports remain outside source control.
+
+## v0.22.0 trusted deletion matrix
+
+| Area | Required result |
+|---|---|
+| Waiting period | Acknowledged requests remain blocked for seven days |
+| Cancellation | Player cancellation allowed only before processing |
+| Final administrator | Last Platform Administrator deletion blocked |
+| Dry audit | No Firebase state changes; private local report only |
+| Shared history | Identity anonymised while points and House history remain |
+| Trusted writes | Browser clients cannot write execution or receipt records |
+| Recovery | Failed execution records can be resumed safely |

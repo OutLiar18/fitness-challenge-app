@@ -1,8 +1,8 @@
 # Champions Legacy Challenge — Architecture Overview
 
 Last updated: 4 August 2026  
-Current release target: v0.21.0  
-Current production: v0.21.0
+Current release target: v0.22.0  
+Current production: v0.20.0
 
 ## Layers
 

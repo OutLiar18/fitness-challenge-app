@@ -1,8 +1,8 @@
 # Champions Legacy Challenge — Security Model
 
 Last updated: 4 August 2026  
-Current release target: v0.21.0  
-Current production: v0.21.0
+Current release target: v0.22.0  
+Current production: v0.20.0
 
 ## Principles
 
@@ -62,3 +62,12 @@ Only Platform Administrators may create correction replacements, correction head
 The trusted reconciliation CLI runs outside the browser with a private service-account credential. Admin SDK access bypasses client Security Rules, so the command narrows its own authority through dry-run defaults, integrity gates, explicit publication confirmation, immutable writes and idempotent fingerprints.
 
 Credential files and local reports are ignored by Git. No client can write `seasonTrustedRuns`, and only authorised operators can read those summaries.
+
+## v0.22.0 trusted deletion boundary
+
+- Browser clients cannot delete Firebase Authentication accounts or write execution/receipt records.
+- Players may cancel only while a request is `requested` or `acknowledged`.
+- Only Platform Administrators may read trusted execution and receipt records.
+- The local Admin SDK credential is outside the repository and must never be embedded in the client.
+- The processor blocks deletion of the final Platform Administrator.
+- A dry audit and final live refresh precede any irreversible write.

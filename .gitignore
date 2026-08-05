@@ -20,3 +20,6 @@ README_UPDATE.md
 trusted-reports/
 *service-account*.json
 *firebase-adminsdk*.json
+trusted-account-deletion-reports/
+champions-legacy-account-deletion-reports/
+*admin-credential*.json

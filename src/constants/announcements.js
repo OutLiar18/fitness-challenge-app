@@ -1,5 +1,18 @@
 export const ANNOUNCEMENTS = Object.freeze([
   {
+    id: "v0-22-trusted-account-deletion",
+    type: "release",
+    icon: "🧹",
+    title: "Account deletion now has a trusted, privacy-preserving process",
+    summary:
+      "Players receive a seven-day cancellation window before private account records are removed and shared season history is anonymised.",
+    body:
+      "A Platform Administrator can now audit an acknowledged request with a private local tool, review blocking findings and begin irreversible processing only after an explicit confirmation. The processor removes the Firebase Authentication account and eligible private records, preserves shared competition results under a stable Former Player identity, protects the final Platform Administrator account and records an immutable completion receipt. A deleted person may register again as a completely fresh account, but previous history is never restored or automatically reconnected.",
+    publishedAt: "2026-08-05",
+    featured: true,
+    version: "0.22.0",
+  },
+  {
     id: "v0-21-trusted-season-reconciliation",
     type: "release",
     icon: "🧮",
@@ -9,7 +22,7 @@ export const ANNOUNCEMENTS = Object.freeze([
     body:
       "The trusted season tool rebuilds individual and House standings from frozen season rules, memberships and immutable competition contributions. A safe dry run creates a local JSON report without changing Firebase. Publication is blocked when evidence, correction or contribution links are incomplete, and a successful publication records a stable fingerprint, immutable snapshot, trusted run and audit event. The tool uses a private administrator credential kept outside the project and runs manually, so no paid Cloud Functions or automatic background schedule are required.",
     publishedAt: "2026-08-05",
-    featured: true,
+    featured: false,
     version: "0.21.0",
   },
   {

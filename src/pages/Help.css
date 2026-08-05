@@ -219,3 +219,18 @@
     width: 100%;
   }
 }
+
+.status-pill--processing {
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.status-pill--failed {
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+
+.status-pill--completed {
+  color: var(--success);
+  background: var(--success-soft);
+}

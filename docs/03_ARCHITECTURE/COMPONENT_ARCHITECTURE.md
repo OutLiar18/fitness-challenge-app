@@ -1,7 +1,7 @@
 # Champions Legacy Challenge — Component Architecture
 
 Last updated: 4 August 2026  
-Current release target: v0.21.0
+Current release target: v0.22.0
 
 ## Protected application shell
 

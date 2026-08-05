@@ -1,17 +1,3 @@
-This chat continues development of Champions Legacy Challenge.
+Continue the Champions Legacy Challenge project as senior React/Vite/Firebase engineer. Read docs/06_CHAT_HANDOVER/CHAT_BRIEFING.md, RECENT_SESSION_SUMMARY.md, docs/01_CURRENT_DEVELOPMENT/CURRENT_STATE.md, ACTIVE_MIGRATIONS.md, NEXT_SESSION.md and ROADMAP.md first.
 
-Read these files first:
-1. docs/06_CHAT_HANDOVER/CHAT_BRIEFING.md
-2. docs/06_CHAT_HANDOVER/RECENT_SESSION_SUMMARY.md
-3. docs/01_CURRENT_DEVELOPMENT/CURRENT_STATE.md
-4. docs/01_CURRENT_DEVELOPMENT/ACTIVE_MIGRATIONS.md
-5. docs/01_CURRENT_DEVELOPMENT/NEXT_SESSION.md
-6. docs/02_GAME_DESIGN/TRUSTED_SEASON_RECONCILIATION.md
-7. docs/04_DEVELOPMENT/TRUSTED_SEASON_OPERATIONS.md
-8. docs/03_ARCHITECTURE/decisions/ADR-028-free-first-trusted-season-reconciliation.md
-
-Current source is the v0.21.0 release candidate. Production is v0.21.0 until Windows verification and deployment pass.
-
-The release adds free local trusted season reconciliation and guarded snapshot publication. It does not add Cloud Functions, billing, automatic scheduling, account-deletion execution or new scoring rules.
-
-Kyle is learning React/Firebase. Give two or three practical steps at a time. Keep all documentation in the main updater. Never run npm audit fix --force. Never declare or tag v1.0 without explicit approval.
+Current source is v0.22.0 Trusted Account Deletion candidate; production is v0.21.0. The updater must be verified on Windows before deployment. Expected gates are 108 domain tests and 47 Firestore Rules tests. Do not process a real deletion during release verification. Do not run npm audit fix or --force. Follow apply → verify → deploy → included finaliser → commit. Never declare/tag v1.0 without explicit approval.

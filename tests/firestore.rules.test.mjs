@@ -1484,13 +1484,24 @@ test("players can request, cancel and reopen their own account deletion workflow
       displayName: "Test Player",
       status: "requested",
       reasonCode: "privacy",
-      acknowledgementVersion: 1,
+      acknowledgementVersion: 2,
       requestedAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
       cancelledAt: null,
       acknowledgedAt: null,
       acknowledgedBy: "",
       lastAuditId: "",
+      deletionPolicyVersion: "trusted-deletion-v1",
+      waitingPeriodDays: 7,
+      processingAt: null,
+      processingBy: "",
+      completedAt: null,
+      completedBy: "",
+      executionId: "",
+      anonymizedPlayerId: "",
+      anonymizedDisplayName: "",
+      failureAt: null,
+      failureMessage: "",
     }),
   );
 
@@ -1519,13 +1530,24 @@ test("players can request, cancel and reopen their own account deletion workflow
       displayName: "Test Player",
       status: "requested",
       reasonCode: "not-using",
-      acknowledgementVersion: 1,
+      acknowledgementVersion: 2,
       requestedAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
       cancelledAt: null,
       acknowledgedAt: null,
       acknowledgedBy: "",
       lastAuditId: "",
+      deletionPolicyVersion: "trusted-deletion-v1",
+      waitingPeriodDays: 7,
+      processingAt: null,
+      processingBy: "",
+      completedAt: null,
+      completedBy: "",
+      executionId: "",
+      anonymizedPlayerId: "",
+      anonymizedDisplayName: "",
+      failureAt: null,
+      failureMessage: "",
     }),
   );
 });
@@ -1540,13 +1562,24 @@ test("Platform Administrators acknowledge deletion requests with an audit record
         displayName: "Test Player",
         status: "requested",
         reasonCode: "prefer-not-to-say",
-        acknowledgementVersion: 1,
+        acknowledgementVersion: 2,
         requestedAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
         cancelledAt: null,
         acknowledgedAt: null,
         acknowledgedBy: "",
         lastAuditId: "",
+        deletionPolicyVersion: "trusted-deletion-v1",
+        waitingPeriodDays: 7,
+        processingAt: null,
+        processingBy: "",
+        completedAt: null,
+        completedBy: "",
+        executionId: "",
+        anonymizedPlayerId: "",
+        anonymizedDisplayName: "",
+        failureAt: null,
+        failureMessage: "",
       },
     );
   });
@@ -1583,6 +1616,39 @@ test("Platform Administrators acknowledge deletion requests with an audit record
   });
 
   await assertSucceeds(batch.commit());
+
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await updateDoc(
+      doc(context.firestore(), "accountDeletionRequests", "player-one"),
+      { status: "processing", executionId: "execution-one" },
+    );
+  });
+  await assertFails(
+    updateDoc(
+      doc(playerContext().firestore(), "accountDeletionRequests", "player-one"),
+      { status: "cancelled", cancelledAt: serverTimestamp(), updatedAt: serverTimestamp() },
+    ),
+  );
+});
+
+test("trusted deletion execution records are Platform Administrator-only and client-immutable", async () => {
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "accountDeletionExecutions", "execution-one"), {
+      status: "processing",
+      requestId: "player-one",
+    });
+    await setDoc(doc(firestore, "accountDeletionReceipts", "execution-one"), {
+      status: "completed",
+      anonymizedPlayerId: "former-player",
+    });
+  });
+
+  await assertSucceeds(getDoc(doc(adminContext().firestore(), "accountDeletionExecutions", "execution-one")));
+  await assertSucceeds(getDoc(doc(adminContext().firestore(), "accountDeletionReceipts", "execution-one")));
+  await assertFails(getDoc(doc(playerContext().firestore(), "accountDeletionExecutions", "execution-one")));
+  await assertFails(getDoc(doc(playerContext().firestore(), "accountDeletionReceipts", "execution-one")));
+  await assertFails(setDoc(doc(adminContext().firestore(), "accountDeletionExecutions", "client-write"), { status: "processing" }));
 });
 
 test("players can export their own private votes and sanitised error reports", async () => {

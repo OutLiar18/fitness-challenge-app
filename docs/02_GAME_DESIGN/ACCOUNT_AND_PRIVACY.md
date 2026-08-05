@@ -1,64 +1,44 @@
 # Champions Legacy Challenge — Account, Onboarding and Privacy
 
-
-## v0.18.0 external-evidence privacy boundary
-
-Champions Legacy Challenge does not upload or store WhatsApp proof media. The personal export may include structured evidence claims, decisions visible to the owner and published snapshot metadata, but it cannot export the external images or WhatsApp retention history. UI copy must never imply otherwise.
-
-Last updated: 4 August 2026
+Last updated: 5 August 2026
 
 ## Purpose
 
-This document is the product source of truth for first-use onboarding, player-facing privacy explanations, personal-data export and account-closure requests.
+This is the product source of truth for onboarding, privacy explanations, personal export, account-deletion requests and trusted account deletion.
 
 ## First-use onboarding
 
 - New profiles start at onboarding version `0`.
-- The guide contains four concise stages: product philosophy, factual logging, progression separation and season competition.
-- Completion stores only the onboarding version and timestamps.
-- Skipping the tour counts as completion; it does not change points, entries or membership.
-- Legacy profiles without onboarding fields are treated as already onboarded so existing players are not interrupted.
+- The guide covers product philosophy, factual logging, progression separation and season competition.
+- Skipping or completing stores only onboarding state and timestamps.
+- Legacy profiles without onboarding fields are treated as already onboarded.
 - Players may replay the guide from Help & Privacy.
 
 ## Help & Privacy
 
-The route is the single player-facing destination for:
-
-- getting started;
-- how factual data and derived results differ;
-- privacy and trusted-role boundaries;
-- personal export;
-- account-deletion requests.
-
-The wording must remain plain, honest and non-legalistic. Before public launch, a confirmed support contact and formal legal/privacy review are still required.
+The route provides getting-started guidance, data boundaries, personal export and account closure. Wording must remain plain and non-legalistic. A formal legal/privacy review and confirmed support contact remain required before public launch.
 
 ## Personal-data export
 
-The export is a JSON file generated only when the signed-in player asks for it. It includes account-owned records that the client can read, including profile, entries, memberships, contributions, Pocket records, notifications, private preferences, suggestions, private votes, sanitised own error reports and an account request.
+Schema version 3 includes owner-readable account data, account-request state and correction history. Timestamps are portable ISO strings. Shared public documents, administrator-only audits, trusted execution/receipt records and external WhatsApp media are not copied.
 
-Shared public documents, administrator-only audit history and unrelated players' records are not duplicated. Derived points, streaks and analytics can be recalculated from factual entries.
+## Account-deletion policy
 
-## Account-deletion request
+- Request document ID equals the current Firebase user ID.
+- New and reopened requests use acknowledgement version `2` and policy `trusted-deletion-v1`.
+- Statuses are `requested`, `acknowledged`, `processing`, `completed`, `failed` and `cancelled`.
+- Players may request, cancel and reopen their own request before processing.
+- Platform Administrators acknowledge requests with an audit record.
+- Acknowledgement starts a seven-day cancellation window.
+- Trusted processing is irreversible once it begins.
+- Private data and Firebase Authentication are removed.
+- Shared competition history is preserved under a deterministic Former Player identity.
+- Fresh registration is allowed but never restores or reconnects the former history.
 
-- Document ID equals the player's Firebase user ID.
-- Statuses are `requested`, `acknowledged` and `cancelled`.
-- Players may request, cancel and reopen their own request.
-- Platform Administrators may read all requests and acknowledge a newly requested item with an audit record.
-- Acknowledgement means the request has been seen. It does not mean Authentication or data has already been deleted.
-- Completed shared season records must not be silently altered.
+## External evidence boundary
 
-## Deferred trusted deletion
+The app does not upload or store WhatsApp proof media. Deletion can remove/anonymise structured app records but cannot erase external WhatsApp retention history.
 
-A server-side or trusted Firebase Admin SDK process is still required to:
+## Shared-history principle
 
-- re-verify the account and request;
-- delete Firebase Authentication;
-- remove eligible private account records;
-- anonymise or preserve legitimate shared competition history appropriately;
-- record operational completion outside the client.
-
-The client must never pretend that a request has completed this process.
-
-## Correction history in personal exports
-
-Personal export schema version 2 includes owner-readable correction heads and immutable correction records. Exported timestamps are portable ISO strings. Shared administrator audit events and WhatsApp media remain outside the personal export.
+Deleting an account must not silently rewrite completed House results, standings, honours or other participants' legitimate records. Identity is anonymised while factual points and historical House allocation remain intact.

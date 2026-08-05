@@ -8,6 +8,8 @@ import PageHeader from "../components/layout/PageHeader";
 import usePlayerData from "../hooks/usePlayerData";
 import {
   ACCOUNT_REQUEST_REASON_OPTIONS,
+  canCancelAccountRequest,
+  getAccountDeletionTiming,
   getAccountRequestReasonLabel,
   getAccountRequestStatus,
   isActiveAccountRequest,
@@ -285,6 +287,8 @@ function AccountTools({ profile, user }) {
   );
 
   const activeRequest = isActiveAccountRequest(request);
+  const canCancelRequest = canCancelAccountRequest(request);
+  const deletionTiming = getAccountDeletionTiming(request);
   const requestStatus = useMemo(
     () => (request ? getAccountRequestStatus(request.status) : null),
     [request],
@@ -420,28 +424,29 @@ function AccountTools({ profile, user }) {
               </p>
               {request.status === "acknowledged" && (
                 <p>
-                  Acknowledged {formatDate(request.acknowledgedAt)}. This does not
-                  yet mean that the Firebase account or every eligible record has
-                  been deleted.
+                  Acknowledged {formatDate(request.acknowledgedAt)}. You may cancel until
+                  trusted processing begins. Processing becomes eligible {formatDate(deletionTiming.eligibleAt)}.
                 </p>
               )}
             </div>
-            <button
-              className="button button--secondary"
-              type="button"
-              disabled={requestBusy}
-              onClick={handleCancel}
-            >
-              {requestBusy ? "Cancelling…" : "Cancel request"}
-            </button>
+            {canCancelRequest && (
+              <button
+                className="button button--secondary"
+                type="button"
+                disabled={requestBusy}
+                onClick={handleCancel}
+              >
+                {requestBusy ? "Cancelling…" : "Cancel request"}
+              </button>
+            )}
           </div>
         ) : (
           <>
             <p>
-              The browser cannot safely remove Firebase Authentication, private
-              records and shared season history in one trusted operation. This
-              request creates a reviewable task for a Platform Administrator. The
-              final deletion process remains a trusted administrative operation.
+              The browser cannot safely remove Firebase Authentication and private
+              records. This request creates a reviewable task for a Platform Administrator.
+              After acknowledgement, a seven-day cancellation window applies. Trusted
+              processing then removes eligible private records and anonymises shared season history.
             </p>
 
             <label htmlFor="account-deletion-reason">Reason</label>
@@ -465,7 +470,8 @@ function AccountTools({ profile, user }) {
               />
               <span>
                 I understand that this submits a deletion request; it does not
-                instantly erase my account or completed shared season history.
+                instantly erase my account. I will have seven days after acknowledgement
+                to cancel, and completed shared season history will be anonymised rather than removed.
               </span>
             </label>
 

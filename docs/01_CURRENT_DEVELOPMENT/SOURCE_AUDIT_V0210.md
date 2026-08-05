@@ -2,7 +2,7 @@
 
 <!-- RELEASE_STATUS: DEPLOYED -->
 Date: 5 August 2026  
-Status: Packaging and Windows release verification complete; production deployed
+Status: Packaging audit complete; Windows release gates pending
 
 ## Baseline
 

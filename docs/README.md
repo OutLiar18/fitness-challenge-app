@@ -1,8 +1,8 @@
 # Champions Legacy Challenge Documentation
 
 <!-- RELEASE_STATUS: DEPLOYED -->
-Current source: **v0.21.0 — Trusted Standings and Season Reconciliation**  
-Current production: **v0.21.0**  
+Current source: **v0.22.0 — Trusted Account Deletion**  
+Current production: **v0.22.0**  
 Status: **Verified and deployed; release commit pending; pre-v1.0**
 
 Start with:
@@ -13,12 +13,12 @@ Start with:
 4. `01_CURRENT_DEVELOPMENT/ACTIVE_MIGRATIONS.md`
 5. `01_CURRENT_DEVELOPMENT/NEXT_SESSION.md`
 
-Current trusted-operations sources:
+Current trusted operations:
 
+- `02_GAME_DESIGN/TRUSTED_ACCOUNT_DELETION.md`
+- `04_DEVELOPMENT/TRUSTED_ACCOUNT_DELETION_OPERATIONS.md`
+- ADR-029 — Trusted Account Deletion and Anonymised Shared History
 - `02_GAME_DESIGN/TRUSTED_SEASON_RECONCILIATION.md`
 - `04_DEVELOPMENT/TRUSTED_SEASON_OPERATIONS.md`
-- `02_GAME_DESIGN/SEASON_COMMAND_CENTRE.md`
-- `02_GAME_DESIGN/EVIDENCE_AND_PUBLISHED_STANDINGS.md`
-- ADR-028 — Free-First Trusted Season Reconciliation.
 
-Correction architecture remains defined by `AUDITED_ENTRY_CORRECTIONS.md` and ADR-027. Historical ADRs remain records even when later decisions extend them. Documentation and the release finaliser ship inside the main updater.
+Historical ADRs remain permanent records. Documentation and the release finaliser ship inside the main updater.

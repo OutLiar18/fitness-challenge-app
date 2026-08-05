@@ -51,3 +51,7 @@ The authoritative gates are 96 domain tests, 44 Firestore Rules tests, clean ESL
 <!-- RELEASE_STATUS: DEPLOYED -->
 
 Run `npm install` before the release gates so `package-lock.json` records the Firebase Admin SDK dependency. Do not configure or execute production trusted reconciliation as part of deployment verification. Credential setup and the first production dry run occur only after the release is deployed and documented.
+
+## Trusted deletion release boundary
+
+A successful dry audit is not required to deploy v0.22.0 and must not be run against a real player merely for testing. Release verification consists of automated gates and UI/rules review; irreversible operations remain separate production procedures.

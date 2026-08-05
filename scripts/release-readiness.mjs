@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const EXPECTED_VERSION = "0.21.0";
+const EXPECTED_VERSION = "0.22.0";
 const EXPECTED_HOSTING_TARGET = "app";
 const projectRoot = process.cwd();
 const failures = [];
@@ -13,15 +13,14 @@ const requiredFiles = [
   "firestore.rules",
   ".env.example",
   "docs/01_CURRENT_DEVELOPMENT/RELEASE_CANDIDATE_CHECKLIST.md",
-  "docs/01_CURRENT_DEVELOPMENT/SOURCE_AUDIT_V0210.md",
-  "docs/02_GAME_DESIGN/TRUSTED_SEASON_RECONCILIATION.md",
-  "docs/03_ARCHITECTURE/decisions/ADR-028-free-first-trusted-season-reconciliation.md",
-  "docs/04_DEVELOPMENT/TRUSTED_SEASON_OPERATIONS.md",
-  "src/services/seasons/trustedSeasonModel.js",
-  "scripts/trusted-season-reconcile.mjs",
-  "scripts/register-loader.mjs",
-  "scripts/extension-loader.mjs",
-  "tests/trusted-season.test.mjs",
+  "docs/01_CURRENT_DEVELOPMENT/SOURCE_AUDIT_V0220.md",
+  "docs/02_GAME_DESIGN/TRUSTED_ACCOUNT_DELETION.md",
+  "docs/03_ARCHITECTURE/decisions/ADR-029-trusted-account-deletion-and-anonymised-history.md",
+  "docs/04_DEVELOPMENT/TRUSTED_ACCOUNT_DELETION_OPERATIONS.md",
+  "src/services/account/accountModel.js",
+  "src/services/account/trustedDeletionModel.js",
+  "scripts/trusted-account-delete.mjs",
+  "tests/trusted-account-deletion.test.mjs",
   "scripts/finalise-release.mjs",
 ];
 
@@ -31,6 +30,9 @@ const forbiddenRepositoryArtifacts = [
   "FINALISE_RELEASE.ps1",
   "README_UPDATE.md",
   "trusted-reports",
+  "trusted-account-deletion-reports",
+  "account-deletion-reports",
+  "champions-legacy-account-deletion-reports",
   "src/src",
   "tests/tests",
   "docs/docs",
@@ -73,8 +75,7 @@ if (failures.length === 0) {
   const firebaseConfig = readJson("firebase.json");
   const firebaseAliases = readJson(".firebaserc");
   const defaultProject = firebaseAliases.projects?.default;
-  const hostingSites =
-    firebaseAliases.targets?.[defaultProject]?.hosting?.[EXPECTED_HOSTING_TARGET] ?? [];
+  const hostingSites = firebaseAliases.targets?.[defaultProject]?.hosting?.[EXPECTED_HOSTING_TARGET] ?? [];
 
   if (packageData.version !== EXPECTED_VERSION) {
     failures.push(`Expected package version ${EXPECTED_VERSION}, found ${packageData.version}.`);
@@ -91,37 +92,46 @@ if (failures.length === 0) {
   if (!packageData.scripts?.["deploy:production"]?.includes("firestore:rules,hosting:app")) {
     failures.push("deploy:production must deploy Firestore Rules and the branded app target together.");
   }
-  if (packageData.scripts?.["season:list"] !== "node --import=./scripts/register-loader.mjs scripts/trusted-season-reconcile.mjs --list") {
-    failures.push("season:list must run the trusted read-only season listing command through the source extension loader.");
-  }
-  if (packageData.scripts?.["season:reconcile"] !== "node --import=./scripts/register-loader.mjs scripts/trusted-season-reconcile.mjs") {
-    failures.push("season:reconcile must run the trusted local dry-run command through the source extension loader.");
-  }
-  if (packageData.scripts?.["season:reconcile:publish"] !== "node --import=./scripts/register-loader.mjs scripts/trusted-season-reconcile.mjs --publish") {
-    failures.push("season:reconcile:publish must require the explicit publication mode through the source extension loader.");
-  }
-  if (!packageData.scripts?.test?.includes("tests/trusted-season.test.mjs")) {
-    failures.push("The v0.21.0 trusted-season test suite is not part of npm test.");
+
+  const expectedScripts = {
+    "account:deletion:list": "node --import=./scripts/register-loader.mjs scripts/trusted-account-delete.mjs --list",
+    "account:deletion:audit": "node --import=./scripts/register-loader.mjs scripts/trusted-account-delete.mjs",
+    "account:deletion:process": "node --import=./scripts/register-loader.mjs scripts/trusted-account-delete.mjs --process",
+  };
+  Object.entries(expectedScripts).forEach(([name, command]) => {
+    if (packageData.scripts?.[name] !== command) failures.push(`${name} is not configured correctly.`);
+  });
+  if (!packageData.scripts?.test?.includes("tests/trusted-account-deletion.test.mjs")) {
+    failures.push("The v0.22.0 trusted account-deletion test suite is not part of npm test.");
   }
   if (!packageData.devDependencies?.["firebase-admin"]) {
-    failures.push("firebase-admin is required for the local trusted operations command.");
+    failures.push("firebase-admin is required for trusted local operations.");
   }
 
   requireText("src/constants/announcements.js", [`version: "${EXPECTED_VERSION}"`]);
-  requireText("firestore.rules", ["match /seasonTrustedRuns/{runId}", "allow create, update, delete: if false;"]);
-  requireText("src/services/seasons/trustedSeasonModel.js", [
-    "TRUSTED_SEASON_MODEL_VERSION",
-    "buildTrustedSeasonAudit",
-    "createTrustedSeasonFingerprint",
+  requireText("firestore.rules", [
+    "match /accountDeletionExecutions/{executionId}",
+    "match /accountDeletionReceipts/{receiptId}",
+    "deletionPolicyVersion == \"trusted-deletion-v1\"",
+    "waitingPeriodDays == 7",
   ]);
-  requireText("scripts/trusted-season-reconcile.mjs", [
+  requireText("src/services/account/accountModel.js", [
+    "ACCOUNT_DELETION_WAITING_DAYS = 7",
+    "TRUSTED_ACCOUNT_DELETION_POLICY_VERSION",
+    "createFormerPlayerIdentity",
+  ]);
+  requireText("src/services/account/trustedDeletionModel.js", [
+    "buildTrustedAccountDeletionAudit",
+    "replaceDeletedPlayerIdentity",
+    "LAST_PLATFORM_ADMIN",
+  ]);
+  requireText("scripts/trusted-account-delete.mjs", [
     "GOOGLE_APPLICATION_CREDENTIALS",
-    "CHAMPIONS_LEGACY_REPORT_DIR",
-    "champions-legacy-trusted-reports",
-    "trusted-local",
-    "Publish a new immutable trusted snapshot",
+    "champions-legacy-account-deletion-reports",
+    "Type DELETE",
+    "deleteUser",
   ]);
-  requireText("src/services/account/dataExportModel.js", ["PERSONAL_DATA_EXPORT_SCHEMA_VERSION = 2"]);
+  requireText("src/services/account/dataExportModel.js", ["PERSONAL_DATA_EXPORT_SCHEMA_VERSION = 3"]);
 }
 
 if (failures.length > 0) {
@@ -129,7 +139,5 @@ if (failures.length > 0) {
   failures.forEach((failure) => console.error(`- ${failure}`));
   process.exitCode = 1;
 } else {
-  console.log(
-    `Release-readiness structure verified for v${EXPECTED_VERSION} on the branded Firebase Hosting target.`,
-  );
+  console.log(`Release-readiness structure verified for v${EXPECTED_VERSION} on the branded Firebase Hosting target.`);
 }

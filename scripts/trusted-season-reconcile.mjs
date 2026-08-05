@@ -44,16 +44,14 @@ function parseArguments(argv) {
     else if (value === "--actor") options.actorId = argv[++index] || "";
     else if (value === "--project") options.projectId = argv[++index] || DEFAULT_PROJECT_ID;
     else if (value === "--credentials") options.credentialsPath = argv[++index] || "";
-    else if (value === "--report-dir") {
-      options.reportDirectory = argv[++index] || DEFAULT_REPORT_DIRECTORY;
-    }
+    else if (value === "--report-dir") options.reportDirectory = argv[++index] || DEFAULT_REPORT_DIRECTORY;
     else throw new Error(`Unknown argument: ${value}`);
   }
   return options;
 }
 
 function printHelp() {
-  console.log(`Champions Legacy Challenge trusted season reconciliation\n\nUsage:\n  npm run season:list\n  npm run season:reconcile\n  npm run season:reconcile -- --league <leagueId>\n  npm run season:reconcile:publish -- --league <leagueId>\n\nOptions:\n  --league <id>       Select a season directly.\n  --actor <userId>    Platform Administrator recorded as the publisher.\n  --credentials <path> Use a service-account JSON file without changing your shell.\n  --report-dir <path> Store local reports outside the repository.\n  --project <id>      Override the Firebase project ID.\n  --publish           Publish a new immutable trusted snapshot when safe.\n  --yes               Skip the final publication confirmation.\n  --list              List available seasons and stop.\n  --help              Show this guide.\n\nDry run is the default. It reads production data and writes only a local JSON report.`);
+  console.log(`Champions Legacy Challenge trusted season reconciliation\n\nUsage:\n  npm run season:list\n  npm run season:reconcile\n  npm run season:reconcile -- --league <leagueId>\n  npm run season:reconcile:publish -- --league <leagueId>\n\nOptions:\n  --league <id>       Select a season directly.\n  --actor <userId>    Platform Administrator recorded as the publisher.\n  --credentials <path> Use a service-account JSON file without changing your shell.\n  --project <id>      Override the Firebase project ID.\n  --publish           Publish a new immutable trusted snapshot when safe.\n  --yes               Skip the final publication confirmation.\n  --list              List available seasons and stop.\n  --help              Show this guide.\n\nDry run is the default. It reads production data and writes only a local JSON report.`);
 }
 
 function initializeTrustedApp(options) {

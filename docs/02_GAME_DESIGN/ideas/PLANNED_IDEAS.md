@@ -65,3 +65,20 @@ Every planned feature should make Champions Legacy Challenge more motivating, mo
 ---
 
 # End of Document
+## Confirmed after v0.22.0
+
+### Power Plays
+
+Confirmed for v0.23.0 design and implementation. The base library contains one Power Play for each of the ten activity categories. A selected Power Play lasts one season week and applies a controlled double or triple multiplier to one or multiple categories. Season creators or authorised administrators may add custom Power Plays using the same controlled multiplier model.
+
+### Weekly roster stability
+
+Replace one-person House immunity with a one-week movement lock: a player newly transferred to a House cannot transfer again in the immediately following weekly movement period.
+
+### Weekly gender-composition balance
+
+Required for House competition. The eventual formula must be transparent, privacy-conscious, weekly, capped and must not reduce an individual's earned points.
+
+### Five Fires
+
+Intended for implementation after a dedicated rules-design session.

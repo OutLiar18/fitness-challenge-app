@@ -2,7 +2,7 @@
 
 <!-- RELEASE_STATUS: DEPLOYED -->
 Date: 5 August 2026  
-Status: Accepted for v0.21.0 release candidate
+Status: Accepted and deployed in v0.21.0
 
 ## Context
 

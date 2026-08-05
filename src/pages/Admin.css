@@ -958,3 +958,30 @@
     grid-template-columns: 1fr;
   }
 }
+
+.account-request-card--processing {
+  border-color: color-mix(in srgb, var(--primary) 34%, var(--border));
+}
+
+.account-request-card--failed {
+  border-color: color-mix(in srgb, var(--danger) 40%, var(--border));
+}
+
+.account-request-card--completed {
+  border-color: color-mix(in srgb, var(--success) 34%, var(--border));
+}
+
+.status-pill--processing {
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.status-pill--failed {
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+
+.status-pill--completed {
+  color: var(--success);
+  background: var(--success-soft);
+}

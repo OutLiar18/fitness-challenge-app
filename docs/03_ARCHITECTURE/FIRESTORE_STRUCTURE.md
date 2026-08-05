@@ -1,8 +1,8 @@
 # Champions Legacy Challenge — Firestore Structure
 
 Last updated: 4 August 2026  
-Current release target: v0.21.0  
-Current production: v0.21.0
+Current release target: v0.22.0  
+Current production: v0.20.0
 
 ## Player and activity
 
@@ -89,3 +89,16 @@ Client access:
 - create/update/delete: denied to every client role.
 
 Admin SDK publication also creates a trusted `leagueLeaderboardSnapshots` document and an `auditEvents` record, then advances the standard league publication pointer.
+
+## Trusted account-deletion collections (v0.22.0)
+
+### `accountDeletionRequests`
+Player-owned request document. Clients may create, cancel or reopen within the constrained lifecycle; Platform Administrators may acknowledge. Trusted Admin SDK processing bypasses client Rules for later states.
+
+### `accountDeletionExecutions`
+Administrator-only readable operational state. All client writes are denied. Records support safe resume after partial failure.
+
+### `accountDeletionReceipts`
+Administrator-only readable immutable completion receipt. All client writes are denied.
+
+Shared documents are updated in place only to replace identity and attach anonymisation metadata. Private documents are deleted.

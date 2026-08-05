@@ -80,3 +80,12 @@ Good ideas are not always the right ideas.
 ---
 
 # End of Document
+## Updated competition decisions — 5 August 2026
+
+### Rejected/inactive
+
+Diamonds, player prices and the transfer market remain inactive. The earlier design encouraged imbalance, commoditised strong players and risked treating lower performers as disposable rather than helping them grow.
+
+### Deferred for later rules
+
+Buddy Bonuses and undefined late-season twists remain undecided. Five Fires is intended but requires a complete design before implementation.

@@ -3,31 +3,28 @@
 <!-- RELEASE_STATUS: DEPLOYED -->
 Last updated: 5 August 2026
 
-## v0.21.0 trusted operations
+## v0.22.0 trusted deletion
 
-Status: Implementation, Windows verification and production deployment complete; release commit pending
+Status: Implementation, Windows verification and production deployment complete; release commit pending.
 
-No bulk Firestore data migration is required.
+No bulk migration is required. Existing v1 account requests remain readable but should be cancelled/reopened or resubmitted under request version 2 before trusted processing.
 
-New records appear only after a successful trusted publication:
+New trusted records appear only when real processing begins:
 
-- `seasonTrustedRuns/{runId}` — immutable operational summary readable by Platform and season administrators;
-- trusted fields on a new `leagueLeaderboardSnapshots` record;
-- one immutable `auditEvents` publication record.
+- `accountDeletionExecutions/{executionId}` — administrator-only resumable execution state;
+- `accountDeletionReceipts/{receiptId}` — administrator-only immutable completion receipt;
+- one completion `auditEvents` record;
+- anonymisation metadata on preserved shared records.
 
-The existing league document advances only its published-snapshot pointer, revision and standard audit metadata.
+New and reopened account requests use policy `trusted-deletion-v1`, a seven-day window and explicit processing fields.
 
-## Dependency installation
+## Local operations
 
-`firebase-admin` is a new development dependency used only by the local Node.js command. The first Windows `npm install` must refresh `package-lock.json` before release gates are considered authoritative.
-
-## Credential setup
-
-No credential is included in the updater. After deployment, the administrator performs the one-time setup in `docs/04_DEVELOPMENT/TRUSTED_SEASON_OPERATIONS.md`. The private JSON file stays outside the project.
+The Admin SDK credential and deletion reports remain outside the repository. No production credential is included in the updater or source archive.
 
 ## Compatibility
 
-- Existing v1 and v2 season records remain readable.
-- Existing manual and administrator-session fallback snapshots remain valid.
-- Players continue to read the season's current published snapshot.
-- No scoring, evidence, correction or House-assignment document is rewritten merely to support v0.21.0.
+- Existing season and standings documents remain readable.
+- Shared points and House history are not recalculated solely because an account is deleted.
+- Trusted season reconciliation treats intentionally removed private correction entries as an anonymisation warning rather than corruption.
+- Fresh registrations receive a new Firebase user ID and do not reconnect to former history.
