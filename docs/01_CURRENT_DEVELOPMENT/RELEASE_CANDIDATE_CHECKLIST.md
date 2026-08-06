@@ -1,31 +1,33 @@
-# v0.22.0 Release Candidate Checklist
+# v0.23.0 Release Candidate Checklist
 
 <!-- RELEASE_STATUS: DEPLOYED -->
 
-## Installation and automated gates
+## Automated gates
 
 - [x] `npm install` completes.
 - [x] ESLint passes without warnings.
-- [x] 108 domain tests pass on Windows.
+- [x] 120 domain tests pass on Windows.
 - [x] Vite production build passes.
-- [x] 47 Firestore Security Rules tests pass using Java 21.
+- [x] 51 Firestore Security Rules tests pass using Java 21.
 - [x] Expected negative `PERMISSION_DENIED` logs are confirmed as passing assertions.
-- [x] `npm run check:release` confirms v0.22.0 and Hosting target `app`.
+- [x] `npm run check:release` confirms v0.23.0 and Hosting target `app`.
 - [x] `npm audit` reviewed; no automatic or forced breaking fix applied.
 
-## Product and safety checks
+## Power Play checks
 
-- [ ] New requests store request version 2, policy version and seven-day defaults.
-- [ ] Players may cancel requested or acknowledged requests only.
-- [ ] Administration displays timing, processing, failed and completed states.
-- [ ] Dry audit changes no Firebase data.
-- [ ] Trusted processing is blocked before eligibility and for the final Platform Administrator.
-- [ ] Credentials and local reports remain outside the repository and archives.
-- [ ] Shared history keeps points while replacing identity.
+- [ ] A draft v3 season contains ten base category Power Plays.
+- [ ] Theme names can be edited and must be confirmed and unique.
+- [ ] Custom plays support only 2×/3× and one or more valid categories.
+- [ ] Registration is blocked when the enabled no-repeat pool cannot cover every official week.
+- [ ] A selected play is never eligible again, including after a redraw or locked correction.
+- [ ] Players cannot see a future week's selection before the official start.
+- [ ] Activity points multiply by activity week; evidence/goal/progression bonuses do not.
+- [ ] Individual, House and honours calculations use the same adjusted contribution.
+- [ ] Trusted reconciliation blocks duplicate or definition-mismatched assignments.
 
 ## Deployment and finalisation
 
 - [x] Firestore Rules and Hosting deploy with `npm run deploy:production`.
 - [x] Branded Hosting target releases successfully.
 - [x] Included `FINALISE_RELEASE.ps1` updates candidate documentation.
-- [ ] Release is committed without creating a v1.0 tag.
+- [ ] Release is committed without a v1.0 tag.

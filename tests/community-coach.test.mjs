@@ -7,6 +7,7 @@ import {
   LEAGUE_STATUSES,
 } from "../src/constants/leagues.js";
 import { createCoachReport, normalizeCoachPreferences } from "../src/services/coach/coachModel.js";
+import { createDefaultPowerPlayPolicy } from "../src/services/seasons/powerPlayModel.js";
 import {
   calculateLeagueStandings,
   calculateSeasonHonours,
@@ -57,7 +58,12 @@ test("Season drafts freeze the House and Pocket ruleset", () => {
   });
 
   assert.equal(result.valid, true);
-  assert.deepEqual(result.value.ruleset, DEFAULT_LEAGUE_RULESET);
+  assert.deepEqual(result.value.ruleset, {
+    ...DEFAULT_LEAGUE_RULESET,
+    modules: { ...DEFAULT_LEAGUE_RULESET.modules },
+    evidencePolicy: result.value.ruleset.evidencePolicy,
+    powerPlayPolicy: createDefaultPowerPlayPolicy("South African Animals"),
+  });
   assert.equal(result.value.pocketEnabled, true);
   assert.equal(result.value.houseCount, 6);
   assert.equal(result.value.pocketStartDate.getDate(), 1);

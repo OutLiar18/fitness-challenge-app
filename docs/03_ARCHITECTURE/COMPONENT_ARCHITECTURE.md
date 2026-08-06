@@ -1,7 +1,7 @@
 # Champions Legacy Challenge — Component Architecture
 
 Last updated: 4 August 2026  
-Current release target: v0.22.0
+Current release target: v0.23.0
 
 ## Protected application shell
 
@@ -36,3 +36,14 @@ Evidence statuses use text and tone together, IDs are copyable with feedback, fo
 <!-- RELEASE_STATUS: DEPLOYED -->
 
 `SeasonCommandCentre` displays authorised trusted-publication status and command instructions. It does not receive a credential, run the Admin SDK or publish from the browser. Elevated operation remains in the local CLI.
+
+## Power Play workspace
+
+`PowerPlayWorkspace` is embedded in the Seasons route workspace. It presents role-appropriate states:
+
+- Draft administrators configure and confirm the pool.
+- Registration/Active administrators select, redraw or correct assignments.
+- Players see started-week assignments only.
+- Existing v1/v2 seasons receive a clear historical compatibility message rather than inactive controls.
+
+The workspace uses labelled inputs, native controls, keyboard-operable actions and textual status in addition to colour.

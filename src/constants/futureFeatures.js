@@ -1,37 +1,20 @@
 export const FUTURE_FEATURES = Object.freeze({
-  "power-play": {
-    id: "power-play",
-    icon: "⚡",
-    eyebrow: "Inactive season mechanic",
-    title: "Power Play is waiting for its rules",
-    summary:
-      "Category voting and House multipliers remain deliberately inactive until timing, fairness and scoring consequences are confirmed.",
-    status: "Awaiting product decisions",
-    capabilities: [
-      "One category vote per season week",
-      "Transparent multiplier announcement",
-      "House-balanced scoring safeguards",
-      "Immutable weekly result history",
-    ],
-    guardrail:
-      "No multiplier may change historical personal points or activate without a frozen, player-visible season rule.",
-  },
   "transfer-market": {
     id: "transfer-market",
     icon: "💎",
-    eyebrow: "Inactive season mechanic",
-    title: "The full Transfer Market remains sealed",
+    eyebrow: "Retired competition concept",
+    title: "Diamonds and player prices remain retired",
     summary:
-      "Diamonds, player prices, House Immunity, timed bidding and voting need a complete design before they can replace the current balanced weekly swap.",
-    status: "Awaiting late-season design",
+      "Buying players made strong performers into commodities, risked demotivating developing players and did not reliably balance Houses. The former Transfer Market will not return without a fundamentally fair redesign.",
+    status: "Rejected unless redesigned",
     capabilities: [
-      "House transfer budgets",
-      "Player valuation rules",
-      "Voting and timed windows",
-      "Permanent transaction history",
+      "Growth-focused roster balancing",
+      "No player prices or disposable-player incentives",
+      "Transparent weekly movement rules",
+      "Permanent historical House attribution",
     ],
     guardrail:
-      "Roster movement must never rewrite points already earned for a previous House.",
+      "Roster movement must support player growth and must never rewrite points already earned for a previous House.",
   },
   "buddy-bonus": {
     id: "buddy-bonus",

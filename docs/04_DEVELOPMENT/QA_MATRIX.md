@@ -1,77 +1,35 @@
 # Champions Legacy Challenge — QA Matrix
 
-Current release target: v0.22.0
+<!-- RELEASE_STATUS: DEPLOYED -->
+Current release target: v0.23.0
 
-## Automated release matrix
-
-| Area | Required result |
+| Area | Required verification |
 |---|---|
-| Lint | ESLint passes without warnings |
-| Domain | 104 tests pass |
-| Firestore Rules | 46 tests pass using Java 21 |
-| Build | Vite production build succeeds |
-| Release structure | v0.22.0, Hosting target `app`, trusted deletion operations/docs/finaliser present |
-| Static audit | no unresolved local imports or unintended unreferenced source/styles |
+| Domain | 120 tests pass |
+| Security Rules | 51 tests pass on Firestore Emulator/Java 21 |
+| Build | ESLint and Vite production build pass |
+| Release structure | v0.23.0, Hosting target `app`, Power Play docs/services/tests/finaliser present |
+| Compatibility | v1/v2 seasons unchanged; v3 only for new seasons |
+| Draft pool | Ten base categories, unique confirmed names, controlled custom plays |
+| Readiness | Enabled confirmed pool covers every official week |
+| Selection | Random without replacement; selected IDs never return |
+| Timing | Whole final calendar day active; future player visibility denied |
+| Scoring | Activity date, before cap, activity only, same individual/House value |
+| Evidence | Late proof uses activity week; evidence bonus excluded |
+| Corrections | Pre-week reason; locked Platform Administrator audited replacement |
+| Reconciliation | Frozen definitions, duplicates and used-state verified |
+| Accessibility | Labels, keyboard controls, textual status and responsive workspace |
+| Audit | Eight known advisories reviewed; no breaking auto-fix |
 
-## Evidence-specific assertions
+## Manual smoke path
 
-- Season evidence policy requires explicit confirmation.
-- Running Cardio is immediate and Running points are proof-gated.
-- Steps points cannot bypass proof.
-- Water/Fruit bonuses are once daily and outside normal activity cap.
-- Fruit normal scoring caps at five servings per day.
-- Claim IDs link to source entries.
-- Unassigned reviewers and unassigned Season Administrators cannot decide evidence.
-- Assigned reviewers cannot read other category queues.
-- Late proof is Platform-Administrator-only.
-- Decisions/releases/reversals are atomic.
-- v2 players read published snapshots but not another player's live contribution stream.
-- Snapshots are immutable.
-
-## Final manual pre-v1.0 matrix
-
-- Desktop, tablet and mobile route flows.
-- Light/dark mode and responsive workspaces.
-- Keyboard, screen reader, focus and reduced motion.
-- Full season rehearsal with multiple player/reviewer/admin accounts.
-- WhatsApp ID matching, deadline, correction and snapshot operations.
-- Operational recovery and privacy wording.
-
-## Safety assertions
-
-No media upload, no direct point editing, no silent evidence mutation, no false scheduler claim, no undefined mechanic activation and no v1.0 tag.
-
-## v0.20.0 correction matrix
-
-- Search by entry ID and verification ID.
-- Correct ordinary, qualifying Running, non-qualifying Running, Steps, Water and Fruit entries.
-- Confirm category/date/House attribution cannot change.
-- Confirm old entry and proof remain visible but inactive/superseded.
-- Confirm personal goals, records, analytics and progression use only the replacement.
-- Confirm reversal/replacement points net correctly for administrators.
-- Confirm ordinary players cannot write correction documents.
-- Confirm Journal recorded-day pagination and keyboard focus.
-- Confirm integrity JSON uses ISO timestamps and excludes WhatsApp media.
-- Confirm Pocket entries are diagnosed but correction submission is unavailable.
-## v0.21.0 trusted reconciliation matrix
-
-- Fingerprint remains stable when Firestore source order changes.
-- Complete immutable records produce a publishable audit.
-- Missing evidence, decision, correction and replacement links block publication.
-- Matching snapshots are recognised without duplicate publication intent.
-- Platform/season administrators can read trusted-run summaries; ordinary players cannot.
-- No client role can create or mutate trusted-run records.
-- Dry-run operation changes no Firebase competition state.
-- Service-account credentials and reports remain outside source control.
-
-## v0.22.0 trusted deletion matrix
-
-| Area | Required result |
-|---|---|
-| Waiting period | Acknowledged requests remain blocked for seven days |
-| Cancellation | Player cancellation allowed only before processing |
-| Final administrator | Last Platform Administrator deletion blocked |
-| Dry audit | No Firebase state changes; private local report only |
-| Shared history | Identity anonymised while points and House history remain |
-| Trusted writes | Browser clients cannot write execution or receipt records |
-| Recovery | Failed execution records can be resumed safely |
+1. Create a new v3 draft season with a theme.
+2. Rename all ten base plays with unique theme-specific names.
+3. Add a custom 3× multi-category play.
+4. Confirm readiness blocks registration until the pool covers all weeks.
+5. Open registration and verify the pool freezes.
+6. Select a future week and verify players cannot see it early.
+7. Start/reload into the week and verify player reveal.
+8. Verify eligible activity points adjust while evidence/goal/progression bonuses do not.
+9. Redraw a future week and confirm both old and new IDs are consumed.
+10. Run trusted reconciliation and confirm clean Power Play integrity.

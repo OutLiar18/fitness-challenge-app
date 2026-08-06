@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { DEFAULT_SEASON_EVIDENCE_POLICY } from "../src/constants/evidence.js";
+import { DEFAULT_LEAGUE_RULESET } from "../src/constants/leagues.js";
+import { createBasePowerPlayPool } from "../src/services/seasons/powerPlayModel.js";
 import {
   buildSeasonCommandCentre,
   buildSeasonOperationsReport,
@@ -174,4 +176,69 @@ test("operations report keeps immutable season records and generated metadata to
   assert.equal(report.metadata.generatedBy, "platform-admin");
   assert.equal(report.summary.publication.snapshotCount, 1);
   assert.equal(report.evidenceDecisions[0].id, "decision-one");
+});
+
+
+test("draft command centre blocks registration until theme-named no-repeat Power Plays are ready", () => {
+  const league = createLeague({
+    status: "draft",
+    startDate: timestamp("2026-08-10T00:00:00.000Z"),
+    endDate: timestamp("2026-10-25T00:00:00.000Z"),
+    ruleset: {
+      ...DEFAULT_LEAGUE_RULESET,
+      powerPlayPolicy: {
+        ...DEFAULT_LEAGUE_RULESET.powerPlayPolicy,
+        powerPlays: createBasePowerPlayPool("Mythological Creatures"),
+      },
+    },
+  });
+  const summary = buildSeasonCommandCentre({
+    league,
+    houses,
+    memberships: [],
+    referenceDate: new Date("2026-08-05T08:00:00.000Z"),
+  });
+
+  assert.equal(summary.actions[0].id, "configure-power-plays");
+  assert.equal(summary.actions[0].target, "power-plays");
+  assert.equal(summary.powerPlay.readiness.ready, false);
+});
+
+test("active command centre prioritises a missing current-week Power Play", () => {
+  const themedPowerPlays = createBasePowerPlayPool("Mythological Creatures").map((item, index) => ({
+    ...item,
+    name: `Mythic Trial ${index + 1}`,
+    normalizedName: `mythic trial ${index + 1}`,
+    themeNameConfirmed: true,
+  }));
+  const league = createLeague({
+    startDate: timestamp("2026-08-03T00:00:00.000Z"),
+    endDate: timestamp("2026-08-30T00:00:00.000Z"),
+    ruleset: {
+      ...DEFAULT_LEAGUE_RULESET,
+      powerPlayPolicy: {
+        ...DEFAULT_LEAGUE_RULESET.powerPlayPolicy,
+        powerPlays: themedPowerPlays,
+      },
+    },
+    powerPlayState: {
+      usedPowerPlayIds: [],
+      selectionCount: 0,
+      lastWeekKey: "",
+      lastPowerPlayId: "",
+      lastSelectionAt: null,
+      lastSelectionBy: "",
+    },
+  });
+  const summary = buildSeasonCommandCentre({
+    league,
+    houses,
+    memberships: members,
+    powerPlayAssignments: [],
+    referenceDate: new Date("2026-08-05T08:00:00.000Z"),
+  });
+
+  assert.equal(summary.actions[0].id, "select-current-power-play");
+  assert.equal(summary.actions[0].target, "power-plays");
+  assert.equal(summary.powerPlay.current.status, "missing");
 });

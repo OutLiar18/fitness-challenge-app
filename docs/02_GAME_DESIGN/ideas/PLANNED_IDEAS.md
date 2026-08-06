@@ -1,84 +1,32 @@
-# Champions Legacy Challenge
+# Champions Legacy Challenge — Planned Ideas
 
-# Planned Ideas
+Last updated: 5 August 2026
 
-Version: 1.0
+## Delivered in v0.23.0
 
----
+- Theme-specific Power Play library.
+- Ten base category Power Plays.
+- Controlled custom 2×/3× one- or multi-category plays.
+- Random weekly selection without replacement.
+- Permanent season-level no-repeat rule.
+- Individual, House, honours and trusted-reconciliation integration.
 
-# Purpose
-
-This document contains ideas that have been reviewed and approved for future development.
-
-These ideas align with the philosophy and long-term vision of Champions Legacy Challenge.
-
-They may not yet have an implementation date.
-
----
-
-# Philosophy
-
-Planned does not mean scheduled.
-
-It simply means the feature has earned a place in the future of the platform.
-
----
-
-# Information to Record
-
-Each planned idea should include:
-
-- Name
-- Description
-- Why it was accepted
-- Priority
-- Dependencies
-- Estimated Version (Optional)
-- Notes
-
----
-
-# Priority Levels
-
-High
-
-Medium
-
-Low
-
-Priorities may change as development progresses.
-
----
-
-# Review
-
-Ideas should remain here until they begin active development.
-
-Once development starts, they should move into the development documentation.
-
----
-
-# Guiding Principle
-
-Every planned feature should make Champions Legacy Challenge more motivating, more enjoyable or more meaningful.
-
----
-
-# End of Document
-## Confirmed after v0.22.0
-
-### Power Plays
-
-Confirmed for v0.23.0 design and implementation. The base library contains one Power Play for each of the ten activity categories. A selected Power Play lasts one season week and applies a controlled double or triple multiplier to one or multiple categories. Season creators or authorised administrators may add custom Power Plays using the same controlled multiplier model.
+## Confirmed next
 
 ### Weekly roster stability
 
-Replace one-person House immunity with a one-week movement lock: a player newly transferred to a House cannot transfer again in the immediately following weekly movement period.
+A player moved to a new House cannot be moved again during the immediately following weekly movement period. Initial C.H.A.O.S. assignment does not count. Audited emergency correction rules still need to be frozen.
 
 ### Weekly gender-composition balance
 
-Required for House competition. The eventual formula must be transparent, privacy-conscious, weekly, capped and must not reduce an individual's earned points.
+A transparent House-level weekly balancing mechanism is required. It must use minimum self-declared data, never infer identity, preserve individual earned points and use a strict cap so composition does not overwhelm consistency. The exact formula remains undecided.
 
 ### Five Fires
 
-Intended for implementation after a dedicated rules-design session.
+Intended for implementation after defining what each Fire represents, who owns it, how it is earned/lost/protected and whether it affects points, advantages, elimination or recognition.
+
+## Later decisions
+
+- Buddy Bonuses.
+- Late-season twists.
+- Final interactions among Five Fires, Power Plays, roster movement and weekly composition balance.

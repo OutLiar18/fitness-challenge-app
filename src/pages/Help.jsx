@@ -157,7 +157,7 @@ function DataExplainer() {
     {
       title: "Season snapshots",
       icon: "🛡️",
-      body: "When an entry counts in a season, its contribution remembers the House represented at that moment. Later roster movement does not rewrite history.",
+      body: "When an entry counts in a season, its contribution remembers the House represented at that moment. The activity date also determines any weekly Power Play. Later roster movement or proof review does not rewrite those historical facts.",
     },
     {
       title: "Private account settings",

@@ -1,5 +1,18 @@
 export const ANNOUNCEMENTS = Object.freeze([
   {
+    id: "v0-23-themed-power-plays",
+    type: "release",
+    icon: "⚡",
+    title: "Every season can now reveal its own themed Power Plays",
+    summary:
+      "One unique 2× or 3× activity multiplier can be revealed for each official season week, with no repeats for the rest of that season.",
+    body:
+      "Season creators now receive ten base Power Plays—one for every activity category—and must rename them to match the season theme before registration opens. A mythological Water play might become Release the Kraken. Administrators may add controlled custom plays that target one or several categories, and the enabled pool must contain enough unique plays for every official week. Selection is audited and random without replacement: once a play is drawn, redrawn or replaced through a correction, it remains used and cannot return later in the same season. Power Plays multiply eligible competitive activity points according to the activity date before the normal daily cap; goal, mission, streak, Experience Point and evidence-bonus rewards remain unchanged.",
+    publishedAt: "2026-08-05",
+    featured: true,
+    version: "0.23.0",
+  },
+  {
     id: "v0-22-trusted-account-deletion",
     type: "release",
     icon: "🧹",
@@ -9,7 +22,7 @@ export const ANNOUNCEMENTS = Object.freeze([
     body:
       "A Platform Administrator can now audit an acknowledged request with a private local tool, review blocking findings and begin irreversible processing only after an explicit confirmation. The processor removes the Firebase Authentication account and eligible private records, preserves shared competition results under a stable Former Player identity, protects the final Platform Administrator account and records an immutable completion receipt. A deleted person may register again as a completely fresh account, but previous history is never restored or automatically reconnected.",
     publishedAt: "2026-08-05",
-    featured: true,
+    featured: false,
     version: "0.22.0",
   },
   {
@@ -111,7 +124,7 @@ export const ANNOUNCEMENTS = Object.freeze([
     summary:
       "Seasons now contain themed Houses, dual leaderboards, weekly leadership voting, roster movement, Pocket Week reserves and private player notifications.",
     body:
-      "C.H.A.O.S. assigns registered players fairly when an administrator activates it. House leadership is elected through a 24-hour weekly ballot, earlier House contributions remain historically permanent after roster changes, and Pocket Week activities stay worth zero points until the player deliberately activates an available amount during the season. Power Plays, Diamonds, Buddy Bonuses, Five Fires and late-season twists remain inactive until their rules are confirmed.",
+      "C.H.A.O.S. assigns registered players fairly when an administrator activates it. House leadership is elected through a 24-hour weekly ballot, earlier House contributions remain historically permanent after roster changes, and Pocket Week activities stay worth zero points until the player deliberately activates an available amount during the season. Power Plays were later activated in v0.23.0. Diamonds, Buddy Bonuses, Five Fires and late-season twists remained inactive at this stage.",
     publishedAt: "2026-08-03",
     featured: false,
     version: "0.14.0",

@@ -320,6 +320,7 @@ function SnapshotPublisher({
   league,
   members,
   contributions,
+  powerPlayAssignments,
   actorId,
   notify,
   onPublished,
@@ -345,6 +346,7 @@ function SnapshotPublisher({
         league,
         members,
         contributions,
+        powerPlayAssignments,
         actorId,
         publicationType,
         replacesSnapshotId: publishedToday
@@ -395,6 +397,7 @@ export default function EvidenceWorkspace({
   league,
   members,
   contributions,
+  powerPlayAssignments = [],
   actorId,
   isPlatformAdmin,
   isLeagueAdministrator,
@@ -478,6 +481,7 @@ export default function EvidenceWorkspace({
       league,
       members,
       contributions,
+      powerPlayAssignments,
       actorId,
       publicationType: "automatic-fallback",
       replacesSnapshotId: "",
@@ -492,7 +496,7 @@ export default function EvidenceWorkspace({
         console.error(error);
         notify?.("The no-cost 10:00 fallback could not publish. Use the manual control below.", "warning");
       });
-  }, [actorId, contributions, isLeagueAdministrator, league, members, notify, onSnapshotPublished]);
+  }, [actorId, contributions, isLeagueAdministrator, league, members, notify, onSnapshotPublished, powerPlayAssignments]);
 
   const metrics = useMemo(() => ({
     pending: claims.filter((claim) => getEvidenceDisplayStatus(claim)?.id === "pending").length,
@@ -581,6 +585,7 @@ export default function EvidenceWorkspace({
             league={league}
             members={members}
             contributions={contributions}
+            powerPlayAssignments={powerPlayAssignments}
             actorId={actorId}
             notify={notify}
             onPublished={onSnapshotPublished}

@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 
 import Toast from "../components/common/Toast/Toast";
 import EvidenceWorkspace from "../components/seasons/EvidenceWorkspace";
+import PowerPlayWorkspace from "../components/seasons/PowerPlayWorkspace";
 import SeasonCommandCentre from "../components/seasons/SeasonCommandCentre";
 import WorkspaceTabs, {
   WorkspacePanel,
@@ -39,6 +40,7 @@ import {
   subscribeToLeaderboardSnapshot,
   subscribeToReviewerAssignmentsForUser,
 } from "../services/evidence/evidenceService";
+import { subscribeToLeaguePowerPlayWeeks } from "../services/seasons/powerPlayService";
 import { resolveWorkspaceTab } from "../services/ui/workspaceModel";
 import {
   formatNumber,
@@ -61,6 +63,12 @@ const SEASON_DETAIL_TABS = Object.freeze([
     label: "Command centre",
     icon: "🎛️",
     description: "Operational health, next actions and downloadable reports",
+  },
+  {
+    id: "power-plays",
+    label: "Power Plays",
+    icon: "⚡",
+    description: "Theme-named weekly multipliers and no-repeat draw history",
   },
   {
     id: "standings",
@@ -179,7 +187,7 @@ function LeagueCreationForm({ actorId, notify }) {
         },
       });
       notify(
-        "Season draft created. Forge its Houses before opening registration.",
+        "Season draft created. Forge its Houses and give every Power Play a unique theme name before opening registration.",
         "success",
         5200,
       );
@@ -204,7 +212,8 @@ function LeagueCreationForm({ actorId, notify }) {
         <h2>Create a themed House season</h2>
         <p>
           Every season receives individual standings, House standings, a
-          seven-day Pocket window and its own permanent roster history.
+          seven-day Pocket window, themed no-repeat Power Plays and its own
+          permanent roster history.
         </p>
       </div>
       <div className="league-form-grid">
@@ -596,6 +605,7 @@ function LeagueDetail({
   isPlatformAdmin,
   userId,
   notify,
+  requestedTab = "",
 }) {
   const [memberState, setMemberState] = useState({ leagueId: "", items: [] });
   const [contributionState, setContributionState] = useState({
@@ -604,8 +614,9 @@ function LeagueDetail({
   });
   const [reviewerAssignments, setReviewerAssignments] = useState([]);
   const [publishedSnapshot, setPublishedSnapshot] = useState(null);
+  const [powerPlayAssignments, setPowerPlayAssignments] = useState([]);
   const [workingAction, setWorkingAction] = useState("");
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState(() => requestedTab || "overview");
   const isManager =
     canManage && canManageLeague(league, userId, isPlatformAdmin);
   const isHouseSeason =
@@ -614,10 +625,8 @@ function LeagueDetail({
     (assignment) => assignment.leagueId === league.id && assignment.status !== "inactive",
   );
   const isEvidenceReviewer = Boolean(reviewerAssignment?.categories?.length);
-  const evidenceEnabled = Boolean(
-    league.rulesVersion === "season-houses-v2"
-      && league.ruleset?.evidencePolicy,
-  );
+  const evidenceEnabled = Boolean(league.ruleset?.evidencePolicy);
+  const powerPlayEnabled = Boolean(league.ruleset?.modules?.powerPlay === true);
   const canViewLiveStandings = Boolean(
     isManager
       || (evidenceEnabled && isEvidenceReviewer)
@@ -632,6 +641,7 @@ function LeagueDetail({
   );
   const detailTabs = SEASON_DETAIL_TABS.filter((tab) => {
     if (tab.id === "operations") return canViewCommandCentre;
+    if (tab.id === "power-plays") return powerPlayEnabled;
     if (tab.id === "evidence") return canOperateEvidence;
     return true;
   });
@@ -646,6 +656,16 @@ function LeagueDetail({
       (error) => notify(error.message || "Evidence reviewer access could not be loaded.", "error"),
     );
   }, [notify, userId]);
+
+  useEffect(() => {
+    if (!powerPlayEnabled) return undefined;
+    return subscribeToLeaguePowerPlayWeeks(
+      league,
+      setPowerPlayAssignments,
+      (error) => notify(error.message || "Power Play schedule could not be loaded.", "error"),
+      { includeFuture: isManager },
+    );
+  }, [isManager, league, notify, powerPlayEnabled]);
 
   useEffect(() => {
     if (!canViewStandings) return undefined;
@@ -690,12 +710,22 @@ function LeagueDetail({
       ? contributionState.items
       : EMPTY_ITEMS;
   const liveStandings = useMemo(
-    () => calculateLeagueStandings(contributions, members, league.ruleset),
-    [contributions, league.ruleset, members],
+    () => calculateLeagueStandings(
+      contributions,
+      members,
+      league.ruleset,
+      powerPlayAssignments,
+    ),
+    [contributions, league.ruleset, members, powerPlayAssignments],
   );
   const liveHonours = useMemo(
-    () => calculateSeasonHonours(contributions, members, league.ruleset),
-    [contributions, league.ruleset, members],
+    () => calculateSeasonHonours(
+      contributions,
+      members,
+      league.ruleset,
+      powerPlayAssignments,
+    ),
+    [contributions, league.ruleset, members, powerPlayAssignments],
   );
   const standings = canViewLiveStandings
     ? liveStandings
@@ -879,6 +909,11 @@ function LeagueDetail({
             </small>
           </article>
           <article>
+            <span aria-hidden="true">⚡</span>
+            <strong>{powerPlayEnabled ? "Power Plays active" : "Classic scoring"}</strong>
+            <small>{powerPlayEnabled ? "One unique themed draw per week" : "No weekly multipliers"}</small>
+          </article>
+          <article>
             <span aria-hidden="true">⚖️</span>
             <strong>Dual standings</strong>
             <small>Individual and House</small>
@@ -895,7 +930,7 @@ function LeagueDetail({
               from activity, plus a{" "}
               <strong>{formatPoints(league.ruleset?.dailyParticipationBonus ?? 5)}</strong>{" "}
               participation bonus. Moving Houses changes only future House
-              contributions.
+              contributions. {powerPlayEnabled && "The selected themed Power Play multiplies eligible competitive activity points for its official week before the normal daily cap."}
             </p>
           </div>
           <dl>
@@ -932,6 +967,7 @@ function LeagueDetail({
             league={league}
             members={members}
             contributions={contributions}
+            powerPlayAssignments={powerPlayAssignments}
             actorId={userId}
             isPlatformAdmin={isPlatformAdmin}
             isLeagueAdministrator={isManager}
@@ -939,6 +975,20 @@ function LeagueDetail({
             notify={notify}
             onOpenEvidence={() => setActiveTab("evidence")}
             onOpenHonours={() => setActiveTab("honours")}
+            onOpenPowerPlays={() => setActiveTab("power-plays")}
+          />
+        </WorkspacePanel>
+      )}
+
+      {powerPlayEnabled && (
+        <WorkspacePanel id="power-plays" activeId={resolvedDetailTab} idPrefix={`season-${league.id}`}>
+          <PowerPlayWorkspace
+            league={league}
+            assignments={powerPlayAssignments}
+            actorId={userId}
+            canManage={isManager}
+            isPlatformAdmin={isPlatformAdmin}
+            notify={notify}
           />
         </WorkspacePanel>
       )}
@@ -1070,6 +1120,7 @@ function LeagueDetail({
             league={league}
             members={members}
             contributions={contributions}
+            powerPlayAssignments={powerPlayAssignments}
             actorId={userId}
             isPlatformAdmin={isPlatformAdmin}
             isLeagueAdministrator={isManager}
@@ -1175,13 +1226,14 @@ export default function Seasons() {
         </section>
         {selectedLeague && (
           <LeagueDetail
-            key={selectedLeague.id}
+            key={`${selectedLeague.id}:${searchParams.get("tab") || ""}`}
             league={selectedLeague}
             membership={selectedMembership}
             canManage={canManageLeagues}
             isPlatformAdmin={isPlatformAdmin}
             userId={user?.uid}
             notify={showToast}
+            requestedTab={searchParams.get("tab") || ""}
           />
         )}
       </WorkspacePanel>

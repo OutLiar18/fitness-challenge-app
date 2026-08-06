@@ -8,6 +8,11 @@ import {
   SEASON_HOUSE_LIMITS,
 } from "../../constants/seasons";
 import { validateEvidencePolicy } from "../evidence/evidenceModel";
+import {
+  applyPowerPlayToContributionPoints,
+  createDefaultPowerPlayPolicy,
+  getPowerPlayReadiness,
+} from "../seasons/powerPlayModel";
 import { addDays, getLocalDateKey, normalizeChallengeDate } from "../dateService";
 
 const LEAGUE_TRANSITIONS = Object.freeze({
@@ -33,13 +38,14 @@ export function validateLeagueInput(input = {}) {
     ? input.mode
     : "season";
   const houseCount = Number(input.houseCount ?? 6);
+  const theme = cleanText(input.theme, 80);
   const pocketStartDate = startDate ? addDays(startDate, -7) : null;
   const pocketEndDate = startDate ? addDays(startDate, -1) : null;
   const evidenceValidation = validateEvidencePolicy(input.evidencePolicy ?? {});
   const value = {
     name: cleanText(input.name, 70),
     description: cleanText(input.description, 400),
-    theme: cleanText(input.theme, 80),
+    theme,
     type,
     mode,
     houseCount,
@@ -52,6 +58,7 @@ export function validateLeagueInput(input = {}) {
       ...DEFAULT_LEAGUE_RULESET,
       modules: { ...DEFAULT_LEAGUE_RULESET.modules },
       evidencePolicy: evidenceValidation.value,
+      powerPlayPolicy: createDefaultPowerPlayPolicy(theme),
     },
   };
   const errors = [...evidenceValidation.errors];
@@ -86,6 +93,17 @@ export function validateLeagueInput(input = {}) {
   return { valid: errors.length === 0, errors, value };
 }
 
+
+export function validatePowerPlayReadinessForRegistration(league) {
+  if (league?.ruleset?.modules?.powerPlay !== true) {
+    return { ready: true, checks: [], weeks: [], enabledCount: 0, requiredCount: 0 };
+  }
+  return getPowerPlayReadiness({
+    league,
+    powerPlays: league.ruleset?.powerPlayPolicy?.powerPlays ?? [],
+  });
+}
+
 export function canTransitionLeague(currentStatus, nextStatus) {
   return LEAGUE_TRANSITIONS[currentStatus]?.includes(nextStatus) ?? false;
 }
@@ -115,6 +133,7 @@ export function calculateLeagueStandings(
   contributions = [],
   memberships = [],
   ruleset = DEFAULT_LEAGUE_RULESET,
+  powerPlayAssignments = [],
 ) {
   const memberMap = new Map(memberships.map((member) => [member.userId, member]));
   const playerDays = new Map();
@@ -129,7 +148,11 @@ export function calculateLeagueStandings(
     const userId = contribution.userId;
     if (!dateKey || !userId) return;
 
-    const points = Number(contribution.activityPoints ?? 0);
+    const points = applyPowerPlayToContributionPoints({
+      contribution,
+      ruleset,
+      assignments: powerPlayAssignments,
+    });
     if (!Number.isFinite(points)) return;
 
     const pointGroup = contribution.pointGroup === "evidenceBonus"
@@ -354,7 +377,13 @@ function getMemberIdentity(memberMap, userId) {
   };
 }
 
-function rankCategoryContributors(contributions, category, memberMap, ruleset) {
+function rankCategoryContributors(
+  contributions,
+  category,
+  memberMap,
+  ruleset,
+  powerPlayAssignments,
+) {
   const dailyRows = new Map();
   contributions.forEach((contribution) => {
     const scoreCategory = contribution.scoreCategory || contribution.category;
@@ -368,7 +397,11 @@ function rankCategoryContributors(contributions, category, memberMap, ruleset) {
       points: 0,
       entryIds: new Set(),
     };
-    row.points += Number(contribution.activityPoints ?? 0);
+    row.points += applyPowerPlayToContributionPoints({
+      contribution,
+      ruleset,
+      assignments: powerPlayAssignments,
+    });
     if (contribution.entryId) row.entryIds.add(contribution.entryId);
     dailyRows.set(key, row);
   });
@@ -395,7 +428,12 @@ function rankCategoryContributors(contributions, category, memberMap, ruleset) {
   );
 }
 
-function rankHouseContributors(contributions, memberships, ruleset) {
+function rankHouseContributors(
+  contributions,
+  memberships,
+  ruleset,
+  powerPlayAssignments,
+) {
   const memberMap = new Map(memberships.map((member) => [member.userId, member]));
   const days = new Map();
 
@@ -416,7 +454,11 @@ function rankHouseContributors(contributions, memberships, ruleset) {
       ...contribution,
       scoreCategory,
       pointGroup: contribution.pointGroup === "evidenceBonus" ? "evidenceBonus" : "activity",
-      points: Number(contribution.activityPoints ?? 0),
+      points: applyPowerPlayToContributionPoints({
+        contribution,
+        ruleset,
+        assignments: powerPlayAssignments,
+      }),
     });
     days.set(key, day);
   });
@@ -468,8 +510,14 @@ export function calculateSeasonHonours(
   contributions = [],
   memberships = [],
   ruleset = DEFAULT_LEAGUE_RULESET,
+  powerPlayAssignments = [],
 ) {
-  const standings = calculateLeagueStandings(contributions, memberships, ruleset);
+  const standings = calculateLeagueStandings(
+    contributions,
+    memberships,
+    ruleset,
+    powerPlayAssignments,
+  );
   const memberMap = new Map(memberships.map((member) => [member.userId, member]));
   const awardedPlayerIds = new Set();
   const individual = [];
@@ -486,7 +534,13 @@ export function calculateSeasonHonours(
   }
 
   SEASON_HONOUR_CATEGORIES.forEach((honour) => {
-    const ranked = rankCategoryContributors(contributions, honour.id, memberMap, ruleset);
+    const ranked = rankCategoryContributors(
+      contributions,
+      honour.id,
+      memberMap,
+      ruleset,
+      powerPlayAssignments,
+    );
     const winner = ranked.find((candidate) => candidate.points > 0 && !awardedPlayerIds.has(candidate.userId));
     if (!winner) return;
     individual.push({ id: honour.id, title: honour.title, ...winner });
@@ -495,7 +549,12 @@ export function calculateSeasonHonours(
 
   return {
     individual,
-    houseChampions: rankHouseContributors(contributions, memberships, ruleset),
+    houseChampions: rankHouseContributors(
+      contributions,
+      memberships,
+      ruleset,
+      powerPlayAssignments,
+    ),
     houseOfChampions: standings.houses[0] ?? null,
   };
 }

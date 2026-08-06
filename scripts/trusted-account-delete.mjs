@@ -53,6 +53,7 @@ const RELATED_LEAGUE_COLLECTIONS = Object.freeze([
   "leagueRosterSwaps",
   "leagueRosterLocks",
   "leagueInvites",
+  "leaguePowerPlayWeeks",
 ]);
 
 function parseArguments(argv) {
