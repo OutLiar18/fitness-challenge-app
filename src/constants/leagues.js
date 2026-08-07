@@ -27,7 +27,7 @@ export const LEAGUE_MODES = Object.freeze([
 
 export const LEAGUE_PARTICIPANT_LIMIT = 160;
 
-export const LEAGUE_RULESET_VERSION = "season-houses-v3";
+export const LEAGUE_RULESET_VERSION = "season-houses-v4";
 export const DEFAULT_LEAGUE_RULESET = Object.freeze({
   version: LEAGUE_RULESET_VERSION,
   scoringEngineVersion: "points-v2",

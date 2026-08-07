@@ -85,7 +85,7 @@ If the legitimate v4 locked correction reaches the evaluator limit, stop here an
 
 ## Checkpoint 2G — v4 C.H.A.O.S. assignment compatibility
 
-Status: implemented as a **zero-Rules-change scale probe** in `0.24.0-dev.8`.
+Status: **passed** as a zero-Rules-change scale probe in `0.24.0-dev.8`.
 
 - keep `firestore.rules` byte-for-byte equivalent to the passed Checkpoint 2F Rules;
 - keep runtime creation on v3;
@@ -98,7 +98,17 @@ This probe is intentionally designed to reveal Firestore batched-write document-
 
 ## Checkpoint 2H — runtime v4 default
 
-Only after the existing season paths needed to enter normal play have positive v4 coverage should new application-created seasons switch from v3 to v4. This checkpoint changes application creation/runtime wiring only; it does not add House-movement persistence.
+Status: implemented as a **zero-Rules-change runtime switch** in `0.24.0-dev.9`.
+
+- change only `LEAGUE_RULESET_VERSION` from `season-houses-v3` to `season-houses-v4`;
+- keep the v4 document shape identical to the proven lean v3-compatible shape;
+- add a domain test proving normal validated new-season input emits v4;
+- keep `firestore.rules` unchanged from Checkpoint 2F/2G;
+- keep the full 59-test Firestore Rules suite unchanged from Checkpoint 2G;
+- do not add rest-lock persistence, assignment-history documents, movement overrides, composition data or weekly-balance data;
+- keep production deployment blocked.
+
+If the unchanged Rules suite or runtime-creation domain test fails after this switch, stop before Checkpoint 3.
 
 ## Checkpoint 3 — membership rest-lock persistence
 

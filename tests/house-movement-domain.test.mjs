@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { DEFAULT_LEAGUE_RULESET, LEAGUE_RULESET_VERSION } from "../src/constants/leagues.js";
+import { validateLeagueInput } from "../src/services/leagues/leagueModel.js";
 import {
   HOUSE_MOVEMENT_POLICY_VERSION,
   HOUSE_ROSTER_PLAYER_REST_WEEKS,
@@ -115,4 +117,25 @@ test("only the future v4 policy activates the one-week post-move rest", () => {
 
 test("House assignment history identifiers are deterministic per source and player", () => {
   assert.equal(createHouseAssignmentHistoryId("swap-one", "player-a"), "swap-one_player-a");
+});
+
+
+test("normal new-season creation now emits the v4 House movement contract", () => {
+  const result = validateLeagueInput({
+    name: "House Movement Season",
+    description: "A full season used to verify the v4 runtime creation contract.",
+    theme: "Warrior Houses",
+    type: "Community",
+    mode: "season",
+    houseCount: 8,
+    startDate: new Date(2026, 8, 7, 12),
+    endDate: new Date(2026, 9, 5, 12),
+    evidencePolicy: { confirmed: true },
+  });
+
+  assert.equal(result.valid, true);
+  assert.equal(LEAGUE_RULESET_VERSION, "season-houses-v4");
+  assert.equal(DEFAULT_LEAGUE_RULESET.version, "season-houses-v4");
+  assert.equal(result.value.ruleset.version, "season-houses-v4");
+  assert.equal(supportsHouseMovementV1({ rulesVersion: result.value.ruleset.version }), true);
 });
