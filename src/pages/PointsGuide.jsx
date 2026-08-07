@@ -311,6 +311,8 @@ export default function PointsGuide() {
           <div className="points-league__formulas">
             <code>{PUBLIC_LEAGUE_SCORING.houseFormula}</code>
             <code>{PUBLIC_LEAGUE_SCORING.pocketFormula}</code>
+            <code>{PUBLIC_LEAGUE_SCORING.powerPlayFormula}</code>
+            <code>{PUBLIC_LEAGUE_SCORING.powerPlayExclusions}</code>
           </div>
 
           <p>{PUBLIC_LEAGUE_SCORING.note}</p>

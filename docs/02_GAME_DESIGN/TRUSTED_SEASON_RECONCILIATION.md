@@ -2,7 +2,7 @@
 
 <!-- RELEASE_STATUS: DEPLOYED -->
 Version introduced: 0.21.0  
-Status: Release candidate; Windows verification and production deployment pending
+Status: Verified production deployment; Windows verification and production deployment pending
 
 ## Purpose
 

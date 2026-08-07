@@ -1,9 +1,9 @@
 # Champions Legacy Challenge
 
 <!-- RELEASE_STATUS: DEPLOYED -->
-Source version: **0.22.0**  
-Production version: **0.22.0**  
-Status: **v0.22.0 verified and deployed; release commit pending; pre-v1.0**
+Source version: **0.23.5**  
+Production version: **0.23.0**  
+Status: **v0.23.5 stability candidate; production deployment pending; pre-v1.0**
 
 Champions Legacy Challenge is a gamified personal-development platform that rewards consistent, factual progress across fitness, reading, nutrition, movement and skill development.
 
@@ -14,27 +14,31 @@ Champions Legacy Challenge is a gamified personal-development platform that rewa
 - Goals, streaks, shields, Experience Points, achievements, records, timeline and Personal Analytics.
 - Trusted administration, immutable audit history, moderation, shared libraries and first-party error reporting.
 - Season-scoped Houses with C.H.A.O.S., leadership, roster movement, Pocket Week and historical House allocation.
-- External WhatsApp proof, immutable published standings, audited factual corrections and trusted season reconciliation.
+- External WhatsApp proof, immutable published standings, audited factual corrections, trusted season reconciliation and trusted account deletion.
 
-## v0.22.0 — Trusted Account Deletion
+## v0.23.5 — Stable Power Plays checkpoint
 
-v0.22.0 completes the account-closure workflow:
 
-- acknowledgement starts a seven-day cancellation window;
-- dry audit is the safe default;
-- irreversible processing requires explicit confirmation and a final data refresh;
-- Firebase Authentication and eligible private records are removed;
-- shared season, House, standings and honours history is preserved under a deterministic Former Player identity;
-- the final Platform Administrator cannot be deleted;
-- failed processing can be resumed safely;
-- completion creates administrator-only execution, receipt and audit records;
-- a deleted person may register again as a new account, with no restored or automatically reconnected history.
+This stabilization release is intentionally based on the verified v0.23.0 runtime and Firestore security model. It preserves themed Power Plays and the existing v3 season/House behaviour while excluding the unfinished v0.24 House Movement expansion (one-week post-move rest locks, composition profiles and weekly House-balance snapshots).
 
-No Cloud Functions, paid plan or automatic schedule is introduced. The private service-account file and local reports must remain outside the repository.
+New `season-houses-v3` seasons gain one theme-named Power Play per official season week:
+
+- ten required base Power Plays, one for each activity category;
+- unique season-themed names such as **Release the Kraken** for a mythological Water week;
+- controlled custom Power Plays covering one or multiple categories at 2× or 3×;
+- deterministic random selection from the unused enabled pool;
+- no selected, redrawn or corrected Power Play can ever be used again in that season;
+- activity-date scoring, including proof released later for Running or Steps;
+- activity points are multiplied before the ordinary league activity cap;
+- evidence bonuses, goals, missions, streaks, Experience Points and administrator adjustments are not multiplied;
+- identical multiplied contributions drive individual standings, House standings and honours;
+- immutable weekly assignment history, audit records and trusted-reconciliation checks.
+
+Power Play names and definitions freeze when registration opens. Existing v1 and v2 seasons retain their historical behaviour.
 
 ## Production
 
-v0.22.0 is deployed at:
+v0.23.0 is deployed at:
 
 `https://champions-legacy-challenge.web.app`
 
@@ -48,14 +52,14 @@ npm run check:release
 npm audit
 ```
 
-Expected v0.22.0 targets are **108 domain tests**, **47 Firestore Security Rules tests**, clean ESLint, a successful Vite build and release-readiness for Hosting target `app`. Do not run `npm audit fix` or `npm audit fix --force`.
+Expected v0.23.5 targets are **120 domain tests**, **51 Firestore Security Rules tests**, clean ESLint, a successful Vite build and release-readiness for Hosting target `app`. Do not run `npm audit fix` or `npm audit fix --force`.
 
-## Trusted deletion documentation
+## Power Play documentation
 
-- `docs/02_GAME_DESIGN/TRUSTED_ACCOUNT_DELETION.md`
-- `docs/04_DEVELOPMENT/TRUSTED_ACCOUNT_DELETION_OPERATIONS.md`
-- `docs/03_ARCHITECTURE/decisions/ADR-029-trusted-account-deletion-and-anonymised-history.md`
+- `docs/02_GAME_DESIGN/POWER_PLAYS.md`
+- `docs/04_DEVELOPMENT/POWER_PLAY_OPERATIONS.md`
+- `docs/03_ARCHITECTURE/decisions/ADR-030-themed-no-repeat-power-plays.md`
 
 ## Release boundary
 
-v0.22.0 is not v1.0. Power Plays, weekly roster-stability rules, weekly gender-composition balancing, Five Fires, remaining twists and the final whole-product review still remain ahead.
+v0.23.5 is not v1.0. The deferred v0.24 House Movement work must not be copied into this stabilization branch until its Rules architecture is redesigned and independently verified. Weekly roster stability, weekly gender-composition balancing, Five Fires, the Buddy Bonus decision, late-season twists, hardening, full-product polish and the complete season rehearsal still remain ahead.

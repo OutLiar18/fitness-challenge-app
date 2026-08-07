@@ -1,5 +1,43 @@
 # Champions Legacy Challenge — Changelog
 
+## [0.23.5] — 7 August 2026 — Stability candidate
+
+<!-- RELEASE_STATUS: CANDIDATE -->
+
+### Stabilised
+
+- Restored the verified v0.23.0 runtime and `season-houses-v3` Firestore security contract as the production baseline.
+- Preserved themed no-repeat Power Plays and all v0.23 user-facing behaviour.
+- Deferred the unfinished v0.24 one-week post-move rest lock, composition-profile and weekly House-balance features.
+- Added a release gate that verifies the Rules and Rules tests remain byte-for-byte identical to the verified v0.23.0 baseline.
+- Changed production deployment to run Firestore Rules first and Firebase Hosting second, preventing a newer frontend from being published when Rules deployment fails.
+
+### Verification target
+
+- 120 domain tests.
+- 51 Firestore Rules tests.
+- Clean ESLint and Vite production build.
+- No v0.24 House Movement files or `season-houses-v4` markers.
+
+## [0.23.0] — 5 August 2026 — Verified production deployment
+
+<!-- RELEASE_STATUS: DEPLOYED -->
+
+### Added
+
+- New v3 season ruleset with ten editable theme-specific base Power Plays.
+- Controlled custom 2×/3× one- or multi-category Power Plays.
+- Random official-week selection without replacement and permanent season no-repeat state.
+- Player weekly reveal, administrator pool/selection workspace and notifications.
+- Power Play-aware individual standings, House standings, honours and Command Centre summaries.
+- Frozen definition validation, Firestore Rules, trusted reconciliation, operations guide and ADR-030.
+
+### Preserved
+
+- Existing v1/v2 seasons remain unchanged.
+- Evidence bonuses, goals, missions, streaks, Experience Points and administrator adjustments are not multiplied.
+- No background scheduler, paid plan or arbitrary formula engine.
+
 ## [0.22.0] — 5 August 2026 — Release candidate
 
 ### Added
@@ -26,7 +64,7 @@
 ## 0.21.0 — Trusted Standings and Season Reconciliation
 
 Date: 5 August 2026  
-Status: Release candidate
+Status: Verified production deployment
 
 ### Added
 

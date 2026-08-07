@@ -55,3 +55,7 @@ Run `npm install` before the release gates so `package-lock.json` records the Fi
 ## Trusted deletion release boundary
 
 A successful dry audit is not required to deploy v0.22.0 and must not be run against a real player merely for testing. Release verification consists of automated gates and UI/rules review; irreversible operations remain separate production procedures.
+
+## v0.23.0 release note
+
+The release changes Firestore Rules and Hosting, so use `npm run deploy:production` only after 120 domain tests, 51 Rules tests, lint, build and release-readiness pass. No Power Play data migration is required. Do not use a production season to test locked correction behaviour.

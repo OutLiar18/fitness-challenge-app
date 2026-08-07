@@ -57,3 +57,7 @@ v0.21.0 deploys the browser UI and Firestore Rules only. `scripts/trusted-season
 ## v0.22.0 release note
 
 Deploy Firestore Rules and Hosting together. Do not run a real account deletion as part of release verification. Configure trusted credentials only from the private operations runbook after deployment/finalisation when an actual eligible request exists.
+
+## v0.23.0 release note
+
+The release changes Firestore Rules and Hosting, so use `npm run deploy:production` only after 120 domain tests, 51 Rules tests, lint, build and release-readiness pass. No Power Play data migration is required. Do not use a production season to test locked correction behaviour.

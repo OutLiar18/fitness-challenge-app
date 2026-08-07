@@ -151,13 +151,22 @@ async function getDocumentsByIds(db, collectionName, ids) {
 }
 
 async function loadSeasonSources(db, league) {
-  const [memberships, contributions, claims, decisions, corrections, snapshots] = await Promise.all([
+  const [
+    memberships,
+    contributions,
+    claims,
+    decisions,
+    corrections,
+    snapshots,
+    powerPlayAssignments,
+  ] = await Promise.all([
     getCollectionByLeague(db, "leagueMemberships", league.id),
     getCollectionByLeague(db, "leagueContributions", league.id),
     getCollectionByLeague(db, "seasonEvidenceClaims", league.id),
     getCollectionByLeague(db, "seasonEvidenceDecisions", league.id),
     getCorrectionsForLeague(db, league.id),
     getCollectionByLeague(db, "leagueLeaderboardSnapshots", league.id),
+    getCollectionByLeague(db, "leaguePowerPlayWeeks", league.id),
   ]);
   const entryIds = [
     ...contributions.map((item) => item.entryId),
@@ -165,7 +174,16 @@ async function loadSeasonSources(db, league) {
     ...corrections.flatMap((item) => [item.sourceEntryId, item.replacementEntryId]),
   ];
   const entries = await getDocumentsByIds(db, "challengeEntries", entryIds);
-  return { memberships, contributions, claims, decisions, corrections, snapshots, entries };
+  return {
+    memberships,
+    contributions,
+    claims,
+    decisions,
+    corrections,
+    snapshots,
+    powerPlayAssignments,
+    entries,
+  };
 }
 
 function portableValue(value) {
@@ -268,6 +286,7 @@ async function publishTrustedSnapshot({ db, league, audit, actorId, sources }) {
       league: liveLeague,
       memberships: sources.memberships,
       contributions: sources.contributions,
+      powerPlayAssignments: sources.powerPlayAssignments,
     });
     if (liveFingerprint !== audit.fingerprint) {
       throw new Error(

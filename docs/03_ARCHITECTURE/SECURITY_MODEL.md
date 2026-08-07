@@ -1,7 +1,7 @@
 # Champions Legacy Challenge — Security Model
 
 Last updated: 4 August 2026  
-Current release target: v0.22.0  
+Current release target: v0.23.0  
 Current production: v0.20.0
 
 ## Principles
@@ -71,3 +71,14 @@ Credential files and local reports are ignored by Git. No client can write `seas
 - The local Admin SDK credential is outside the repository and must never be embedded in the client.
 - The processor blocks deletion of the final Platform Administrator.
 - A dry audit and final live refresh precede any irreversible write.
+
+## v0.23 Power Play security boundary
+
+- Draft pool changes require a managed Draft season and a paired audit event.
+- Registration/Active selection requires an authorised season operator, a valid official week, an unused enabled confirmed definition and a paired audit event.
+- Players cannot write assignments or used-state fields.
+- Players cannot read future-week assignments before the official start.
+- A started assignment is locked from ordinary redraw.
+- Locked correction requires Platform Administrator authority, a reason, an unused replacement and immutable history fields.
+- Weekly assignment facts must match the frozen definition map.
+- Trusted reconciliation remains the final publication integrity check.

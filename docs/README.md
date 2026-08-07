@@ -1,8 +1,8 @@
 # Champions Legacy Challenge Documentation
 
 <!-- RELEASE_STATUS: DEPLOYED -->
-Current source: **v0.22.0 — Trusted Account Deletion**  
-Current production: **v0.22.0**  
+Current source: **v0.23.0 — Themed Power Plays**  
+Current production: **v0.23.0**  
 Status: **Verified and deployed; release commit pending; pre-v1.0**
 
 Start with:
@@ -13,12 +13,17 @@ Start with:
 4. `01_CURRENT_DEVELOPMENT/ACTIVE_MIGRATIONS.md`
 5. `01_CURRENT_DEVELOPMENT/NEXT_SESSION.md`
 
-Current trusted operations:
+Current Power Play sources:
 
-- `02_GAME_DESIGN/TRUSTED_ACCOUNT_DELETION.md`
-- `04_DEVELOPMENT/TRUSTED_ACCOUNT_DELETION_OPERATIONS.md`
-- ADR-029 — Trusted Account Deletion and Anonymised Shared History
+- `02_GAME_DESIGN/POWER_PLAYS.md`
+- `04_DEVELOPMENT/POWER_PLAY_OPERATIONS.md`
+- ADR-030 — Themed No-Repeat Power Plays
+
+Trusted operations remain documented in:
+
 - `02_GAME_DESIGN/TRUSTED_SEASON_RECONCILIATION.md`
 - `04_DEVELOPMENT/TRUSTED_SEASON_OPERATIONS.md`
+- `02_GAME_DESIGN/TRUSTED_ACCOUNT_DELETION.md`
+- `04_DEVELOPMENT/TRUSTED_ACCOUNT_DELETION_OPERATIONS.md`
 
 Historical ADRs remain permanent records. Documentation and the release finaliser ship inside the main updater.

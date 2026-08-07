@@ -1,7 +1,7 @@
 # Champions Legacy Challenge — Data Model
 
 Last updated: 4 August 2026  
-Current release target: v0.22.0  
+Current release target: v0.23.0  
 Current production: v0.20.0
 
 ## Principle
@@ -84,3 +84,17 @@ Trusted `leagueLeaderboardSnapshots` add `publicationType: trusted-local`, `trus
 - Preserved shared records may include `accountDeletionAnonymised`, `accountDeletionExecutionId` and `accountDeletionAnonymisedAt`.
 - The former identity uses a deterministic `former-...` identifier and `Former Player XXXX` display label.
 - A new Firebase account is a separate player and is never joined to these records.
+
+## v0.23 Power Play model
+
+A v3 league includes:
+
+- `ruleset.modules.powerPlay: true`;
+- `ruleset.powerPlayPolicy.version: power-play-v1`;
+- `powerPlays[]` for ordered draft/player presentation;
+- `powerPlayDefinitions{}` as the canonical frozen lookup map;
+- `powerPlayState.usedPowerPlayIds[]`, `selectionCount`, last selection metadata.
+
+`leaguePowerPlayWeeks/{leagueId}_{weekKey}` stores the copied frozen ID, name, multiplier, categories, official dates, selection sequence, prior IDs, redraw/correction metadata and audit link.
+
+Contribution documents are not rewritten. Their challenge date and score category resolve the matching assignment.

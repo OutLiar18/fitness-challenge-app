@@ -1,4 +1,5 @@
 import { DEFAULT_SEASON_EVIDENCE_POLICY } from "./evidence";
+import { createDefaultPowerPlayPolicy } from "../services/seasons/powerPlayModel";
 import { SEASON_MODULES } from "./seasons";
 
 export const LEAGUE_STATUSES = Object.freeze({
@@ -26,7 +27,7 @@ export const LEAGUE_MODES = Object.freeze([
 
 export const LEAGUE_PARTICIPANT_LIMIT = 160;
 
-export const LEAGUE_RULESET_VERSION = "season-houses-v2";
+export const LEAGUE_RULESET_VERSION = "season-houses-v3";
 export const DEFAULT_LEAGUE_RULESET = Object.freeze({
   version: LEAGUE_RULESET_VERSION,
   scoringEngineVersion: "points-v2",
@@ -46,4 +47,5 @@ export const DEFAULT_LEAGUE_RULESET = Object.freeze({
   ]),
   modules: SEASON_MODULES,
   evidencePolicy: DEFAULT_SEASON_EVIDENCE_POLICY,
+  powerPlayPolicy: createDefaultPowerPlayPolicy("Season"),
 });

@@ -70,7 +70,13 @@ function healthCopy(health) {
   };
 }
 
-function ActionButton({ action, leagueId, onOpenEvidence, onOpenHonours }) {
+function ActionButton({
+  action,
+  leagueId,
+  onOpenEvidence,
+  onOpenHonours,
+  onOpenPowerPlays,
+}) {
   if (action.target === "houses") {
     return (
       <Link className="button button--secondary" to={`/houses?league=${leagueId}`}>
@@ -82,6 +88,13 @@ function ActionButton({ action, leagueId, onOpenEvidence, onOpenHonours }) {
     return (
       <button className="button button--secondary" type="button" onClick={onOpenEvidence}>
         Open evidence operations
+      </button>
+    );
+  }
+  if (action.target === "power-plays") {
+    return (
+      <button className="button button--secondary" type="button" onClick={onOpenPowerPlays}>
+        Open Power Plays
       </button>
     );
   }
@@ -166,6 +179,7 @@ export default function SeasonCommandCentre({
   league,
   members,
   contributions,
+  powerPlayAssignments = [],
   actorId,
   isPlatformAdmin,
   isLeagueAdministrator,
@@ -173,6 +187,7 @@ export default function SeasonCommandCentre({
   notify,
   onOpenEvidence,
   onOpenHonours,
+  onOpenPowerPlays,
 }) {
   const [houses, setHouses] = useState([]);
   const [elections, setElections] = useState([]);
@@ -274,9 +289,10 @@ export default function SeasonCommandCentre({
       snapshots,
       contributions,
       trustedRuns,
+      powerPlayAssignments,
       trustedOperationsEnabled: canViewTrustedOperations,
     }),
-    [canViewTrustedOperations, claims, contributions, decisions, elections, houses, league, members, reviewerAssignments, snapshots, trustedRuns],
+    [canViewTrustedOperations, claims, contributions, decisions, elections, houses, league, members, powerPlayAssignments, reviewerAssignments, snapshots, trustedRuns],
   );
   const health = healthCopy(commandCentre.health);
 
@@ -294,6 +310,7 @@ export default function SeasonCommandCentre({
         reviewerAssignments,
         snapshots,
         trustedRuns,
+        powerPlayAssignments,
         generatedAt: new Date(),
         generatedBy: actorId,
       });
@@ -356,6 +373,13 @@ export default function SeasonCommandCentre({
           <strong>{formatNumber(commandCentre.publication.revision, { whole: true })}</strong>
           <small>{commandCentre.publication.publishedToday ? "Today covered" : commandCentre.publication.due ? "Publication due" : "Before publication time"}</small>
         </article>
+        {commandCentre.powerPlay.enabled && (
+          <article className="card">
+            <span>Power Plays</span>
+            <strong>{formatNumber(commandCentre.powerPlay.selectedWeeks, { whole: true })}</strong>
+            <small>unique weekly draws locked</small>
+          </article>
+        )}
       </section>
 
       <section className="season-ops-actions card">
@@ -378,6 +402,7 @@ export default function SeasonCommandCentre({
                 leagueId={league.id}
                 onOpenEvidence={onOpenEvidence}
                 onOpenHonours={onOpenHonours}
+                onOpenPowerPlays={onOpenPowerPlays}
               />
             </article>
           ))}
