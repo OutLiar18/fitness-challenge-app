@@ -1,8 +1,8 @@
 # Champions Legacy Challenge — Next Session
 
-<!-- RELEASE_STATUS: CANDIDATE -->
+<!-- RELEASE_STATUS: DEPLOYED -->
 Current source: v0.23.5 stability candidate  
-Current production: v0.23.0
+Current production: v0.23.5
 
 ## First action
 

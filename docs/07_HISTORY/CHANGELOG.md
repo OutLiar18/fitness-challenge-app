@@ -2,7 +2,7 @@
 
 ## [0.23.5] — 7 August 2026 — Stability candidate
 
-<!-- RELEASE_STATUS: CANDIDATE -->
+<!-- RELEASE_STATUS: DEPLOYED -->
 
 ### Stabilised
 

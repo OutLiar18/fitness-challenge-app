@@ -1,6 +1,6 @@
 # v0.23.5 Stability Release Candidate Checklist
 
-<!-- RELEASE_STATUS: CANDIDATE -->
+<!-- RELEASE_STATUS: DEPLOYED -->
 
 - [ ] `npm install` completes.
 - [ ] ESLint passes.

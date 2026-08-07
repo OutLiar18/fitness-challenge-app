@@ -2,8 +2,8 @@
 
 <!-- RELEASE_STATUS: DEPLOYED -->
 Source version: **0.23.5**  
-Production version: **0.23.0**  
-Status: **v0.23.5 stability candidate; production deployment pending; pre-v1.0**
+Production version: **0.23.5**  
+Status: **v0.23.5 stability candidate; verified production deployment complete; pre-v1.0**
 
 Champions Legacy Challenge is a gamified personal-development platform that rewards consistent, factual progress across fitness, reading, nutrition, movement and skill development.
 

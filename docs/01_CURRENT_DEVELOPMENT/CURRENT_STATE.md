@@ -1,10 +1,10 @@
 # Champions Legacy Challenge — Current State
 
-<!-- RELEASE_STATUS: CANDIDATE -->
+<!-- RELEASE_STATUS: DEPLOYED -->
 Version: 0.23.5  
-Production version: 0.23.0  
+Production version: 0.23.5  
 Last updated: 7 August 2026  
-Status: Stability release candidate; production deployment pending; pre-v1.0
+Status: Stability release candidate; verified production deployment complete; pre-v1.0
 
 ## Product state
 

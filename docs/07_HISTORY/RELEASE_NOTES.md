@@ -1,8 +1,8 @@
 # v0.23.5 — Stability Checkpoint
 
-<!-- RELEASE_STATUS: CANDIDATE -->
+<!-- RELEASE_STATUS: DEPLOYED -->
 Date: 7 August 2026  
-Status: Production deployment pending
+Status: Verified production deployment complete
 
 ## Purpose
 
