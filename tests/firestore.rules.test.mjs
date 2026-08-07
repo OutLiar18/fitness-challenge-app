@@ -3502,3 +3502,71 @@ test("only a Platform Administrator can correct a locked Power Play assignment",
     ),
   );
 });
+
+test("v4 locked Platform Administrator Power Play correction stays below Rules evaluation", async () => {
+  const leagueId = "power-correction-v4";
+  const league = seasonDataV4({ status: "active", participantCount: 1, chaosStatus: "activated", active: true });
+  league.powerPlayState = {
+    usedPowerPlayIds: ["base-water"],
+    selectionCount: 1,
+    lastWeekKey: "week-01",
+    lastPowerPlayId: "base-water",
+    lastSelectionAt: Timestamp.now(),
+    lastSelectionBy: "admin-one",
+  };
+  const assignment = {
+    ...powerPlayAssignmentData({
+      leagueId,
+      startDate: league.startDate,
+      endDate: Timestamp.fromMillis(league.startDate.toMillis() + 6 * 24 * 60 * 60 * 1000),
+      auditId: "power-v4-select-audit",
+    }),
+    selectedAt: Timestamp.now(),
+  };
+
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", leagueId), league);
+    await setDoc(doc(firestore, "leaguePowerPlayWeeks", `${leagueId}_week-01`), assignment);
+  });
+
+  const firestore = adminContext().firestore();
+  const auditId = "power-v4-correction-audit";
+  const batch = writeBatch(firestore);
+  batch.set(doc(firestore, "auditEvents", auditId), {
+    actorId: "admin-one",
+    action: "power-play.assignment-corrected",
+    entityType: "league",
+    entityId: leagueId,
+    summary: "Corrected a locked v4 Power Play",
+    details: {},
+    createdAt: serverTimestamp(),
+  });
+  batch.update(doc(firestore, "leaguePowerPlayWeeks", `${leagueId}_week-01`), {
+    powerPlayId: "base-fruit",
+    powerPlayName: "Mythic fruit 2",
+    multiplier: 2,
+    categories: ["fruit"],
+    selectionSequence: 2,
+    previousPowerPlayIds: ["base-water"],
+    correctedAt: serverTimestamp(),
+    correctedBy: "admin-one",
+    correctionReason: "The original category was recorded incorrectly.",
+    correctionCount: 1,
+    lastAuditId: auditId,
+  });
+  batch.update(doc(firestore, "leagues", leagueId), {
+    powerPlayState: {
+      usedPowerPlayIds: ["base-water", "base-fruit"],
+      selectionCount: 2,
+      lastWeekKey: "week-01",
+      lastPowerPlayId: "base-fruit",
+      lastSelectionAt: serverTimestamp(),
+      lastSelectionBy: "admin-one",
+    },
+    updatedAt: serverTimestamp(),
+    updatedBy: "admin-one",
+    lastAuditId: auditId,
+  });
+  await assertSucceeds(batch.commit());
+});

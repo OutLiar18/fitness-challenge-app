@@ -1466,7 +1466,7 @@ service cloud.firestore {
       let league = get(/databases/$(database)/documents/leagues/$(leagueId)).data;
       let leagueAfter = getAfter(/databases/$(database)/documents/leagues/$(leagueId)).data;
       return isPlatformAdmin()
-        && league.rulesVersion == "season-houses-v3"
+        && league.rulesVersion in ["season-houses-v3", "season-houses-v4"]
         && league.status in ["registration", "active", "completed"]
         && request.time >= resource.data.startDate
         && validPowerPlayAssignmentShape(leagueId, assignmentId)
