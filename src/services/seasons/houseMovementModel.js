@@ -1,5 +1,4 @@
 import {
-  HOUSE_MOVEMENT_POLICY_VERSION,
   HOUSE_ROSTER_PLAYER_REST_WEEKS,
 } from "../../constants/seasons";
 import {
@@ -9,14 +8,14 @@ import {
 } from "../dateService";
 
 /**
- * v0.24 checkpoint 1 deliberately contains only pure House-movement domain logic.
- * It performs no Firestore reads/writes and is not wired into the v0.23.5 runtime yet.
+ * v0.24 checkpoints keep House-movement calculations as pure domain logic.
+ * The v4 ruleset version is the frozen House Movement v1 contract; persistence is added only in later checkpoints.
  */
 export function supportsHouseMovementV1(league) {
-  return Boolean(
-    league?.rulesVersion === "season-houses-v4"
-      && league?.ruleset?.houseMovementPolicy?.version === HOUSE_MOVEMENT_POLICY_VERSION,
-  );
+  // v0.24 keeps the security contract deliberately lean: the season ruleset
+  // version itself freezes House Movement v1. No redundant nested policy map
+  // is required inside the already-complex League document validator.
+  return league?.rulesVersion === "season-houses-v4";
 }
 
 export function createHouseAssignmentHistoryId(sourceId, userId) {

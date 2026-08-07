@@ -500,6 +500,13 @@ function currentSeasonRulesetV3() {
   };
 }
 
+function currentSeasonRulesetV4() {
+  return {
+    ...currentSeasonRulesetV3(),
+    version: "season-houses-v4",
+  };
+}
+
 function initialPowerPlayState() {
   return {
     usedPowerPlayIds: [],
@@ -754,6 +761,77 @@ test("season drafts require an authorised operator, invite and matching audit ev
 
   await assertFails(commitDraft(playerContext().firestore(), "player-one", "season-player"));
   await assertSucceeds(commitDraft(adminContext().firestore(), "admin-one", "season-admin"));
+});
+
+test("v4 draft creation stays below Rules evaluation when the version itself freezes House Movement", async () => {
+  async function commitV4Draft({ leagueId, dailyActivityCap = 20 }) {
+    const firestore = adminContext().firestore();
+    const inviteCode = leagueId === "season-v4-valid" ? "V4VALIDA" : "V4INVALD";
+    const dates = seasonDates();
+    const batch = writeBatch(firestore);
+    const auditId = `${leagueId}-audit`;
+    const ruleset = {
+      ...currentSeasonRulesetV4(),
+      dailyActivityCap,
+    };
+
+    batch.set(doc(firestore, "auditEvents", auditId), {
+      actorId: "admin-one",
+      action: "league.created",
+      entityType: "league",
+      entityId: leagueId,
+      summary: "Created a v4 House movement season",
+      details: {},
+      createdAt: serverTimestamp(),
+    });
+    batch.set(doc(firestore, "leagues", leagueId), {
+      name: "Legacy House Season V4",
+      normalizedName: "legacy house season v4",
+      description: "A maximum-shape draft proving the lean v4 version contract stays evaluable.",
+      theme: "Warrior Houses",
+      type: "Community",
+      mode: "season",
+      status: "draft",
+      ...dates,
+      pocketEnabled: true,
+      houseCount: 8,
+      chaosStatus: "not-started",
+      chaosActivatedAt: null,
+      chaosActivatedBy: "",
+      rulesVersion: "season-houses-v4",
+      ruleset,
+      powerPlayState: initialPowerPlayState(),
+      administratorIds: ["admin-one"],
+      participantCount: 0,
+      participantLimit: 160,
+      publishedLeaderboardSnapshotId: "",
+      publishedLeaderboardAt: null,
+      publishedLeaderboardBy: "",
+      publishedLeaderboardRevision: 0,
+      inviteCode,
+      createdAt: serverTimestamp(),
+      createdBy: "admin-one",
+      updatedAt: serverTimestamp(),
+      updatedBy: "admin-one",
+      activatedAt: null,
+      completedAt: null,
+      archivedAt: null,
+      lastAuditId: auditId,
+    });
+    batch.set(doc(firestore, "leagueInvites", inviteCode), {
+      leagueId,
+      leagueName: "Legacy House Season V4",
+      status: "closed",
+      createdAt: serverTimestamp(),
+      createdBy: "admin-one",
+      updatedAt: serverTimestamp(),
+      updatedBy: "admin-one",
+    });
+    return batch.commit();
+  }
+
+  await assertSucceeds(commitV4Draft({ leagueId: "season-v4-valid" }));
+  await assertFails(commitV4Draft({ leagueId: "season-v4-invalid", dailyActivityCap: 21 }));
 });
 
 test("Houses can be created only inside an administrator-managed draft season", async () => {

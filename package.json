@@ -1,7 +1,7 @@
 {
   "name": "champions-legacy",
   "private": true,
-  "version": "0.24.0-dev.1",
+  "version": "0.24.0-dev.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -13,9 +13,9 @@
     "check": "npm run lint && npm test && npm run build",
     "check:release": "npm run check && npm run test:rules && node scripts/release-readiness.mjs",
     "finalise:release": "node scripts/finalise-release.mjs",
-    "deploy:rules": "npx firebase-tools deploy --only firestore:rules --project fitnesschallengeapp-9e87f",
+    "deploy:rules": "node scripts/block-development-deploy.mjs",
     "deploy:preview": "npm run build && npx firebase-tools hosting:channel:deploy review --only app --expires 7d --project fitnesschallengeapp-9e87f",
-    "deploy:hosting": "npm run build && npx firebase-tools deploy --only hosting:app --project fitnesschallengeapp-9e87f",
+    "deploy:hosting": "node scripts/block-development-deploy.mjs",
     "deploy:production": "node scripts/block-development-deploy.mjs",
     "season:list": "node --import=./scripts/register-loader.mjs scripts/trusted-season-reconcile.mjs --list",
     "season:reconcile": "node --import=./scripts/register-loader.mjs scripts/trusted-season-reconcile.mjs",
@@ -23,7 +23,8 @@
     "account:deletion:list": "node --import=./scripts/register-loader.mjs scripts/trusted-account-delete.mjs --list",
     "account:deletion:audit": "node --import=./scripts/register-loader.mjs scripts/trusted-account-delete.mjs",
     "account:deletion:process": "node --import=./scripts/register-loader.mjs scripts/trusted-account-delete.mjs --process",
-    "check:v024:step1": "npm run check && npm run test:rules && node scripts/v024-checkpoint.mjs"
+    "check:v024:step1": "npm run check && npm run test:rules && node scripts/v024-checkpoint.mjs",
+    "check:v024:step2a": "npm run check && npm run test:rules && node scripts/v024-checkpoint.mjs"
   },
   "dependencies": {
     "firebase": "^12.15.0",

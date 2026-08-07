@@ -18,12 +18,6 @@ function futureV4League(overrides = {}) {
     name: "Legacy Season",
     status: "active",
     rulesVersion: "season-houses-v4",
-    ruleset: {
-      houseMovementPolicy: {
-        version: HOUSE_MOVEMENT_POLICY_VERSION,
-        playerRestWeeks: HOUSE_ROSTER_PLAYER_REST_WEEKS,
-      },
-    },
     ...overrides,
   };
 }
@@ -50,9 +44,10 @@ function membership(userId = "player-a", overrides = {}) {
   };
 }
 
-test("v0.24 House movement policy is detectable without changing the v0.23 ruleset", () => {
+test("v0.24 House movement is activated by the v4 season contract without a nested Rules policy", () => {
   assert.equal(supportsHouseMovementV1(futureV4League()), true);
-  assert.equal(supportsHouseMovementV1({ rulesVersion: "season-houses-v3", ruleset: {} }), false);
+  assert.equal(supportsHouseMovementV1({ rulesVersion: "season-houses-v3" }), false);
+  assert.equal(HOUSE_MOVEMENT_POLICY_VERSION, "house-movement-v1");
   assert.equal(HOUSE_ROSTER_PLAYER_REST_WEEKS, 1);
 });
 
@@ -109,7 +104,7 @@ test("only the future v4 policy activates the one-week post-move rest", () => {
   assert.match(v4Result.detail, /2026-08-17/);
 
   const v3Result = getRosterMoveEligibility({
-    league: { rulesVersion: "season-houses-v3", ruleset: {} },
+    league: { rulesVersion: "season-houses-v3" },
     membership: movedMembership,
     house,
     weekKey: "2026-08-10",

@@ -1075,9 +1075,9 @@ service cloud.firestore {
         && validPowerPlayPolicy(ruleset.powerPlayPolicy);
     }
 
-    function validLeagueRulesetV3DraftCreate(ruleset) {
+    function validLeagueRulesetV3V4DraftCreate(ruleset) {
       return ruleset is map
-        && ruleset.version == "season-houses-v3"
+        && ruleset.version in ["season-houses-v3", "season-houses-v4"]
         && ruleset.scoringEngineVersion == "points-v2"
         && ruleset.dailyActivityCap == 20
         && ruleset.dailyParticipationBonus == 5
@@ -1139,9 +1139,8 @@ service cloud.firestore {
         && request.resource.data.chaosStatus == "not-started"
         && request.resource.data.chaosActivatedAt == null
         && request.resource.data.chaosActivatedBy == ""
-        && request.resource.data.rulesVersion == "season-houses-v3"
-        && request.resource.data.ruleset.version == "season-houses-v3"
-        && validLeagueRulesetV3DraftCreate(request.resource.data.ruleset)
+        && request.resource.data.rulesVersion == request.resource.data.ruleset.version
+        && validLeagueRulesetV3V4DraftCreate(request.resource.data.ruleset)
         && validDraftPowerPlayState(request.resource.data.powerPlayState)
         && request.resource.data.administratorIds is list
         && request.resource.data.administratorIds.size() == 1
