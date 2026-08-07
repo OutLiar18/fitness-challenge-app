@@ -15,21 +15,12 @@ function timestamp(value) {
 }
 
 function league(overrides = {}) {
-  const legacyRuleset = {
-    ...DEFAULT_LEAGUE_RULESET,
-    version: "season-houses-v2",
-    modules: {
-      ...DEFAULT_LEAGUE_RULESET.modules,
-      powerPlay: false,
-    },
-  };
-  delete legacyRuleset.powerPlayPolicy;
   return {
     id: "season-one",
     name: "Trusted Season",
     status: "active",
     rulesVersion: "season-houses-v2",
-    ruleset: legacyRuleset,
+    ruleset: DEFAULT_LEAGUE_RULESET,
     startDate: timestamp("2026-08-01T00:00:00.000Z"),
     endDate: timestamp("2026-08-31T00:00:00.000Z"),
     publishedLeaderboardSnapshotId: "",

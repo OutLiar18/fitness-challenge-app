@@ -424,24 +424,13 @@ export async function publishLeaderboardSnapshot({
   league,
   members,
   contributions,
-  powerPlayAssignments = [],
   actorId,
   publicationType = "manual",
   replacesSnapshotId = "",
 }) {
   if (!league?.id || !actorId) throw new Error("A managed season is required.");
-  const standings = calculateLeagueStandings(
-    contributions,
-    members,
-    league.ruleset,
-    powerPlayAssignments,
-  );
-  const honours = calculateSeasonHonours(
-    contributions,
-    members,
-    league.ruleset,
-    powerPlayAssignments,
-  );
+  const standings = calculateLeagueStandings(contributions, members, league.ruleset);
+  const honours = calculateSeasonHonours(contributions, members, league.ruleset);
   const snapshotReference = doc(collection(db, "leagueLeaderboardSnapshots"));
 
   return runTransaction(db, async (transaction) => {

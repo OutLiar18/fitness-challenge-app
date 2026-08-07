@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const EXPECTED_VERSION = "0.23.0";
+const EXPECTED_VERSION = "0.22.0";
 const EXPECTED_HOSTING_TARGET = "app";
 const projectRoot = process.cwd();
 const failures = [];
@@ -13,17 +13,14 @@ const requiredFiles = [
   "firestore.rules",
   ".env.example",
   "docs/01_CURRENT_DEVELOPMENT/RELEASE_CANDIDATE_CHECKLIST.md",
-  "docs/01_CURRENT_DEVELOPMENT/SOURCE_AUDIT_V0230.md",
-  "docs/02_GAME_DESIGN/POWER_PLAYS.md",
-  "docs/03_ARCHITECTURE/decisions/ADR-030-themed-no-repeat-power-plays.md",
-  "docs/04_DEVELOPMENT/POWER_PLAY_OPERATIONS.md",
-  "src/constants/powerPlays.js",
-  "src/services/seasons/powerPlayModel.js",
-  "src/services/seasons/powerPlayService.js",
-  "src/components/seasons/PowerPlayWorkspace.jsx",
-  "src/components/seasons/PowerPlayWorkspace.css",
-  "tests/power-plays.test.mjs",
-  "scripts/trusted-season-reconcile.mjs",
+  "docs/01_CURRENT_DEVELOPMENT/SOURCE_AUDIT_V0220.md",
+  "docs/02_GAME_DESIGN/TRUSTED_ACCOUNT_DELETION.md",
+  "docs/03_ARCHITECTURE/decisions/ADR-029-trusted-account-deletion-and-anonymised-history.md",
+  "docs/04_DEVELOPMENT/TRUSTED_ACCOUNT_DELETION_OPERATIONS.md",
+  "src/services/account/accountModel.js",
+  "src/services/account/trustedDeletionModel.js",
+  "scripts/trusted-account-delete.mjs",
+  "tests/trusted-account-deletion.test.mjs",
   "scripts/finalise-release.mjs",
 ];
 
@@ -36,8 +33,6 @@ const forbiddenRepositoryArtifacts = [
   "trusted-account-deletion-reports",
   "account-deletion-reports",
   "champions-legacy-account-deletion-reports",
-  "firebase-private",
-  "service-account.json",
   "src/src",
   "tests/tests",
   "docs/docs",
@@ -77,7 +72,6 @@ forbiddenRepositoryArtifacts.forEach((relativePath) => {
 
 if (failures.length === 0) {
   const packageData = readJson("package.json");
-  const lockData = readJson("package-lock.json");
   const firebaseConfig = readJson("firebase.json");
   const firebaseAliases = readJson(".firebaserc");
   const defaultProject = firebaseAliases.projects?.default;
@@ -85,9 +79,6 @@ if (failures.length === 0) {
 
   if (packageData.version !== EXPECTED_VERSION) {
     failures.push(`Expected package version ${EXPECTED_VERSION}, found ${packageData.version}.`);
-  }
-  if (lockData.version !== EXPECTED_VERSION || lockData.packages?.[""]?.version !== EXPECTED_VERSION) {
-    failures.push(`package-lock.json must identify v${EXPECTED_VERSION} at the root.`);
   }
   if (firebaseConfig.hosting?.target !== EXPECTED_HOSTING_TARGET) {
     failures.push(`Firebase Hosting must target ${EXPECTED_HOSTING_TARGET}.`);
@@ -101,64 +92,46 @@ if (failures.length === 0) {
   if (!packageData.scripts?.["deploy:production"]?.includes("firestore:rules,hosting:app")) {
     failures.push("deploy:production must deploy Firestore Rules and the branded app target together.");
   }
-  if (!packageData.scripts?.test?.includes("tests/power-plays.test.mjs")) {
-    failures.push("The v0.23.0 Power Play test suite is not part of npm test.");
+
+  const expectedScripts = {
+    "account:deletion:list": "node --import=./scripts/register-loader.mjs scripts/trusted-account-delete.mjs --list",
+    "account:deletion:audit": "node --import=./scripts/register-loader.mjs scripts/trusted-account-delete.mjs",
+    "account:deletion:process": "node --import=./scripts/register-loader.mjs scripts/trusted-account-delete.mjs --process",
+  };
+  Object.entries(expectedScripts).forEach(([name, command]) => {
+    if (packageData.scripts?.[name] !== command) failures.push(`${name} is not configured correctly.`);
+  });
+  if (!packageData.scripts?.test?.includes("tests/trusted-account-deletion.test.mjs")) {
+    failures.push("The v0.22.0 trusted account-deletion test suite is not part of npm test.");
   }
   if (!packageData.devDependencies?.["firebase-admin"]) {
     failures.push("firebase-admin is required for trusted local operations.");
   }
 
   requireText("src/constants/announcements.js", [`version: "${EXPECTED_VERSION}"`]);
-  requireText("src/constants/leagues.js", [
-    'LEAGUE_RULESET_VERSION = "season-houses-v3"',
-    "powerPlayPolicy",
-  ]);
-  requireText("src/constants/powerPlays.js", [
-    'POWER_PLAY_POLICY_VERSION = "power-play-v1"',
-    "POWER_PLAY_MULTIPLIERS",
-    "POWER_PLAY_CATEGORY_IDS",
-  ]);
-  requireText("src/services/seasons/powerPlayModel.js", [
-    "createDefaultPowerPlayPolicy",
-    "createPowerPlayDefinitionMap",
-    "chooseRandomPowerPlay",
-    "applyPowerPlayToContributionPoints",
-    "noRepeatWithinSeason: true",
-  ]);
-  requireText("src/services/seasons/powerPlayService.js", [
-    "selectRandomPowerPlay",
-    "correctPowerPlayAssignment",
-    "A Power Play already selected earlier in this season cannot be used again.",
-    "powerPlayDefinitions",
-  ]);
-  requireText("src/services/leagues/leagueModel.js", [
-    "applyPowerPlayToContributionPoints",
-    "powerPlayAssignments",
-  ]);
-  requireText("src/pages/Seasons.jsx", ["PowerPlayWorkspace", 'id: "power-plays"']);
   requireText("firestore.rules", [
-    "powerPlayDefinitions",
-    "validPowerPlayStateAdvance",
-    "validPowerPlayAssignmentCreate",
-    "validPowerPlayAssignmentCorrection",
-    "match /leaguePowerPlayWeeks/{assignmentId}",
+    "match /accountDeletionExecutions/{executionId}",
+    "match /accountDeletionReceipts/{receiptId}",
+    "deletionPolicyVersion == \"trusted-deletion-v1\"",
+    "waitingPeriodDays == 7",
   ]);
-  requireText("scripts/trusted-season-reconcile.mjs", ["powerPlayAssignments"]);
-  requireText("scripts/trusted-account-delete.mjs", ["leaguePowerPlayWeeks"]);
-  requireText("docs/01_CURRENT_DEVELOPMENT/CURRENT_STATE.md", [
-    "<!-- RELEASE_STATUS: CANDIDATE -->",
-    "Version: 0.23.0",
-    "Production version: 0.22.0",
+  requireText("src/services/account/accountModel.js", [
+    "ACCOUNT_DELETION_WAITING_DAYS = 7",
+    "TRUSTED_ACCOUNT_DELETION_POLICY_VERSION",
+    "createFormerPlayerIdentity",
   ]);
-  requireText("docs/02_GAME_DESIGN/POWER_PLAYS.md", [
-    "Release the Kraken",
-    "random from the enabled, theme-confirmed, unused pool",
-    "A redrawn or corrected-away play also remains consumed",
+  requireText("src/services/account/trustedDeletionModel.js", [
+    "buildTrustedAccountDeletionAudit",
+    "replaceDeletedPlayerIdentity",
+    "LAST_PLATFORM_ADMIN",
   ]);
-  requireText("docs/01_CURRENT_DEVELOPMENT/RELEASE_CANDIDATE_CHECKLIST.md", [
-    "120 domain tests",
-    "51 Firestore Security Rules tests",
+  requireText("scripts/trusted-account-delete.mjs", [
+    "GOOGLE_APPLICATION_CREDENTIALS",
+    "champions-legacy-account-deletion-reports",
+    "Type DELETE",
+    "deleteUser",
   ]);
+  requireText("src/services/account/dataExportModel.js", ["PERSONAL_DATA_EXPORT_SCHEMA_VERSION = 3"]);
 }
 
 if (failures.length > 0) {

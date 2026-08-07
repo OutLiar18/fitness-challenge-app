@@ -25,10 +25,10 @@ Date: 5 August 2026
 - Trusted season fingerprints include weekly assignments and reject duplicates, broken definitions and state mismatch.
 - Player listeners expose only started official weeks.
 
-## Verification prepared
+## Verified release evidence
 
-- 120 domain tests pass in the packaging environment.
-- 51 Firestore Rules tests are expected on the authoritative Windows emulator run.
+- 120 domain tests passed.
+- 51 Firestore Rules tests passed on the authoritative Windows emulator run using Java 21.
 - All JavaScript/JSX/MJS files pass static syntax parsing.
 - Local relative imports resolve.
 - No Firebase Admin credential or trusted report is included in the release archives.
@@ -41,6 +41,6 @@ Date: 5 August 2026
 
 - Replaced the Power Play final-day assertion's fixed UTC timestamps with dates derived from the official local week boundary. This keeps the test valid in Johannesburg and other runtime time zones without changing production week logic.
 
-## Remaining verification
+## Release closure
 
-Windows must confirm dependency installation, ESLint, Vite build, Firestore Rules emulator tests, release-readiness and npm audit before deployment.
+Windows dependency installation, ESLint, Vite build, Firestore Rules emulator tests, release-readiness and npm audit passed. Firestore Rules and Hosting were deployed, both hotfixes were included, the release was finalised and committed without a v1.0 tag.

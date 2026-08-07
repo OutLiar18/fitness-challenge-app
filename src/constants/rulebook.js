@@ -605,31 +605,6 @@ export const RULEBOOK_SECTIONS = Object.freeze([
         "Points earned while representing a House remain with that House. After a roster move, the player’s future eligible points support the new House; earlier House contributions are never transferred or rewritten.",
       ),
       seasonRule(
-        "power-play-theme-pool",
-        "22-23, 95-107",
-        "A Power Play season begins with ten base plays—one for each activity category. Season creators must give every enabled play a unique name that fits the season theme and configure enough unique plays to cover every official season week before Registration opens.",
-      ),
-      seasonRule(
-        "power-play-weekly-draw",
-        "22-23, 95-107",
-        "One enabled Power Play is selected at random for each official season week. A selected, redrawn or corrected Power Play is permanently considered used and may not appear again during that season.",
-      ),
-      seasonRule(
-        "power-play-scoring",
-        "22-23, 95-107",
-        "A Power Play multiplies eligible competitive activity points by two or three before the normal daily league activity cap. It does not multiply goal, mission, streak, Experience Point, participation, evidence-bonus or administrative adjustment points.",
-      ),
-      seasonRule(
-        "power-play-activity-date",
-        null,
-        "The activity date determines which weekly Power Play applies. Running or Steps points released after proof review still use the Power Play from the week when the activity occurred.",
-      ),
-      seasonRule(
-        "power-play-lock-and-visibility",
-        null,
-        "Players see a Power Play when its official week starts. Administrators may prepare or redraw a future week before it starts with an audited reason; after the week begins, only a Platform Administrator may record an audited factual correction using an unused replacement.",
-      ),
-      seasonRule(
         "weekly-leadership-vote",
         null,
         "During an active season, each House may hold one 24-hour leadership vote per challenge week. Every current House member may vote once for one current House member.",
@@ -812,6 +787,12 @@ export const RULEBOOK_SECTIONS = Object.freeze([
     summary:
       "Preserved so players can distinguish historical challenge ideas from live app rules.",
     rules: [
+      rule(
+        "power-play",
+        "22-23, 95-107",
+        "Weekly Power Play voting, house multipliers and the 40 percent contribution penalty are not currently supported.",
+        { status: RULE_STATUSES.INACTIVE },
+      ),
       rule(
         "transfer-market",
         "24, 108-128",

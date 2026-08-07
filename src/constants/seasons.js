@@ -17,7 +17,7 @@ export const SEASON_PHASES = Object.freeze({
   ARCHIVED: "archived",
 });
 
-export const SEASON_MODULES_V2 = Object.freeze({
+export const SEASON_MODULES = Object.freeze({
   houses: true,
   chaosAssignment: true,
   leadershipElections: true,
@@ -27,11 +27,6 @@ export const SEASON_MODULES_V2 = Object.freeze({
   transferMarket: false,
   buddyBonus: false,
   fiveFires: false,
-});
-
-export const SEASON_MODULES = Object.freeze({
-  ...SEASON_MODULES_V2,
-  powerPlay: true,
 });
 
 export const HOUSE_EMBLEMS = Object.freeze([

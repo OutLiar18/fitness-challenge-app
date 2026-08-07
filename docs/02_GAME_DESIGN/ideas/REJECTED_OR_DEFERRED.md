@@ -1,24 +1,91 @@
-# Champions Legacy Challenge — Rejected or Deferred Mechanics
+# Champions Legacy Challenge
 
-Last updated: 5 August 2026
+# Rejected or Deferred Ideas
 
-## Rejected in their previous form
+Version: 1.0
 
-### Diamonds, player prices and Transfer Market
+---
 
-These were different parts of the same player-purchase concept. The design encouraged imbalance, commoditised high performers and risked treating lower performers as disposable rather than helping them grow. They remain inactive unless a future redesign solves those motivation and fairness failures.
+# Purpose
 
-### Original House Immunity
+This document preserves ideas that were considered but not adopted.
 
-Selecting one protected player per House each week is retired. The replacement is a planned roster-stability rule: a newly moved player cannot move again in the following weekly movement period.
+Keeping rejected ideas prevents repeated discussions and provides valuable historical context.
 
-## Deferred pending design
+---
 
-- Buddy Bonuses: purpose, pairing, scoring and abuse protections are not yet locked.
-- Five Fires: confirmed intent, but the mechanic still needs a dedicated rules decision.
-- Weekly gender-composition balance: required, but exact transparent House-level formula and privacy controls are not yet locked.
-- Late-season twists: framework and safe boundaries remain undecided.
+# Philosophy
 
-## Historical note
+Rejecting an idea does not mean it was a bad idea.
 
-Power Plays are no longer deferred. They are implemented for new v3 seasons in v0.23.0.
+It simply means it was not the right solution at the time.
+
+Some ideas may return in future versions.
+
+---
+
+# Reasons for Rejection
+
+Examples include:
+
+- Conflicts with project philosophy
+- Too complex
+- Low player value
+- Technical limitations
+- Better alternatives discovered
+- Excessive maintenance
+- Poor testing results
+
+---
+
+# Information to Record
+
+Each entry should include:
+
+- Name
+- Summary
+- Reason
+- Date
+- Decision
+
+---
+
+# Deferred Ideas
+
+Deferred ideas differ from rejected ideas.
+
+Deferred ideas may return when:
+
+- Technology improves.
+- The community grows.
+- Development priorities change.
+- Supporting systems are completed.
+
+---
+
+# Historical Value
+
+This document provides valuable insight into how Champions Legacy Challenge evolved over time.
+
+It should never be viewed as a list of failures.
+
+It is a record of thoughtful decision-making.
+
+---
+
+# Guiding Principle
+
+Good ideas are not always the right ideas.
+
+---
+
+# End of Document
+## Updated competition decisions — 5 August 2026
+
+### Rejected/inactive
+
+Diamonds, player prices and the transfer market remain inactive. The earlier design encouraged imbalance, commoditised strong players and risked treating lower performers as disposable rather than helping them grow.
+
+### Deferred for later rules
+
+Buddy Bonuses and undefined late-season twists remain undecided. Five Fires is intended but requires a complete design before implementation.

@@ -1,7 +1,7 @@
 # Champions Legacy Challenge — Architecture Overview
 
 Last updated: 4 August 2026  
-Current release target: v0.23.0  
+Current release target: v0.22.0  
 Current production: v0.20.0
 
 ## Layers
@@ -54,14 +54,3 @@ The current no-cost iteration performs constrained transactions from the client,
 <!-- RELEASE_STATUS: DEPLOYED -->
 
 The browser application remains a Firebase client governed by Security Rules. Prize-bearing season reconciliation now has a separate local Node.js Admin SDK boundary. The pure `trustedSeasonModel` is shared with domain tests; the CLI loads production records, writes local reports and performs elevated publication only after explicit confirmation. No credential enters the client bundle or repository.
-
-## v0.23 Power Play slice
-
-Power Plays follow the existing configuration → service → derived-view architecture.
-
-- `src/constants/powerPlays.js` owns approved categories, multipliers and limits.
-- `powerPlayModel.js` owns pure validation, week resolution, deterministic selection and multiplier application.
-- `powerPlayService.js` owns audited Firestore transactions, notifications and role-scoped subscriptions.
-- `PowerPlayWorkspace` provides draft configuration and weekly operations.
-- `leagueModel.js`, honours, Command Centre and trusted reconciliation consume the same pure multiplier helper.
-- Firestore Rules validate frozen definitions and no-repeat state; browser clients cannot invent alternate formulas.

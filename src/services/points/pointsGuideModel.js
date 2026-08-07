@@ -6,7 +6,7 @@ import { WORKOUT_POINTS } from "../../constants/points/workoutPoints";
 import { RUNNING_SCORING_RULES } from "../../constants/points/categoryScoring";
 import { FRUIT_POINTS_PER_SERVING } from "./categoryPoints";
 
-export const POINTS_GUIDE_VERSION = "points-v3";
+export const POINTS_GUIDE_VERSION = "points-v2";
 
 export function createThresholdRows(table = [], increment = 1) {
   if (table.length === 0) {
@@ -227,8 +227,6 @@ export const PUBLIC_LEAGUE_SCORING = Object.freeze({
     "League score is a seasonal ranking value. It does not replace or reduce personal points. The same scored day is credited to the House represented when each contribution was earned.",
   houseFormula: "House score = sum of member league-day scores credited while representing that House",
   pocketFormula: "Stored Pocket activity = 0 points until activated; activation uses the normal category calculation",
-  powerPlayFormula: "Eligible Power Play activity points = base competitive activity points × 2 or 3 before the daily activity cap",
-  powerPlayExclusions: "Power Plays do not multiply goal, mission, streak, Experience Point, active-day, evidence-bonus or administrative adjustment points",
 });
 
 export function getActivityPointGuide(guideId) {

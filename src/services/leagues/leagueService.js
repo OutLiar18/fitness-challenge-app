@@ -20,11 +20,7 @@ import {
 import { db } from "../../firebase";
 import { addAuditWrite } from "../admin/auditService";
 import { createSeasonInviteCode, normalizeSeasonCode } from "../seasons/seasonModel";
-import {
-  canTransitionLeague,
-  validateLeagueInput,
-  validatePowerPlayReadinessForRegistration,
-} from "./leagueModel";
+import { canTransitionLeague, validateLeagueInput } from "./leagueModel";
 
 function mapSnapshot(snapshot) {
   return snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
@@ -152,14 +148,6 @@ export async function createLeague({ actorId, input }) {
     chaosActivatedBy: "",
     rulesVersion: validation.value.ruleset.version,
     ruleset: validation.value.ruleset,
-    powerPlayState: {
-      usedPowerPlayIds: [],
-      selectionCount: 0,
-      lastWeekKey: "",
-      lastPowerPlayId: "",
-      lastSelectionAt: null,
-      lastSelectionBy: "",
-    },
     administratorIds: [actorId],
     participantCount: 0,
     participantLimit: LEAGUE_PARTICIPANT_LIMIT,
@@ -201,11 +189,6 @@ export async function transitionLeague({ league, nextStatus, actorId }) {
     );
     if (houseSnapshot.size !== Number(league.houseCount ?? 0)) {
       throw new Error(`Create all ${league.houseCount} Houses before opening registration.`);
-    }
-    const powerPlayReadiness = validatePowerPlayReadinessForRegistration(league);
-    if (!powerPlayReadiness.ready) {
-      const incomplete = powerPlayReadiness.checks.find((check) => !check.complete);
-      throw new Error(incomplete?.detail || "Complete the Power Play pool before opening registration.");
     }
   }
   if (

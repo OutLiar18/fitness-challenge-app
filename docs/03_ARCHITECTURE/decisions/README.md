@@ -26,4 +26,3 @@ Accepted decisions are permanent historical records. Superseding a decision requ
 - `ADR-027-audited-entry-corrections-and-active-history.md` — immutable replacement entries, correction heads, derived reconciliation and active personal history.
 - `ADR-028-free-first-trusted-season-reconciliation.md` — local Admin SDK reconciliation before paid scheduled infrastructure.
 - `ADR-029-trusted-account-deletion-and-anonymised-history.md` — seven-day cancellation, trusted deletion and preserved anonymous shared history.
-- ADR-030 — Themed No-Repeat Power Plays

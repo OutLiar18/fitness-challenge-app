@@ -1,7 +1,7 @@
 # Champions Legacy Challenge — Firestore Structure
 
 Last updated: 4 August 2026  
-Current release target: v0.23.0  
+Current release target: v0.22.0  
 Current production: v0.20.0
 
 ## Player and activity
@@ -102,17 +102,3 @@ Administrator-only readable operational state. All client writes are denied. Rec
 Administrator-only readable immutable completion receipt. All client writes are denied.
 
 Shared documents are updated in place only to replace identity and attach anonymisation metadata. Private documents are deleted.
-
-## Power Play records (v0.23.0)
-
-### `leaguePowerPlayWeeks/{leagueId}_{weekKey}`
-
-One document per official v3 season week. Players may read only started weeks for seasons they can access. Platform and season administrators may read operational assignments. Client writes are restricted to valid audited transactions and frozen definitions.
-
-### `leagues/{leagueId}.powerPlayState`
-
-Append-only used-ID summary and selection sequence. A replaced ID remains present so it cannot be selected again.
-
-### Frozen policy
-
-`ruleset.powerPlayPolicy.powerPlayDefinitions` is a map keyed by Power Play ID. Weekly assignment name, multiplier and categories must exactly match the frozen definition.

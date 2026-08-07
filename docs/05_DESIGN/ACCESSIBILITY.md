@@ -396,7 +396,3 @@ The shared workspace pattern must preserve the following:
 - Metric grids collapse without horizontal scrolling.
 - Report download exposes a clear busy state and success/error feedback.
 - No automatic focus movement or time-based action is introduced.
-
-## Power Play interface notes
-
-Power Play status must never rely only on colour. Show the name, multiplier, target categories, week dates and explicit state text. Every pool field has a visible label. Toggle, select, save, redraw and correction controls must remain keyboard-operable with visible focus. Error summaries must identify the failed readiness rule in text. The final whole-product screen-reader and cross-device audit remains scheduled before v1.0.

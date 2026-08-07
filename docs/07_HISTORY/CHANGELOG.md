@@ -1,24 +1,5 @@
 # Champions Legacy Challenge — Changelog
 
-## [0.23.0] — 5 August 2026 — Verified production deployment
-
-<!-- RELEASE_STATUS: DEPLOYED -->
-
-### Added
-
-- New v3 season ruleset with ten editable theme-specific base Power Plays.
-- Controlled custom 2×/3× one- or multi-category Power Plays.
-- Random official-week selection without replacement and permanent season no-repeat state.
-- Player weekly reveal, administrator pool/selection workspace and notifications.
-- Power Play-aware individual standings, House standings, honours and Command Centre summaries.
-- Frozen definition validation, Firestore Rules, trusted reconciliation, operations guide and ADR-030.
-
-### Preserved
-
-- Existing v1/v2 seasons remain unchanged.
-- Evidence bonuses, goals, missions, streaks, Experience Points and administrator adjustments are not multiplied.
-- No background scheduler, paid plan or arbitrary formula engine.
-
 ## [0.22.0] — 5 August 2026 — Release candidate
 
 ### Added
@@ -45,7 +26,7 @@
 ## 0.21.0 — Trusted Standings and Season Reconciliation
 
 Date: 5 August 2026  
-Status: Verified production deployment
+Status: Release candidate
 
 ### Added
 

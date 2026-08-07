@@ -5,72 +5,61 @@ Last updated: 5 August 2026
 
 ## Current production — v0.22.0
 
-Trusted account deletion and anonymised shared history are deployed.
+Trusted Account Deletion and Anonymised Shared History:
 
-## Current production — v0.23.0
+- seven-day cancellation period;
+- trusted dry audit and explicit irreversible confirmation;
+- Firebase Authentication and private-record deletion;
+- shared-history anonymisation;
+- resumable execution and immutable receipt;
+- fresh registration without restored history.
 
-### Themed Power Plays
+## Planned major iterations
 
-- ten base category plays;
-- theme-specific unique names;
-- custom controlled 2×/3× multi-category plays;
-- one official weekly selection;
-- random selection without replacement;
-- no reuse anywhere in the same season;
-- activity-date scoring and proof-release compatibility;
-- individual/House/honours/reconciliation integration;
-- audited redraw and correction operations.
+### v0.23.0 — Power Plays
 
-## Remaining planned pre-v1.0 iterations
+- Ten built-in category Power Plays, one per activity category.
+- One-week duration and random audited selection.
+- Controlled double or triple multipliers.
+- One or multiple target categories.
+- Season creator/administrator custom Power Plays.
+- Historical reconstruction and trusted reconciliation support.
 
-### v0.24.0 — Weekly roster stability and composition-balance foundation
+### v0.24.0 — House Movement and Weekly Balance
 
-- a player newly moved to a House cannot be moved again during the following weekly movement period;
-- initial C.H.A.O.S. assignment does not count as a move;
-- audited emergency correction path;
-- minimum-data, self-declared composition foundation;
-- transparent weekly House-level balancing design that does not reduce individual earned points.
+- A player newly moved to a House cannot move again in the following weekly movement period.
+- Audited emergency-override policy.
+- Privacy-conscious weekly gender-composition balancing at House level.
+- Transparent, capped formula that does not reduce an individual's earned points.
 
-### v0.25.0 — Five Fires and remaining competition design
+### v0.25.0 — Five Fires and Remaining Competition Design
 
-- define and implement Five Fires after a dedicated rules decision;
-- decide Buddy Bonuses;
-- establish a safe late-season twist framework;
-- verify interactions with Power Plays, roster movement and weekly House scoring.
+- Design and implement Five Fires.
+- Decide Buddy Bonuses.
+- Establish the late-season twist framework.
+- Validate interactions with Power Plays and roster movement.
 
-This may split into two releases if the final Five Fires design is substantial.
+### v0.26.0 — Security and Operational Hardening
 
-### v0.26.0 — Security and operational hardening
+- Permission and privacy audit.
+- Trusted-tool resilience and recovery review.
+- Dependency-advisory review without breaking automatic fixes.
+- Backup, incident and recovery rehearsal.
 
-- administrator permission review;
-- public/private read audit;
-- dependency and Rules-warning review without breaking automatic fixes;
-- trusted-tool recovery, backup and operational checks.
+### v0.27.0 — Full Application Review and Polish
 
-### v0.27.0 — Full application review and polish
+- Functional, responsive, dark-mode, accessibility, content and performance review.
 
-- every page and workflow;
-- mobile, tablet and desktop;
-- keyboard, screen reader and focus management;
-- dark mode, visual consistency, loading/empty/error states and performance.
+### v0.28.0 — Full Season Rehearsal
 
-### v0.28.0 — Complete season rehearsal
+- Simulate registration through honours, including Power Plays, movement, evidence, corrections, reconciliation and account deletion.
 
-- registration, C.H.A.O.S., Houses and leadership;
-- Pocket Week, evidence, corrections and roster changes;
-- Power Plays and weekly balancing;
-- trusted reconciliation, publication, honours and account deletion;
-- recovery runbook and final release checklist.
+## Rejected or deferred mechanics
 
-Only after this may the project become a v1.0 candidate, and only with explicit approval.
+- Diamonds, player prices and the transfer market remain rejected/inactive because they encouraged imbalance and treating weaker performers as disposable.
+- Original one-person House immunity is replaced by the one-week post-move lock.
+- Buddy Bonuses and late twists remain undecided.
 
-## Confirmed inactive/rejected mechanics
+## v1.0 boundary
 
-- Diamonds, player prices and the transfer market remain rejected because they encouraged imbalance, commoditised strong players and risked treating lower performers as disposable.
-- Original one-player-per-House immunity is replaced by the one-week post-move stability rule.
-
-## Confirmed but not yet designed
-
-- Five Fires is intended for implementation.
-- Buddy Bonuses and late-season twists remain decisions for later.
-- Weekly gender-composition balance is required, but its exact transparent House-level formula still needs to be locked.
+A v1.0 declaration or tag requires explicit user approval after the full review and rehearsal.

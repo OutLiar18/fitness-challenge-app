@@ -306,9 +306,3 @@ The player experience now separates:
 - Competition: Seasons and Houses.
 - Communications: one Inbox for public and private messages.
 - Reflection/reference tools: Analytics, Pocket Week, Legacy Coach, Rulebook and Points Guide.
-
-## Themed Power Plays
-
-Power Plays are active for new v3 seasons. One unique theme-named play is selected randomly without replacement for each official season week. Ten base category plays are required, custom controlled 2×/3× multi-category plays are allowed, and selected plays never return in the same season. Only competitive activity points are multiplied; evidence bonuses and personal progression rewards remain separate.
-
-Diamonds, player prices and the transfer market remain rejected. The original House Immunity idea is replaced by a planned one-week post-move roster-stability rule. Five Fires, Buddy Bonuses, weekly gender-composition balance and late-season twists still require separate design decisions.

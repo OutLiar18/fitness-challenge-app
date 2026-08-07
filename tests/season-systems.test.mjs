@@ -7,7 +7,6 @@ import {
   LEADERSHIP_ELECTION_DURATION_HOURS,
   POCKET_WINDOW_DAYS,
   SEASON_MODULES,
-  SEASON_MODULES_V2,
 } from "../src/constants/seasons.js";
 import {
   calculateHouseBalance,
@@ -44,14 +43,13 @@ test("Season invitation codes avoid ambiguous characters", () => {
   assert.equal(normalizeSeasonCode(" ab-cd 23o1 "), "ABCD23");
 });
 
-test("Season competition modules activate Power Plays while legacy mechanics remain inactive", () => {
+test("Season competition modules keep unclear legacy mechanics inactive", () => {
   assert.equal(SEASON_MODULES.houses, true);
   assert.equal(SEASON_MODULES.chaosAssignment, true);
   assert.equal(SEASON_MODULES.leadershipElections, true);
   assert.equal(SEASON_MODULES.rosterSwaps, true);
   assert.equal(SEASON_MODULES.pocketWeek, true);
-  assert.equal(SEASON_MODULES.powerPlay, true);
-  assert.equal(SEASON_MODULES_V2.powerPlay, false);
+  assert.equal(SEASON_MODULES.powerPlay, false);
   assert.equal(SEASON_MODULES.transferMarket, false);
   assert.equal(SEASON_MODULES.buddyBonus, false);
   assert.equal(SEASON_MODULES.fiveFires, false);

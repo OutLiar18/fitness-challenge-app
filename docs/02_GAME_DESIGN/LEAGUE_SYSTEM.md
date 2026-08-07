@@ -1,6 +1,6 @@
 # Champions Legacy Challenge — Season League System
 
-Last updated: 5 August 2026
+Last updated: 4 August 2026
 
 ## Purpose
 
@@ -10,14 +10,19 @@ A season provides a fresh, time-bounded competition with individual and House re
 
 `Draft → Registration → Active → Completed → Archived`
 
-Each transition is forward-only and audited. A season freezes its dates, theme, Houses, scoring rules, Pocket window, evidence policy, Power Play policy and publication settings before competition begins.
+Each transition is forward-only and audited. A season freezes its dates, theme, Houses, scoring rules, Pocket window, evidence policy and publication settings before competition begins.
 
-## Frozen rulesets
+## Frozen rules
 
-- v1 seasons retain the original season/Houses behaviour.
-- v2 seasons use `points-v2`, `season-houses-v2` and `whatsapp-proof-v1`.
-- New v3 seasons use `points-v3`, `season-houses-v3`, `whatsapp-proof-v1` and `power-play-v1`.
-- Existing seasons never silently upgrade.
+New v2 seasons use:
+
+- `points-v2` for factual activity calculation;
+- `season-houses-v2` for competition and evidence integration;
+- `whatsapp-proof-v1` for external evidence;
+- one pre-season seven-day Pocket Week;
+- the season's configured Fruit cap, evidence thresholds, deadlines and publication time.
+
+Existing v1 seasons retain their historical behaviour.
 
 ## Contributions and House history
 
@@ -30,26 +35,36 @@ Every contribution stores the player, category, challenge date, rules version an
 - Water and Fruit normal points remain immediate; accepted daily proof can add one configured evidence bonus.
 - Evidence releases and reversals are separate immutable contribution records.
 
-## Power Play-aware scoring
-
-v3 seasons resolve the official Power Play from each contribution's challenge date and score category. The adjusted activity point value drives both individual and historical House totals. Evidence bonuses and progression rewards are not multiplied. Weekly assignment history and no-repeat state are part of trusted reconciliation.
-
 ## Standings views
 
-Authorised administrators may inspect live contribution-derived standings. Players read the latest immutable `leagueLeaderboardSnapshots` record. A corrected publication creates a later revision; previous snapshots remain preserved.
+### Live administrator standings
+
+Authorised administrators and evidence operators may inspect the latest contribution stream for operations and review.
+
+### Published player standings
+
+Players read the latest immutable `leagueLeaderboardSnapshots` record rather than live contributions. A corrected publication creates a new revision. The previous snapshot persists when no new one is published.
 
 ## Publication modes
 
 - manual administrator publication;
 - corrected replacement revision;
-- administrator-session fallback at or after 10:00 Africa/Johannesburg.
+- administrator-session fallback at or after the configured time, currently 10:00 Africa/Johannesburg.
 
 The fallback is not a background scheduler and requires an authorised administrator session.
 
 ## Season honours
 
-Season honours derive from the authoritative contribution stream after evidence, corrections and Power Play adjustment. Completed results remain immutable except through explicit audited correction records.
+Season honours are derived from the authoritative contribution stream and may be copied into a published snapshot. Completed season results remain immutable.
 
-## Season Command Centre
+## Trust boundary
 
-The role-aware Command Centre derives next actions across Houses, C.H.A.O.S., leadership, evidence, Power Plays, trusted reconciliation and publication. It stores no alternate score.
+Client-side calculation supports the current private challenge iteration. Prize-bearing or public competition should eventually add trusted server-side recalculation, reliable scheduling and reconciliation without rewriting historical contribution records.
+
+## v0.19 Season Command Centre
+
+Configured v2 seasons expose a role-aware operations summary to authorised administrators and evidence reviewers. It derives next actions from lifecycle, House, C.H.A.O.S., leadership, proof and publication records. Detailed actions remain in the existing Houses, Evidence Operations and Honours workspaces. The command centre stores no alternate score and creates no season-state document.
+
+## Factual correction reconciliation
+
+League totals never edit an earlier contribution. The correction workflow adds negative reversal records for the source entry's net activity points and positive replacement records for the new immediate points. Both preserve the original House snapshot, so roster movement cannot reassign historical credit.

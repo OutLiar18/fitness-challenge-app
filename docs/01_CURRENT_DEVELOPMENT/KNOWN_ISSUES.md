@@ -3,30 +3,23 @@
 <!-- RELEASE_STATUS: DEPLOYED -->
 Last updated: 5 August 2026
 
-## v0.23.0 Power Play boundaries
+## Trusted deletion boundaries
 
-- Weekly selection is administrator-driven; there is no background scheduler.
-- Player listeners attach only to official weeks that have started when the Seasons page loads. Refresh at a week boundary to reveal the new week immediately.
-- Existing v1/v2 seasons intentionally remain Power Play-disabled.
-- A season must have at least as many enabled, unique, theme-confirmed plays as official weeks before registration opens.
-- A wrongly selected locked assignment needs an audited Platform Administrator correction; the replacement must also be unused.
+- Deletion processing is manual; there is no automatic seven-day scheduler.
+- A private service-account key must be protected outside the repository. Exposure requires immediate revocation and replacement.
+- Dry-run and completion reports remain local and private.
+- Broad Firestore scans are acceptable for current pre-v1.0 volume but must be reviewed before very large seasons.
+- Formal legal/privacy review and a confirmed support contact remain required before public launch.
 
-## Dependency advisories
+## Packaging environment
 
-`npm audit` currently reports eight advisories: six moderate and two high. The React Router advisory concerns RSC Mode, which this Vite SPA does not use. The UUID advisory is transitive through Firebase Admin dependencies. The suggested forced fixes are breaking downgrades. Do not run either automatic audit-fix command during this release.
+- The restricted packaging registry cannot install the complete dependency tree.
+- Windows `npm install`, ESLint, Vite build and Firestore Emulator results are authoritative.
+- 108 domain tests and syntax/import audits pass in packaging.
 
-## Build and Rules output
+## Existing non-blocking issues
 
-- The Firebase vendor chunk may exceed 500 kB after minification. This is a non-blocking optimisation item.
-- Firestore Rules may report the existing unused `entryId` warning. It is non-blocking and scheduled for the hardening release.
-- Expected emulator `PERMISSION_DENIED` logs are negative security assertions, not failures when the tests pass.
-
-## Trusted operations
-
-- Season reconciliation and account deletion require the private Admin SDK key outside the repository.
-- Local reports must remain outside the repository.
-- No Cloud Functions, paid plan or automatic trusted scheduler is used.
-
-## Deferred final review
-
-Full manual cross-device, keyboard, screen-reader, dark-mode, visual and accessibility review remains scheduled for the final pre-v1.0 polish iteration.
+- `npm audit` reports eight advisories: six moderate and two high. Available forced fixes are breaking. Do not run `npm audit fix` or `npm audit fix --force` during this release.
+- The Firebase vendor chunk exceeds Vite's 500 kB warning threshold after minification.
+- Full final cross-device, keyboard, screen-reader, dark-mode and accessibility review remains deferred.
+- Large-season query scaling may need further optimisation as real data volume grows.

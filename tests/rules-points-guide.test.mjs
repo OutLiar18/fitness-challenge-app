@@ -55,15 +55,6 @@ test("Rulebook separates current, season and inactive mechanics", () => {
   );
   assert.ok(
     RULEBOOK_RULES.some(
-      (item) => item.id === "power-play-weekly-draw" && item.status === RULE_STATUSES.SEASON,
-    ),
-  );
-  assert.equal(
-    RULEBOOK_RULES.some((item) => item.id === "power-play" && item.status === RULE_STATUSES.INACTIVE),
-    false,
-  );
-  assert.ok(
-    RULEBOOK_RULES.some(
       (item) => item.id === "transfer-market" && item.status === RULE_STATUSES.INACTIVE,
     ),
   );
@@ -139,8 +130,6 @@ test("Points Guide exposes visible goal and league scoring but omits streak rewa
   assert.equal(PUBLIC_LEAGUE_SCORING.dailyParticipationBonus, 5);
   assert.match(PUBLIC_LEAGUE_SCORING.houseFormula, /credited while representing/);
   assert.match(PUBLIC_LEAGUE_SCORING.pocketFormula, /0 points until activated/);
-  assert.match(PUBLIC_LEAGUE_SCORING.powerPlayFormula, /× 2 or 3 before the daily activity cap/);
-  assert.match(PUBLIC_LEAGUE_SCORING.powerPlayExclusions, /evidence-bonus/);
 });
 
 test("Rules and Points Guide remain directly reachable through reference navigation", () => {

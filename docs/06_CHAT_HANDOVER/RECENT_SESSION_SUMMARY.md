@@ -1,15 +1,16 @@
-# Recent Session Summary — v0.23.0
+# Recent Session Summary — v0.22.0
 
 <!-- RELEASE_STATUS: DEPLOYED -->
 Date: 5 August 2026
 
-The user approved the full Power Play policy and added two non-negotiable rules:
+v0.21.0 trusted season reconciliation was deployed, finalised and committed. The private Admin SDK key was configured outside the repository, a successful read-only season dry audit was completed, and local reports were moved outside the repository.
 
-1. Every name must be unique and written for that season's theme.
-2. Once selected, a Power Play may not be used again for the remainder of the season.
+The user approved the v0.22.0 deletion policy:
 
-The candidate now provides ten base category plays, controlled custom 2×/3× plays, random selection without replacement, pre-week redraw, locked audited correction, activity-date scoring and trusted reconciliation. Selected, redrawn and corrected-away plays all remain consumed.
+- seven days after acknowledgement before processing;
+- preserve shared competition history under an anonymous identity;
+- allow a completely fresh registration with no restored history.
 
-Existing v1/v2 seasons remain unchanged; new seasons use v3. The packaging environment passes 120 domain tests. Windows must still run installation, lint, build, 51 Firestore Rules tests, release-readiness and npm audit before deployment.
+The v0.22.0 candidate adds the complete trusted deletion lifecycle, local dry-audit/processing commands, Firestore Rules, tests, docs and release tooling. Packaging verifies 108 domain tests. Windows must still run installation, lint, build, 47 Rules tests and release-readiness before deployment.
 
-The next planned release after v0.23 is weekly roster stability and the weekly composition-balance foundation.
+Do not process a real account deletion during release verification. Do not tag v1.0.

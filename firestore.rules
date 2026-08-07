@@ -927,7 +927,7 @@ service cloud.firestore {
         && request.resource.data.updatedAt == request.time;
     }
 
-    function validLeagueModulesV2(modules) {
+    function validLeagueModules(modules) {
       return modules.houses == true
         && modules.chaosAssignment == true
         && modules.leadershipElections == true
@@ -937,74 +937,6 @@ service cloud.firestore {
         && modules.transferMarket == false
         && modules.buddyBonus == false
         && modules.fiveFires == false;
-    }
-
-    function validLeagueModulesV3(modules) {
-      return modules.houses == true
-        && modules.chaosAssignment == true
-        && modules.leadershipElections == true
-        && modules.rosterSwaps == true
-        && modules.pocketWeek == true
-        && modules.powerPlay == true
-        && modules.transferMarket == false
-        && modules.buddyBonus == false
-        && modules.fiveFires == false;
-    }
-
-    function validPowerPlayPolicy(policy) {
-      return policy is map
-        && policy.keys().hasOnly([
-          "version", "selectionMode", "durationMode", "activityPointsOnly",
-          "evidenceBonusExcluded", "goalAndProgressionBonusesExcluded",
-          "multiplierOptions", "noRepeatWithinSeason", "baseCategoryCount",
-          "powerPlays", "powerPlayDefinitions"
-        ])
-        && policy.version == "power-play-v1"
-        && policy.selectionMode == "random-without-replacement"
-        && policy.durationMode == "season-relative-week"
-        && policy.activityPointsOnly == true
-        && policy.evidenceBonusExcluded == true
-        && policy.goalAndProgressionBonusesExcluded == true
-        && policy.multiplierOptions == [2, 3]
-        && policy.noRepeatWithinSeason == true
-        && policy.baseCategoryCount == 10
-        && policy.powerPlays is list
-        && policy.powerPlays.size() >= 10
-        && policy.powerPlays.size() <= 40
-        && policy.powerPlayDefinitions is map
-        && policy.powerPlayDefinitions.keys().size() == policy.powerPlays.size();
-    }
-
-    // Draft creation uses a compact guard so the three-write season setup batch
-    // remains below Firestore's 1,000-expression evaluation limit. The complete
-    // policy is still required before registration and on every pool update.
-    function validDraftPowerPlayPolicy(policy) {
-      return policy is map
-        && policy.version == "power-play-v1"
-        && policy.powerPlays is list
-        && policy.powerPlays.size() >= 10
-        && policy.powerPlays.size() <= 40
-        && policy.powerPlayDefinitions is map;
-    }
-
-    function validInitialPowerPlayState(state) {
-      return state is map
-        && state.keys().hasOnly([
-          "usedPowerPlayIds", "selectionCount", "lastWeekKey",
-          "lastPowerPlayId", "lastSelectionAt", "lastSelectionBy"
-        ])
-        && state.usedPowerPlayIds == []
-        && state.selectionCount == 0
-        && state.lastWeekKey == ""
-        && state.lastPowerPlayId == ""
-        && state.lastSelectionAt == null
-        && state.lastSelectionBy == "";
-    }
-
-    function validDraftPowerPlayState(state) {
-      return state is map
-        && state.usedPowerPlayIds == []
-        && state.selectionCount == 0;
     }
 
     function validEvidencePolicy(policy) {
@@ -1056,38 +988,8 @@ service cloud.firestore {
           "water", "fruit", "reading", "running", "upperBody",
           "lowerBody", "core", "cardio", "skill", "steps"
         ]
-        && validLeagueModulesV2(ruleset.modules)
+        && validLeagueModules(ruleset.modules)
         && validEvidencePolicy(ruleset.evidencePolicy);
-    }
-
-    function validLeagueRulesetV3(ruleset) {
-      return ruleset is map
-        && ruleset.version == "season-houses-v3"
-        && ruleset.scoringEngineVersion == "points-v2"
-        && ruleset.dailyActivityCap == 20
-        && ruleset.dailyParticipationBonus == 5
-        && ruleset.includedCategories == [
-          "water", "fruit", "reading", "running", "upperBody",
-          "lowerBody", "core", "cardio", "skill", "steps"
-        ]
-        && validLeagueModulesV3(ruleset.modules)
-        && validEvidencePolicy(ruleset.evidencePolicy)
-        && validPowerPlayPolicy(ruleset.powerPlayPolicy);
-    }
-
-    function validLeagueRulesetV3DraftCreate(ruleset) {
-      return ruleset is map
-        && ruleset.version == "season-houses-v3"
-        && ruleset.scoringEngineVersion == "points-v2"
-        && ruleset.dailyActivityCap == 20
-        && ruleset.dailyParticipationBonus == 5
-        && ruleset.includedCategories == [
-          "water", "fruit", "reading", "running", "upperBody",
-          "lowerBody", "core", "cardio", "skill", "steps"
-        ]
-        && validLeagueModulesV3(ruleset.modules)
-        && validEvidencePolicy(ruleset.evidencePolicy)
-        && validDraftPowerPlayPolicy(ruleset.powerPlayPolicy);
     }
 
     function validLeagueTransition(currentStatus, nextStatus) {
@@ -1106,7 +1008,7 @@ service cloud.firestore {
           "administratorIds", "participantCount", "participantLimit",
           "publishedLeaderboardSnapshotId", "publishedLeaderboardAt",
           "publishedLeaderboardBy", "publishedLeaderboardRevision",
-          "powerPlayState", "inviteCode", "createdAt", "createdBy", "updatedAt", "updatedBy",
+          "inviteCode", "createdAt", "createdBy", "updatedAt", "updatedBy",
           "activatedAt", "completedAt", "archivedAt", "lastAuditId"
         ])
         && request.resource.data.name is string
@@ -1139,10 +1041,9 @@ service cloud.firestore {
         && request.resource.data.chaosStatus == "not-started"
         && request.resource.data.chaosActivatedAt == null
         && request.resource.data.chaosActivatedBy == ""
-        && request.resource.data.rulesVersion == "season-houses-v3"
-        && request.resource.data.ruleset.version == "season-houses-v3"
-        && validLeagueRulesetV3DraftCreate(request.resource.data.ruleset)
-        && validDraftPowerPlayState(request.resource.data.powerPlayState)
+        && request.resource.data.rulesVersion == "season-houses-v2"
+        && request.resource.data.ruleset.version == "season-houses-v2"
+        && validLeagueRulesetV2(request.resource.data.ruleset)
         && request.resource.data.administratorIds is list
         && request.resource.data.administratorIds.size() == 1
         && request.auth.uid in request.resource.data.administratorIds
@@ -1172,14 +1073,6 @@ service cloud.firestore {
           "completedAt", "archivedAt", "lastAuditId"
         ])
         && validLeagueTransition(resource.data.status, request.resource.data.status)
-        && (
-          request.resource.data.status != "registration"
-          || resource.data.rulesVersion != "season-houses-v3"
-          || (
-            validLeagueRulesetV3(resource.data.ruleset)
-            && validInitialPowerPlayState(resource.data.powerPlayState)
-          )
-        )
         && (
           request.resource.data.status != "active"
           || resource.data.mode != "season"
@@ -1265,212 +1158,6 @@ service cloud.firestore {
         && snapshot.publishedAt == request.time
         && snapshot.publishedBy == request.auth.uid
         && snapshot.lastAuditId == request.resource.data.lastAuditId;
-    }
-
-    function validLeaguePowerPlayPoolUpdate(leagueId) {
-      return resource.data.status == "draft"
-        && resource.data.rulesVersion == "season-houses-v3"
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          "ruleset", "updatedAt", "updatedBy", "lastAuditId"
-        ])
-        && request.resource.data.ruleset.diff(resource.data.ruleset).affectedKeys().hasOnly([
-          "powerPlayPolicy"
-        ])
-        && validLeagueRulesetV3(request.resource.data.ruleset)
-        && request.resource.data.updatedAt == request.time
-        && request.resource.data.updatedBy == request.auth.uid
-        && validAuditAfter(request.resource.data.lastAuditId, "league", leagueId);
-    }
-
-    function validPowerPlayStateAdvance(leagueId) {
-      let oldState = resource.data.powerPlayState;
-      let newState = request.resource.data.powerPlayState;
-      let assignment = getAfter(
-        /databases/$(database)/documents/leaguePowerPlayWeeks/$(leagueId + "_" + newState.lastWeekKey)
-      ).data;
-      return resource.data.rulesVersion == "season-houses-v3"
-        && resource.data.status in ["registration", "active", "completed"]
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          "powerPlayState", "updatedAt", "updatedBy", "lastAuditId"
-        ])
-        && newState.keys().hasOnly([
-          "usedPowerPlayIds", "selectionCount", "lastWeekKey",
-          "lastPowerPlayId", "lastSelectionAt", "lastSelectionBy"
-        ])
-        && newState.usedPowerPlayIds is list
-        && oldState.usedPowerPlayIds is list
-        && newState.usedPowerPlayIds.size() == oldState.usedPowerPlayIds.size() + 1
-        && newState.usedPowerPlayIds.hasAll(oldState.usedPowerPlayIds)
-        && !(newState.lastPowerPlayId in oldState.usedPowerPlayIds)
-        && newState.lastPowerPlayId
-          == newState.usedPowerPlayIds[newState.usedPowerPlayIds.size() - 1]
-        && newState.selectionCount == oldState.selectionCount + 1
-        && newState.lastWeekKey is string
-        && newState.lastWeekKey.size() >= 7
-        && newState.lastWeekKey.size() <= 12
-        && newState.lastPowerPlayId is string
-        && newState.lastPowerPlayId.size() >= 4
-        && newState.lastPowerPlayId.size() <= 80
-        && newState.lastSelectionAt == request.time
-        && newState.lastSelectionBy == request.auth.uid
-        && assignment.leagueId == leagueId
-        && assignment.weekKey == newState.lastWeekKey
-        && assignment.powerPlayId == newState.lastPowerPlayId
-        && assignment.selectionSequence == newState.selectionCount
-        && assignment.lastAuditId == request.resource.data.lastAuditId
-        && request.resource.data.updatedAt == request.time
-        && request.resource.data.updatedBy == request.auth.uid
-        && validAuditAfter(request.resource.data.lastAuditId, "league", leagueId);
-    }
-
-    function validPowerPlayAssignmentShape(leagueId, assignmentId) {
-      let league = get(/databases/$(database)/documents/leagues/$(leagueId)).data;
-      let definition = league.ruleset.powerPlayPolicy.powerPlayDefinitions[request.resource.data.powerPlayId];
-      return request.resource.data.keys().hasOnly([
-          "leagueId", "leagueName", "weekKey", "weekIndex", "startDate",
-          "endDate", "powerPlayId", "powerPlayName", "multiplier",
-          "categories", "selectionSequence", "previousPowerPlayIds",
-          "redrawCount", "lastSelectionReason", "selectedAt", "selectedBy",
-          "correctedAt", "correctedBy", "correctionReason", "correctionCount",
-          "lastAuditId"
-        ])
-        && assignmentId == leagueId + "_" + request.resource.data.weekKey
-        && request.resource.data.leagueId == leagueId
-        && request.resource.data.leagueName is string
-        && request.resource.data.leagueName.size() >= 4
-        && request.resource.data.leagueName.size() <= 70
-        && request.resource.data.weekKey is string
-        && request.resource.data.weekKey.matches('^week-[0-9][0-9]$')
-        && request.resource.data.weekIndex is int
-        && request.resource.data.weekIndex >= 1
-        && request.resource.data.weekIndex <= 60
-        && request.resource.data.startDate is timestamp
-        && request.resource.data.endDate is timestamp
-        && request.resource.data.startDate >= league.startDate
-        && request.resource.data.endDate <= league.endDate
-        && request.resource.data.endDate >= request.resource.data.startDate
-        && request.resource.data.endDate <= request.resource.data.startDate + duration.value(6, "d")
-        && request.resource.data.powerPlayId is string
-        && request.resource.data.powerPlayId.size() >= 4
-        && request.resource.data.powerPlayId.size() <= 80
-        && request.resource.data.powerPlayName is string
-        && request.resource.data.powerPlayName.size() >= 4
-        && request.resource.data.powerPlayName.size() <= 80
-        && definition is map
-        && definition.id == request.resource.data.powerPlayId
-        && definition.name == request.resource.data.powerPlayName
-        && definition.multiplier == request.resource.data.multiplier
-        && definition.categories == request.resource.data.categories
-        && definition.enabled == true
-        && definition.themeNameConfirmed == true
-        && request.resource.data.multiplier in [2, 3]
-        && request.resource.data.categories is list
-        && request.resource.data.categories.size() >= 1
-        && request.resource.data.categories.size() <= 10
-        && request.resource.data.categories.hasOnly([
-          "water", "fruit", "reading", "running", "upperBody",
-          "lowerBody", "core", "cardio", "skill", "steps"
-        ])
-        && request.resource.data.selectionSequence is int
-        && request.resource.data.selectionSequence >= 1
-        && request.resource.data.previousPowerPlayIds is list
-        && request.resource.data.previousPowerPlayIds.size() <= 40
-        && request.resource.data.redrawCount is int
-        && request.resource.data.redrawCount >= 0
-        && request.resource.data.lastSelectionReason is string
-        && request.resource.data.lastSelectionReason.size() <= 500
-        && request.resource.data.selectedAt is timestamp
-        && request.resource.data.selectedBy is string
-        && request.resource.data.correctedBy is string
-        && request.resource.data.correctionReason is string
-        && request.resource.data.correctionReason.size() <= 500
-        && request.resource.data.correctionCount is int
-        && request.resource.data.correctionCount >= 0
-        && request.resource.data.lastAuditId is string;
-    }
-
-    function validPowerPlayAssignmentCreate(assignmentId) {
-      let leagueId = request.resource.data.leagueId;
-      let league = get(/databases/$(database)/documents/leagues/$(leagueId)).data;
-      let leagueAfter = getAfter(/databases/$(database)/documents/leagues/$(leagueId)).data;
-      return isLeagueAdministrator(leagueId)
-        && league.rulesVersion == "season-houses-v3"
-        && league.status in ["registration", "active"]
-        && validPowerPlayAssignmentShape(leagueId, assignmentId)
-        && request.resource.data.previousPowerPlayIds == []
-        && request.resource.data.redrawCount == 0
-        && request.resource.data.lastSelectionReason == ""
-        && request.resource.data.selectedAt == request.time
-        && request.resource.data.selectedBy == request.auth.uid
-        && request.resource.data.correctedAt == null
-        && request.resource.data.correctedBy == ""
-        && request.resource.data.correctionReason == ""
-        && request.resource.data.correctionCount == 0
-        && request.resource.data.powerPlayId
-          == leagueAfter.powerPlayState.lastPowerPlayId
-        && request.resource.data.weekKey == leagueAfter.powerPlayState.lastWeekKey
-        && request.resource.data.selectionSequence
-          == leagueAfter.powerPlayState.selectionCount
-        && request.resource.data.lastAuditId == leagueAfter.lastAuditId
-        && validAuditAfter(request.resource.data.lastAuditId, "league", leagueId);
-    }
-
-    function validPowerPlayAssignmentRedraw(assignmentId) {
-      let leagueId = resource.data.leagueId;
-      let league = get(/databases/$(database)/documents/leagues/$(leagueId)).data;
-      let leagueAfter = getAfter(/databases/$(database)/documents/leagues/$(leagueId)).data;
-      return isLeagueAdministrator(leagueId)
-        && league.rulesVersion == "season-houses-v3"
-        && league.status in ["registration", "active"]
-        && request.time < resource.data.startDate
-        && validPowerPlayAssignmentShape(leagueId, assignmentId)
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          "powerPlayId", "powerPlayName", "multiplier", "categories",
-          "selectionSequence", "previousPowerPlayIds", "redrawCount",
-          "lastSelectionReason", "selectedAt", "selectedBy", "lastAuditId"
-        ])
-        && request.resource.data.previousPowerPlayIds.size()
-          == resource.data.previousPowerPlayIds.size() + 1
-        && request.resource.data.previousPowerPlayIds.hasAll(resource.data.previousPowerPlayIds)
-        && resource.data.powerPlayId in request.resource.data.previousPowerPlayIds
-        && request.resource.data.redrawCount == resource.data.redrawCount + 1
-        && request.resource.data.lastSelectionReason.size() >= 8
-        && request.resource.data.selectedAt == request.time
-        && request.resource.data.selectedBy == request.auth.uid
-        && request.resource.data.powerPlayId == leagueAfter.powerPlayState.lastPowerPlayId
-        && request.resource.data.weekKey == leagueAfter.powerPlayState.lastWeekKey
-        && request.resource.data.selectionSequence == leagueAfter.powerPlayState.selectionCount
-        && request.resource.data.lastAuditId == leagueAfter.lastAuditId
-        && validAuditAfter(request.resource.data.lastAuditId, "league", leagueId);
-    }
-
-    function validPowerPlayAssignmentCorrection(assignmentId) {
-      let leagueId = resource.data.leagueId;
-      let league = get(/databases/$(database)/documents/leagues/$(leagueId)).data;
-      let leagueAfter = getAfter(/databases/$(database)/documents/leagues/$(leagueId)).data;
-      return isPlatformAdmin()
-        && league.rulesVersion == "season-houses-v3"
-        && league.status in ["registration", "active", "completed"]
-        && request.time >= resource.data.startDate
-        && validPowerPlayAssignmentShape(leagueId, assignmentId)
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          "powerPlayId", "powerPlayName", "multiplier", "categories",
-          "selectionSequence", "previousPowerPlayIds", "correctedAt",
-          "correctedBy", "correctionReason", "correctionCount", "lastAuditId"
-        ])
-        && request.resource.data.previousPowerPlayIds.size()
-          == resource.data.previousPowerPlayIds.size() + 1
-        && request.resource.data.previousPowerPlayIds.hasAll(resource.data.previousPowerPlayIds)
-        && resource.data.powerPlayId in request.resource.data.previousPowerPlayIds
-        && request.resource.data.correctedAt == request.time
-        && request.resource.data.correctedBy == request.auth.uid
-        && request.resource.data.correctionReason.size() >= 8
-        && request.resource.data.correctionCount == resource.data.correctionCount + 1
-        && request.resource.data.powerPlayId == leagueAfter.powerPlayState.lastPowerPlayId
-        && request.resource.data.weekKey == leagueAfter.powerPlayState.lastWeekKey
-        && request.resource.data.selectionSequence == leagueAfter.powerPlayState.selectionCount
-        && request.resource.data.lastAuditId == leagueAfter.lastAuditId
-        && validAuditAfter(request.resource.data.lastAuditId, "league", leagueId);
     }
 
     function validLeagueInviteCreate(code) {
@@ -2850,8 +2537,7 @@ service cloud.firestore {
           "chaos-assignment", "leadership-vote-open", "leadership-result",
           "roster-swap", "pocket-redeemed", "season-notice",
           "evidence-accepted", "evidence-rejected", "evidence-bonus-awarded",
-          "evidence-decision-reversed", "evidence-deadline-missed",
-          "power-play-selected", "power-play-corrected"
+          "evidence-decision-reversed", "evidence-deadline-missed"
         ]
         && request.resource.data.title is string
         && request.resource.data.title.size() >= 3
@@ -2905,9 +2591,7 @@ service cloud.firestore {
                               && sameHouse
                             )
                             : (
-                              request.resource.data.type in [
-                                "season-notice", "power-play-selected", "power-play-corrected"
-                              ]
+                              request.resource.data.type == "season-notice"
                                 ? isLeagueAdministrator(request.resource.data.leagueId)
                                 : validEvidenceNotificationCreate(notificationId)
                             )
@@ -3306,8 +2990,6 @@ service cloud.firestore {
               validLeagueStatusUpdate(leagueId)
               || validLeagueChaosUpdate(leagueId)
               || validLeagueLeaderboardUpdate(leagueId)
-              || validLeaguePowerPlayPoolUpdate(leagueId)
-              || validPowerPlayStateAdvance(leagueId)
             )
           )
           || validLeagueParticipantCountUpdate(leagueId)
@@ -3473,23 +3155,6 @@ service cloud.firestore {
         );
       allow create: if signedIn() && validEvidenceDecisionCreate(decisionId);
       allow update, delete: if false;
-    }
-
-    match /leaguePowerPlayWeeks/{assignmentId} {
-      allow read: if isPlatformAdmin()
-        || isLeagueAdministrator(resource.data.leagueId)
-        || (
-          isLeagueMember(resource.data.leagueId)
-          && resource.data.startDate <= request.time
-        );
-      allow create: if signedIn()
-        && validPowerPlayAssignmentCreate(assignmentId);
-      allow update: if signedIn()
-        && (
-          validPowerPlayAssignmentRedraw(assignmentId)
-          || validPowerPlayAssignmentCorrection(assignmentId)
-        );
-      allow delete: if false;
     }
 
     match /leagueLeaderboardSnapshots/{snapshotId} {

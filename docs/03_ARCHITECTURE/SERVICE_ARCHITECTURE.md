@@ -1,7 +1,7 @@
 # Champions Legacy Challenge — Service Architecture
 
 Last updated: 4 August 2026  
-Current release target: v0.23.0
+Current release target: v0.22.0
 
 ## Pure domain services
 
@@ -57,13 +57,3 @@ Personal providers expose both `rawEntries` and resolved active `entries`. All e
 - `trusted-account-delete.mjs` is the elevated local orchestrator for Auth and Firestore.
 - Client request services remain limited to request, cancel, reopen and acknowledge operations.
 - The trusted processor is deliberately not imported into the browser bundle.
-
-## Power Play services
-
-- `createDefaultPowerPlayPolicy` creates ten editable base definitions.
-- `normalizePowerPlayInput` applies controlled validation and unique-name checks.
-- `getSeasonPowerPlayWeeks` derives season-relative weeks.
-- `chooseRandomPowerPlay` deterministically chooses from the supplied unused pool.
-- `applyPowerPlayToContributionPoints` is the single multiplier helper used by standings, honours and operations.
-- `selectRandomPowerPlay` and `correctPowerPlayAssignment` use transactions and audit writes.
-- Player subscriptions use direct started-week document listeners to avoid composite-index dependence and future-week disclosure.

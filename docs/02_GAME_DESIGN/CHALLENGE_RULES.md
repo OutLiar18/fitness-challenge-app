@@ -1,6 +1,6 @@
 # Champions Legacy Challenge — Challenge Rules
 
-Last updated: 5 August 2026
+Last updated: 4 August 2026
 
 The player-facing source is the in-app Rulebook at `/rules`. It preserves historical wording where accurate and labels mechanics as Current, Season or Inactive.
 
@@ -10,7 +10,7 @@ The player-facing source is the in-app Rulebook at `/rules`. It preserves histor
 - Running earns Running points only at three kilometres or more and an average pace of 11:00 per kilometre or faster.
 - Running duration also contributes to Cardio points and Cardio statistics.
 - Fruit earns five points per complete qualifying serving.
-- In v2/v3 seasons, Fruit activity scoring is capped at five servings per day.
+- In v2 seasons, Fruit activity scoring is capped at five servings per day.
 
 ## Season and House rules
 
@@ -26,7 +26,7 @@ The player-facing source is the in-app Rulebook at `/rules`. It preserves histor
 - Pocket Week is the seven days immediately before the season begins.
 - Pocket deposits earn zero points until deliberately redeemed during the Active season.
 
-## v2/v3 evidence rules
+## v2 evidence rules
 
 - Evidence media is sent through WhatsApp and is never uploaded to the app.
 - The player must log the activity before sending proof and include the in-app verification ID.
@@ -39,16 +39,6 @@ The player-facing source is the in-app Rulebook at `/rules`. It preserves histor
 - Only a Platform Administrator may accept late proof, with an audit reason.
 - Proof bonuses count for the individual and the House captured at activity time, but do not award Experience Points.
 
-## v3 Power Play rules
-
-- One unique theme-named Power Play applies to each official season week.
-- Ten base category plays are required; administrators may add controlled custom 2×/3× one- or multi-category plays.
-- Selection is random from unused enabled plays.
-- Once selected, a play never returns during that season, even after redraw or correction.
-- Activity points are multiplied according to the activity date before the ordinary activity cap.
-- Evidence bonuses, goals, missions, streaks, Experience Points and administrator adjustments are excluded.
-- Individual and House totals use the same multiplied contribution.
-
 ## Published standings
 
 - Administrators see live standings.
@@ -56,9 +46,9 @@ The player-facing source is the in-app Rulebook at `/rules`. It preserves histor
 - Snapshots may be published manually, corrected by a later revision or published through the 10:00 Africa/Johannesburg administrator-session fallback.
 - Without a new publication, players continue seeing the previous snapshot.
 
-## Inactive or deferred rules
+## Inactive rules
 
-Diamonds, player prices, the Transfer Market, Buddy Bonus, Five Fires, weekly gender-composition balancing and late-season twists award no points until separately designed and activated. The original House Immunity rule is retired in favour of a future one-week post-move roster-stability rule.
+Power Plays, Diamonds, full Transfer Market, Buddy Bonus, Five Fires, gender scoring and late-season twists award no points until explicitly activated in a future version.
 
 ## Audited factual corrections
 

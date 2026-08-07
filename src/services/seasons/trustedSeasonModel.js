@@ -4,9 +4,8 @@ import {
   calculateSeasonHonours,
   isEntryWithinLeague,
 } from "../leagues/leagueModel";
-import { getSeasonPowerPlayWeeks } from "./powerPlayModel";
 
-export const TRUSTED_SEASON_MODEL_VERSION = "trusted-season-v2";
+export const TRUSTED_SEASON_MODEL_VERSION = "trusted-season-v1";
 export const TRUSTED_RUN_STALE_HOURS = 26;
 
 const ISSUE_SEVERITIES = Object.freeze({
@@ -81,29 +80,10 @@ function canonicalMembership(item = {}) {
   };
 }
 
-function canonicalPowerPlayAssignment(item = {}) {
-  return {
-    id: item.id || "",
-    leagueId: item.leagueId || "",
-    weekKey: item.weekKey || "",
-    weekIndex: Number(item.weekIndex ?? 0),
-    startDate: portableDate(item.startDate),
-    endDate: portableDate(item.endDate),
-    powerPlayId: item.powerPlayId || "",
-    powerPlayName: item.powerPlayName || "",
-    multiplier: Number(item.multiplier ?? 0),
-    categories: [...new Set(item.categories ?? [])].sort(),
-    previousPowerPlayIds: [...new Set(item.previousPowerPlayIds ?? [])].sort(),
-    redrawCount: Number(item.redrawCount ?? 0),
-    correctionCount: Number(item.correctionCount ?? 0),
-  };
-}
-
 export function createTrustedSeasonFingerprint({
   league,
   memberships = [],
   contributions = [],
-  powerPlayAssignments = [],
 } = {}) {
   const payload = {
     modelVersion: TRUSTED_SEASON_MODEL_VERSION,
@@ -121,9 +101,6 @@ export function createTrustedSeasonFingerprint({
     contributions: contributions
       .map(canonicalContribution)
       .sort((first, second) => first.id.localeCompare(second.id)),
-    powerPlayAssignments: powerPlayAssignments
-      .map(canonicalPowerPlayAssignment)
-      .sort((first, second) => `${first.weekKey}:${first.id}`.localeCompare(`${second.weekKey}:${second.id}`)),
   };
   return hashTrustedValue(payload);
 }
@@ -354,95 +331,6 @@ function inspectCorrection(correction, maps, leagueId) {
   return issues;
 }
 
-function inspectPowerPlayAssignments({ league, assignments = [], referenceDate = new Date() }) {
-  const issues = [];
-  const enabled = league?.ruleset?.modules?.powerPlay === true;
-  if (!enabled) {
-    if (assignments.length > 0) {
-      issues.push(createIssue(
-        "blocking",
-        "POWER_PLAY_UNEXPECTED_FOR_RULESET",
-        "Power Play assignments exist for a historical season ruleset that does not enable Power Plays.",
-        "leaguePowerPlayWeek",
-      ));
-    }
-    return issues;
-  }
-
-  const weeks = getSeasonPowerPlayWeeks(league);
-  const weekByKey = new Map(weeks.map((week) => [week.weekKey, week]));
-  const policyPlays = league?.ruleset?.powerPlayPolicy?.powerPlays ?? [];
-  const playById = new Map(policyPlays.map((play) => [play.id, play]));
-  const assignmentByWeek = new Map();
-  const allSelectedIds = [];
-
-  assignments.forEach((assignment) => {
-    const id = assignment.id || assignment.weekKey || "unknown";
-    if (assignment.leagueId !== league.id) {
-      issues.push(createIssue("blocking", "POWER_PLAY_WRONG_SEASON", "A Power Play assignment belongs to a different season.", "leaguePowerPlayWeek", id));
-    }
-    const week = weekByKey.get(assignment.weekKey);
-    if (!week) {
-      issues.push(createIssue("blocking", "POWER_PLAY_WEEK_INVALID", "A Power Play assignment points to an unknown official season week.", "leaguePowerPlayWeek", id));
-      return;
-    }
-    if (assignmentByWeek.has(assignment.weekKey)) {
-      issues.push(createIssue("blocking", "POWER_PLAY_WEEK_DUPLICATE", "More than one Power Play assignment exists for the same official week.", "leaguePowerPlayWeek", id));
-    }
-    assignmentByWeek.set(assignment.weekKey, assignment);
-
-    if (
-      Number(assignment.weekIndex ?? 0) !== week.weekIndex
-      || portableDate(assignment.startDate) !== week.startDate.toISOString()
-      || portableDate(assignment.endDate) !== week.endDate.toISOString()
-    ) {
-      issues.push(createIssue("blocking", "POWER_PLAY_WEEK_FACTS_MISMATCH", "A Power Play assignment does not match the frozen official week dates.", "leaguePowerPlayWeek", id));
-    }
-
-    const play = playById.get(assignment.powerPlayId);
-    if (!play || play.enabled === false || play.themeNameConfirmed !== true) {
-      issues.push(createIssue("blocking", "POWER_PLAY_DEFINITION_INVALID", "A weekly assignment points to a missing, disabled or unconfirmed Power Play.", "leaguePowerPlayWeek", id));
-    } else {
-      const expectedCategories = [...new Set(play.categories ?? [])].sort();
-      const actualCategories = [...new Set(assignment.categories ?? [])].sort();
-      if (
-        assignment.powerPlayName !== play.name
-        || Number(assignment.multiplier ?? 0) !== Number(play.multiplier ?? 0)
-        || stableStringify(actualCategories) !== stableStringify(expectedCategories)
-      ) {
-        issues.push(createIssue("blocking", "POWER_PLAY_SNAPSHOT_MISMATCH", "A weekly assignment does not match its frozen Power Play definition.", "leaguePowerPlayWeek", id));
-      }
-    }
-
-    allSelectedIds.push(...(assignment.previousPowerPlayIds ?? []), assignment.powerPlayId);
-  });
-
-  const duplicateIds = allSelectedIds.filter((playId, index) => playId && allSelectedIds.indexOf(playId) !== index);
-  [...new Set(duplicateIds)].forEach((playId) => {
-    issues.push(createIssue("blocking", "POWER_PLAY_REPEATED_IN_SEASON", "A Power Play was selected more than once in the same season.", "powerPlay", playId));
-  });
-
-  const reference = toDate(referenceDate) ?? new Date();
-  weeks
-    .filter((week) => reference >= week.startDate && ["active", "completed", "archived"].includes(league.status))
-    .forEach((week) => {
-      if (!assignmentByWeek.has(week.weekKey)) {
-        issues.push(createIssue("blocking", "POWER_PLAY_WEEK_MISSING", "An official season week that has started has no locked Power Play assignment.", "leaguePowerPlayWeek", week.weekKey));
-      }
-    });
-
-  const expectedUsed = [...new Set(allSelectedIds.filter(Boolean))].sort();
-  const storedUsed = [...new Set(league?.powerPlayState?.usedPowerPlayIds ?? [])].sort();
-  if (stableStringify(expectedUsed) !== stableStringify(storedUsed)) {
-    issues.push(createIssue("blocking", "POWER_PLAY_USED_STATE_MISMATCH", "The season Power Play used-list does not match immutable weekly draw history.", "league", league.id));
-  }
-  if (Number(league?.powerPlayState?.selectionCount ?? 0) !== allSelectedIds.length) {
-    issues.push(createIssue("blocking", "POWER_PLAY_SELECTION_COUNT_MISMATCH", "The season Power Play selection count does not match weekly draw and correction history.", "league", league.id));
-  }
-
-  return issues;
-}
-
 export function buildTrustedSeasonAudit({
   league,
   memberships = [],
@@ -452,7 +340,6 @@ export function buildTrustedSeasonAudit({
   decisions = [],
   corrections = [],
   snapshots = [],
-  powerPlayAssignments = [],
   referenceDate = new Date(),
 } = {}) {
   if (!league?.id) {
@@ -466,33 +353,13 @@ export function buildTrustedSeasonAudit({
     ...claims.flatMap((item) => inspectClaim(item, maps)),
     ...decisions.flatMap((item) => inspectDecision(item, maps)),
     ...corrections.flatMap((item) => inspectCorrection(item, maps, league.id)),
-    ...inspectPowerPlayAssignments({
-      league,
-      assignments: powerPlayAssignments,
-      referenceDate,
-    }),
   ].sort(issueSort);
 
-  const standings = calculateLeagueStandings(
-    contributions,
-    memberships,
-    league.ruleset,
-    powerPlayAssignments,
-  );
-  const honours = calculateSeasonHonours(
-    contributions,
-    memberships,
-    league.ruleset,
-    powerPlayAssignments,
-  );
+  const standings = calculateLeagueStandings(contributions, memberships, league.ruleset);
+  const honours = calculateSeasonHonours(contributions, memberships, league.ruleset);
   const latestSnapshot = latestSnapshotForLeague(league, snapshots);
   const snapshotComparison = compareTrustedSnapshot({ standings, snapshot: latestSnapshot });
-  const fingerprint = createTrustedSeasonFingerprint({
-    league,
-    memberships,
-    contributions,
-    powerPlayAssignments,
-  });
+  const fingerprint = createTrustedSeasonFingerprint({ league, memberships, contributions });
   const issueCounts = {
     blocking: issues.filter((item) => item.severity === "blocking").length,
     warning: issues.filter((item) => item.severity === "warning").length,
@@ -522,7 +389,6 @@ export function buildTrustedSeasonAudit({
       decisions: decisions.length,
       corrections: corrections.filter((item) => (item.affectedLeagueIds ?? []).includes(league.id)).length,
       snapshots: snapshots.length,
-      powerPlayAssignments: powerPlayAssignments.length,
     },
     standings,
     honours,

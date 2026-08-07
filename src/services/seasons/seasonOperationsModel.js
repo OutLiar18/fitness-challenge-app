@@ -9,11 +9,6 @@ import {
   getChaosReadiness,
   getSeasonWeekKey,
 } from "./seasonModel";
-import {
-  applyPowerPlayToContributionPoints,
-  getPowerPlayReadiness,
-  summarizeCurrentPowerPlay,
-} from "./powerPlayModel";
 import { summarizeTrustedSeasonRun } from "./trustedSeasonModel";
 
 const EVIDENCE_CATEGORIES = Object.freeze([
@@ -188,7 +183,6 @@ export function buildSeasonCommandCentre({
   snapshots = [],
   contributions = [],
   trustedRuns = [],
-  powerPlayAssignments = [],
   trustedOperationsEnabled = false,
   referenceDate = new Date(),
 } = {}) {
@@ -209,20 +203,6 @@ export function buildSeasonCommandCentre({
     referenceDate,
   });
   const trusted = summarizeTrustedSeasonRun(trustedRuns[0] ?? null, referenceDate);
-  const powerPlayEnabled = league?.ruleset?.modules?.powerPlay === true;
-  const powerPlayReadiness = powerPlayEnabled
-    ? getPowerPlayReadiness({
-        league,
-        powerPlays: league?.ruleset?.powerPlayPolicy?.powerPlays ?? [],
-      })
-    : null;
-  const currentPowerPlay = powerPlayEnabled
-    ? summarizeCurrentPowerPlay({
-        league,
-        assignments: powerPlayAssignments,
-        referenceDate,
-      })
-    : null;
   const chaos = getChaosReadiness({ league, houses, memberships });
   const registeredCount = memberships.filter((member) => member.status === "registered").length;
   const activeCount = memberships.filter((member) => member.status === "active").length;
@@ -230,26 +210,12 @@ export function buildSeasonCommandCentre({
   const expectedHouseCount = Number(league?.houseCount ?? 0);
   const missingHouseCount = Math.max(0, expectedHouseCount - houses.length);
   const pointsTotal = contributions.reduce(
-    (total, contribution) => total + applyPowerPlayToContributionPoints({
-      contribution,
-      league,
-      assignments: powerPlayAssignments,
-    }),
+    (total, contribution) => total + Number(contribution.activityPoints ?? 0),
     0,
   );
   const actions = [];
 
   if (league?.status === "draft") {
-    if (powerPlayEnabled && !powerPlayReadiness?.ready) {
-      const incomplete = powerPlayReadiness?.checks?.find((check) => !check.complete);
-      actions.push(createAction(
-        "configure-power-plays",
-        "Complete the themed Power Play pool",
-        incomplete?.detail || "Every official week needs one unique theme-named Power Play.",
-        "danger",
-        "power-plays",
-      ));
-    }
     if (missingHouseCount > 0) {
       actions.push(createAction(
         "forge-houses",
@@ -270,15 +236,6 @@ export function buildSeasonCommandCentre({
   }
 
   if (league?.status === "registration") {
-    if (powerPlayEnabled && currentPowerPlay?.status === "missing") {
-      actions.push(createAction(
-        "select-current-power-play",
-        "Reveal this week’s Power Play",
-        "The official week has started without a locked draw. Select one unused themed Power Play now.",
-        "danger",
-        "power-plays",
-      ));
-    }
     if (league.chaosStatus === "activated") {
       actions.push(createAction(
         "prepare-start",
@@ -308,15 +265,6 @@ export function buildSeasonCommandCentre({
   }
 
   if (league?.status === "active") {
-    if (powerPlayEnabled && currentPowerPlay?.status === "missing") {
-      actions.push(createAction(
-        "select-current-power-play",
-        "Reveal this week’s Power Play",
-        "The weekly multiplier is missing. Select one unused theme-named Power Play before publishing standings.",
-        "danger",
-        "power-plays",
-      ));
-    }
     if (leadership.awaitingFinalisationCount > 0) {
       actions.push(createAction(
         "finalise-ballots",
@@ -441,15 +389,6 @@ export function buildSeasonCommandCentre({
     leadership,
     publication,
     trusted,
-    powerPlay: powerPlayEnabled
-      ? {
-          enabled: true,
-          readiness: powerPlayReadiness,
-          current: currentPowerPlay,
-          selectedWeeks: powerPlayAssignments.length,
-          usedPowerPlayIds: league?.powerPlayState?.usedPowerPlayIds ?? [],
-        }
-      : { enabled: false },
     contributions: {
       count: contributions.length,
       pointsTotal,
@@ -467,7 +406,6 @@ export function buildSeasonOperationsReport({
   reviewerAssignments = [],
   snapshots = [],
   trustedRuns = [],
-  powerPlayAssignments = [],
   generatedAt = new Date(),
   generatedBy = "",
 } = {}) {
@@ -475,7 +413,7 @@ export function buildSeasonOperationsReport({
     metadata: {
       product: "Champions Legacy Challenge",
       reportType: "season-operations",
-      schemaVersion: 2,
+      schemaVersion: 1,
       generatedAt,
       generatedBy,
       seasonId: league?.id ?? "",
@@ -490,6 +428,5 @@ export function buildSeasonOperationsReport({
     reviewerAssignments,
     leaderboardSnapshots: snapshots,
     trustedSeasonRuns: trustedRuns,
-    powerPlayAssignments,
   };
 }
