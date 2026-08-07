@@ -1857,6 +1857,14 @@ function seasonDataV3(options = {}) {
   };
 }
 
+function seasonDataV4(options = {}) {
+  return {
+    ...seasonDataV3(options),
+    rulesVersion: "season-houses-v4",
+    ruleset: currentSeasonRulesetV4(),
+  };
+}
+
 function runningEntryData() {
   return {
     distance: 5,
@@ -2948,6 +2956,52 @@ test("season administrators can save a controlled themed Power Play pool in draf
       ruleset,
       updatedAt: serverTimestamp(),
       updatedBy: "player-one",
+      lastAuditId: auditId,
+    }),
+  );
+});
+
+test("v4 draft Power Play pool maintenance stays below Rules evaluation", async () => {
+  const league = seasonDataV4();
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), "leagues", "power-season-v4"), league);
+  });
+
+  const firestore = adminContext().firestore();
+  const batch = writeBatch(firestore);
+  const auditId = "power-pool-v4-audit";
+  const ruleset = currentSeasonRulesetV4();
+  ruleset.powerPlayPolicy.powerPlays[0] = {
+    ...ruleset.powerPlayPolicy.powerPlays[0],
+    name: "Forge the Flood",
+    normalizedName: "forge the flood",
+  };
+  ruleset.powerPlayPolicy.powerPlayDefinitions["base-water"] = {
+    ...ruleset.powerPlayPolicy.powerPlayDefinitions["base-water"],
+    name: "Forge the Flood",
+  };
+  batch.set(doc(firestore, "auditEvents", auditId), {
+    actorId: "admin-one",
+    action: "power-play.pool-updated",
+    entityType: "league",
+    entityId: "power-season-v4",
+    summary: "Updated the v4 themed Power Play pool",
+    details: {},
+    createdAt: serverTimestamp(),
+  });
+  batch.update(doc(firestore, "leagues", "power-season-v4"), {
+    ruleset,
+    updatedAt: serverTimestamp(),
+    updatedBy: "admin-one",
+    lastAuditId: auditId,
+  });
+  await assertSucceeds(batch.commit());
+
+  await assertFails(
+    updateDoc(doc(adminContext().firestore(), "leagues", "power-season-v4"), {
+      ruleset: { ...ruleset, version: "season-houses-v3" },
+      updatedAt: serverTimestamp(),
+      updatedBy: "admin-one",
       lastAuditId: auditId,
     }),
   );

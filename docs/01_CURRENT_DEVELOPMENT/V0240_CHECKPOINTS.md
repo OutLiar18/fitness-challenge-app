@@ -1,62 +1,76 @@
-# v0.24.0 Controlled Checkpoints
+# Champions Legacy Challenge — v0.24.0 Checkpoint Plan
 
-v0.23.5 is the protected production baseline. v0.24.0 is built only on `development/v0.24.0` and production deployment remains blocked until the release is complete.
+Date: 7 August 2026  
+Baseline: verified and deployed v0.23.5
+
+## Development rule
+
+v0.24.0 is rebuilt from v0.23.5. Every Firestore Rules change is isolated behind a positive-path checkpoint. A green rejection test is not enough: legitimate maximum-shape writes must succeed.
 
 ## Checkpoint 1 — pure House-movement domain foundation
 
-Status: passed and committed as `0.24.0-dev.1`.
+Status: **passed and committed** as `0.24.0-dev.1`.
 
 - one-week post-move rest calculation;
-- movement eligibility explanations;
-- current House leadership protection;
-- current-week move protection;
-- House weekly-move lock awareness;
-- C.H.A.O.S. assignment remains exempt from the post-move rest;
+- eligibility explanations;
+- leadership, same-week and House-lock checks;
+- C.H.A.O.S. remains exempt;
 - deterministic future assignment-history identifiers;
 - no Firestore Rules changes.
 
-Result on the Windows development machine: 126/126 domain tests, 51/51 Rules tests, build pass, exact v0.23.5 Rules hashes preserved.
+## Checkpoint 2A — lean v4 draft contract
 
-## Failed probe — embedded v4 House-movement policy
+Status: **passed** as `0.24.0-dev.2`.
 
-The first Checkpoint 2A attempt added a nested `houseMovementPolicy` map to the League ruleset and validated it inside the already-large League draft create rule.
+The first attempt stored a redundant nested House-movement policy map and immediately caused a legitimate v4 draft create to exceed Firestore's 1,000-expression limit. That design was rejected.
 
-The legitimate administrator v4 draft create failed with Firestore's 1,000-expression evaluation limit. No persistence, assignment history, overrides, composition or weekly balance had been added. This established that the embedded policy contract itself was already too expensive for the current League-create validator.
+The replacement uses `season-houses-v4` itself as the immutable House Movement v1 contract. The legitimate three-write administrator draft batch with `houseCount: 8` passes. The runtime still defaults to v3.
 
-That failed probe must not be committed or extended.
+## Checkpoint 2B — v4 draft Power Play maintenance
 
-## Checkpoint 2A replacement — lean v4 version contract
+Status: implemented for isolated verification in `0.24.0-dev.3`.
 
-Status: prepared as `0.24.0-dev.2` and awaiting full Windows Rules verification.
+- allow only v3/v4 draft seasons to update `ruleset.powerPlayPolicy`;
+- require the ruleset version to remain identical to the League's top-level `rulesVersion`;
+- use full Power Play-policy validation on deliberate pool maintenance;
+- add a legitimate v4 administrator pool-update positive path;
+- runtime still defaults to v3;
+- no lifecycle, movement persistence, history, override, composition or weekly-balance changes.
 
-The replacement architecture does **not** store a redundant House-movement policy map in the League document. Instead, the ruleset version itself is the frozen contract:
+If the legitimate v4 pool update reaches the evaluator limit, stop here and redesign this Rules path.
 
-- `season-houses-v3` = existing Power Play season behavior;
-- `season-houses-v4` = the same draft ruleset shape plus House Movement v1 semantics;
-- House Movement v1 means one post-move rest week, C.H.A.O.S. exemption, future immutable assignment history, and Platform Administrator factual-correction support when those persistence checkpoints are added;
-- the application default remains v3 during this probe, so no runtime v4 season is created yet;
-- no v4 lifecycle, membership persistence, assignment-history collection, override write, composition or weekly-balance rule is added;
-- production Rules, Hosting and combined production deploy commands remain blocked.
+## Checkpoint 2C — v4 draft to registration
 
-The decisive Rules regression test creates a legitimate administrator v4 draft with `houseCount: 8` using the same three-write audit + League + invite batch as v3. Its valid path must succeed. A malformed v4 scoring contract must still fail.
+Planned only after 2B passes. Test the audited League + invite transition separately with a complete Power Play policy.
 
-If this lean positive path still exceeds 1,000 expressions, stop and refactor the existing League create validator itself before any more v0.24 functionality is introduced.
+## Checkpoint 2D — remaining existing v3 Power Play operations on v4
 
-## Checkpoint 2B — wire v4 creation and registration safely
+Planned after registration passes. Extend weekly Power Play selection/redraw/correction to v4 one path at a time before the application starts creating v4 seasons by default.
 
-Planned only after the lean v4 draft positive path passes.
+## Checkpoint 2E — runtime v4 default
 
-- make new application-created seasons use v4;
-- explicitly support v4 Power Play draft maintenance;
-- add a legitimate positive registration-opening Rules test;
-- do not add movement persistence yet.
+Only after all existing v3 season operations required by a normal season have positive v4 Rules coverage should new application-created seasons switch from v3 to v4.
 
 ## Checkpoint 3 — membership rest-lock persistence
 
-Planned after Checkpoint 2B.
+Planned after the complete v4 compatibility bridge passes. Add only membership fields needed for the one-week rest and update the existing balanced swap transaction.
 
-Add only the membership fields needed for the one-week post-move rest and update the existing balanced swap transaction. Add positive and negative Rules tests around a normal weekly swap.
+## Checkpoint 4 — immutable assignment history
 
-## Later checkpoints
+Add assignment-history writes separately and verify maximum C.H.A.O.S. and roster-swap batch behaviour.
 
-Assignment history, audited factual corrections, privacy-safe composition foundations and weekly House balance remain separate later checkpoints. Each Rules change must have a legitimate positive-path regression test before another Rules feature is added.
+## Checkpoint 5 — audited Platform Administrator correction
+
+Add the narrowly scoped correction/override with immutable reason and audit trail. Current-week, House-lock and leadership protections remain non-bypassable.
+
+## Checkpoint 6 — composition/privacy foundation
+
+Composition data remains optional, season-scoped and private. No weekly balance snapshots yet.
+
+## Checkpoint 7 — weekly House balance
+
+Last security-sensitive feature. Informational only; cannot alter earned points. Public/private snapshot architecture must stay below evaluator limits at eight Houses.
+
+## Visual work
+
+The black + dark blood-red warrior/Spartan/knight/samurai redesign is deferred to the dedicated polish release. The Power Plays workspace has a known visual-quality issue and needs a focused CSS/layout pass; do not mix that work into Rules-sensitive checkpoints.

@@ -1090,6 +1090,23 @@ service cloud.firestore {
         && validDraftPowerPlayPolicy(ruleset.powerPlayPolicy);
     }
 
+    // Full v3/v4 validation is used only on deliberate draft pool maintenance
+    // and registration readiness. Draft creation keeps its compact validator.
+    function validLeagueRulesetV3V4Full(ruleset) {
+      return ruleset is map
+        && ruleset.version in ["season-houses-v3", "season-houses-v4"]
+        && ruleset.scoringEngineVersion == "points-v2"
+        && ruleset.dailyActivityCap == 20
+        && ruleset.dailyParticipationBonus == 5
+        && ruleset.includedCategories == [
+          "water", "fruit", "reading", "running", "upperBody",
+          "lowerBody", "core", "cardio", "skill", "steps"
+        ]
+        && validLeagueModulesV3(ruleset.modules)
+        && validEvidencePolicy(ruleset.evidencePolicy)
+        && validPowerPlayPolicy(ruleset.powerPlayPolicy);
+    }
+
     function validLeagueTransition(currentStatus, nextStatus) {
       return (currentStatus == "draft" && nextStatus == "registration")
         || (currentStatus == "registration" && nextStatus == "active")
@@ -1268,14 +1285,15 @@ service cloud.firestore {
 
     function validLeaguePowerPlayPoolUpdate(leagueId) {
       return resource.data.status == "draft"
-        && resource.data.rulesVersion == "season-houses-v3"
+        && resource.data.rulesVersion in ["season-houses-v3", "season-houses-v4"]
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           "ruleset", "updatedAt", "updatedBy", "lastAuditId"
         ])
         && request.resource.data.ruleset.diff(resource.data.ruleset).affectedKeys().hasOnly([
           "powerPlayPolicy"
         ])
-        && validLeagueRulesetV3(request.resource.data.ruleset)
+        && request.resource.data.ruleset.version == resource.data.rulesVersion
+        && validLeagueRulesetV3V4Full(request.resource.data.ruleset)
         && request.resource.data.updatedAt == request.time
         && request.resource.data.updatedBy == request.auth.uid
         && validAuditAfter(request.resource.data.lastAuditId, "league", leagueId);

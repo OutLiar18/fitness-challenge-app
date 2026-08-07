@@ -1,7 +1,7 @@
 {
   "name": "champions-legacy",
   "private": true,
-  "version": "0.24.0-dev.2",
+  "version": "0.24.0-dev.3",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -24,7 +24,8 @@
     "account:deletion:audit": "node --import=./scripts/register-loader.mjs scripts/trusted-account-delete.mjs",
     "account:deletion:process": "node --import=./scripts/register-loader.mjs scripts/trusted-account-delete.mjs --process",
     "check:v024:step1": "npm run check && npm run test:rules && node scripts/v024-checkpoint.mjs",
-    "check:v024:step2a": "npm run check && npm run test:rules && node scripts/v024-checkpoint.mjs"
+    "check:v024:step2a": "npm run check && npm run test:rules && node scripts/v024-checkpoint.mjs",
+    "check:v024:step2b": "npm run check && npm run test:rules && node scripts/v024-checkpoint.mjs"
   },
   "dependencies": {
     "firebase": "^12.15.0",
@@ -45,5 +46,5 @@
     "vite": "^8.1.0",
     "firebase-admin": "^14.2.0"
   },
-  "description": "Champions Legacy Challenge — a configuration-driven personal development and fitness challenge tracker."
+  "description": "Champions Legacy Challenge \u2014 a configuration-driven personal development and fitness challenge tracker."
 }
