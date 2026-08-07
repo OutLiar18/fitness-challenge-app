@@ -1363,6 +1363,169 @@ test("weekly roster swaps move future membership but cannot rewrite contribution
   await assertFails(updateDoc(doc(firestore, "leagueContributions", "historic-contribution"), { houseId: secondHouse.id }));
 });
 
+
+async function seedV4RestLockSwapSeason(leagueId) {
+  const firstHouse = houseData({
+    leagueId,
+    id: `${leagueId}-house-a`,
+    name: "House A",
+    captainId: "player-three",
+  });
+  const secondHouse = houseData({
+    leagueId,
+    id: `${leagueId}-house-b`,
+    name: "House B",
+    emblemId: "eagle",
+    accentId: "sapphire",
+    captainId: "player-four",
+  });
+
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", leagueId), seasonDataV4({
+      status: "active",
+      participantCount: 4,
+      chaosStatus: "activated",
+      active: true,
+    }));
+    await setDoc(doc(firestore, "leagueHouses", firstHouse.id), firstHouse.data);
+    await setDoc(doc(firestore, "leagueHouses", secondHouse.id), secondHouse.data);
+    await setDoc(doc(firestore, "leagueMemberships", `${leagueId}_player-one`), {
+      ...membershipData({ leagueId, status: "active", house: firstHouse }),
+      rosterLockThroughWeekKey: "",
+      rosterEligibleWeekKey: "",
+    });
+    await setDoc(doc(firestore, "leagueMemberships", `${leagueId}_player-two`), {
+      ...membershipData({ leagueId, userId: "player-two", status: "active", house: secondHouse }),
+      rosterLockThroughWeekKey: "",
+      rosterEligibleWeekKey: "",
+    });
+    await setDoc(doc(firestore, "leagueMemberships", `${leagueId}_player-three`), {
+      ...membershipData({ leagueId, userId: "player-three", status: "active", house: firstHouse }),
+      rosterLockThroughWeekKey: "",
+      rosterEligibleWeekKey: "",
+    });
+    await setDoc(doc(firestore, "leagueMemberships", `${leagueId}_player-four`), {
+      ...membershipData({ leagueId, userId: "player-four", status: "active", house: secondHouse }),
+      rosterLockThroughWeekKey: "",
+      rosterEligibleWeekKey: "",
+    });
+  });
+
+  return { firstHouse, secondHouse };
+}
+
+function v4RestLockSwapBatch({
+  firestore,
+  leagueId,
+  firstHouse,
+  secondHouse,
+  firstMembershipEligibleWeekKey = "2026-08-17",
+}) {
+  const weekKey = "2026-08-03";
+  const lockThroughWeekKey = "2026-08-10";
+  const eligibleWeekKey = "2026-08-17";
+  const swapId = `${leagueId}_${firstHouse.id}_${secondHouse.id}_${weekKey}`;
+  const auditId = `${swapId}-audit`;
+  const batch = writeBatch(firestore);
+
+  batch.set(doc(firestore, "auditEvents", auditId), auditData({
+    action: "house.roster-swapped",
+    entityId: leagueId,
+    summary: "Completed a v4 House roster swap with a post-move rest window",
+  }));
+  for (const house of [firstHouse, secondHouse]) {
+    batch.set(doc(firestore, "leagueRosterLocks", `${leagueId}_${house.id}_${weekKey}`), {
+      leagueId,
+      houseId: house.id,
+      weekKey,
+      swapId,
+      createdAt: serverTimestamp(),
+      createdBy: "admin-one",
+    });
+  }
+  batch.set(doc(firestore, "leagueRosterSwaps", swapId), {
+    leagueId,
+    weekKey,
+    firstHouseId: firstHouse.id,
+    firstHouseName: firstHouse.data.name,
+    secondHouseId: secondHouse.id,
+    secondHouseName: secondHouse.data.name,
+    firstPlayerId: "player-one",
+    secondPlayerId: "player-two",
+    actorId: "admin-one",
+    createdAt: serverTimestamp(),
+    lastAuditId: auditId,
+    rulesVersion: "season-houses-v4",
+    lockThroughWeekKey,
+    eligibleWeekKey,
+  });
+  batch.update(doc(firestore, "leagueMemberships", `${leagueId}_player-one`), {
+    currentHouseId: secondHouse.id,
+    currentHouseName: secondHouse.data.name,
+    currentHouseEmblemId: secondHouse.data.emblemId,
+    currentHouseAccentId: secondHouse.data.accentId,
+    houseAssignedAt: serverTimestamp(),
+    houseAssignmentMethod: "weekly-swap",
+    lastRosterSwapId: swapId,
+    lastRosterWeekKey: weekKey,
+    rosterLockThroughWeekKey: lockThroughWeekKey,
+    rosterEligibleWeekKey: firstMembershipEligibleWeekKey,
+    updatedAt: serverTimestamp(),
+  });
+  batch.update(doc(firestore, "leagueMemberships", `${leagueId}_player-two`), {
+    currentHouseId: firstHouse.id,
+    currentHouseName: firstHouse.data.name,
+    currentHouseEmblemId: firstHouse.data.emblemId,
+    currentHouseAccentId: firstHouse.data.accentId,
+    houseAssignedAt: serverTimestamp(),
+    houseAssignmentMethod: "weekly-swap",
+    lastRosterSwapId: swapId,
+    lastRosterWeekKey: weekKey,
+    rosterLockThroughWeekKey: lockThroughWeekKey,
+    rosterEligibleWeekKey: eligibleWeekKey,
+    updatedAt: serverTimestamp(),
+  });
+  batch.set(doc(firestore, "playerNotifications", `${leagueId}-swap-one`), notificationData({
+    userId: "player-one",
+    type: "roster-swap",
+    leagueId,
+    houseId: secondHouse.id,
+  }));
+  batch.set(doc(firestore, "playerNotifications", `${leagueId}-swap-two`), notificationData({
+    userId: "player-two",
+    type: "roster-swap",
+    leagueId,
+    houseId: firstHouse.id,
+  }));
+
+  return batch;
+}
+
+test("v4 roster swaps persist the one-week rest window and reject membership values that disagree with the swap", async () => {
+  const goodLeagueId = "season-v4-rest-good";
+  const good = await seedV4RestLockSwapSeason(goodLeagueId);
+  const firestore = adminContext().firestore();
+  await assertSucceeds(v4RestLockSwapBatch({
+    firestore,
+    leagueId: goodLeagueId,
+    ...good,
+  }).commit());
+
+  const firstAfter = await getDoc(doc(firestore, "leagueMemberships", `${goodLeagueId}_player-one`));
+  assert.equal(firstAfter.data().rosterLockThroughWeekKey, "2026-08-10");
+  assert.equal(firstAfter.data().rosterEligibleWeekKey, "2026-08-17");
+
+  const badLeagueId = "season-v4-rest-bad";
+  const bad = await seedV4RestLockSwapSeason(badLeagueId);
+  await assertFails(v4RestLockSwapBatch({
+    firestore,
+    leagueId: badLeagueId,
+    ...bad,
+    firstMembershipEligibleWeekKey: "2026-08-24",
+  }).commit());
+});
+
 test("Pocket activities are private, zero-point reserves during the official window", async () => {
   const dates = seasonDates();
   const now = Timestamp.now();

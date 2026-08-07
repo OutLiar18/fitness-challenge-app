@@ -1627,22 +1627,35 @@ service cloud.firestore {
     }
 
     function validMembershipRosterSwap() {
+      let league = get(
+        /databases/$(database)/documents/leagues/$(resource.data.leagueId)
+      ).data;
       let swap = getAfter(
         /databases/$(database)/documents/leagueRosterSwaps/$(request.resource.data.lastRosterSwapId)
       ).data;
       let nextHouse = getAfter(
         /databases/$(database)/documents/leagueHouses/$(request.resource.data.currentHouseId)
       ).data;
-      return get(/databases/$(database)/documents/leagues/$(resource.data.leagueId)).data.status == "active"
+      let v4 = league.rulesVersion == "season-houses-v4";
+      return league.status == "active"
         && swap.actorId == request.auth.uid
         && (isLeagueAdministrator(resource.data.leagueId)
           || currentHouseLeader(swap.firstHouseId)
           || currentHouseLeader(swap.secondHouseId))
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          "currentHouseId", "currentHouseName", "currentHouseEmblemId",
-          "currentHouseAccentId", "houseAssignedAt", "houseAssignmentMethod",
-          "lastRosterSwapId", "lastRosterWeekKey", "updatedAt"
-        ])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(
+          v4
+            ? [
+                "currentHouseId", "currentHouseName", "currentHouseEmblemId",
+                "currentHouseAccentId", "houseAssignedAt", "houseAssignmentMethod",
+                "lastRosterSwapId", "lastRosterWeekKey", "rosterLockThroughWeekKey",
+                "rosterEligibleWeekKey", "updatedAt"
+              ]
+            : [
+                "currentHouseId", "currentHouseName", "currentHouseEmblemId",
+                "currentHouseAccentId", "houseAssignedAt", "houseAssignmentMethod",
+                "lastRosterSwapId", "lastRosterWeekKey", "updatedAt"
+              ]
+        )
         && request.resource.data.currentHouseId != resource.data.currentHouseId
         && nextHouse.leagueId == resource.data.leagueId
         && request.resource.data.currentHouseName == nextHouse.name
@@ -1653,6 +1666,14 @@ service cloud.firestore {
         && request.resource.data.updatedAt == request.time
         && swap.leagueId == resource.data.leagueId
         && swap.weekKey == request.resource.data.lastRosterWeekKey
+        && (
+          !v4
+          || (
+            swap.rulesVersion == "season-houses-v4"
+            && request.resource.data.rosterLockThroughWeekKey == swap.lockThroughWeekKey
+            && request.resource.data.rosterEligibleWeekKey == swap.eligibleWeekKey
+          )
+        )
         && (
           (swap.firstPlayerId == resource.data.userId
             && swap.firstHouseId == resource.data.currentHouseId
@@ -1881,11 +1902,24 @@ service cloud.firestore {
       let secondHouse = get(
         /databases/$(database)/documents/leagueHouses/$(request.resource.data.secondHouseId)
       ).data;
-      return request.resource.data.keys().hasOnly([
-          "leagueId", "weekKey", "firstHouseId", "firstHouseName",
-          "secondHouseId", "secondHouseName", "firstPlayerId", "secondPlayerId",
-          "actorId", "createdAt", "lastAuditId"
-        ])
+      let league = get(
+        /databases/$(database)/documents/leagues/$(request.resource.data.leagueId)
+      ).data;
+      let v4 = league.rulesVersion == "season-houses-v4";
+      return request.resource.data.keys().hasOnly(
+          v4
+            ? [
+                "leagueId", "weekKey", "firstHouseId", "firstHouseName",
+                "secondHouseId", "secondHouseName", "firstPlayerId", "secondPlayerId",
+                "actorId", "createdAt", "lastAuditId", "rulesVersion",
+                "lockThroughWeekKey", "eligibleWeekKey"
+              ]
+            : [
+                "leagueId", "weekKey", "firstHouseId", "firstHouseName",
+                "secondHouseId", "secondHouseName", "firstPlayerId", "secondPlayerId",
+                "actorId", "createdAt", "lastAuditId"
+              ]
+        )
         && request.resource.data.actorId == request.auth.uid
         && request.resource.data.firstHouseId != request.resource.data.secondHouseId
         && request.resource.data.firstPlayerId != request.resource.data.secondPlayerId
@@ -1902,6 +1936,22 @@ service cloud.firestore {
         && secondAfter.currentHouseId == request.resource.data.firstHouseId
         && firstAfter.lastRosterSwapId == swapId
         && secondAfter.lastRosterSwapId == swapId
+        && (
+          !v4
+          || (
+            request.resource.data.rulesVersion == "season-houses-v4"
+            && request.resource.data.lockThroughWeekKey is string
+            && request.resource.data.lockThroughWeekKey.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}")
+            && request.resource.data.lockThroughWeekKey > request.resource.data.weekKey
+            && request.resource.data.eligibleWeekKey is string
+            && request.resource.data.eligibleWeekKey.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}")
+            && request.resource.data.eligibleWeekKey > request.resource.data.lockThroughWeekKey
+            && firstAfter.rosterLockThroughWeekKey == request.resource.data.lockThroughWeekKey
+            && secondAfter.rosterLockThroughWeekKey == request.resource.data.lockThroughWeekKey
+            && firstAfter.rosterEligibleWeekKey == request.resource.data.eligibleWeekKey
+            && secondAfter.rosterEligibleWeekKey == request.resource.data.eligibleWeekKey
+          )
+        )
         && existsAfter(/databases/$(database)/documents/leagueRosterLocks/$(request.resource.data.leagueId + "_" + request.resource.data.firstHouseId + "_" + request.resource.data.weekKey))
         && existsAfter(/databases/$(database)/documents/leagueRosterLocks/$(request.resource.data.leagueId + "_" + request.resource.data.secondHouseId + "_" + request.resource.data.weekKey))
         && request.resource.data.createdAt == request.time

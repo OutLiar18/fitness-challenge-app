@@ -112,7 +112,7 @@ If the unchanged Rules suite or runtime-creation domain test fails after this sw
 
 ## Checkpoint 3A — membership rest-state schema
 
-Status: implemented in `0.24.0-dev.10` as the first post-bridge Rules change.
+Status: **passed** in `0.24.0-dev.10` as the first post-bridge Rules change.
 
 - add only `rosterLockThroughWeekKey` and `rosterEligibleWeekKey` to the allowed membership schema;
 - normal new registrations persist both fields as empty strings;
@@ -125,7 +125,23 @@ If the legitimate registration path fails or reaches the evaluator ceiling, stop
 
 ## Checkpoint 3B — audited roster-swap rest-lock write
 
-After 3A passes, update only the existing balanced weekly swap transaction so v4 moves write the calculated one-week rest window. Keep v3 behaviour compatible and test the legitimate swap positive path before adding assignment history.
+Status: implemented in `0.24.0-dev.11` as the first authorised rest-lock write.
+
+- keep v3 roster-swap membership writes unchanged;
+- on v4 only, calculate the one-week rest window in the existing season service;
+- record `rulesVersion`, `lockThroughWeekKey` and `eligibleWeekKey` on the audited roster-swap document;
+- write matching `rosterLockThroughWeekKey` and `rosterEligibleWeekKey` values onto both moved memberships;
+- Rules require both moved memberships to match the rest-window values carried by the same atomic swap document;
+- add a legitimate v4 swap positive path;
+- add a denial proving a membership cannot persist rest-state values that disagree with its swap document;
+- do not yet reject a player solely because an older rest window is active;
+- add no assignment-history documents, override path, composition data or weekly-balance data.
+
+If the legitimate v4 swap reaches the evaluator ceiling, stop here and redesign this exact write path before any rest-eligibility enforcement.
+
+## Checkpoint 3C — enforce the post-move rest week
+
+After 3B passes, change only roster-swap eligibility so an ordinary v4 move is denied while either selected player is inside the persisted one-week rest window. Keep current-week, House-lock and leadership protections intact and do not add an override yet.
 
 ## Checkpoint 4 — immutable assignment history
 

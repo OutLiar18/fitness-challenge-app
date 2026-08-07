@@ -27,6 +27,10 @@ import { calculateEntryPoints } from "../points";
 import { validateEntry } from "../validation";
 import { PLAYER_NOTIFICATION_TYPES } from "../notifications/notificationModel";
 import {
+  getRosterRestWindow,
+  supportsHouseMovementV1,
+} from "./houseMovementModel";
+import {
   calculateLeadershipResult,
   createElectionId,
   createPocketRedemptionData,
@@ -424,6 +428,8 @@ export async function swapHousePlayers({ league, firstHouse, secondHouse, firstP
   }
   const weekKey = getSeasonWeekKey(new Date());
   const swapId = createRosterSwapId(league.id, [firstHouse.id, secondHouse.id], weekKey);
+  const movementV1 = supportsHouseMovementV1(league);
+  const restWindow = movementV1 ? getRosterRestWindow(weekKey) : null;
 
   await runTransaction(db, async (transaction) => {
     const swapReference = doc(db, "leagueRosterSwaps", swapId);
@@ -470,7 +476,7 @@ export async function swapHousePlayers({ league, firstHouse, secondHouse, firstP
       createdAt: serverTimestamp(),
       createdBy: actorId,
     });
-    transaction.set(swapReference, {
+    const swapData = {
       leagueId: league.id,
       weekKey,
       firstHouseId: firstHouse.id,
@@ -482,28 +488,43 @@ export async function swapHousePlayers({ league, firstHouse, secondHouse, firstP
       actorId,
       createdAt: serverTimestamp(),
       lastAuditId: auditReference.id,
-    });
-    transaction.update(firstMembershipReference, {
-      currentHouseId: secondHouse.id,
-      currentHouseName: secondHouse.name,
-      currentHouseEmblemId: secondHouse.emblemId,
-      currentHouseAccentId: secondHouse.accentId,
+    };
+    if (movementV1) {
+      Object.assign(swapData, {
+        rulesVersion: league.rulesVersion,
+        lockThroughWeekKey: restWindow.lockThroughWeekKey,
+        eligibleWeekKey: restWindow.eligibleWeekKey,
+      });
+    }
+    transaction.set(swapReference, swapData);
+
+    const sharedMembershipUpdate = {
       houseAssignedAt: serverTimestamp(),
       houseAssignmentMethod: "weekly-swap",
       lastRosterSwapId: swapId,
       lastRosterWeekKey: weekKey,
       updatedAt: serverTimestamp(),
+    };
+    if (movementV1) {
+      Object.assign(sharedMembershipUpdate, {
+        rosterLockThroughWeekKey: restWindow.lockThroughWeekKey,
+        rosterEligibleWeekKey: restWindow.eligibleWeekKey,
+      });
+    }
+
+    transaction.update(firstMembershipReference, {
+      currentHouseId: secondHouse.id,
+      currentHouseName: secondHouse.name,
+      currentHouseEmblemId: secondHouse.emblemId,
+      currentHouseAccentId: secondHouse.accentId,
+      ...sharedMembershipUpdate,
     });
     transaction.update(secondMembershipReference, {
       currentHouseId: firstHouse.id,
       currentHouseName: firstHouse.name,
       currentHouseEmblemId: firstHouse.emblemId,
       currentHouseAccentId: firstHouse.accentId,
-      houseAssignedAt: serverTimestamp(),
-      houseAssignmentMethod: "weekly-swap",
-      lastRosterSwapId: swapId,
-      lastRosterWeekKey: weekKey,
-      updatedAt: serverTimestamp(),
+      ...sharedMembershipUpdate,
     });
     setNotification(transaction, {
       userId: firstPlayer.userId,
