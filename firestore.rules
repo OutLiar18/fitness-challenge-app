@@ -1906,6 +1906,10 @@ service cloud.firestore {
         /databases/$(database)/documents/leagues/$(request.resource.data.leagueId)
       ).data;
       let v4 = league.rulesVersion == "season-houses-v4";
+      let firstRestActive = firstBefore.get("rosterLockThroughWeekKey", "") != ""
+        && request.resource.data.weekKey <= firstBefore.get("rosterLockThroughWeekKey", "");
+      let secondRestActive = secondBefore.get("rosterLockThroughWeekKey", "") != ""
+        && request.resource.data.weekKey <= secondBefore.get("rosterLockThroughWeekKey", "");
       return request.resource.data.keys().hasOnly(
           v4
             ? [
@@ -1940,6 +1944,10 @@ service cloud.firestore {
           !v4
           || (
             request.resource.data.rulesVersion == "season-houses-v4"
+            && request.resource.data.weekKey is string
+            && request.resource.data.weekKey.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}")
+            && !firstRestActive
+            && !secondRestActive
             && request.resource.data.lockThroughWeekKey is string
             && request.resource.data.lockThroughWeekKey.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}")
             && request.resource.data.lockThroughWeekKey > request.resource.data.weekKey

@@ -125,7 +125,7 @@ If the legitimate registration path fails or reaches the evaluator ceiling, stop
 
 ## Checkpoint 3B — audited roster-swap rest-lock write
 
-Status: implemented in `0.24.0-dev.11` as the first authorised rest-lock write.
+Status: **passed** in `0.24.0-dev.11` as the first authorised rest-lock write.
 
 - keep v3 roster-swap membership writes unchanged;
 - on v4 only, calculate the one-week rest window in the existing season service;
@@ -141,7 +141,19 @@ If the legitimate v4 swap reaches the evaluator ceiling, stop here and redesign 
 
 ## Checkpoint 3C — enforce the post-move rest week
 
-After 3B passes, change only roster-swap eligibility so an ordinary v4 move is denied while either selected player is inside the persisted one-week rest window. Keep current-week, House-lock and leadership protections intact and do not add an override yet.
+Status: implemented in `0.24.0-dev.12` as the isolated rest-eligibility enforcement checkpoint.
+
+- keep the 3B rest-window write shape unchanged;
+- use the already-loaded pre-swap memberships, adding no new Rules document reads;
+- deny a v4 roster swap when either selected player's persisted `rosterLockThroughWeekKey` still covers the requested `weekKey`;
+- validate the v4 `weekKey` date-key shape before lexicographic rest-window comparison;
+- keep v3 roster-swap behaviour unchanged;
+- add a client-side transaction guard with the same boundary so the app can explain the rest period instead of relying on a raw permission denial;
+- add negative Rules paths for the first and second selected player independently;
+- add a positive Rules path proving eligibility reopens in the week beginning `rosterEligibleWeekKey` and a fresh rest window is persisted;
+- do not add assignment-history documents, an administrator override, composition data or weekly-balance data.
+
+If the legitimate reopened-eligibility swap reaches the evaluator ceiling, stop here and redesign this exact eligibility check before assignment-history persistence.
 
 ## Checkpoint 4 — immutable assignment history
 

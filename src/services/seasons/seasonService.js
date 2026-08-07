@@ -451,6 +451,18 @@ export async function swapHousePlayers({ league, firstHouse, secondHouse, firstP
     if (firstSnapshot.data().currentHouseId !== firstHouse.id || secondSnapshot.data().currentHouseId !== secondHouse.id) {
       throw new Error("The House roster changed before this swap could be completed.");
     }
+    if (movementV1) {
+      const restingMembership = [firstSnapshot.data(), secondSnapshot.data()].find((membership) => (
+        membership.rosterLockThroughWeekKey
+          && weekKey <= membership.rosterLockThroughWeekKey
+      ));
+      if (restingMembership) {
+        const eligibleWeek = restingMembership.rosterEligibleWeekKey;
+        throw new Error(eligibleWeek
+          ? `This player is resting after a House move and is eligible again in the week beginning ${eligibleWeek}.`
+          : "This player is still inside the one-week post-move rest period.");
+      }
+    }
 
     const auditReference = setAudit(transaction, {
       actorId,

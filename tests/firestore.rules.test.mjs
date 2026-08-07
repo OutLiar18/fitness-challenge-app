@@ -1364,7 +1364,12 @@ test("weekly roster swaps move future membership but cannot rewrite contribution
 });
 
 
-async function seedV4RestLockSwapSeason(leagueId) {
+async function seedV4RestLockSwapSeason(leagueId, {
+  firstLockThroughWeekKey = "",
+  firstEligibleWeekKey = "",
+  secondLockThroughWeekKey = "",
+  secondEligibleWeekKey = "",
+} = {}) {
   const firstHouse = houseData({
     leagueId,
     id: `${leagueId}-house-a`,
@@ -1392,13 +1397,13 @@ async function seedV4RestLockSwapSeason(leagueId) {
     await setDoc(doc(firestore, "leagueHouses", secondHouse.id), secondHouse.data);
     await setDoc(doc(firestore, "leagueMemberships", `${leagueId}_player-one`), {
       ...membershipData({ leagueId, status: "active", house: firstHouse }),
-      rosterLockThroughWeekKey: "",
-      rosterEligibleWeekKey: "",
+      rosterLockThroughWeekKey: firstLockThroughWeekKey,
+      rosterEligibleWeekKey: firstEligibleWeekKey,
     });
     await setDoc(doc(firestore, "leagueMemberships", `${leagueId}_player-two`), {
       ...membershipData({ leagueId, userId: "player-two", status: "active", house: secondHouse }),
-      rosterLockThroughWeekKey: "",
-      rosterEligibleWeekKey: "",
+      rosterLockThroughWeekKey: secondLockThroughWeekKey,
+      rosterEligibleWeekKey: secondEligibleWeekKey,
     });
     await setDoc(doc(firestore, "leagueMemberships", `${leagueId}_player-three`), {
       ...membershipData({ leagueId, userId: "player-three", status: "active", house: firstHouse }),
@@ -1420,11 +1425,12 @@ function v4RestLockSwapBatch({
   leagueId,
   firstHouse,
   secondHouse,
-  firstMembershipEligibleWeekKey = "2026-08-17",
+  weekKey = "2026-08-03",
+  lockThroughWeekKey = "2026-08-10",
+  eligibleWeekKey = "2026-08-17",
+  firstMembershipEligibleWeekKey = null,
 }) {
-  const weekKey = "2026-08-03";
-  const lockThroughWeekKey = "2026-08-10";
-  const eligibleWeekKey = "2026-08-17";
+  const firstEligibleWeekKey = firstMembershipEligibleWeekKey ?? eligibleWeekKey;
   const swapId = `${leagueId}_${firstHouse.id}_${secondHouse.id}_${weekKey}`;
   const auditId = `${swapId}-audit`;
   const batch = writeBatch(firestore);
@@ -1470,7 +1476,7 @@ function v4RestLockSwapBatch({
     lastRosterSwapId: swapId,
     lastRosterWeekKey: weekKey,
     rosterLockThroughWeekKey: lockThroughWeekKey,
-    rosterEligibleWeekKey: firstMembershipEligibleWeekKey,
+    rosterEligibleWeekKey: firstEligibleWeekKey,
     updatedAt: serverTimestamp(),
   });
   batch.update(doc(firestore, "leagueMemberships", `${leagueId}_player-two`), {
@@ -1524,6 +1530,61 @@ test("v4 roster swaps persist the one-week rest window and reject membership val
     ...bad,
     firstMembershipEligibleWeekKey: "2026-08-24",
   }).commit());
+});
+
+test("v4 roster swaps enforce the persisted rest week and reopen eligibility afterward", async () => {
+  const firestore = adminContext().firestore();
+
+  const firstBlockedLeagueId = "season-v4-rest-first-blocked";
+  const firstBlocked = await seedV4RestLockSwapSeason(firstBlockedLeagueId, {
+    firstLockThroughWeekKey: "2026-08-10",
+    firstEligibleWeekKey: "2026-08-17",
+  });
+  await assertFails(v4RestLockSwapBatch({
+    firestore,
+    leagueId: firstBlockedLeagueId,
+    ...firstBlocked,
+    weekKey: "2026-08-10",
+    lockThroughWeekKey: "2026-08-17",
+    eligibleWeekKey: "2026-08-24",
+  }).commit());
+
+  const secondBlockedLeagueId = "season-v4-rest-second-blocked";
+  const secondBlocked = await seedV4RestLockSwapSeason(secondBlockedLeagueId, {
+    secondLockThroughWeekKey: "2026-08-10",
+    secondEligibleWeekKey: "2026-08-17",
+  });
+  await assertFails(v4RestLockSwapBatch({
+    firestore,
+    leagueId: secondBlockedLeagueId,
+    ...secondBlocked,
+    weekKey: "2026-08-10",
+    lockThroughWeekKey: "2026-08-17",
+    eligibleWeekKey: "2026-08-24",
+  }).commit());
+
+  const eligibleLeagueId = "season-v4-rest-reopened";
+  const eligible = await seedV4RestLockSwapSeason(eligibleLeagueId, {
+    firstLockThroughWeekKey: "2026-08-10",
+    firstEligibleWeekKey: "2026-08-17",
+    secondLockThroughWeekKey: "2026-08-10",
+    secondEligibleWeekKey: "2026-08-17",
+  });
+  await assertSucceeds(v4RestLockSwapBatch({
+    firestore,
+    leagueId: eligibleLeagueId,
+    ...eligible,
+    weekKey: "2026-08-17",
+    lockThroughWeekKey: "2026-08-24",
+    eligibleWeekKey: "2026-08-31",
+  }).commit());
+
+  const firstAfter = await getDoc(doc(firestore, "leagueMemberships", `${eligibleLeagueId}_player-one`));
+  const secondAfter = await getDoc(doc(firestore, "leagueMemberships", `${eligibleLeagueId}_player-two`));
+  assert.equal(firstAfter.data().rosterLockThroughWeekKey, "2026-08-24");
+  assert.equal(firstAfter.data().rosterEligibleWeekKey, "2026-08-31");
+  assert.equal(secondAfter.data().rosterLockThroughWeekKey, "2026-08-24");
+  assert.equal(secondAfter.data().rosterEligibleWeekKey, "2026-08-31");
 });
 
 test("Pocket activities are private, zero-point reserves during the official window", async () => {
