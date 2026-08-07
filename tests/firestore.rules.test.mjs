@@ -3007,6 +3007,144 @@ test("v4 draft Power Play pool maintenance stays below Rules evaluation", async 
   );
 });
 
+
+test("existing v3 draft-to-registration remains valid under the shared readiness check", async () => {
+  const league = seasonDataV3({ inviteCode: "REGV3AAA" });
+  league.houseCount = 8;
+
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", "registration-season-v3"), league);
+    await setDoc(doc(firestore, "leagueInvites", "REGV3AAA"), {
+      leagueId: "registration-season-v3",
+      leagueName: league.name,
+      status: "closed",
+      createdAt: Timestamp.now(),
+      createdBy: "admin-one",
+      updatedAt: Timestamp.now(),
+      updatedBy: "admin-one",
+    });
+  });
+
+  const firestore = adminContext().firestore();
+  const auditId = "registration-v3-audit";
+  const batch = writeBatch(firestore);
+  batch.set(doc(firestore, "auditEvents", auditId), {
+    actorId: "admin-one",
+    action: "league.registration",
+    entityType: "league",
+    entityId: "registration-season-v3",
+    summary: "Changed the v3 season from draft to registration",
+    details: { previousStatus: "draft", nextStatus: "registration" },
+    createdAt: serverTimestamp(),
+  });
+  batch.update(doc(firestore, "leagues", "registration-season-v3"), {
+    status: "registration",
+    updatedAt: serverTimestamp(),
+    updatedBy: "admin-one",
+    activatedAt: null,
+    completedAt: null,
+    archivedAt: null,
+    lastAuditId: auditId,
+  });
+  batch.update(doc(firestore, "leagueInvites", "REGV3AAA"), {
+    status: "active",
+    updatedAt: serverTimestamp(),
+    updatedBy: "admin-one",
+  });
+
+  await assertSucceeds(batch.commit());
+});
+
+test("v4 draft-to-registration stays below Rules evaluation", async () => {
+  const league = seasonDataV4({ inviteCode: "REGV4AAA" });
+  league.houseCount = 8;
+
+  const invalidLeague = seasonDataV4({ inviteCode: "BADV4AAA" });
+  invalidLeague.houseCount = 8;
+  invalidLeague.ruleset = currentSeasonRulesetV4();
+  invalidLeague.ruleset.powerPlayPolicy.noRepeatWithinSeason = false;
+
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", "registration-season-v4"), league);
+    await setDoc(doc(firestore, "leagueInvites", "REGV4AAA"), {
+      leagueId: "registration-season-v4",
+      leagueName: league.name,
+      status: "closed",
+      createdAt: Timestamp.now(),
+      createdBy: "admin-one",
+      updatedAt: Timestamp.now(),
+      updatedBy: "admin-one",
+    });
+    await setDoc(doc(firestore, "leagues", "registration-season-v4-invalid"), invalidLeague);
+    await setDoc(doc(firestore, "leagueInvites", "BADV4AAA"), {
+      leagueId: "registration-season-v4-invalid",
+      leagueName: invalidLeague.name,
+      status: "closed",
+      createdAt: Timestamp.now(),
+      createdBy: "admin-one",
+      updatedAt: Timestamp.now(),
+      updatedBy: "admin-one",
+    });
+  });
+
+  const firestore = adminContext().firestore();
+  const auditId = "registration-v4-audit";
+  const batch = writeBatch(firestore);
+  batch.set(doc(firestore, "auditEvents", auditId), {
+    actorId: "admin-one",
+    action: "league.registration",
+    entityType: "league",
+    entityId: "registration-season-v4",
+    summary: "Changed the v4 season from draft to registration",
+    details: { previousStatus: "draft", nextStatus: "registration" },
+    createdAt: serverTimestamp(),
+  });
+  batch.update(doc(firestore, "leagues", "registration-season-v4"), {
+    status: "registration",
+    updatedAt: serverTimestamp(),
+    updatedBy: "admin-one",
+    activatedAt: null,
+    completedAt: null,
+    archivedAt: null,
+    lastAuditId: auditId,
+  });
+  batch.update(doc(firestore, "leagueInvites", "REGV4AAA"), {
+    status: "active",
+    updatedAt: serverTimestamp(),
+    updatedBy: "admin-one",
+  });
+  await assertSucceeds(batch.commit());
+
+  const invalidAuditId = "registration-v4-invalid-audit";
+  const invalidBatch = writeBatch(firestore);
+  invalidBatch.set(doc(firestore, "auditEvents", invalidAuditId), {
+    actorId: "admin-one",
+    action: "league.registration",
+    entityType: "league",
+    entityId: "registration-season-v4-invalid",
+    summary: "Attempted registration with an invalid v4 Power Play policy",
+    details: { previousStatus: "draft", nextStatus: "registration" },
+    createdAt: serverTimestamp(),
+  });
+  invalidBatch.update(doc(firestore, "leagues", "registration-season-v4-invalid"), {
+    status: "registration",
+    updatedAt: serverTimestamp(),
+    updatedBy: "admin-one",
+    activatedAt: null,
+    completedAt: null,
+    archivedAt: null,
+    lastAuditId: invalidAuditId,
+  });
+  invalidBatch.update(doc(firestore, "leagueInvites", "BADV4AAA"), {
+    status: "active",
+    updatedAt: serverTimestamp(),
+    updatedBy: "admin-one",
+  });
+  await assertFails(invalidBatch.commit());
+});
+
 test("weekly Power Play selection is atomic and cannot reuse a selected play", async () => {
   const league = seasonDataV3({ status: "active", participantCount: 2, chaosStatus: "activated", active: true });
   await testEnvironment.withSecurityRulesDisabled(async (context) => {

@@ -1,7 +1,7 @@
 {
   "name": "champions-legacy",
   "private": true,
-  "version": "0.24.0-dev.3",
+  "version": "0.24.0-dev.4",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -25,7 +25,8 @@
     "account:deletion:process": "node --import=./scripts/register-loader.mjs scripts/trusted-account-delete.mjs --process",
     "check:v024:step1": "npm run check && npm run test:rules && node scripts/v024-checkpoint.mjs",
     "check:v024:step2a": "npm run check && npm run test:rules && node scripts/v024-checkpoint.mjs",
-    "check:v024:step2b": "npm run check && npm run test:rules && node scripts/v024-checkpoint.mjs"
+    "check:v024:step2b": "npm run check && npm run test:rules && node scripts/v024-checkpoint.mjs",
+    "check:v024:step2c": "npm run check && npm run test:rules && node scripts/v024-checkpoint.mjs"
   },
   "dependencies": {
     "firebase": "^12.15.0",

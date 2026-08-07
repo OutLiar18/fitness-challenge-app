@@ -28,20 +28,24 @@ The replacement uses `season-houses-v4` itself as the immutable House Movement v
 
 ## Checkpoint 2B — v4 draft Power Play maintenance
 
-Status: implemented for isolated verification in `0.24.0-dev.3`.
+Status: **passed** as `0.24.0-dev.3`.
 
-- allow only v3/v4 draft seasons to update `ruleset.powerPlayPolicy`;
-- require the ruleset version to remain identical to the League's top-level `rulesVersion`;
-- use full Power Play-policy validation on deliberate pool maintenance;
-- add a legitimate v4 administrator pool-update positive path;
-- runtime still defaults to v3;
-- no lifecycle, movement persistence, history, override, composition or weekly-balance changes.
-
-If the legitimate v4 pool update reaches the evaluator limit, stop here and redesign this Rules path.
+The legitimate v4 administrator Power Play-pool update passed with full Power Play validation. The application still defaults to v3.
 
 ## Checkpoint 2C — v4 draft to registration
 
-Planned only after 2B passes. Test the audited League + invite transition separately with a complete Power Play policy.
+Status: implemented for isolated verification in `0.24.0-dev.4`.
+
+- extend the existing registration-readiness check from v3 to v3/v4;
+- use the shared full v3/v4 ruleset validator before registration opens;
+- keep the existing initial Power Play-state requirement;
+- add a positive v3 regression path;
+- add a legitimate v4 `houseCount: 8` positive transition;
+- verify an invalid v4 Power Play policy cannot enter registration;
+- runtime still defaults to v3;
+- no C.H.A.O.S., Power Play assignment, movement persistence, history, override, composition or weekly-balance expansion.
+
+If the legitimate v4 draft-to-registration transition reaches the evaluator limit, stop here and redesign the lifecycle validator.
 
 ## Checkpoint 2D — remaining existing v3 Power Play operations on v4
 

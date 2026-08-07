@@ -1190,9 +1190,9 @@ service cloud.firestore {
         && validLeagueTransition(resource.data.status, request.resource.data.status)
         && (
           request.resource.data.status != "registration"
-          || resource.data.rulesVersion != "season-houses-v3"
+          || !(resource.data.rulesVersion in ["season-houses-v3", "season-houses-v4"])
           || (
-            validLeagueRulesetV3(resource.data.ruleset)
+            validLeagueRulesetV3V4Full(resource.data.ruleset)
             && validInitialPowerPlayState(resource.data.powerPlayState)
           )
         )
