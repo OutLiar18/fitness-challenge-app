@@ -954,6 +954,81 @@ test("C.H.A.O.S. assigns registered players and creates private notifications at
   await assertFails(getDoc(doc(playerContext("player-two").firestore(), "playerNotifications", "chaos-0")));
 });
 
+test("v4 C.H.A.O.S. supports eight Houses and sixteen players in the real atomic batch", async () => {
+  const leagueId = "chaos-v4-scale";
+  const houses = Array.from({ length: 8 }, (_, index) => houseData({
+    leagueId,
+    id: `house-scale-${index + 1}`,
+    name: `House Scale ${index + 1}`,
+    emblemId: `emblem-${index + 1}`,
+    accentId: `accent-${index + 1}`,
+  }));
+  const playerIds = Array.from(
+    { length: 16 },
+    (_, index) => `scale-player-${String(index + 1).padStart(2, "0")}`,
+  );
+  const league = seasonDataV4({ status: "registration", participantCount: playerIds.length });
+  league.houseCount = houses.length;
+
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", leagueId), league);
+    for (const house of houses) {
+      await setDoc(doc(firestore, "leagueHouses", house.id), house.data);
+    }
+    for (const userId of playerIds) {
+      await setDoc(
+        doc(firestore, "leagueMemberships", `${leagueId}_${userId}`),
+        membershipData({ leagueId, userId }),
+      );
+    }
+  });
+
+  const firestore = adminContext().firestore();
+  const batch = writeBatch(firestore);
+  const auditId = "chaos-v4-scale-audit";
+  batch.set(
+    doc(firestore, "auditEvents", auditId),
+    auditData({
+      action: "league.chaos-activated",
+      entityId: leagueId,
+      summary: "Activated v4 C.H.A.O.S. across eight Houses",
+    }),
+  );
+  batch.update(doc(firestore, "leagues", leagueId), {
+    chaosStatus: "activated",
+    chaosActivatedAt: serverTimestamp(),
+    chaosActivatedBy: "admin-one",
+    updatedAt: serverTimestamp(),
+    updatedBy: "admin-one",
+    lastAuditId: auditId,
+  });
+
+  playerIds.forEach((userId, index) => {
+    const house = houses[index % houses.length];
+    batch.update(doc(firestore, "leagueMemberships", `${leagueId}_${userId}`), {
+      currentHouseId: house.id,
+      currentHouseName: house.data.name,
+      currentHouseEmblemId: house.data.emblemId,
+      currentHouseAccentId: house.data.accentId,
+      houseAssignedAt: serverTimestamp(),
+      houseAssignmentMethod: "chaos",
+      updatedAt: serverTimestamp(),
+    });
+    batch.set(
+      doc(firestore, "playerNotifications", `chaos-v4-scale-${index + 1}`),
+      notificationData({
+        userId,
+        type: "chaos-assignment",
+        leagueId,
+        houseId: house.id,
+      }),
+    );
+  });
+
+  await assertSucceeds(batch.commit());
+});
+
 test("leadership ballots can open only during an active season", async () => {
   const activeHouse = houseData({ leagueId: "season-active", id: "house-active" });
   const registrationHouse = houseData({ leagueId: "season-registration", id: "house-registration" });

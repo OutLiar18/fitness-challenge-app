@@ -1,7 +1,7 @@
 {
   "name": "champions-legacy",
   "private": true,
-  "version": "0.24.0-dev.7",
+  "version": "0.24.0-dev.8",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -29,7 +29,8 @@
     "check:v024:step2c": "npm run check && npm run test:rules && node scripts/v024-checkpoint.mjs",
     "check:v024:step2d": "npm run check && npm run test:rules && node scripts/v024-checkpoint.mjs",
     "check:v024:step2e": "npm run check && npm run test:rules && node scripts/v024-checkpoint.mjs",
-    "check:v024:step2f": "npm run check && npm run test:rules && node scripts/v024-checkpoint.mjs"
+    "check:v024:step2f": "npm run check && npm run test:rules && node scripts/v024-checkpoint.mjs",
+    "check:v024:step2g": "npm run check && npm run test:rules && node scripts/v024-checkpoint.mjs"
   },
   "dependencies": {
     "firebase": "^12.15.0",

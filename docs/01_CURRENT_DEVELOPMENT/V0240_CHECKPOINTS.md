@@ -73,7 +73,7 @@ If the legitimate v4 pre-week redraw reaches the evaluator limit, stop here and 
 
 ## Checkpoint 2F — locked assignment correction on v4
 
-Status: implemented for isolated verification in `0.24.0-dev.7`.
+Status: **passed** as `0.24.0-dev.7`.
 
 - extend only the existing locked Platform Administrator correction validator from v3 to v3/v4;
 - keep the existing v3 correction test as a regression path;
@@ -85,7 +85,16 @@ If the legitimate v4 locked correction reaches the evaluator limit, stop here an
 
 ## Checkpoint 2G — v4 C.H.A.O.S. assignment compatibility
 
-Before switching runtime creation to v4, add a dedicated positive v4 test for the existing audited C.H.A.O.S. batch: League activation state + registered membership House assignments + private notifications. No new movement fields are added.
+Status: implemented as a **zero-Rules-change scale probe** in `0.24.0-dev.8`.
+
+- keep `firestore.rules` byte-for-byte equivalent to the passed Checkpoint 2F Rules;
+- keep runtime creation on v3;
+- exercise the existing audited C.H.A.O.S. transaction on a v4 season;
+- use the maximum supported eight-House configuration with the minimum viable sixteen registered players;
+- write the real audit + League activation + 16 membership assignments + 16 private notifications in one batch;
+- add no House-movement rest fields, assignment-history documents, movement overrides, composition data or weekly-balance data.
+
+This probe is intentionally designed to reveal Firestore batched-write document-access or evaluation limits in the existing C.H.A.O.S. architecture. If the legitimate eight-House v4 batch fails, stop here and redesign C.H.A.O.S. persistence before switching runtime creation to v4.
 
 ## Checkpoint 2H — runtime v4 default
 
