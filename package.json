@@ -1,14 +1,14 @@
 {
   "name": "champions-legacy",
   "private": true,
-  "version": "0.23.5",
+  "version": "0.24.0-dev.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "node --import=./scripts/register-loader.mjs --test tests/domain.test.mjs tests/goals.test.mjs tests/progression.test.mjs tests/records.test.mjs tests/timeline.test.mjs tests/experience.test.mjs tests/profile-announcements.test.mjs tests/admin-platform.test.mjs tests/community-coach.test.mjs tests/rules-points-guide.test.mjs tests/season-systems.test.mjs tests/analytics.test.mjs tests/workspace-tabs.test.mjs tests/account-foundations.test.mjs tests/evidence-system.test.mjs tests/season-operations.test.mjs tests/entry-corrections.test.mjs tests/trusted-season.test.mjs tests/trusted-account-deletion.test.mjs tests/power-plays.test.mjs",
+    "test": "node --import=./scripts/register-loader.mjs --test tests/domain.test.mjs tests/goals.test.mjs tests/progression.test.mjs tests/records.test.mjs tests/timeline.test.mjs tests/experience.test.mjs tests/profile-announcements.test.mjs tests/admin-platform.test.mjs tests/community-coach.test.mjs tests/rules-points-guide.test.mjs tests/season-systems.test.mjs tests/analytics.test.mjs tests/workspace-tabs.test.mjs tests/account-foundations.test.mjs tests/evidence-system.test.mjs tests/season-operations.test.mjs tests/entry-corrections.test.mjs tests/trusted-season.test.mjs tests/trusted-account-deletion.test.mjs tests/power-plays.test.mjs tests/house-movement-domain.test.mjs",
     "test:rules": "npx firebase-tools emulators:exec --project champions-legacy-rules-test --only firestore \"node --test tests/firestore.rules.test.mjs\"",
     "check": "npm run lint && npm test && npm run build",
     "check:release": "npm run check && npm run test:rules && node scripts/release-readiness.mjs",
@@ -16,13 +16,14 @@
     "deploy:rules": "npx firebase-tools deploy --only firestore:rules --project fitnesschallengeapp-9e87f",
     "deploy:preview": "npm run build && npx firebase-tools hosting:channel:deploy review --only app --expires 7d --project fitnesschallengeapp-9e87f",
     "deploy:hosting": "npm run build && npx firebase-tools deploy --only hosting:app --project fitnesschallengeapp-9e87f",
-    "deploy:production": "npm run check:release && npm run deploy:rules && npm run deploy:hosting",
+    "deploy:production": "node scripts/block-development-deploy.mjs",
     "season:list": "node --import=./scripts/register-loader.mjs scripts/trusted-season-reconcile.mjs --list",
     "season:reconcile": "node --import=./scripts/register-loader.mjs scripts/trusted-season-reconcile.mjs",
     "season:reconcile:publish": "node --import=./scripts/register-loader.mjs scripts/trusted-season-reconcile.mjs --publish",
     "account:deletion:list": "node --import=./scripts/register-loader.mjs scripts/trusted-account-delete.mjs --list",
     "account:deletion:audit": "node --import=./scripts/register-loader.mjs scripts/trusted-account-delete.mjs",
-    "account:deletion:process": "node --import=./scripts/register-loader.mjs scripts/trusted-account-delete.mjs --process"
+    "account:deletion:process": "node --import=./scripts/register-loader.mjs scripts/trusted-account-delete.mjs --process",
+    "check:v024:step1": "npm run check && npm run test:rules && node scripts/v024-checkpoint.mjs"
   },
   "dependencies": {
     "firebase": "^12.15.0",

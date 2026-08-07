@@ -7,6 +7,8 @@ export const HOUSE_VICE_CAPTAIN_LIMIT = 2;
 export const LEADERSHIP_ELECTION_DURATION_HOURS = 24;
 export const POCKET_WINDOW_DAYS = 7;
 export const HOUSE_ROSTER_MOVES_PER_WEEK = 1;
+export const HOUSE_ROSTER_PLAYER_REST_WEEKS = 1;
+export const HOUSE_MOVEMENT_POLICY_VERSION = "house-movement-v1";
 
 export const SEASON_PHASES = Object.freeze({
   DRAFT: "draft",
