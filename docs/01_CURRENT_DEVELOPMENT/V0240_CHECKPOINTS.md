@@ -49,7 +49,7 @@ If the legitimate v4 draft-to-registration transition reaches the evaluator limi
 
 ## Checkpoint 2D — first weekly Power Play selection on v4
 
-Status: implemented for isolated verification in `0.24.0-dev.5`.
+Status: **passed** as `0.24.0-dev.5`.
 
 - extend only the League Power Play-state advance and first assignment-create validators from v3 to v3/v4;
 - keep the existing v3 weekly-selection positive/regression path;
@@ -61,7 +61,15 @@ If the legitimate first v4 weekly selection reaches the evaluator limit, stop he
 
 ## Checkpoint 2E — pre-week redraw on v4
 
-Planned only after first selection passes. Extend the existing administrator redraw path to v4 with its own positive evaluator test.
+Status: implemented for isolated verification in `0.24.0-dev.6`.
+
+- extend only the existing administrator pre-week redraw validator from v3 to v3/v4;
+- use the real audit + assignment update + League Power Play-state advance batch;
+- keep the locked Platform Administrator correction validator v3-only;
+- runtime still defaults to v3;
+- no House-movement persistence, history, override, composition or weekly-balance Rules.
+
+If the legitimate v4 pre-week redraw reaches the evaluator limit, stop here and redesign this update path before adding anything else.
 
 ## Checkpoint 2F — locked assignment correction on v4
 

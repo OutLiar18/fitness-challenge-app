@@ -3320,6 +3320,74 @@ test("v4 first weekly Power Play selection stays below Rules evaluation", async 
   await assertSucceeds(batch.commit());
 });
 
+test("v4 pre-week Power Play redraw stays below Rules evaluation", async () => {
+  const league = seasonDataV4({ status: "registration", participantCount: 2 });
+  league.powerPlayState = {
+    usedPowerPlayIds: ["base-water"],
+    selectionCount: 1,
+    lastWeekKey: "week-01",
+    lastPowerPlayId: "base-water",
+    lastSelectionAt: Timestamp.now(),
+    lastSelectionBy: "admin-one",
+  };
+  const assignment = {
+    ...powerPlayAssignmentData({
+      leagueId: "power-redraw-v4",
+      startDate: league.startDate,
+      endDate: Timestamp.fromMillis(league.startDate.toMillis() + 6 * 24 * 60 * 60 * 1000),
+      powerPlayName: "Mythic water 1",
+      auditId: "power-v4-select-audit",
+    }),
+    selectedAt: Timestamp.now(),
+  };
+
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", "power-redraw-v4"), league);
+    await setDoc(doc(firestore, "leaguePowerPlayWeeks", "power-redraw-v4_week-01"), assignment);
+  });
+
+  const firestore = adminContext().firestore();
+  const auditId = "power-v4-redraw-audit";
+  const batch = writeBatch(firestore);
+  batch.set(doc(firestore, "auditEvents", auditId), {
+    actorId: "admin-one",
+    action: "power-play.week-redrawn",
+    entityType: "league",
+    entityId: "power-redraw-v4",
+    summary: "Redrew the v4 Power Play before its week started",
+    details: {},
+    createdAt: serverTimestamp(),
+  });
+  batch.update(doc(firestore, "leaguePowerPlayWeeks", "power-redraw-v4_week-01"), {
+    powerPlayId: "base-fruit",
+    powerPlayName: "Mythic fruit 2",
+    multiplier: 2,
+    categories: ["fruit"],
+    selectionSequence: 2,
+    previousPowerPlayIds: ["base-water"],
+    redrawCount: 1,
+    lastSelectionReason: "Administrator redraw before the official week began.",
+    selectedAt: serverTimestamp(),
+    selectedBy: "admin-one",
+    lastAuditId: auditId,
+  });
+  batch.update(doc(firestore, "leagues", "power-redraw-v4"), {
+    powerPlayState: {
+      usedPowerPlayIds: ["base-water", "base-fruit"],
+      selectionCount: 2,
+      lastWeekKey: "week-01",
+      lastPowerPlayId: "base-fruit",
+      lastSelectionAt: serverTimestamp(),
+      lastSelectionBy: "admin-one",
+    },
+    updatedAt: serverTimestamp(),
+    updatedBy: "admin-one",
+    lastAuditId: auditId,
+  });
+  await assertSucceeds(batch.commit());
+});
+
 test("players see only Power Plays whose official week has started", async () => {
   const league = seasonDataV3({ status: "active", participantCount: 1, chaosStatus: "activated", active: true });
   await testEnvironment.withSecurityRulesDisabled(async (context) => {
