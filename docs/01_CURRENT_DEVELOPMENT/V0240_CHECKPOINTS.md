@@ -34,7 +34,7 @@ The legitimate v4 administrator Power Play-pool update passed with full Power Pl
 
 ## Checkpoint 2C — v4 draft to registration
 
-Status: implemented for isolated verification in `0.24.0-dev.4`.
+Status: **passed** as `0.24.0-dev.4`.
 
 - extend the existing registration-readiness check from v3 to v3/v4;
 - use the shared full v3/v4 ruleset validator before registration opens;
@@ -47,11 +47,27 @@ Status: implemented for isolated verification in `0.24.0-dev.4`.
 
 If the legitimate v4 draft-to-registration transition reaches the evaluator limit, stop here and redesign the lifecycle validator.
 
-## Checkpoint 2D — remaining existing v3 Power Play operations on v4
+## Checkpoint 2D — first weekly Power Play selection on v4
 
-Planned after registration passes. Extend weekly Power Play selection/redraw/correction to v4 one path at a time before the application starts creating v4 seasons by default.
+Status: implemented for isolated verification in `0.24.0-dev.5`.
 
-## Checkpoint 2E — runtime v4 default
+- extend only the League Power Play-state advance and first assignment-create validators from v3 to v3/v4;
+- keep the existing v3 weekly-selection positive/regression path;
+- add a legitimate v4 audit + assignment + League-state batch;
+- do not enable redraw or locked correction on v4 yet;
+- runtime still defaults to v3.
+
+If the legitimate first v4 weekly selection reaches the evaluator limit, stop here and redesign this assignment path before adding anything else.
+
+## Checkpoint 2E — pre-week redraw on v4
+
+Planned only after first selection passes. Extend the existing administrator redraw path to v4 with its own positive evaluator test.
+
+## Checkpoint 2F — locked assignment correction on v4
+
+Planned only after redraw passes. Extend the Platform Administrator correction path to v4 with its own positive evaluator test.
+
+## Checkpoint 2G — runtime v4 default
 
 Only after all existing v3 season operations required by a normal season have positive v4 Rules coverage should new application-created seasons switch from v3 to v4.
 

@@ -3275,6 +3275,51 @@ test("weekly Power Play selection is atomic and cannot reuse a selected play", a
   await assertFails(tampered.commit());
 });
 
+test("v4 first weekly Power Play selection stays below Rules evaluation", async () => {
+  const league = seasonDataV4({ status: "active", participantCount: 2, chaosStatus: "activated", active: true });
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", "power-season-v4"), league);
+  });
+
+  const firestore = adminContext().firestore();
+  const auditId = "power-v4-select-audit";
+  const batch = writeBatch(firestore);
+  batch.set(doc(firestore, "auditEvents", auditId), {
+    actorId: "admin-one",
+    action: "power-play.week-selected",
+    entityType: "league",
+    entityId: "power-season-v4",
+    summary: "Selected the first v4 weekly Power Play",
+    details: {},
+    createdAt: serverTimestamp(),
+  });
+  batch.set(
+    doc(firestore, "leaguePowerPlayWeeks", "power-season-v4_week-01"),
+    powerPlayAssignmentData({
+      leagueId: "power-season-v4",
+      startDate: league.startDate,
+      endDate: Timestamp.fromMillis(league.startDate.toMillis() + 6 * 24 * 60 * 60 * 1000),
+      powerPlayName: "Mythic water 1",
+      auditId,
+    }),
+  );
+  batch.update(doc(firestore, "leagues", "power-season-v4"), {
+    powerPlayState: {
+      usedPowerPlayIds: ["base-water"],
+      selectionCount: 1,
+      lastWeekKey: "week-01",
+      lastPowerPlayId: "base-water",
+      lastSelectionAt: serverTimestamp(),
+      lastSelectionBy: "admin-one",
+    },
+    updatedAt: serverTimestamp(),
+    updatedBy: "admin-one",
+    lastAuditId: auditId,
+  });
+  await assertSucceeds(batch.commit());
+});
+
 test("players see only Power Plays whose official week has started", async () => {
   const league = seasonDataV3({ status: "active", participantCount: 1, chaosStatus: "activated", active: true });
   await testEnvironment.withSecurityRulesDisabled(async (context) => {

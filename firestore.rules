@@ -1305,7 +1305,7 @@ service cloud.firestore {
       let assignment = getAfter(
         /databases/$(database)/documents/leaguePowerPlayWeeks/$(leagueId + "_" + newState.lastWeekKey)
       ).data;
-      return resource.data.rulesVersion == "season-houses-v3"
+      return resource.data.rulesVersion in ["season-houses-v3", "season-houses-v4"]
         && resource.data.status in ["registration", "active", "completed"]
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           "powerPlayState", "updatedAt", "updatedBy", "lastAuditId"
@@ -1411,7 +1411,7 @@ service cloud.firestore {
       let league = get(/databases/$(database)/documents/leagues/$(leagueId)).data;
       let leagueAfter = getAfter(/databases/$(database)/documents/leagues/$(leagueId)).data;
       return isLeagueAdministrator(leagueId)
-        && league.rulesVersion == "season-houses-v3"
+        && league.rulesVersion in ["season-houses-v3", "season-houses-v4"]
         && league.status in ["registration", "active"]
         && validPowerPlayAssignmentShape(leagueId, assignmentId)
         && request.resource.data.previousPowerPlayIds == []
