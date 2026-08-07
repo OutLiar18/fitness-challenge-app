@@ -312,6 +312,8 @@ export async function joinLeague({ userId, profile, code }) {
       houseAssignmentMethod: "",
       lastRosterSwapId: "",
       lastRosterWeekKey: "",
+      rosterLockThroughWeekKey: "",
+      rosterEligibleWeekKey: "",
       joinedAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });

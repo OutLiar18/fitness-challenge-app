@@ -902,6 +902,59 @@ test("registration joins are atomic, unassigned and capped", async () => {
   await assertFails(forgedBatch.commit());
 });
 
+test("v4 registration persists empty post-move rest state and rejects pre-seeded locks", async () => {
+  const leagueId = "season-v4-rest-state";
+  const inviteCode = "V4RESTAA";
+
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", leagueId), seasonDataV4({ status: "registration" }));
+    await setDoc(doc(firestore, "leagueInvites", inviteCode), {
+      leagueId,
+      leagueName: "Legacy House Season V4",
+      status: "active",
+      createdAt: Timestamp.now(),
+      createdBy: "admin-one",
+      updatedAt: Timestamp.now(),
+      updatedBy: "admin-one",
+    });
+  });
+
+  const firestore = playerContext().firestore();
+  const batch = writeBatch(firestore);
+  batch.set(doc(firestore, "leagueMemberships", `${leagueId}_player-one`), {
+    ...membershipData({ leagueId, inviteCode }),
+    rosterLockThroughWeekKey: "",
+    rosterEligibleWeekKey: "",
+    joinedAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+  batch.update(doc(firestore, "leagues", leagueId), {
+    participantCount: 1,
+    participantLimit: 160,
+    updatedAt: serverTimestamp(),
+    updatedBy: "player-one",
+  });
+  await assertSucceeds(batch.commit());
+
+  const forged = playerContext("player-two").firestore();
+  const forgedBatch = writeBatch(forged);
+  forgedBatch.set(doc(forged, "leagueMemberships", `${leagueId}_player-two`), {
+    ...membershipData({ leagueId, userId: "player-two", inviteCode }),
+    rosterLockThroughWeekKey: "2026-08-10",
+    rosterEligibleWeekKey: "2026-08-17",
+    joinedAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+  forgedBatch.update(doc(forged, "leagues", leagueId), {
+    participantCount: 2,
+    participantLimit: 160,
+    updatedAt: serverTimestamp(),
+    updatedBy: "player-two",
+  });
+  await assertFails(forgedBatch.commit());
+});
+
 test("C.H.A.O.S. assigns registered players and creates private notifications atomically", async () => {
   const firstHouse = houseData();
   const secondHouse = houseData({ id: "house-lion", name: "House Lion", emblemId: "lion", accentId: "sunstone" });

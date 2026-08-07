@@ -98,7 +98,7 @@ This probe is intentionally designed to reveal Firestore batched-write document-
 
 ## Checkpoint 2H — runtime v4 default
 
-Status: implemented as a **zero-Rules-change runtime switch** in `0.24.0-dev.9`.
+Status: **passed** as a zero-Rules-change runtime switch in `0.24.0-dev.9`.
 
 - change only `LEAGUE_RULESET_VERSION` from `season-houses-v3` to `season-houses-v4`;
 - keep the v4 document shape identical to the proven lean v3-compatible shape;
@@ -110,9 +110,22 @@ Status: implemented as a **zero-Rules-change runtime switch** in `0.24.0-dev.9`.
 
 If the unchanged Rules suite or runtime-creation domain test fails after this switch, stop before Checkpoint 3.
 
-## Checkpoint 3 — membership rest-lock persistence
+## Checkpoint 3A — membership rest-state schema
 
-Planned after the complete v4 compatibility bridge passes. Add only membership fields needed for the one-week rest and update the existing balanced swap transaction.
+Status: implemented in `0.24.0-dev.10` as the first post-bridge Rules change.
+
+- add only `rosterLockThroughWeekKey` and `rosterEligibleWeekKey` to the allowed membership schema;
+- normal new registrations persist both fields as empty strings;
+- Rules force both fields to remain empty at registration, while still accepting older membership-create payloads that omit them;
+- add a legitimate v4 registration positive path with the empty fields;
+- add a negative path proving a player cannot pre-seed a fake rest lock;
+- do not change C.H.A.O.S. assignment, weekly roster-swap writes, assignment history, movement overrides, composition or weekly balance.
+
+If the legitimate registration path fails or reaches the evaluator ceiling, stop before authorising any roster-swap rest-lock write.
+
+## Checkpoint 3B — audited roster-swap rest-lock write
+
+After 3A passes, update only the existing balanced weekly swap transaction so v4 moves write the calculated one-week rest window. Keep v3 behaviour compatible and test the legitimate swap positive path before adding assignment history.
 
 ## Checkpoint 4 — immutable assignment history
 

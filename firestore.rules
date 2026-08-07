@@ -1534,6 +1534,7 @@ service cloud.firestore {
           "inviteCode", "currentHouseId", "currentHouseName",
           "currentHouseEmblemId", "currentHouseAccentId", "houseAssignedAt",
           "houseAssignmentMethod", "lastRosterSwapId", "lastRosterWeekKey",
+          "rosterLockThroughWeekKey", "rosterEligibleWeekKey",
           "joinedAt", "updatedAt"
         ])
         && membershipId == request.resource.data.leagueId + "_" + request.auth.uid
@@ -1554,6 +1555,8 @@ service cloud.firestore {
         && request.resource.data.houseAssignmentMethod == ""
         && request.resource.data.lastRosterSwapId == ""
         && request.resource.data.lastRosterWeekKey == ""
+        && request.resource.data.get("rosterLockThroughWeekKey", "") == ""
+        && request.resource.data.get("rosterEligibleWeekKey", "") == ""
         && request.resource.data.joinedAt == request.time
         && request.resource.data.updatedAt == request.time
         && leagueBefore.status == "registration"
