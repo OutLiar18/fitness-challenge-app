@@ -20,13 +20,21 @@ import {
   getSeasonWeekKey,
   isHouseLeader,
 } from "../services/seasons/seasonModel";
-import { supportsHouseMovementV1 } from "../services/seasons/houseMovementModel";
 import {
+  getBalanceStatusCopy,
+  supportsHouseMovementV1,
+} from "../services/seasons/houseMovementModel";
+import {
+  calculateWeeklyHouseBalance,
   clearCompositionProfile,
   saveCompositionProfile,
   subscribeToCompositionProfile,
   subscribeToHouseAssignmentHistory,
+  subscribeToHouseBalanceHouseWeeks,
+  subscribeToHouseBalanceWeeks,
   subscribeToLeagueCompositionProfiles,
+  subscribeToPrivateHouseBalanceHouseWeeks,
+  subscribeToPrivateHouseBalanceWeeks,
 } from "../services/seasons/houseMovementService";
 import {
   activateChaos,
@@ -452,7 +460,7 @@ function AssignmentHistoryPanel({ history }) {
   );
 }
 
-function CompositionPrivacyPanel({
+function CompositionBalancePanel({
   league,
   actorId,
   membership,
@@ -460,20 +468,36 @@ function CompositionPrivacyPanel({
   manager,
   adminProfiles,
   members,
+  houses,
+  balanceWeeks,
+  balanceHouseWeeks,
+  privateBalanceWeeks,
+  privateBalanceHouseWeeks,
   notify,
 }) {
   const [value, setValue] = useState(profile?.value || "");
   const [busy, setBusy] = useState(false);
-
+  const weekKey = getSeasonWeekKey(new Date());
+  const currentResult = balanceWeeks.find((item) => item.weekKey === weekKey) || null;
+  const latestResult = currentResult || balanceWeeks[0] || null;
+  const latestResultId = latestResult?.id || "";
+  const publicRows = balanceHouseWeeks.filter((item) => item.resultId === latestResultId);
+  const privateResult = manager
+    ? privateBalanceWeeks.find((item) => item.id === latestResultId) || null
+    : null;
+  const privateRows = manager
+    ? privateBalanceHouseWeeks.filter((item) => item.resultId === latestResultId)
+    : [];
+  const statusCopy = getBalanceStatusCopy(latestResult?.balanceStatus);
+  const optionLabels = new Map(HOUSE_COMPOSITION_OPTIONS.map((option) => [option.id, option.label]));
   const activeUserIds = new Set(
-    members
-      .filter((item) => ["registered", "active"].includes(item.status))
-      .map((item) => item.userId),
+    members.filter((item) => item.status === "active").map((item) => item.userId),
   );
   const activeProfiles = adminProfiles.filter((item) => activeUserIds.has(item.userId));
   const disclosedCount = activeProfiles.filter(
     (item) => item.value && item.value !== "prefer-not-to-say",
   ).length;
+  const canRespond = Boolean(membership && ["registered", "active"].includes(membership.status));
 
   async function saveResponse() {
     if (!value) {
@@ -506,6 +530,25 @@ function CompositionPrivacyPanel({
     }
   }
 
+  async function calculateBalance() {
+    setBusy(true);
+    try {
+      await calculateWeeklyHouseBalance({
+        league,
+        houses,
+        memberships: members,
+        profiles: adminProfiles,
+        actorId,
+      });
+      notify("This week’s informational House balance snapshot has been preserved.", "success");
+    } catch (error) {
+      console.error(error);
+      notify(error.message || "The weekly House balance could not be calculated.", "error");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <div className="composition-foundation">
       <section className="composition-privacy card">
@@ -518,7 +561,7 @@ function CompositionPrivacyPanel({
           </p>
         </div>
 
-        {membership ? (
+        {canRespond ? (
           <div className="composition-response">
             <label htmlFor={`season-composition-${league.id}`}>My private response</label>
             <select
@@ -553,20 +596,112 @@ function CompositionPrivacyPanel({
         )}
       </section>
 
-      {manager && (
+      <section className="house-balance card">
+        <div className="community-section-heading">
+          <div>
+            <p className="section-kicker">Weekly House balance</p>
+            <h2>{latestResult ? statusCopy.label : "No weekly snapshot yet"}</h2>
+          </div>
+          <span>{latestResult?.weekKey || weekKey}</span>
+        </div>
+        <p>
+          {latestResult
+            ? statusCopy.detail
+            : "An authorised administrator can preserve one privacy-safe snapshot for each official season week."}
+        </p>
+
+        {manager && (
+          <div className="house-balance__admin">
+            <div>
+              <strong>{activeProfiles.length} private responses available</strong>
+              <span>{disclosedCount} disclosed for calculation · {activeUserIds.size} active players</span>
+            </div>
+            <button
+              className="button button--primary"
+              type="button"
+              disabled={busy || league.status !== "active" || Boolean(currentResult)}
+              onClick={calculateBalance}
+            >
+              {currentResult ? "This week preserved" : busy ? "Calculating…" : "Preserve this week’s snapshot"}
+            </button>
+          </div>
+        )}
+
+        {latestResult && (
+          <>
+            <div className="house-balance__metrics">
+              <span><strong>{latestResult.rosterSizeDifference}</strong> roster-size spread</span>
+              <span><strong>{latestResult.minimumDisclosureCount}</strong> minimum disclosed per House</span>
+              <span><strong>{latestResult.scoringEnabled ? "On" : "Off"}</strong> scoring effect</span>
+            </div>
+
+            {latestResult.seasonDistributionVisible ? (
+              <div className="house-balance__season-distribution">
+                <strong>Season disclosed distribution</strong>
+                <dl>
+                  {Object.entries(latestResult.seasonCompositionDistribution || {}).map(([id, percentage]) => (
+                    <div key={id}><dt>{optionLabels.get(id) || id}</dt><dd>{percentage}%</dd></div>
+                  ))}
+                </dl>
+              </div>
+            ) : (
+              <div className="inline-alert inline-alert--info">
+                Season composition distribution is suppressed until the minimum disclosure threshold is met.
+              </div>
+            )}
+
+            <div className="house-balance__houses">
+              {publicRows.map((house) => (
+                <article key={house.id}>
+                  <div>
+                    <strong>{house.houseName}</strong>
+                    <span>{house.rosterSize} players</span>
+                  </div>
+                  {house.compositionVisible ? (
+                    <dl>
+                      {Object.entries(house.compositionDistribution || {}).map(([id, percentage]) => (
+                        <div key={id}><dt>{optionLabels.get(id) || id}</dt><dd>{percentage}%</dd></div>
+                      ))}
+                      <div><dt>Season deviation</dt><dd>{house.deviationPercentagePoints} points</dd></div>
+                    </dl>
+                  ) : (
+                    <small>
+                      Composition hidden because fewer than {latestResult.minimumDisclosureCount} disclosed responses protect this House.
+                    </small>
+                  )}
+                </article>
+              ))}
+            </div>
+
+            <div className="inline-alert inline-alert--info">
+              Weekly balance is informational only. It cannot add, remove, reduce or multiply individual or House points.
+            </div>
+          </>
+        )}
+      </section>
+
+      {manager && privateResult && (
         <section className="composition-coverage card">
           <div>
-            <p className="section-kicker">Administrator privacy view</p>
-            <h2>Response coverage</h2>
+            <p className="section-kicker">Administrator-only exact snapshot</p>
+            <h2>Private calculation record</h2>
             <p>
-              Exact private responses are restricted to authorised administrators for balancing operations.
-              This workspace shows coverage only; public House summaries will use suppression rules in the next checkpoint.
+              These counts are retained only for authorised balancing operations. Member-facing House summaries never expose these exact counts.
             </p>
           </div>
-          <div className="composition-coverage__metrics" aria-label="Private composition response coverage">
-            <span><strong>{activeProfiles.length}</strong> responses</span>
-            <span><strong>{disclosedCount}</strong> disclosed for calculation</span>
-            <span><strong>{activeUserIds.size}</strong> eligible members</span>
+          <div className="composition-coverage__metrics">
+            <span><strong>{privateResult.activeMemberCount}</strong> active players</span>
+            <span><strong>{privateResult.responseCount}</strong> responses</span>
+            <span><strong>{privateResult.disclosedCount}</strong> disclosed</span>
+            <span><strong>{privateResult.preferNotToSayCount}</strong> prefer not to say</span>
+          </div>
+          <div className="house-balance__private-houses">
+            {privateRows.map((house) => (
+              <article key={house.id}>
+                <strong>{house.houseName}</strong>
+                <span>{house.disclosedCount} disclosed · {house.undisclosedCount} undisclosed</span>
+              </article>
+            ))}
           </div>
         </section>
       )}
@@ -602,6 +737,10 @@ export default function Houses() {
   const [historyState, setHistoryState] = useState({ leagueId: "", items: [] });
   const [compositionState, setCompositionState] = useState({ leagueId: "", item: null });
   const [compositionAdminState, setCompositionAdminState] = useState({ leagueId: "", items: [] });
+  const [balanceState, setBalanceState] = useState({ leagueId: "", items: [] });
+  const [balanceHouseState, setBalanceHouseState] = useState({ leagueId: "", items: [] });
+  const [privateBalanceState, setPrivateBalanceState] = useState({ leagueId: "", items: [] });
+  const [privateBalanceHouseState, setPrivateBalanceHouseState] = useState({ leagueId: "", items: [] });
   const [selectedHouseId, setSelectedHouseId] = useState("");
   const [working, setWorking] = useState(false);
   const [editingHouseId, setEditingHouseId] = useState("");
@@ -681,17 +820,53 @@ export default function Houses() {
           (error) => showToast(error.message || "Private composition coverage could not be loaded.", "error"),
         )
       : () => {};
+    const unsubBalance = canUseComposition
+      ? subscribeToHouseBalanceWeeks(
+          leagueId,
+          (items) => setBalanceState({ leagueId, items }),
+          (error) => showToast(error.message || "Weekly House balance could not be loaded.", "error"),
+        )
+      : () => {};
+    const unsubBalanceHouses = canUseComposition
+      ? subscribeToHouseBalanceHouseWeeks(
+          leagueId,
+          (items) => setBalanceHouseState({ leagueId, items }),
+          (error) => showToast(error.message || "Weekly House summaries could not be loaded.", "error"),
+        )
+      : () => {};
+    const unsubPrivateBalance = manager
+      ? subscribeToPrivateHouseBalanceWeeks(
+          leagueId,
+          (items) => setPrivateBalanceState({ leagueId, items }),
+          (error) => showToast(error.message || "Private weekly balance could not be loaded.", "error"),
+        )
+      : () => {};
+    const unsubPrivateBalanceHouses = manager
+      ? subscribeToPrivateHouseBalanceHouseWeeks(
+          leagueId,
+          (items) => setPrivateBalanceHouseState({ leagueId, items }),
+          (error) => showToast(error.message || "Private House balance details could not be loaded.", "error"),
+        )
+      : () => {};
 
     return () => {
       unsubOwn();
       unsubAdmin();
+      unsubBalance();
+      unsubBalanceHouses();
+      unsubPrivateBalance();
+      unsubPrivateBalanceHouses();
     };
-  }, [league?.id, movementV1, membershipUserId, manager, user?.uid, showToast]);
+  }, [league?.id, movementV1, membershipUserId, manager, canUseComposition, user?.uid, showToast]);
 
   const compositionProfile = compositionState.leagueId === league?.id ? compositionState.item : null;
   const compositionAdminProfiles = compositionAdminState.leagueId === league?.id
     ? compositionAdminState.items
     : [];
+  const balanceWeeks = balanceState.leagueId === league?.id ? balanceState.items : [];
+  const balanceHouseWeeks = balanceHouseState.leagueId === league?.id ? balanceHouseState.items : [];
+  const privateBalanceWeeks = privateBalanceState.leagueId === league?.id ? privateBalanceState.items : [];
+  const privateBalanceHouseWeeks = privateBalanceHouseState.leagueId === league?.id ? privateBalanceHouseState.items : [];
   const chaosReadiness = getChaosReadiness({ league, houses, memberships: members });
   const completedChaosChecks = chaosReadiness.checks.filter((check) => check.complete).length;
   const chaosSummary = chaosReadiness.eligible
@@ -741,7 +916,7 @@ export default function Houses() {
           id: "balance",
           label: "Balance",
           icon: "⚖️",
-          description: "Private composition and balance foundation",
+          description: "Weekly privacy-safe House balance",
         }]
       : []),
     ...(canUseRosterTurn
@@ -1062,7 +1237,7 @@ export default function Houses() {
               activeId={resolvedActiveTab}
               idPrefix={`houses-${league.id}`}
             >
-              <CompositionPrivacyPanel
+              <CompositionBalancePanel
                 key={`${league.id}:${compositionProfile?.value || "unset"}`}
                 league={league}
                 actorId={user?.uid}
@@ -1071,6 +1246,11 @@ export default function Houses() {
                 manager={manager}
                 adminProfiles={compositionAdminProfiles}
                 members={members}
+                houses={houses}
+                balanceWeeks={balanceWeeks}
+                balanceHouseWeeks={balanceHouseWeeks}
+                privateBalanceWeeks={privateBalanceWeeks}
+                privateBalanceHouseWeeks={privateBalanceHouseWeeks}
                 notify={showToast}
               />
             </WorkspacePanel>

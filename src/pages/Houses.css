@@ -312,3 +312,142 @@
 .composition-coverage__metrics strong {
   font-size: 1.2rem;
 }
+
+.house-balance {
+  display: grid;
+  gap: 1rem;
+}
+
+.house-balance > p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.house-balance__admin {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-soft);
+}
+
+.house-balance__admin > div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.house-balance__admin span {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.house-balance__metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.house-balance__metrics span {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-soft);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.house-balance__metrics strong {
+  color: var(--text);
+  font-size: 1.05rem;
+}
+
+.house-balance__season-distribution {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-soft);
+}
+
+.house-balance__season-distribution dl,
+.house-balance__houses dl {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+}
+
+.house-balance__season-distribution dl div,
+.house-balance__houses dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.house-balance__season-distribution dt,
+.house-balance__houses dt {
+  color: var(--text-muted);
+}
+
+.house-balance__season-distribution dd,
+.house-balance__houses dd {
+  margin: 0;
+  font-weight: 800;
+}
+
+.house-balance__houses {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.house-balance__houses article,
+.house-balance__private-houses article {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-soft);
+}
+
+.house-balance__houses article > div:first-child,
+.house-balance__private-houses article {
+  align-content: start;
+}
+
+.house-balance__houses article > div:first-child {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.house-balance__houses article span,
+.house-balance__houses article small,
+.house-balance__private-houses span {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.house-balance__private-houses {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+@media (max-width: 760px) {
+  .house-balance__metrics,
+  .house-balance__houses,
+  .house-balance__private-houses {
+    grid-template-columns: 1fr;
+  }
+
+  .house-balance__admin {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

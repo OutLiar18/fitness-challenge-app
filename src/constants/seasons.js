@@ -11,6 +11,7 @@ export const HOUSE_ROSTER_PLAYER_REST_WEEKS = 1;
 export const HOUSE_MOVEMENT_POLICY_VERSION = "house-movement-v1";
 export const HOUSE_COMPOSITION_PROFILE_VERSION = "season-composition-v1";
 export const HOUSE_COMPOSITION_DISCLOSURE_MINIMUM = 3;
+export const HOUSE_BALANCE_CALCULATION_VERSION = "house-balance-v1";
 
 export const HOUSE_COMPOSITION_OPTIONS = Object.freeze([
   { id: "woman", label: "Woman" },

@@ -211,7 +211,20 @@ If the legitimate profile lifecycle or authorised administrator query hits a Rul
 
 ## Checkpoint 7 — weekly House balance
 
-Last security-sensitive feature. Informational only; cannot alter earned points. Public/private snapshot architecture must stay below evaluator limits at eight Houses.
+Status: implemented in `0.24.0-dev.16` as the final security-sensitive feature checkpoint.
+
+- lock `house-balance-v1` as a transparent, non-scoring weekly review formula;
+- compare each House's disclosed composition distribution with the season-wide disclosed distribution using total-variation distance;
+- classify the week as `balanced` when roster-size spread is at most 1 and maximum visible deviation is at most 15 percentage points;
+- classify as `review` when roster-size spread is at most 1 and maximum visible deviation is at most 25 percentage points;
+- classify larger differences as `attention`;
+- return `insufficient-data` whenever any House lacks the minimum three disclosed responses;
+- exclude missing responses and `prefer-not-to-say` from disclosed-composition percentages;
+- preserve public member-safe week/House snapshots separately from administrator-only exact count snapshots;
+- public House rows never contain player identifiers, response counts or exact disclosed counts;
+- snapshots are immutable, season-scoped and generated at most once for a week;
+- the maximum supported eight-House snapshot is an explicit positive Firestore Rules test;
+- `scoringEnabled` remains false and no points, multipliers or standings fields exist in the snapshot model.
 
 ## Visual work
 

@@ -4,12 +4,16 @@ import test from "node:test";
 import { DEFAULT_LEAGUE_RULESET, LEAGUE_RULESET_VERSION } from "../src/constants/leagues.js";
 import { validateLeagueInput } from "../src/services/leagues/leagueModel.js";
 import {
+  HOUSE_BALANCE_CALCULATION_VERSION,
+  HOUSE_COMPOSITION_DISCLOSURE_MINIMUM,
   HOUSE_MOVEMENT_POLICY_VERSION,
   HOUSE_ROSTER_PLAYER_REST_WEEKS,
 } from "../src/constants/seasons.js";
 import {
+  buildHouseBalanceCalculation,
   createCompositionProfile,
   createHouseAssignmentHistoryId,
+  getBalanceStatusCopy,
   getRosterMoveEligibility,
   normalizeCompositionValue,
   getRosterRestWindow,
@@ -162,3 +166,86 @@ test("season composition responses are constrained, private-ready and season sco
     /available private composition responses/,
   );
 });
+
+test("weekly House balance compares each visible House with the season distribution", () => {
+  const balanceHouses = [
+    { id: "house-a", name: "House A", emblemId: "lion" },
+    { id: "house-b", name: "House B", emblemId: "wolf" },
+  ];
+  const memberships = [
+    membership("a1", { currentHouseId: "house-a" }),
+    membership("a2", { currentHouseId: "house-a" }),
+    membership("a3", { currentHouseId: "house-a" }),
+    membership("b1", { currentHouseId: "house-b" }),
+    membership("b2", { currentHouseId: "house-b" }),
+    membership("b3", { currentHouseId: "house-b" }),
+  ];
+  const profiles = [
+    { leagueId: "season-v4", userId: "a1", value: "woman" },
+    { leagueId: "season-v4", userId: "a2", value: "woman" },
+    { leagueId: "season-v4", userId: "a3", value: "man" },
+    { leagueId: "season-v4", userId: "b1", value: "woman" },
+    { leagueId: "season-v4", userId: "b2", value: "man" },
+    { leagueId: "season-v4", userId: "b3", value: "man" },
+  ];
+  const { publicResult, privateResult } = buildHouseBalanceCalculation({
+    league: futureV4League(),
+    houses: balanceHouses,
+    memberships,
+    profiles,
+    weekKey: "2026-08-03",
+  });
+
+  assert.equal(publicResult.calculationVersion, HOUSE_BALANCE_CALCULATION_VERSION);
+  assert.equal(publicResult.minimumDisclosureCount, HOUSE_COMPOSITION_DISCLOSURE_MINIMUM);
+  assert.deepEqual(publicResult.seasonCompositionDistribution, {
+    woman: 50,
+    man: 50,
+    "non-binary-or-another": 0,
+  });
+  assert.equal(publicResult.houses[0].compositionVisible, true);
+  assert.equal(publicResult.houses[0].deviationPercentagePoints, 16.7);
+  assert.equal(publicResult.balanceStatus, "review");
+  assert.equal(privateResult.houses[0].disclosedCount, 3);
+  assert.equal(privateResult.scoringEnabled, false);
+  assert.equal("points" in publicResult, false);
+  assert.equal("multiplier" in publicResult, false);
+});
+
+test("weekly House balance suppresses small disclosed groups from the member snapshot", () => {
+  const balanceHouses = [
+    { id: "house-a", name: "House A", emblemId: "lion" },
+    { id: "house-b", name: "House B", emblemId: "wolf" },
+  ];
+  const memberships = [
+    membership("a1", { currentHouseId: "house-a" }),
+    membership("a2", { currentHouseId: "house-a" }),
+    membership("b1", { currentHouseId: "house-b" }),
+    membership("b2", { currentHouseId: "house-b" }),
+  ];
+  const profiles = memberships.map((item, index) => ({
+    leagueId: "season-v4",
+    userId: item.userId,
+    value: index % 2 ? "man" : "woman",
+  }));
+  const { publicResult, privateResult } = buildHouseBalanceCalculation({
+    league: futureV4League(),
+    houses: balanceHouses,
+    memberships,
+    profiles,
+    weekKey: "2026-08-03",
+  });
+
+  assert.equal(publicResult.balanceStatus, "insufficient-data");
+  assert.equal(publicResult.maximumDeviationPercentagePoints, null);
+  assert.ok(publicResult.houses.every((item) => item.compositionVisible === false));
+  assert.ok(publicResult.houses.every((item) => Object.keys(item.compositionDistribution).length === 0));
+  assert.equal(privateResult.houses[0].disclosedCount, 2);
+  assert.equal(privateResult.houses[0].compositionDistribution.woman, 50);
+});
+
+test("weekly House balance status copy remains informational", () => {
+  assert.equal(getBalanceStatusCopy("balanced").label, "Balanced");
+  assert.match(getBalanceStatusCopy("insufficient-data").detail, /suppressed/);
+});
+

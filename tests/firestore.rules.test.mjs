@@ -1971,6 +1971,300 @@ test("composition responses cannot be forged outside the v4 season membership co
   }));
 });
 
+
+test("weekly House balance publishes suppressed member summaries while exact counts stay administrator-only", async () => {
+  const leagueId = "season-v4-balance-private";
+  const { firstHouse, secondHouse } = await seedV4RestLockSwapSeason(leagueId);
+  const firestore = adminContext().firestore();
+  const resultId = `${leagueId}_2026-08-03`;
+  const auditId = `${resultId}-audit`;
+  const batch = writeBatch(firestore);
+
+  batch.set(doc(firestore, "auditEvents", auditId), auditData({
+    action: "house.balance-calculated",
+    entityId: leagueId,
+    summary: "Calculated privacy-safe weekly House balance",
+  }));
+  batch.set(doc(firestore, "leagueHouseBalancePrivateWeeks", resultId), {
+    leagueId,
+    weekKey: "2026-08-03",
+    rulesVersion: "season-houses-v4",
+    calculationVersion: "house-balance-v1",
+    profileVersion: "season-composition-v1",
+    scoringEnabled: false,
+    minimumDisclosureCount: 3,
+    houseCount: 2,
+    activeMemberCount: 4,
+    responseCount: 4,
+    disclosedCount: 4,
+    undisclosedCount: 0,
+    preferNotToSayCount: 0,
+    rosterSizeDifference: 0,
+    averageDeviationPercentagePoints: null,
+    maximumDeviationPercentagePoints: null,
+    balanceStatus: "insufficient-data",
+    seasonCompositionCounts: { woman: 2, man: 2, "non-binary-or-another": 0 },
+    seasonCompositionDistribution: { woman: 50, man: 50, "non-binary-or-another": 0 },
+    publicResultId: resultId,
+    createdAt: serverTimestamp(),
+    createdBy: "admin-one",
+    lastAuditId: auditId,
+  });
+  batch.set(doc(firestore, "leagueHouseBalanceWeeks", resultId), {
+    leagueId,
+    weekKey: "2026-08-03",
+    rulesVersion: "season-houses-v4",
+    calculationVersion: "house-balance-v1",
+    scoringEnabled: false,
+    minimumDisclosureCount: 3,
+    houseCount: 2,
+    rosterSizeDifference: 0,
+    averageDeviationPercentagePoints: null,
+    maximumDeviationPercentagePoints: null,
+    balanceStatus: "insufficient-data",
+    seasonDistributionVisible: true,
+    seasonCompositionDistribution: { woman: 50, man: 50, "non-binary-or-another": 0 },
+    privateResultId: resultId,
+    createdAt: serverTimestamp(),
+  });
+
+  [firstHouse, secondHouse].forEach((house, index) => {
+    const rowId = `${resultId}_${house.id}`;
+    const counts = index === 0
+      ? { woman: 2, man: 0, "non-binary-or-another": 0 }
+      : { woman: 0, man: 2, "non-binary-or-another": 0 };
+    const distribution = index === 0
+      ? { woman: 100, man: 0, "non-binary-or-another": 0 }
+      : { woman: 0, man: 100, "non-binary-or-another": 0 };
+    batch.set(doc(firestore, "leagueHouseBalancePrivateHouseWeeks", rowId), {
+      leagueId,
+      weekKey: "2026-08-03",
+      resultId,
+      houseId: house.id,
+      houseName: house.data.name,
+      houseEmblemId: house.data.emblemId,
+      rosterSize: 2,
+      responseCount: 2,
+      disclosedCount: 2,
+      undisclosedCount: 0,
+      preferNotToSayCount: 0,
+      compositionCounts: counts,
+      compositionDistribution: distribution,
+      deviationPercentagePoints: 50,
+      createdAt: serverTimestamp(),
+      createdBy: "admin-one",
+      lastAuditId: auditId,
+    });
+    batch.set(doc(firestore, "leagueHouseBalanceHouseWeeks", rowId), {
+      leagueId,
+      weekKey: "2026-08-03",
+      resultId,
+      houseId: house.id,
+      houseName: house.data.name,
+      houseEmblemId: house.data.emblemId,
+      rosterSize: 2,
+      compositionVisible: false,
+      compositionDistribution: {},
+      deviationPercentagePoints: null,
+      createdAt: serverTimestamp(),
+    });
+  });
+
+  await assertSucceeds(batch.commit());
+  const member = playerContext("player-one").firestore();
+  await assertSucceeds(getDoc(doc(member, "leagueHouseBalanceWeeks", resultId)));
+  await assertSucceeds(getDoc(doc(member, "leagueHouseBalanceHouseWeeks", `${resultId}_${firstHouse.id}`)));
+  await assertFails(getDoc(doc(member, "leagueHouseBalancePrivateWeeks", resultId)));
+  await assertFails(getDoc(doc(member, "leagueHouseBalancePrivateHouseWeeks", `${resultId}_${firstHouse.id}`)));
+  await assertSucceeds(getDoc(doc(firestore, "leagueHouseBalancePrivateWeeks", resultId)));
+  await assertFails(updateDoc(doc(firestore, "leagueHouseBalanceWeeks", resultId), { balanceStatus: "balanced" }));
+
+  const leakResultId = `${leagueId}_2026-08-10`;
+  const leakAuditId = `${leakResultId}-audit`;
+  const leakRowId = `${leakResultId}_${firstHouse.id}`;
+  const leakBatch = writeBatch(firestore);
+  leakBatch.set(doc(firestore, "auditEvents", leakAuditId), auditData({
+    action: "house.balance-calculated",
+    entityId: leagueId,
+    summary: "Attempted unsafe weekly House balance disclosure",
+  }));
+  leakBatch.set(doc(firestore, "leagueHouseBalancePrivateWeeks", leakResultId), {
+    leagueId,
+    weekKey: "2026-08-10",
+    rulesVersion: "season-houses-v4",
+    calculationVersion: "house-balance-v1",
+    profileVersion: "season-composition-v1",
+    scoringEnabled: false,
+    minimumDisclosureCount: 3,
+    houseCount: 2,
+    activeMemberCount: 4,
+    responseCount: 4,
+    disclosedCount: 4,
+    undisclosedCount: 0,
+    preferNotToSayCount: 0,
+    rosterSizeDifference: 0,
+    averageDeviationPercentagePoints: null,
+    maximumDeviationPercentagePoints: null,
+    balanceStatus: "insufficient-data",
+    seasonCompositionCounts: { woman: 2, man: 2, "non-binary-or-another": 0 },
+    seasonCompositionDistribution: { woman: 50, man: 50, "non-binary-or-another": 0 },
+    publicResultId: leakResultId,
+    createdAt: serverTimestamp(),
+    createdBy: "admin-one",
+    lastAuditId: leakAuditId,
+  });
+  leakBatch.set(doc(firestore, "leagueHouseBalancePrivateHouseWeeks", leakRowId), {
+    leagueId,
+    weekKey: "2026-08-10",
+    resultId: leakResultId,
+    houseId: firstHouse.id,
+    houseName: firstHouse.data.name,
+    houseEmblemId: firstHouse.data.emblemId,
+    rosterSize: 2,
+    responseCount: 2,
+    disclosedCount: 2,
+    undisclosedCount: 0,
+    preferNotToSayCount: 0,
+    compositionCounts: { woman: 2, man: 0, "non-binary-or-another": 0 },
+    compositionDistribution: { woman: 100, man: 0, "non-binary-or-another": 0 },
+    deviationPercentagePoints: 50,
+    createdAt: serverTimestamp(),
+    createdBy: "admin-one",
+    lastAuditId: leakAuditId,
+  });
+  leakBatch.set(doc(firestore, "leagueHouseBalanceHouseWeeks", leakRowId), {
+    leagueId,
+    weekKey: "2026-08-10",
+    resultId: leakResultId,
+    houseId: firstHouse.id,
+    houseName: firstHouse.data.name,
+    houseEmblemId: firstHouse.data.emblemId,
+    rosterSize: 2,
+    compositionVisible: true,
+    compositionDistribution: { woman: 100, man: 0, "non-binary-or-another": 0 },
+    deviationPercentagePoints: 50,
+    createdAt: serverTimestamp(),
+  });
+  await assertFails(leakBatch.commit());
+});
+
+test("v4 weekly House balance supports eight Houses in the real immutable snapshot batch", async () => {
+  const leagueId = "season-v4-balance-scale";
+  const houses = Array.from({ length: 8 }, (_, index) => houseData({
+    leagueId,
+    id: `balance-house-${index + 1}`,
+    name: `Balance House ${index + 1}`,
+    emblemId: `balance-emblem-${index + 1}`,
+    accentId: `balance-accent-${index + 1}`,
+  }));
+  const league = seasonDataV4({ status: "active", participantCount: 24, active: true });
+  league.houseCount = 8;
+
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", leagueId), league);
+    await setDoc(doc(firestore, "leagueMemberships", `${leagueId}_player-one`), {
+      ...membershipData({ leagueId, status: "active", house: houses[0] }),
+      rosterLockThroughWeekKey: "",
+      rosterEligibleWeekKey: "",
+    });
+    for (const house of houses) await setDoc(doc(firestore, "leagueHouses", house.id), house.data);
+  });
+
+  const firestore = adminContext().firestore();
+  const resultId = `${leagueId}_2026-08-03`;
+  const auditId = `${resultId}-audit`;
+  const batch = writeBatch(firestore);
+  batch.set(doc(firestore, "auditEvents", auditId), auditData({
+    action: "house.balance-calculated",
+    entityId: leagueId,
+    summary: "Calculated eight-House weekly balance snapshot",
+  }));
+  batch.set(doc(firestore, "leagueHouseBalancePrivateWeeks", resultId), {
+    leagueId,
+    weekKey: "2026-08-03",
+    rulesVersion: "season-houses-v4",
+    calculationVersion: "house-balance-v1",
+    profileVersion: "season-composition-v1",
+    scoringEnabled: false,
+    minimumDisclosureCount: 3,
+    houseCount: 8,
+    activeMemberCount: 24,
+    responseCount: 24,
+    disclosedCount: 24,
+    undisclosedCount: 0,
+    preferNotToSayCount: 0,
+    rosterSizeDifference: 0,
+    averageDeviationPercentagePoints: 0,
+    maximumDeviationPercentagePoints: 0,
+    balanceStatus: "balanced",
+    seasonCompositionCounts: { woman: 16, man: 8, "non-binary-or-another": 0 },
+    seasonCompositionDistribution: { woman: 66.7, man: 33.3, "non-binary-or-another": 0 },
+    publicResultId: resultId,
+    createdAt: serverTimestamp(),
+    createdBy: "admin-one",
+    lastAuditId: auditId,
+  });
+  batch.set(doc(firestore, "leagueHouseBalanceWeeks", resultId), {
+    leagueId,
+    weekKey: "2026-08-03",
+    rulesVersion: "season-houses-v4",
+    calculationVersion: "house-balance-v1",
+    scoringEnabled: false,
+    minimumDisclosureCount: 3,
+    houseCount: 8,
+    rosterSizeDifference: 0,
+    averageDeviationPercentagePoints: 0,
+    maximumDeviationPercentagePoints: 0,
+    balanceStatus: "balanced",
+    seasonDistributionVisible: true,
+    seasonCompositionDistribution: { woman: 66.7, man: 33.3, "non-binary-or-another": 0 },
+    privateResultId: resultId,
+    createdAt: serverTimestamp(),
+  });
+
+  houses.forEach((house) => {
+    const rowId = `${resultId}_${house.id}`;
+    batch.set(doc(firestore, "leagueHouseBalancePrivateHouseWeeks", rowId), {
+      leagueId,
+      weekKey: "2026-08-03",
+      resultId,
+      houseId: house.id,
+      houseName: house.data.name,
+      houseEmblemId: house.data.emblemId,
+      rosterSize: 3,
+      responseCount: 3,
+      disclosedCount: 3,
+      undisclosedCount: 0,
+      preferNotToSayCount: 0,
+      compositionCounts: { woman: 2, man: 1, "non-binary-or-another": 0 },
+      compositionDistribution: { woman: 66.7, man: 33.3, "non-binary-or-another": 0 },
+      deviationPercentagePoints: 0,
+      createdAt: serverTimestamp(),
+      createdBy: "admin-one",
+      lastAuditId: auditId,
+    });
+    batch.set(doc(firestore, "leagueHouseBalanceHouseWeeks", rowId), {
+      leagueId,
+      weekKey: "2026-08-03",
+      resultId,
+      houseId: house.id,
+      houseName: house.data.name,
+      houseEmblemId: house.data.emblemId,
+      rosterSize: 3,
+      compositionVisible: true,
+      compositionDistribution: { woman: 66.7, man: 33.3, "non-binary-or-another": 0 },
+      deviationPercentagePoints: 0,
+      createdAt: serverTimestamp(),
+    });
+  });
+
+  await assertSucceeds(batch.commit());
+  await assertSucceeds(getDoc(doc(playerContext("player-one").firestore(), "leagueHouseBalanceWeeks", resultId)));
+  await assertSucceeds(getDoc(doc(playerContext("player-one").firestore(), "leagueHouseBalanceHouseWeeks", `${resultId}_${houses[7].id}`)));
+  await assertFails(getDoc(doc(playerContext("player-one").firestore(), "leagueHouseBalancePrivateWeeks", resultId)));
+});
+
 test("Pocket activities are private, zero-point reserves during the official window", async () => {
   const dates = seasonDates();
   const now = Timestamp.now();

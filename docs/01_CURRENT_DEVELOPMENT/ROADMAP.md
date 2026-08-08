@@ -36,7 +36,7 @@ Trusted account deletion and anonymised shared history are deployed.
 - initial C.H.A.O.S. assignment does not count as a move;
 - audited emergency correction path;
 - minimum-data, self-declared composition foundation;
-- transparent weekly House-level balancing design that does not reduce individual earned points.
+- transparent weekly House-level balancing using `house-balance-v1`; privacy-safe summaries are informational only and cannot change earned points.
 
 ### v0.25.0 — Five Fires and remaining competition design
 
@@ -80,4 +80,4 @@ Only after this may the project become a v1.0 candidate, and only with explicit 
 
 - Five Fires is intended for implementation.
 - Buddy Bonuses and late-season twists remain decisions for later.
-- Weekly gender-composition balance is required, but its exact transparent House-level formula still needs to be locked.
+- Weekly composition balance is locked as `house-balance-v1`: total-variation distance against the season disclosed distribution, with three-response suppression and no scoring effect.

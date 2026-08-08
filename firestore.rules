@@ -1916,6 +1916,220 @@ service cloud.firestore {
         && request.resource.data.updatedAt == request.time;
     }
 
+    function validBalanceDistribution(distribution, visible) {
+      return distribution is map
+        && (
+          (
+            visible == false
+            && distribution.keys().size() == 0
+          )
+          || (
+            visible == true
+            && distribution.keys().hasOnly([
+              "woman", "man", "non-binary-or-another"
+            ])
+            && distribution.keys().size() == 3
+            && distribution.woman is number
+            && distribution.woman >= 0
+            && distribution.woman <= 100
+            && distribution.man is number
+            && distribution.man >= 0
+            && distribution.man <= 100
+            && distribution.get("non-binary-or-another", -1) is number
+            && distribution.get("non-binary-or-another", -1) >= 0
+            && distribution.get("non-binary-or-another", -1) <= 100
+          )
+        );
+    }
+
+    function validBalanceCounts(counts, disclosedCount) {
+      return counts is map
+        && counts.keys().hasOnly(["woman", "man", "non-binary-or-another"])
+        && counts.keys().size() == 3
+        && counts.woman is int
+        && counts.woman >= 0
+        && counts.man is int
+        && counts.man >= 0
+        && counts.get("non-binary-or-another", -1) is int
+        && counts.get("non-binary-or-another", -1) >= 0
+        && counts.woman + counts.man + counts.get("non-binary-or-another", 0) == disclosedCount;
+    }
+
+    function validPrivateHouseBalanceWeekCreate(resultId) {
+      let league = get(/databases/$(database)/documents/leagues/$(request.resource.data.leagueId)).data;
+      return isLeagueAdministrator(request.resource.data.leagueId)
+        && resultId == request.resource.data.leagueId + "_" + request.resource.data.weekKey
+        && request.resource.data.keys().hasOnly([
+          "leagueId", "weekKey", "rulesVersion", "calculationVersion", "profileVersion",
+          "scoringEnabled", "minimumDisclosureCount", "houseCount", "activeMemberCount",
+          "responseCount", "disclosedCount", "undisclosedCount", "preferNotToSayCount",
+          "rosterSizeDifference", "averageDeviationPercentagePoints",
+          "maximumDeviationPercentagePoints", "balanceStatus", "seasonCompositionCounts",
+          "seasonCompositionDistribution", "publicResultId", "createdAt", "createdBy", "lastAuditId"
+        ])
+        && league.rulesVersion == "season-houses-v4"
+        && league.status == "active"
+        && request.resource.data.rulesVersion == "season-houses-v4"
+        && request.resource.data.calculationVersion == "house-balance-v1"
+        && request.resource.data.profileVersion == "season-composition-v1"
+        && request.resource.data.scoringEnabled == false
+        && request.resource.data.minimumDisclosureCount == 3
+        && request.resource.data.houseCount is int
+        && request.resource.data.houseCount >= 2
+        && request.resource.data.houseCount <= 8
+        && request.resource.data.activeMemberCount is int
+        && request.resource.data.activeMemberCount >= 0
+        && request.resource.data.responseCount is int
+        && request.resource.data.responseCount >= 0
+        && request.resource.data.responseCount <= request.resource.data.activeMemberCount
+        && request.resource.data.disclosedCount is int
+        && request.resource.data.disclosedCount >= 0
+        && request.resource.data.disclosedCount <= request.resource.data.responseCount
+        && request.resource.data.undisclosedCount == request.resource.data.activeMemberCount - request.resource.data.disclosedCount
+        && request.resource.data.preferNotToSayCount is int
+        && request.resource.data.preferNotToSayCount >= 0
+        && request.resource.data.preferNotToSayCount <= request.resource.data.responseCount
+        && request.resource.data.responseCount == request.resource.data.disclosedCount + request.resource.data.preferNotToSayCount
+        && request.resource.data.preferNotToSayCount <= request.resource.data.undisclosedCount
+        && request.resource.data.rosterSizeDifference is int
+        && request.resource.data.rosterSizeDifference >= 0
+        && (request.resource.data.averageDeviationPercentagePoints == null || request.resource.data.averageDeviationPercentagePoints is number)
+        && (request.resource.data.maximumDeviationPercentagePoints == null || request.resource.data.maximumDeviationPercentagePoints is number)
+        && request.resource.data.balanceStatus in ["balanced", "review", "attention", "insufficient-data"]
+        && validBalanceCounts(request.resource.data.seasonCompositionCounts, request.resource.data.disclosedCount)
+        && validBalanceDistribution(request.resource.data.seasonCompositionDistribution, true)
+        && request.resource.data.publicResultId == resultId
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.createdBy == request.auth.uid
+        && validAuditAfter(request.resource.data.lastAuditId, "league", request.resource.data.leagueId);
+    }
+
+    function validPrivateHouseBalanceHouseCreate(rowId) {
+      let privateResult = getAfter(
+        /databases/$(database)/documents/leagueHouseBalancePrivateWeeks/$(request.resource.data.resultId)
+      ).data;
+      return isLeagueAdministrator(request.resource.data.leagueId)
+        && rowId == request.resource.data.resultId + "_" + request.resource.data.houseId
+        && request.resource.data.resultId == request.resource.data.leagueId + "_" + request.resource.data.weekKey
+        && request.resource.data.keys().hasOnly([
+          "leagueId", "weekKey", "resultId", "houseId", "houseName", "houseEmblemId",
+          "rosterSize", "responseCount", "disclosedCount", "undisclosedCount",
+          "preferNotToSayCount", "compositionCounts", "compositionDistribution",
+          "deviationPercentagePoints", "createdAt", "createdBy", "lastAuditId"
+        ])
+        && request.resource.data.houseId is string
+        && request.resource.data.houseId.size() > 0
+        && request.resource.data.houseName is string
+        && request.resource.data.houseName.size() >= 2
+        && request.resource.data.houseName.size() <= 80
+        && request.resource.data.houseEmblemId is string
+        && request.resource.data.rosterSize is int
+        && request.resource.data.rosterSize >= 0
+        && request.resource.data.responseCount is int
+        && request.resource.data.responseCount >= 0
+        && request.resource.data.responseCount <= request.resource.data.rosterSize
+        && request.resource.data.disclosedCount is int
+        && request.resource.data.disclosedCount >= 0
+        && request.resource.data.disclosedCount <= request.resource.data.responseCount
+        && request.resource.data.undisclosedCount == request.resource.data.rosterSize - request.resource.data.disclosedCount
+        && request.resource.data.preferNotToSayCount is int
+        && request.resource.data.preferNotToSayCount >= 0
+        && request.resource.data.preferNotToSayCount <= request.resource.data.responseCount
+        && request.resource.data.responseCount == request.resource.data.disclosedCount + request.resource.data.preferNotToSayCount
+        && request.resource.data.preferNotToSayCount <= request.resource.data.undisclosedCount
+        && validBalanceCounts(request.resource.data.compositionCounts, request.resource.data.disclosedCount)
+        && validBalanceDistribution(request.resource.data.compositionDistribution, true)
+        && (
+          (request.resource.data.disclosedCount == 0 && request.resource.data.deviationPercentagePoints == null)
+          || (
+            request.resource.data.disclosedCount > 0
+            && request.resource.data.deviationPercentagePoints is number
+            && request.resource.data.deviationPercentagePoints >= 0
+            && request.resource.data.deviationPercentagePoints <= 100
+          )
+        )
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.createdBy == request.auth.uid
+        && privateResult.publicResultId == request.resource.data.resultId
+        && privateResult.createdAt == request.time
+        && privateResult.createdBy == request.auth.uid
+        && request.resource.data.lastAuditId == privateResult.lastAuditId;
+    }
+
+    function validPublicHouseBalanceWeekCreate(resultId) {
+      let privateResult = getAfter(
+        /databases/$(database)/documents/leagueHouseBalancePrivateWeeks/$(resultId)
+      ).data;
+      let visible = privateResult.disclosedCount >= 3;
+      return isLeagueAdministrator(request.resource.data.leagueId)
+        && resultId == request.resource.data.leagueId + "_" + request.resource.data.weekKey
+        && request.resource.data.keys().hasOnly([
+          "leagueId", "weekKey", "rulesVersion", "calculationVersion", "scoringEnabled",
+          "minimumDisclosureCount", "houseCount", "rosterSizeDifference",
+          "averageDeviationPercentagePoints", "maximumDeviationPercentagePoints", "balanceStatus",
+          "seasonDistributionVisible", "seasonCompositionDistribution", "privateResultId", "createdAt"
+        ])
+        && request.resource.data.rulesVersion == "season-houses-v4"
+        && request.resource.data.calculationVersion == "house-balance-v1"
+        && request.resource.data.scoringEnabled == false
+        && request.resource.data.minimumDisclosureCount == 3
+        && request.resource.data.houseCount == privateResult.houseCount
+        && request.resource.data.rosterSizeDifference == privateResult.rosterSizeDifference
+        && request.resource.data.averageDeviationPercentagePoints == privateResult.averageDeviationPercentagePoints
+        && request.resource.data.maximumDeviationPercentagePoints == privateResult.maximumDeviationPercentagePoints
+        && request.resource.data.balanceStatus == privateResult.balanceStatus
+        && request.resource.data.seasonDistributionVisible == visible
+        && validBalanceDistribution(request.resource.data.seasonCompositionDistribution, visible)
+        && (
+          (visible == false && request.resource.data.seasonCompositionDistribution.keys().size() == 0)
+          || (visible == true && request.resource.data.seasonCompositionDistribution == privateResult.seasonCompositionDistribution)
+        )
+        && request.resource.data.privateResultId == resultId
+        && request.resource.data.createdAt == request.time
+        && privateResult.publicResultId == resultId
+        && privateResult.createdAt == request.time
+        && privateResult.createdBy == request.auth.uid;
+    }
+
+    function validPublicHouseBalanceHouseCreate(rowId) {
+      let privateRow = getAfter(
+        /databases/$(database)/documents/leagueHouseBalancePrivateHouseWeeks/$(rowId)
+      ).data;
+      let privateResult = getAfter(
+        /databases/$(database)/documents/leagueHouseBalancePrivateWeeks/$(request.resource.data.resultId)
+      ).data;
+      let visible = privateResult.disclosedCount >= 3 && privateRow.disclosedCount >= 3;
+      return isLeagueAdministrator(request.resource.data.leagueId)
+        && rowId == request.resource.data.resultId + "_" + request.resource.data.houseId
+        && request.resource.data.resultId == request.resource.data.leagueId + "_" + request.resource.data.weekKey
+        && request.resource.data.keys().hasOnly([
+          "leagueId", "weekKey", "resultId", "houseId", "houseName", "houseEmblemId",
+          "rosterSize", "compositionVisible", "compositionDistribution",
+          "deviationPercentagePoints", "createdAt"
+        ])
+        && request.resource.data.houseId == privateRow.houseId
+        && request.resource.data.houseName == privateRow.houseName
+        && request.resource.data.houseEmblemId == privateRow.houseEmblemId
+        && request.resource.data.rosterSize == privateRow.rosterSize
+        && request.resource.data.compositionVisible == visible
+        && validBalanceDistribution(request.resource.data.compositionDistribution, visible)
+        && (
+          (
+            visible == false
+            && request.resource.data.compositionDistribution.keys().size() == 0
+            && request.resource.data.deviationPercentagePoints == null
+          )
+          || (
+            visible == true
+            && request.resource.data.compositionDistribution == privateRow.compositionDistribution
+            && request.resource.data.deviationPercentagePoints == privateRow.deviationPercentagePoints
+          )
+        )
+        && request.resource.data.createdAt == request.time
+        && privateRow.createdAt == request.time
+        && privateRow.createdBy == request.auth.uid;
+    }
+
     function validRosterSwapV4MovementPolicy(firstBefore, secondBefore) {
       let firstMovedThisWeek = firstBefore.get("lastRosterWeekKey", "") == request.resource.data.weekKey;
       let secondMovedThisWeek = secondBefore.get("lastRosterWeekKey", "") == request.resource.data.weekKey;
@@ -3680,6 +3894,35 @@ service cloud.firestore {
       allow create: if signedIn() && validCompositionProfileCreate(profileId);
       allow update: if signedIn() && validCompositionProfileUpdate(profileId);
       allow delete: if signedIn() && resource.data.userId == request.auth.uid;
+    }
+
+
+    match /leagueHouseBalancePrivateWeeks/{resultId} {
+      allow read: if signedIn() && isLeagueAdministrator(resource.data.leagueId);
+      allow create: if signedIn() && validPrivateHouseBalanceWeekCreate(resultId);
+      allow update, delete: if false;
+    }
+
+    match /leagueHouseBalancePrivateHouseWeeks/{rowId} {
+      allow read: if signedIn() && isLeagueAdministrator(resource.data.leagueId);
+      allow create: if signedIn() && validPrivateHouseBalanceHouseCreate(rowId);
+      allow update, delete: if false;
+    }
+
+    match /leagueHouseBalanceWeeks/{resultId} {
+      allow read: if isPlatformAdmin()
+        || isLeagueAdministrator(resource.data.leagueId)
+        || isLeagueMember(resource.data.leagueId);
+      allow create: if signedIn() && validPublicHouseBalanceWeekCreate(resultId);
+      allow update, delete: if false;
+    }
+
+    match /leagueHouseBalanceHouseWeeks/{rowId} {
+      allow read: if isPlatformAdmin()
+        || isLeagueAdministrator(resource.data.leagueId)
+        || isLeagueMember(resource.data.leagueId);
+      allow create: if signedIn() && validPublicHouseBalanceHouseCreate(rowId);
+      allow update, delete: if false;
     }
 
     match /pocketActivities/{pocketId} {

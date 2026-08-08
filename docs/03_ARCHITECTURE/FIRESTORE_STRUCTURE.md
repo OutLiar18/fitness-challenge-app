@@ -155,4 +155,4 @@ Privacy boundary:
 - Platform Administrators and authorised season administrators may read exact responses for operational balancing;
 - House leaders and ordinary season members cannot read another player's response;
 - trusted account deletion deletes this private record;
-- no public House-level composition document exists until the separately tested weekly-balance checkpoint.
+- `leagueHouseBalanceWeeks` stores immutable member-safe weekly metadata; `leagueHouseBalanceHouseWeeks` stores one member-safe House row per week; exact counts live only in administrator-readable `leagueHouseBalancePrivateWeeks` and `leagueHouseBalancePrivateHouseWeeks`. Public rows contain no player identifiers or exact response/disclosure counts.

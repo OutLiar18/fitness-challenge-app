@@ -34,7 +34,7 @@ The app combines factual personal tracking, progression, season Houses, WhatsApp
 
 ## Boundaries
 
-- v0.24 development now has the `season-houses-v4` movement core, immutable assignment history, audited Platform Administrator rest correction and the optional private season composition profile foundation. Weekly House-balance snapshots remain absent until the final balance checkpoint.
+- v0.24 development now has the `season-houses-v4` movement core, immutable assignment history, audited Platform Administrator rest correction, optional private season composition profiles and the non-scoring `house-balance-v1` weekly privacy-safe snapshot system. The next step is the v0.24 integration/release gate.
 - Existing v1 and v2 seasons do not silently gain Power Plays.
 - No background scheduler is introduced; authorised administrators select or preselect weekly plays.
 - A player may need to refresh the Seasons page when a new official week begins so the new started-week listener attaches.
