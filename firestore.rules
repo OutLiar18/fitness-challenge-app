@@ -461,7 +461,7 @@ service cloud.firestore {
         : entry.correctionRootEntryId;
     }
 
-    function validCorrectionChallengeEntry(entryId) {
+    function validCorrectionChallengeEntry() {
       let source = get(
         /databases/$(database)/documents/challengeEntries/$(request.resource.data.replacesEntryId)
       ).data;
@@ -526,7 +526,7 @@ service cloud.firestore {
                 )
                 : (
                   request.resource.data.source == "correction"
-                    ? validCorrectionChallengeEntry(entryId)
+                    ? validCorrectionChallengeEntry()
                     : false
                 )
             )
@@ -927,18 +927,6 @@ service cloud.firestore {
         && request.resource.data.updatedAt == request.time;
     }
 
-    function validLeagueModulesV2(modules) {
-      return modules.houses == true
-        && modules.chaosAssignment == true
-        && modules.leadershipElections == true
-        && modules.rosterSwaps == true
-        && modules.pocketWeek == true
-        && modules.powerPlay == false
-        && modules.transferMarket == false
-        && modules.buddyBonus == false
-        && modules.fiveFires == false;
-    }
-
     function validLeagueModulesV3(modules) {
       return modules.houses == true
         && modules.chaosAssignment == true
@@ -1044,35 +1032,6 @@ service cloud.firestore {
         && policy.leaderboardPublication.manualPublicationAllowed == true
         && policy.leaderboardPublication.correctedReplacementAllowed == true
         && policy.leaderboardPublication.automaticFallbackMode == "administrator-session";
-    }
-
-    function validLeagueRulesetV2(ruleset) {
-      return ruleset is map
-        && ruleset.version == "season-houses-v2"
-        && ruleset.scoringEngineVersion == "points-v2"
-        && ruleset.dailyActivityCap == 20
-        && ruleset.dailyParticipationBonus == 5
-        && ruleset.includedCategories == [
-          "water", "fruit", "reading", "running", "upperBody",
-          "lowerBody", "core", "cardio", "skill", "steps"
-        ]
-        && validLeagueModulesV2(ruleset.modules)
-        && validEvidencePolicy(ruleset.evidencePolicy);
-    }
-
-    function validLeagueRulesetV3(ruleset) {
-      return ruleset is map
-        && ruleset.version == "season-houses-v3"
-        && ruleset.scoringEngineVersion == "points-v2"
-        && ruleset.dailyActivityCap == 20
-        && ruleset.dailyParticipationBonus == 5
-        && ruleset.includedCategories == [
-          "water", "fruit", "reading", "running", "upperBody",
-          "lowerBody", "core", "cardio", "skill", "steps"
-        ]
-        && validLeagueModulesV3(ruleset.modules)
-        && validEvidencePolicy(ruleset.evidencePolicy)
-        && validPowerPlayPolicy(ruleset.powerPlayPolicy);
     }
 
     function validLeagueRulesetV3V4DraftCreate(ruleset) {
@@ -1884,50 +1843,46 @@ service cloud.firestore {
     }
 
     function validCompositionProfileCreate(profileId) {
-      let membershipPath = /databases/$(database)/documents/leagueMemberships/$(request.resource.data.leagueId + "_" + request.auth.uid);
-      return profileId == request.resource.data.leagueId + "_" + request.auth.uid
-        && request.resource.data.keys().hasOnly([
+      let data = request.resource.data;
+      let membershipPath = /databases/$(database)/documents/leagueMemberships/$(data.leagueId + "_" + request.auth.uid);
+      return profileId == data.leagueId + "_" + request.auth.uid
+        && data.keys().hasOnly([
           "leagueId", "userId", "value", "profileVersion", "createdAt", "updatedAt"
         ])
-        && request.resource.data.userId == request.auth.uid
-        && request.resource.data.value in [
+        && data.userId == request.auth.uid
+        && data.value in [
           "woman", "man", "non-binary-or-another", "prefer-not-to-say"
         ]
-        && request.resource.data.profileVersion == "season-composition-v1"
+        && data.profileVersion == "season-composition-v1"
         && exists(membershipPath)
         && get(membershipPath).data.status in ["registered", "active"]
-        && get(/databases/$(database)/documents/leagues/$(request.resource.data.leagueId)).data.rulesVersion == "season-houses-v4"
-        && request.resource.data.createdAt == request.time
-        && request.resource.data.updatedAt == request.time;
+        && get(/databases/$(database)/documents/leagues/$(data.leagueId)).data.rulesVersion == "season-houses-v4"
+        && data.createdAt == request.time
+        && data.updatedAt == request.time;
     }
 
     function validCompositionProfileUpdate(profileId) {
+      let data = request.resource.data;
       return profileId == resource.data.leagueId + "_" + request.auth.uid
         && resource.data.userId == request.auth.uid
-        && request.resource.data.keys().hasOnly([
+        && data.keys().hasOnly([
           "leagueId", "userId", "value", "profileVersion", "createdAt", "updatedAt"
         ])
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+        && data.diff(resource.data).affectedKeys().hasOnly([
           "value", "updatedAt"
         ])
-        && request.resource.data.value in [
+        && data.value in [
           "woman", "man", "non-binary-or-another", "prefer-not-to-say"
         ]
-        && request.resource.data.updatedAt == request.time;
+        && data.updatedAt == request.time;
     }
 
     function validBalanceDistribution(distribution, visible) {
       return distribution is map
         && (
-          (
-            visible == false
-            && distribution.keys().size() == 0
-          )
+          (visible == false && distribution.keys().size() == 0)
           || (
             visible == true
-            && distribution.keys().hasOnly([
-              "woman", "man", "non-binary-or-another"
-            ])
             && distribution.keys().size() == 3
             && distribution.woman is number
             && distribution.woman >= 0
@@ -1935,31 +1890,31 @@ service cloud.firestore {
             && distribution.man is number
             && distribution.man >= 0
             && distribution.man <= 100
-            && distribution.get("non-binary-or-another", -1) is number
-            && distribution.get("non-binary-or-another", -1) >= 0
-            && distribution.get("non-binary-or-another", -1) <= 100
+            && distribution["non-binary-or-another"] is number
+            && distribution["non-binary-or-another"] >= 0
+            && distribution["non-binary-or-another"] <= 100
           )
         );
     }
 
     function validBalanceCounts(counts, disclosedCount) {
       return counts is map
-        && counts.keys().hasOnly(["woman", "man", "non-binary-or-another"])
         && counts.keys().size() == 3
         && counts.woman is int
         && counts.woman >= 0
         && counts.man is int
         && counts.man >= 0
-        && counts.get("non-binary-or-another", -1) is int
-        && counts.get("non-binary-or-another", -1) >= 0
-        && counts.woman + counts.man + counts.get("non-binary-or-another", 0) == disclosedCount;
+        && counts["non-binary-or-another"] is int
+        && counts["non-binary-or-another"] >= 0
+        && counts.woman + counts.man + counts["non-binary-or-another"] == disclosedCount;
     }
 
     function validPrivateHouseBalanceWeekCreate(resultId) {
-      let league = get(/databases/$(database)/documents/leagues/$(request.resource.data.leagueId)).data;
-      return isLeagueAdministrator(request.resource.data.leagueId)
-        && resultId == request.resource.data.leagueId + "_" + request.resource.data.weekKey
-        && request.resource.data.keys().hasOnly([
+      let data = request.resource.data;
+      let league = get(/databases/$(database)/documents/leagues/$(data.leagueId)).data;
+      return isLeagueAdministrator(data.leagueId)
+        && resultId == data.leagueId + "_" + data.weekKey
+        && data.keys().hasOnly([
           "leagueId", "weekKey", "rulesVersion", "calculationVersion", "profileVersion",
           "scoringEnabled", "minimumDisclosureCount", "houseCount", "activeMemberCount",
           "responseCount", "disclosedCount", "undisclosedCount", "preferNotToSayCount",
@@ -1969,163 +1924,145 @@ service cloud.firestore {
         ])
         && league.rulesVersion == "season-houses-v4"
         && league.status == "active"
-        && request.resource.data.rulesVersion == "season-houses-v4"
-        && request.resource.data.calculationVersion == "house-balance-v1"
-        && request.resource.data.profileVersion == "season-composition-v1"
-        && request.resource.data.scoringEnabled == false
-        && request.resource.data.minimumDisclosureCount == 3
-        && request.resource.data.houseCount is int
-        && request.resource.data.houseCount >= 2
-        && request.resource.data.houseCount <= 8
-        && request.resource.data.activeMemberCount is int
-        && request.resource.data.activeMemberCount >= 0
-        && request.resource.data.responseCount is int
-        && request.resource.data.responseCount >= 0
-        && request.resource.data.responseCount <= request.resource.data.activeMemberCount
-        && request.resource.data.disclosedCount is int
-        && request.resource.data.disclosedCount >= 0
-        && request.resource.data.disclosedCount <= request.resource.data.responseCount
-        && request.resource.data.undisclosedCount == request.resource.data.activeMemberCount - request.resource.data.disclosedCount
-        && request.resource.data.preferNotToSayCount is int
-        && request.resource.data.preferNotToSayCount >= 0
-        && request.resource.data.preferNotToSayCount <= request.resource.data.responseCount
-        && request.resource.data.responseCount == request.resource.data.disclosedCount + request.resource.data.preferNotToSayCount
-        && request.resource.data.preferNotToSayCount <= request.resource.data.undisclosedCount
-        && request.resource.data.rosterSizeDifference is int
-        && request.resource.data.rosterSizeDifference >= 0
-        && (request.resource.data.averageDeviationPercentagePoints == null || request.resource.data.averageDeviationPercentagePoints is number)
-        && (request.resource.data.maximumDeviationPercentagePoints == null || request.resource.data.maximumDeviationPercentagePoints is number)
-        && request.resource.data.balanceStatus in ["balanced", "review", "attention", "insufficient-data"]
-        && validBalanceCounts(request.resource.data.seasonCompositionCounts, request.resource.data.disclosedCount)
-        && validBalanceDistribution(request.resource.data.seasonCompositionDistribution, true)
-        && request.resource.data.publicResultId == resultId
-        && request.resource.data.createdAt == request.time
-        && request.resource.data.createdBy == request.auth.uid
-        && validAuditAfter(request.resource.data.lastAuditId, "league", request.resource.data.leagueId);
+        && data.rulesVersion == "season-houses-v4"
+        && data.calculationVersion == "house-balance-v1"
+        && data.profileVersion == "season-composition-v1"
+        && data.scoringEnabled == false
+        && data.minimumDisclosureCount == 3
+        && data.houseCount is int
+        && data.houseCount >= 2
+        && data.houseCount <= 8
+        && data.activeMemberCount is int
+        && data.activeMemberCount >= 0
+        && data.responseCount is int
+        && data.responseCount >= 0
+        && data.disclosedCount is int
+        && data.disclosedCount >= 0
+        && data.undisclosedCount == data.activeMemberCount - data.disclosedCount
+        && data.preferNotToSayCount is int
+        && data.preferNotToSayCount >= 0
+        && data.responseCount == data.disclosedCount + data.preferNotToSayCount
+        && data.preferNotToSayCount <= data.undisclosedCount
+        && data.rosterSizeDifference is int
+        && data.rosterSizeDifference >= 0
+        && (data.averageDeviationPercentagePoints == null || data.averageDeviationPercentagePoints is number)
+        && (data.maximumDeviationPercentagePoints == null || data.maximumDeviationPercentagePoints is number)
+        && data.balanceStatus in ["balanced", "review", "attention", "insufficient-data"]
+        && validBalanceCounts(data.seasonCompositionCounts, data.disclosedCount)
+        && validBalanceDistribution(data.seasonCompositionDistribution, true)
+        && data.publicResultId == resultId
+        && data.createdAt == request.time
+        && data.createdBy == request.auth.uid
+        && validAuditAfter(data.lastAuditId, "league", data.leagueId);
     }
 
     function validPrivateHouseBalanceHouseCreate(rowId) {
+      let data = request.resource.data;
       let privateResult = getAfter(
-        /databases/$(database)/documents/leagueHouseBalancePrivateWeeks/$(request.resource.data.resultId)
+        /databases/$(database)/documents/leagueHouseBalancePrivateWeeks/$(data.resultId)
       ).data;
-      return isLeagueAdministrator(request.resource.data.leagueId)
-        && rowId == request.resource.data.resultId + "_" + request.resource.data.houseId
-        && request.resource.data.resultId == request.resource.data.leagueId + "_" + request.resource.data.weekKey
-        && request.resource.data.keys().hasOnly([
+      return isLeagueAdministrator(data.leagueId)
+        && rowId == data.resultId + "_" + data.houseId
+        && data.resultId == data.leagueId + "_" + data.weekKey
+        && data.keys().hasOnly([
           "leagueId", "weekKey", "resultId", "houseId", "houseName", "houseEmblemId",
           "rosterSize", "responseCount", "disclosedCount", "undisclosedCount",
           "preferNotToSayCount", "compositionCounts", "compositionDistribution",
           "deviationPercentagePoints", "createdAt", "createdBy", "lastAuditId"
         ])
-        && request.resource.data.houseId is string
-        && request.resource.data.houseId.size() > 0
-        && request.resource.data.houseName is string
-        && request.resource.data.houseName.size() >= 2
-        && request.resource.data.houseName.size() <= 80
-        && request.resource.data.houseEmblemId is string
-        && request.resource.data.rosterSize is int
-        && request.resource.data.rosterSize >= 0
-        && request.resource.data.responseCount is int
-        && request.resource.data.responseCount >= 0
-        && request.resource.data.responseCount <= request.resource.data.rosterSize
-        && request.resource.data.disclosedCount is int
-        && request.resource.data.disclosedCount >= 0
-        && request.resource.data.disclosedCount <= request.resource.data.responseCount
-        && request.resource.data.undisclosedCount == request.resource.data.rosterSize - request.resource.data.disclosedCount
-        && request.resource.data.preferNotToSayCount is int
-        && request.resource.data.preferNotToSayCount >= 0
-        && request.resource.data.preferNotToSayCount <= request.resource.data.responseCount
-        && request.resource.data.responseCount == request.resource.data.disclosedCount + request.resource.data.preferNotToSayCount
-        && request.resource.data.preferNotToSayCount <= request.resource.data.undisclosedCount
-        && validBalanceCounts(request.resource.data.compositionCounts, request.resource.data.disclosedCount)
-        && validBalanceDistribution(request.resource.data.compositionDistribution, true)
+        && data.houseId is string
+        && data.houseId.size() > 0
+        && data.houseName is string
+        && data.houseName.size() >= 2
+        && data.houseName.size() <= 80
+        && data.houseEmblemId is string
+        && data.rosterSize is int
+        && data.rosterSize >= 0
+        && data.responseCount is int
+        && data.responseCount >= 0
+        && data.disclosedCount is int
+        && data.disclosedCount >= 0
+        && data.undisclosedCount == data.rosterSize - data.disclosedCount
+        && data.preferNotToSayCount is int
+        && data.preferNotToSayCount >= 0
+        && data.responseCount == data.disclosedCount + data.preferNotToSayCount
+        && data.preferNotToSayCount <= data.undisclosedCount
+        && validBalanceCounts(data.compositionCounts, data.disclosedCount)
+        && validBalanceDistribution(data.compositionDistribution, true)
         && (
-          (request.resource.data.disclosedCount == 0 && request.resource.data.deviationPercentagePoints == null)
+          (data.disclosedCount == 0 && data.deviationPercentagePoints == null)
           || (
-            request.resource.data.disclosedCount > 0
-            && request.resource.data.deviationPercentagePoints is number
-            && request.resource.data.deviationPercentagePoints >= 0
-            && request.resource.data.deviationPercentagePoints <= 100
+            data.disclosedCount > 0
+            && data.deviationPercentagePoints is number
+            && data.deviationPercentagePoints >= 0
+            && data.deviationPercentagePoints <= 100
           )
         )
-        && request.resource.data.createdAt == request.time
-        && request.resource.data.createdBy == request.auth.uid
-        && privateResult.publicResultId == request.resource.data.resultId
+        && data.createdAt == request.time
+        && data.createdBy == request.auth.uid
+        && privateResult.publicResultId == data.resultId
         && privateResult.createdAt == request.time
         && privateResult.createdBy == request.auth.uid
-        && request.resource.data.lastAuditId == privateResult.lastAuditId;
+        && data.lastAuditId == privateResult.lastAuditId;
     }
 
     function validPublicHouseBalanceWeekCreate(resultId) {
+      let data = request.resource.data;
       let privateResult = getAfter(
         /databases/$(database)/documents/leagueHouseBalancePrivateWeeks/$(resultId)
       ).data;
       let visible = privateResult.disclosedCount >= 3;
-      return isLeagueAdministrator(request.resource.data.leagueId)
-        && resultId == request.resource.data.leagueId + "_" + request.resource.data.weekKey
-        && request.resource.data.keys().hasOnly([
-          "leagueId", "weekKey", "rulesVersion", "calculationVersion", "scoringEnabled",
-          "minimumDisclosureCount", "houseCount", "rosterSizeDifference",
-          "averageDeviationPercentagePoints", "maximumDeviationPercentagePoints", "balanceStatus",
-          "seasonDistributionVisible", "seasonCompositionDistribution", "privateResultId", "createdAt"
-        ])
-        && request.resource.data.rulesVersion == "season-houses-v4"
-        && request.resource.data.calculationVersion == "house-balance-v1"
-        && request.resource.data.scoringEnabled == false
-        && request.resource.data.minimumDisclosureCount == 3
-        && request.resource.data.houseCount == privateResult.houseCount
-        && request.resource.data.rosterSizeDifference == privateResult.rosterSizeDifference
-        && request.resource.data.averageDeviationPercentagePoints == privateResult.averageDeviationPercentagePoints
-        && request.resource.data.maximumDeviationPercentagePoints == privateResult.maximumDeviationPercentagePoints
-        && request.resource.data.balanceStatus == privateResult.balanceStatus
-        && request.resource.data.seasonDistributionVisible == visible
-        && validBalanceDistribution(request.resource.data.seasonCompositionDistribution, visible)
-        && (
-          (visible == false && request.resource.data.seasonCompositionDistribution.keys().size() == 0)
-          || (visible == true && request.resource.data.seasonCompositionDistribution == privateResult.seasonCompositionDistribution)
-        )
-        && request.resource.data.privateResultId == resultId
-        && request.resource.data.createdAt == request.time
+      return isLeagueAdministrator(data.leagueId)
+        && resultId == data.leagueId + "_" + data.weekKey
+        && data == {
+          "leagueId": privateResult.leagueId,
+          "weekKey": privateResult.weekKey,
+          "rulesVersion": "season-houses-v4",
+          "calculationVersion": "house-balance-v1",
+          "scoringEnabled": false,
+          "minimumDisclosureCount": 3,
+          "houseCount": privateResult.houseCount,
+          "rosterSizeDifference": privateResult.rosterSizeDifference,
+          "averageDeviationPercentagePoints": privateResult.averageDeviationPercentagePoints,
+          "maximumDeviationPercentagePoints": privateResult.maximumDeviationPercentagePoints,
+          "balanceStatus": privateResult.balanceStatus,
+          "seasonDistributionVisible": visible,
+          "seasonCompositionDistribution": visible ? privateResult.seasonCompositionDistribution : {},
+          "privateResultId": resultId,
+          "createdAt": request.time
+        }
+        && validBalanceDistribution(data.seasonCompositionDistribution, visible)
         && privateResult.publicResultId == resultId
         && privateResult.createdAt == request.time
         && privateResult.createdBy == request.auth.uid;
     }
 
     function validPublicHouseBalanceHouseCreate(rowId) {
+      let data = request.resource.data;
       let privateRow = getAfter(
         /databases/$(database)/documents/leagueHouseBalancePrivateHouseWeeks/$(rowId)
       ).data;
       let privateResult = getAfter(
-        /databases/$(database)/documents/leagueHouseBalancePrivateWeeks/$(request.resource.data.resultId)
+        /databases/$(database)/documents/leagueHouseBalancePrivateWeeks/$(data.resultId)
       ).data;
       let visible = privateResult.disclosedCount >= 3 && privateRow.disclosedCount >= 3;
-      return isLeagueAdministrator(request.resource.data.leagueId)
-        && rowId == request.resource.data.resultId + "_" + request.resource.data.houseId
-        && request.resource.data.resultId == request.resource.data.leagueId + "_" + request.resource.data.weekKey
-        && request.resource.data.keys().hasOnly([
-          "leagueId", "weekKey", "resultId", "houseId", "houseName", "houseEmblemId",
-          "rosterSize", "compositionVisible", "compositionDistribution",
-          "deviationPercentagePoints", "createdAt"
-        ])
-        && request.resource.data.houseId == privateRow.houseId
-        && request.resource.data.houseName == privateRow.houseName
-        && request.resource.data.houseEmblemId == privateRow.houseEmblemId
-        && request.resource.data.rosterSize == privateRow.rosterSize
-        && request.resource.data.compositionVisible == visible
-        && validBalanceDistribution(request.resource.data.compositionDistribution, visible)
-        && (
-          (
-            visible == false
-            && request.resource.data.compositionDistribution.keys().size() == 0
-            && request.resource.data.deviationPercentagePoints == null
-          )
-          || (
-            visible == true
-            && request.resource.data.compositionDistribution == privateRow.compositionDistribution
-            && request.resource.data.deviationPercentagePoints == privateRow.deviationPercentagePoints
-          )
-        )
-        && request.resource.data.createdAt == request.time
+      return isLeagueAdministrator(data.leagueId)
+        && rowId == data.resultId + "_" + data.houseId
+        && data.resultId == data.leagueId + "_" + data.weekKey
+        && data == {
+          "leagueId": privateRow.leagueId,
+          "weekKey": privateRow.weekKey,
+          "resultId": privateRow.resultId,
+          "houseId": privateRow.houseId,
+          "houseName": privateRow.houseName,
+          "houseEmblemId": privateRow.houseEmblemId,
+          "rosterSize": privateRow.rosterSize,
+          "compositionVisible": visible,
+          "compositionDistribution": visible ? privateRow.compositionDistribution : {},
+          "deviationPercentagePoints": visible ? privateRow.deviationPercentagePoints : null,
+          "createdAt": request.time
+        }
+        && validBalanceDistribution(data.compositionDistribution, visible)
         && privateRow.createdAt == request.time
         && privateRow.createdBy == request.auth.uid;
     }
@@ -2143,7 +2080,6 @@ service cloud.firestore {
       return !firstMovedThisWeek
         && !secondMovedThisWeek
         && overriddenPlayerIds is list
-        && overriddenPlayerIds.size() <= 2
         && (
           (
             !firstRestActive
@@ -2159,17 +2095,12 @@ service cloud.firestore {
             && overrideReason is string
             && overrideReason.size() >= 12
             && overrideReason.size() <= 500
-            && (
-              (firstRestActive && secondRestActive
-                && overriddenPlayerIds.size() == 2
-                && overriddenPlayerIds[0] == request.resource.data.firstPlayerId
-                && overriddenPlayerIds[1] == request.resource.data.secondPlayerId)
-              || (firstRestActive && !secondRestActive
-                && overriddenPlayerIds.size() == 1
-                && overriddenPlayerIds[0] == request.resource.data.firstPlayerId)
-              || (!firstRestActive && secondRestActive
-                && overriddenPlayerIds.size() == 1
-                && overriddenPlayerIds[0] == request.resource.data.secondPlayerId)
+            && overriddenPlayerIds == (
+              firstRestActive
+                ? (secondRestActive
+                  ? [request.resource.data.firstPlayerId, request.resource.data.secondPlayerId]
+                  : [request.resource.data.firstPlayerId])
+                : [request.resource.data.secondPlayerId]
             )
           )
         );
@@ -2272,114 +2203,98 @@ service cloud.firestore {
     }
 
     function validHouseAssignmentHistoryBase(historyId) {
-      return request.resource.data.keys().hasOnly([
+      let data = request.resource.data;
+      return data.keys().hasOnly([
           "leagueId", "userId", "displayName", "weekKey", "fromHouseId",
           "fromHouseName", "toHouseId", "toHouseName", "method", "sourceId",
           "overrideApplied", "overrideReason", "createdAt", "createdBy", "lastAuditId"
         ])
-        && historyId == request.resource.data.sourceId + "_" + request.resource.data.userId
-        && request.resource.data.leagueId is string
-        && request.resource.data.leagueId.size() > 0
-        && request.resource.data.userId is string
-        && request.resource.data.userId.size() > 0
-        && request.resource.data.displayName is string
-        && request.resource.data.displayName.size() >= 2
-        && request.resource.data.displayName.size() <= 80
-        && request.resource.data.weekKey is string
-        && request.resource.data.fromHouseId is string
-        && request.resource.data.fromHouseName is string
-        && request.resource.data.toHouseId is string
-        && request.resource.data.toHouseId.size() > 0
-        && request.resource.data.toHouseName is string
-        && request.resource.data.toHouseName.size() > 0
-        && request.resource.data.sourceId is string
-        && request.resource.data.sourceId.size() > 0
-        && request.resource.data.createdAt == request.time
-        && request.resource.data.createdBy == request.auth.uid
+        && historyId == data.sourceId + "_" + data.userId
+        && data.leagueId is string
+        && data.leagueId.size() > 0
+        && data.userId is string
+        && data.userId.size() > 0
+        && data.displayName is string
+        && data.displayName.size() >= 2
+        && data.displayName.size() <= 80
+        && data.weekKey is string
+        && data.fromHouseId is string
+        && data.fromHouseName is string
+        && data.toHouseId is string
+        && data.toHouseId.size() > 0
+        && data.toHouseName is string
+        && data.toHouseName.size() > 0
+        && data.sourceId is string
+        && data.sourceId.size() > 0
+        && data.createdAt == request.time
+        && data.createdBy == request.auth.uid
         && validAuditAfter(
-          request.resource.data.lastAuditId,
+          data.lastAuditId,
           "league",
-          request.resource.data.leagueId
+          data.leagueId
         );
     }
 
-    function validChaosAssignmentHistory(historyId) {
+    function validChaosAssignmentHistory() {
+      let data = request.resource.data;
       let leagueAfter = getAfter(
-        /databases/$(database)/documents/leagues/$(request.resource.data.leagueId)
+        /databases/$(database)/documents/leagues/$(data.leagueId)
       ).data;
       let membershipAfter = getAfter(
-        /databases/$(database)/documents/leagueMemberships/$(request.resource.data.leagueId + "_" + request.resource.data.userId)
+        /databases/$(database)/documents/leagueMemberships/$(data.leagueId + "_" + data.userId)
       ).data;
-      return request.resource.data.method == "chaos"
-        && isLeagueAdministrator(request.resource.data.leagueId)
-        && request.resource.data.sourceId == request.resource.data.leagueId + "_chaos"
-        && request.resource.data.weekKey == ""
-        && request.resource.data.fromHouseId == ""
-        && request.resource.data.fromHouseName == "Unassigned"
-        && request.resource.data.get("overrideApplied", false) == false
-        && request.resource.data.get("overrideReason", "") == ""
+      return data.method == "chaos"
+        && isLeagueAdministrator(data.leagueId)
+        && data.sourceId == data.leagueId + "_chaos"
+        && data.weekKey == ""
+        && data.fromHouseId == ""
+        && data.fromHouseName == "Unassigned"
+        && data.get("overrideApplied", false) == false
+        && data.get("overrideReason", "") == ""
         && leagueAfter.rulesVersion == "season-houses-v4"
         && leagueAfter.status == "registration"
         && leagueAfter.chaosStatus == "activated"
         && leagueAfter.chaosActivatedAt == request.time
         && leagueAfter.chaosActivatedBy == request.auth.uid
-        && leagueAfter.lastAuditId == request.resource.data.lastAuditId
-        && membershipAfter.userId == request.resource.data.userId
-        && membershipAfter.displayName == request.resource.data.displayName
-        && membershipAfter.currentHouseId == request.resource.data.toHouseId
-        && membershipAfter.currentHouseName == request.resource.data.toHouseName
+        && leagueAfter.lastAuditId == data.lastAuditId
+        && membershipAfter.userId == data.userId
+        && membershipAfter.displayName == data.displayName
+        && membershipAfter.currentHouseId == data.toHouseId
+        && membershipAfter.currentHouseName == data.toHouseName
         && membershipAfter.houseAssignmentMethod == "chaos"
         && membershipAfter.houseAssignedAt == request.time
         && membershipAfter.updatedAt == request.time;
     }
 
-    function validSwapAssignmentHistory(historyId) {
+    function validSwapAssignmentHistory() {
+      let data = request.resource.data;
       let swap = getAfter(
-        /databases/$(database)/documents/leagueRosterSwaps/$(request.resource.data.sourceId)
+        /databases/$(database)/documents/leagueRosterSwaps/$(data.sourceId)
       ).data;
-      let userOverridden = request.resource.data.userId in swap.get("overriddenPlayerIds", []);
-      return request.resource.data.method == "weekly-swap"
+      let userOverridden = data.userId in swap.get("overriddenPlayerIds", []);
+      let firstPlayer = data.userId == swap.firstPlayerId;
+      return data.method == "weekly-swap"
         && swap.rulesVersion == "season-houses-v4"
         && swap.createdAt == request.time
-        && swap.leagueId == request.resource.data.leagueId
+        && swap.leagueId == data.leagueId
         && swap.actorId == request.auth.uid
-        && swap.lastAuditId == request.resource.data.lastAuditId
-        && request.resource.data.weekKey == swap.weekKey
-        && (
-          (
-            userOverridden
-            && request.resource.data.get("overrideApplied", false) == true
-            && request.resource.data.get("overrideReason", "") == swap.get("overrideReason", "")
-          )
-          || (
-            !userOverridden
-            && request.resource.data.get("overrideApplied", false) == false
-            && request.resource.data.get("overrideReason", "") == ""
-          )
-        )
-        && (
-          (
-            request.resource.data.userId == swap.firstPlayerId
-            && request.resource.data.fromHouseId == swap.firstHouseId
-            && request.resource.data.fromHouseName == swap.firstHouseName
-            && request.resource.data.toHouseId == swap.secondHouseId
-            && request.resource.data.toHouseName == swap.secondHouseName
-          )
-          || (
-            request.resource.data.userId == swap.secondPlayerId
-            && request.resource.data.fromHouseId == swap.secondHouseId
-            && request.resource.data.fromHouseName == swap.secondHouseName
-            && request.resource.data.toHouseId == swap.firstHouseId
-            && request.resource.data.toHouseName == swap.firstHouseName
-          )
-        );
+        && swap.lastAuditId == data.lastAuditId
+        && data.weekKey == swap.weekKey
+        && data.userId in [swap.firstPlayerId, swap.secondPlayerId]
+        && data.get("overrideApplied", false) == userOverridden
+        && data.get("overrideReason", "")
+          == (userOverridden ? swap.get("overrideReason", "") : "")
+        && data.fromHouseId == (firstPlayer ? swap.firstHouseId : swap.secondHouseId)
+        && data.fromHouseName == (firstPlayer ? swap.firstHouseName : swap.secondHouseName)
+        && data.toHouseId == (firstPlayer ? swap.secondHouseId : swap.firstHouseId)
+        && data.toHouseName == (firstPlayer ? swap.secondHouseName : swap.firstHouseName);
     }
 
     function validHouseAssignmentHistoryCreate(historyId) {
       return validHouseAssignmentHistoryBase(historyId)
         && (
-          validChaosAssignmentHistory(historyId)
-          || validSwapAssignmentHistory(historyId)
+          validChaosAssignmentHistory()
+          || validSwapAssignmentHistory()
         );
     }
 

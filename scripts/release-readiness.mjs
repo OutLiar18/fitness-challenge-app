@@ -10,7 +10,7 @@ const projectRoot = process.cwd();
 const failures = [];
 
 const expectedHashes = {
-  "firestore.rules": "5956295448d981c79e3065e022d7a86b18a104ac133b4a87848b290630194ee0",
+  "firestore.rules": "ec4334ab0d202fb699b369e2da7f335031cbd5241d1aefd2beb21a3cff1e33ba",
   "tests/firestore.rules.test.mjs": "d2d6fa3aba5b7e7665c5cf42a547888f9e16afa9fdcc35d38f7c7eb7e1a8c385",
   "src/services/seasons/houseMovementModel.js": "f9ff731859be0accdc91b2d1918217e0b3e48a8c866710840b1652df122d0be9",
   "src/services/seasons/houseMovementService.js": "493252a0208c0431f55d1a0c35b2326dc39f6481fb968f9a67ba32b324420b75",
