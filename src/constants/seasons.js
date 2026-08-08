@@ -9,6 +9,19 @@ export const POCKET_WINDOW_DAYS = 7;
 export const HOUSE_ROSTER_MOVES_PER_WEEK = 1;
 export const HOUSE_ROSTER_PLAYER_REST_WEEKS = 1;
 export const HOUSE_MOVEMENT_POLICY_VERSION = "house-movement-v1";
+export const HOUSE_COMPOSITION_PROFILE_VERSION = "season-composition-v1";
+export const HOUSE_COMPOSITION_DISCLOSURE_MINIMUM = 3;
+
+export const HOUSE_COMPOSITION_OPTIONS = Object.freeze([
+  { id: "woman", label: "Woman" },
+  { id: "man", label: "Man" },
+  { id: "non-binary-or-another", label: "Non-binary or another identity" },
+  { id: "prefer-not-to-say", label: "Prefer not to say" },
+]);
+
+export const HOUSE_COMPOSITION_VALUES = Object.freeze(
+  HOUSE_COMPOSITION_OPTIONS.map((option) => option.id),
+);
 
 export const SEASON_PHASES = Object.freeze({
   DRAFT: "draft",

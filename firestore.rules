@@ -1883,6 +1883,39 @@ service cloud.firestore {
         && request.resource.data.createdAt == request.time;
     }
 
+    function validCompositionProfileCreate(profileId) {
+      let membershipPath = /databases/$(database)/documents/leagueMemberships/$(request.resource.data.leagueId + "_" + request.auth.uid);
+      return profileId == request.resource.data.leagueId + "_" + request.auth.uid
+        && request.resource.data.keys().hasOnly([
+          "leagueId", "userId", "value", "profileVersion", "createdAt", "updatedAt"
+        ])
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.value in [
+          "woman", "man", "non-binary-or-another", "prefer-not-to-say"
+        ]
+        && request.resource.data.profileVersion == "season-composition-v1"
+        && exists(membershipPath)
+        && get(membershipPath).data.status in ["registered", "active"]
+        && get(/databases/$(database)/documents/leagues/$(request.resource.data.leagueId)).data.rulesVersion == "season-houses-v4"
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+    }
+
+    function validCompositionProfileUpdate(profileId) {
+      return profileId == resource.data.leagueId + "_" + request.auth.uid
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.keys().hasOnly([
+          "leagueId", "userId", "value", "profileVersion", "createdAt", "updatedAt"
+        ])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          "value", "updatedAt"
+        ])
+        && request.resource.data.value in [
+          "woman", "man", "non-binary-or-another", "prefer-not-to-say"
+        ]
+        && request.resource.data.updatedAt == request.time;
+    }
+
     function validRosterSwapV4MovementPolicy(firstBefore, secondBefore) {
       let firstMovedThisWeek = firstBefore.get("lastRosterWeekKey", "") == request.resource.data.weekKey;
       let secondMovedThisWeek = secondBefore.get("lastRosterWeekKey", "") == request.resource.data.weekKey;
@@ -3638,6 +3671,15 @@ service cloud.firestore {
         || isLeagueMember(resource.data.leagueId);
       allow create: if signedIn() && validHouseAssignmentHistoryCreate(historyId);
       allow update, delete: if false;
+    }
+
+    match /leagueCompositionProfiles/{profileId} {
+      allow get: if signedIn()
+        && (resource.data.userId == request.auth.uid || isLeagueAdministrator(resource.data.leagueId));
+      allow list: if signedIn() && isLeagueAdministrator(resource.data.leagueId);
+      allow create: if signedIn() && validCompositionProfileCreate(profileId);
+      allow update: if signedIn() && validCompositionProfileUpdate(profileId);
+      allow delete: if signedIn() && resource.data.userId == request.auth.uid;
     }
 
     match /pocketActivities/{pocketId} {

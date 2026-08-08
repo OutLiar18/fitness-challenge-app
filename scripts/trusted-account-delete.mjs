@@ -30,6 +30,7 @@ const DIRECT_RECORD_QUERIES = Object.freeze([
   ["challengeEntries", "userId", "delete"],
   ["playerNotifications", "userId", "delete"],
   ["clientErrorReports", "userId", "delete"],
+  ["leagueCompositionProfiles", "userId", "delete"],
   ["entryCorrectionHeads", "userId", "anonymise"],
   ["entryCorrections", "userId", "anonymise"],
   ["leagueMemberships", "userId", "anonymise"],

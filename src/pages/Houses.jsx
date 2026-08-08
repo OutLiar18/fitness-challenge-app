@@ -7,6 +7,7 @@ import PageHeader from "../components/layout/PageHeader";
 import LegacyAvatar from "../components/profile/LegacyAvatar";
 import {
   HOUSE_ACCENTS,
+  HOUSE_COMPOSITION_OPTIONS,
   HOUSE_EMBLEMS,
   getHouseAccent,
   getHouseEmblem,
@@ -20,7 +21,13 @@ import {
   isHouseLeader,
 } from "../services/seasons/seasonModel";
 import { supportsHouseMovementV1 } from "../services/seasons/houseMovementModel";
-import { subscribeToHouseAssignmentHistory } from "../services/seasons/houseMovementService";
+import {
+  clearCompositionProfile,
+  saveCompositionProfile,
+  subscribeToCompositionProfile,
+  subscribeToHouseAssignmentHistory,
+  subscribeToLeagueCompositionProfiles,
+} from "../services/seasons/houseMovementService";
 import {
   activateChaos,
   createLeagueHouse,
@@ -445,6 +452,128 @@ function AssignmentHistoryPanel({ history }) {
   );
 }
 
+function CompositionPrivacyPanel({
+  league,
+  actorId,
+  membership,
+  profile,
+  manager,
+  adminProfiles,
+  members,
+  notify,
+}) {
+  const [value, setValue] = useState(profile?.value || "");
+  const [busy, setBusy] = useState(false);
+
+  const activeUserIds = new Set(
+    members
+      .filter((item) => ["registered", "active"].includes(item.status))
+      .map((item) => item.userId),
+  );
+  const activeProfiles = adminProfiles.filter((item) => activeUserIds.has(item.userId));
+  const disclosedCount = activeProfiles.filter(
+    (item) => item.value && item.value !== "prefer-not-to-say",
+  ).length;
+
+  async function saveResponse() {
+    if (!value) {
+      notify("Choose a response or remove your existing response.", "error");
+      return;
+    }
+    setBusy(true);
+    try {
+      await saveCompositionProfile({ league, userId: actorId, value });
+      notify("Your private season composition response has been saved.", "success");
+    } catch (error) {
+      console.error(error);
+      notify(error.message || "Your private response could not be saved.", "error");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function removeResponse() {
+    setBusy(true);
+    try {
+      await clearCompositionProfile({ leagueId: league.id, userId: actorId });
+      setValue("");
+      notify("Your private season composition response has been removed.", "success");
+    } catch (error) {
+      console.error(error);
+      notify(error.message || "Your private response could not be removed.", "error");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="composition-foundation">
+      <section className="composition-privacy card">
+        <div>
+          <p className="section-kicker">Private season data</p>
+          <h2>Optional composition response</h2>
+          <p>
+            This answer belongs only to {league.name}. It is self-declared, optional and removable.
+            Individual responses are not shown to House leaders or ordinary players and never change your points.
+          </p>
+        </div>
+
+        {membership ? (
+          <div className="composition-response">
+            <label htmlFor={`season-composition-${league.id}`}>My private response</label>
+            <select
+              id={`season-composition-${league.id}`}
+              value={value}
+              onChange={(event) => setValue(event.target.value)}
+              disabled={busy}
+            >
+              <option value="">Choose a response</option>
+              {HOUSE_COMPOSITION_OPTIONS.map((option) => (
+                <option key={option.id} value={option.id}>{option.label}</option>
+              ))}
+            </select>
+            <div className="composition-response__actions">
+              <button className="button button--primary" type="button" disabled={busy || !value} onClick={saveResponse}>
+                {busy ? "Saving…" : "Save private response"}
+              </button>
+              {profile && (
+                <button className="button button--ghost" type="button" disabled={busy} onClick={removeResponse}>
+                  Remove my response
+                </button>
+              )}
+            </div>
+            <small>
+              “Prefer not to say” records that choice without treating it as disclosed composition data.
+            </small>
+          </div>
+        ) : (
+          <div className="inline-alert inline-alert--info">
+            Only registered season members can submit a composition response.
+          </div>
+        )}
+      </section>
+
+      {manager && (
+        <section className="composition-coverage card">
+          <div>
+            <p className="section-kicker">Administrator privacy view</p>
+            <h2>Response coverage</h2>
+            <p>
+              Exact private responses are restricted to authorised administrators for balancing operations.
+              This workspace shows coverage only; public House summaries will use suppression rules in the next checkpoint.
+            </p>
+          </div>
+          <div className="composition-coverage__metrics" aria-label="Private composition response coverage">
+            <span><strong>{activeProfiles.length}</strong> responses</span>
+            <span><strong>{disclosedCount}</strong> disclosed for calculation</span>
+            <span><strong>{activeUserIds.size}</strong> eligible members</span>
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}
+
 export default function Houses() {
   const { user, isPlatformAdmin } = usePlayerData();
   const { leagues, memberships: myMemberships, canManageLeagues } = useLeagues();
@@ -471,6 +600,8 @@ export default function Houses() {
   const [membersState, setMembersState] = useState({ leagueId: "", items: [] });
   const [electionsState, setElectionsState] = useState({ leagueId: "", items: [] });
   const [historyState, setHistoryState] = useState({ leagueId: "", items: [] });
+  const [compositionState, setCompositionState] = useState({ leagueId: "", item: null });
+  const [compositionAdminState, setCompositionAdminState] = useState({ leagueId: "", items: [] });
   const [selectedHouseId, setSelectedHouseId] = useState("");
   const [working, setWorking] = useState(false);
   const [editingHouseId, setEditingHouseId] = useState("");
@@ -516,6 +647,7 @@ export default function Houses() {
   const elections = electionsState.leagueId === league?.id ? electionsState.items : [];
   const assignmentHistory = historyState.leagueId === league?.id ? historyState.items : [];
   const membership = myMemberships.find((item) => item.leagueId === league?.id) || null;
+  const membershipUserId = membership?.userId || "";
   const currentHouse = houses.find((item) => item.id === membership?.currentHouseId) || null;
   const selectedHouse = houses.find((item) => item.id === selectedHouseId)
     || currentHouse
@@ -528,6 +660,38 @@ export default function Houses() {
     && canManageLeagues
     && canManageLeague(league, user?.uid, isPlatformAdmin),
   );
+  const canUseComposition = Boolean(movementV1 && (membership || manager));
+
+  useEffect(() => {
+    const leagueId = league?.id;
+    if (!leagueId || !movementV1) return undefined;
+
+    const unsubOwn = membershipUserId && user?.uid
+      ? subscribeToCompositionProfile(
+          leagueId,
+          user.uid,
+          (item) => setCompositionState({ leagueId, item }),
+          (error) => showToast(error.message || "Your private composition response could not be loaded.", "error"),
+        )
+      : () => {};
+    const unsubAdmin = manager
+      ? subscribeToLeagueCompositionProfiles(
+          leagueId,
+          (items) => setCompositionAdminState({ leagueId, items }),
+          (error) => showToast(error.message || "Private composition coverage could not be loaded.", "error"),
+        )
+      : () => {};
+
+    return () => {
+      unsubOwn();
+      unsubAdmin();
+    };
+  }, [league?.id, movementV1, membershipUserId, manager, user?.uid, showToast]);
+
+  const compositionProfile = compositionState.leagueId === league?.id ? compositionState.item : null;
+  const compositionAdminProfiles = compositionAdminState.leagueId === league?.id
+    ? compositionAdminState.items
+    : [];
   const chaosReadiness = getChaosReadiness({ league, houses, memberships: members });
   const completedChaosChecks = chaosReadiness.checks.filter((check) => check.complete).length;
   const chaosSummary = chaosReadiness.eligible
@@ -570,6 +734,14 @@ export default function Houses() {
           icon: "🧭",
           description: "Immutable House assignment timeline",
           badge: assignmentHistory.length,
+        }]
+      : []),
+    ...(canUseComposition
+      ? [{
+          id: "balance",
+          label: "Balance",
+          icon: "⚖️",
+          description: "Private composition and balance foundation",
         }]
       : []),
     ...(canUseRosterTurn
@@ -881,6 +1053,26 @@ export default function Houses() {
               idPrefix={`houses-${league.id}`}
             >
               <AssignmentHistoryPanel history={assignmentHistory} />
+            </WorkspacePanel>
+          )}
+
+          {canUseComposition && (
+            <WorkspacePanel
+              id="balance"
+              activeId={resolvedActiveTab}
+              idPrefix={`houses-${league.id}`}
+            >
+              <CompositionPrivacyPanel
+                key={`${league.id}:${compositionProfile?.value || "unset"}`}
+                league={league}
+                actorId={user?.uid}
+                membership={membership}
+                profile={compositionProfile}
+                manager={manager}
+                adminProfiles={compositionAdminProfiles}
+                members={members}
+                notify={showToast}
+              />
             </WorkspacePanel>
           )}
 

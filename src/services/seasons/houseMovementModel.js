@@ -1,4 +1,6 @@
 import {
+  HOUSE_COMPOSITION_PROFILE_VERSION,
+  HOUSE_COMPOSITION_VALUES,
   HOUSE_ROSTER_PLAYER_REST_WEEKS,
 } from "../../constants/seasons";
 import {
@@ -120,5 +122,22 @@ export function getRosterMoveEligibility({
     label: "Eligible to move",
     detail: "This player may take part in the current week’s balanced swap.",
     overrideable: false,
+  };
+}
+
+export function normalizeCompositionValue(value) {
+  return HOUSE_COMPOSITION_VALUES.includes(value) ? value : "";
+}
+
+export function createCompositionProfile({ leagueId, userId, value } = {}) {
+  const normalizedValue = normalizeCompositionValue(value);
+  if (!leagueId || !userId || !normalizedValue) {
+    throw new Error("Choose one of the available private composition responses.");
+  }
+  return {
+    leagueId,
+    userId,
+    value: normalizedValue,
+    profileVersion: HOUSE_COMPOSITION_PROFILE_VERSION,
   };
 }

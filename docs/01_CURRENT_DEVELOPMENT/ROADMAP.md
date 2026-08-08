@@ -30,7 +30,7 @@ Trusted account deletion and anonymised shared history are deployed.
 
 ## Remaining planned pre-v1.0 iterations
 
-### v0.24.0 — Weekly roster stability and composition-balance foundation (deferred for Rules redesign)
+### v0.24.0 — Weekly roster stability and composition-balance foundation (active controlled rebuild)
 
 - a player newly moved to a House cannot be moved again during the following weekly movement period;
 - initial C.H.A.O.S. assignment does not count as a move;

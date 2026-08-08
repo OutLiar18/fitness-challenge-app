@@ -136,3 +136,23 @@ The live `leagueMemberships` document remains the efficient current-House record
 ### v0.24 House movement administrator corrections
 
 A Platform Administrator may bypass only the one-week post-move rest restriction for a factual correction. The immutable `leagueRosterSwaps` document stores `overrideApplied`, `overrideReason`, and `overriddenPlayerIds`. The affected player's `leagueHouseAssignmentHistory` record repeats the correction flag and reason, while the audit event records the same context. Same-week repeat movement, House weekly locks, and current House leadership are never bypassed by this path.
+
+
+## leagueCompositionProfiles
+
+Private, season-scoped optional composition responses introduced by v0.24 Checkpoint 6. Document ID is deterministic: `{leagueId}_{userId}`.
+
+Fields:
+- `leagueId`
+- `userId`
+- `value` (`woman`, `man`, `non-binary-or-another`, `prefer-not-to-say`)
+- `profileVersion` = `season-composition-v1`
+- `createdAt`
+- `updatedAt`
+
+Privacy boundary:
+- the player may get/create/update/delete only their own response;
+- Platform Administrators and authorised season administrators may read exact responses for operational balancing;
+- House leaders and ordinary season members cannot read another player's response;
+- trusted account deletion deletes this private record;
+- no public House-level composition document exists until the separately tested weekly-balance checkpoint.

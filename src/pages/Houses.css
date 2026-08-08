@@ -266,3 +266,49 @@
 .roster-override > div > p:last-child { color: var(--text-muted); }
 .roster-override label { display: grid; gap: 7px; font-weight: 820; }
 .assignment-history__override { color: var(--warning); font-weight: 780; }
+
+
+.composition-foundation {
+  display: grid;
+  gap: 1rem;
+}
+
+.composition-privacy,
+.composition-coverage {
+  display: grid;
+  gap: 1rem;
+}
+
+.composition-response {
+  display: grid;
+  gap: 0.7rem;
+  max-width: 42rem;
+}
+
+.composition-response label {
+  font-weight: 800;
+}
+
+.composition-response select {
+  width: 100%;
+}
+
+.composition-response__actions,
+.composition-coverage__metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.composition-coverage__metrics span {
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.12));
+  border-radius: 0.8rem;
+  padding: 0.75rem 0.9rem;
+  display: grid;
+  gap: 0.1rem;
+  min-width: 9rem;
+}
+
+.composition-coverage__metrics strong {
+  font-size: 1.2rem;
+}

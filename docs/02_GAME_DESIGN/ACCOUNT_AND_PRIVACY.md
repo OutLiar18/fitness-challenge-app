@@ -42,3 +42,8 @@ The app does not upload or store WhatsApp proof media. Deletion can remove/anony
 ## Shared-history principle
 
 Deleting an account must not silently rewrite completed House results, standings, honours or other participants' legitimate records. Identity is anonymised while factual points and historical House allocation remain intact.
+
+
+## Season composition responses
+
+For `season-houses-v4` seasons, a player may optionally provide one self-declared composition response for that season. The response is not copied into the permanent user profile, can be changed or removed by the player, and does not affect points or Experience Points. Individual answers are readable only by the player, Platform Administrators and authorised season administrators when required for House-balancing operations. House leaders and ordinary players cannot inspect another player’s answer. Trusted account deletion removes the private response rather than retaining or anonymising it.

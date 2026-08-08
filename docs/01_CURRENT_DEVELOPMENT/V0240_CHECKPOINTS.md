@@ -194,7 +194,20 @@ If the legitimate Platform Administrator override hits a Firestore Rules access/
 
 ## Checkpoint 6 — composition/privacy foundation
 
-Composition data remains optional, season-scoped and private. No weekly balance snapshots yet.
+Status: implemented in `0.24.0-dev.15` as the private composition-data foundation.
+
+- add one optional self-declared `leagueCompositionProfiles/{leagueId_userId}` record per season member;
+- accept only the four frozen `season-composition-v1` responses;
+- let the player create, change or remove only their own record;
+- permit Platform Administrators and authorised season administrators to read exact responses for balancing operations;
+- block ordinary players and House leaders from reading another player’s individual response;
+- keep `prefer-not-to-say` as a private response but exclude it from future disclosed-composition calculations;
+- delete private composition records during trusted account deletion rather than anonymising them;
+- expose the player response and administrator coverage view in Houses → Balance;
+- do not create public summaries, private weekly snapshots or any balance score yet;
+- do not add composition policy maps to the League ruleset; `season-houses-v4` remains the lean feature switch.
+
+If the legitimate profile lifecycle or authorised administrator query hits a Rules access/evaluation limit, stop here before Checkpoint 7.
 
 ## Checkpoint 7 — weekly House balance
 

@@ -1,10 +1,10 @@
 # Champions Legacy Challenge — Current State
 
-<!-- RELEASE_STATUS: DEPLOYED -->
+<!-- RELEASE_STATUS: CANDIDATE -->
 Version: 0.23.5  
-Production version: 0.23.5  
+Production version: 0.23.0  
 Last updated: 7 August 2026  
-Status: Stability release candidate; verified production deployment complete; pre-v1.0
+Status: Stability release candidate; production deployment pending; pre-v1.0
 
 ## Product state
 
@@ -34,7 +34,7 @@ The app combines factual personal tracking, progression, season Houses, WhatsApp
 
 ## Boundaries
 
-- The v0.24 `season-houses-v4` House Movement expansion is intentionally excluded: no one-week post-move rest lock, composition profiles, weekly balance snapshots or related Firestore collections are present.
+- v0.24 development now has the `season-houses-v4` movement core, immutable assignment history, audited Platform Administrator rest correction and the optional private season composition profile foundation. Weekly House-balance snapshots remain absent until the final balance checkpoint.
 - Existing v1 and v2 seasons do not silently gain Power Plays.
 - No background scheduler is introduced; authorised administrators select or preselect weekly plays.
 - A player may need to refresh the Seasons page when a new official week begins so the new started-week listener attaches.

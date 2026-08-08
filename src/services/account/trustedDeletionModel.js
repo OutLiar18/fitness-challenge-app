@@ -10,6 +10,7 @@ export const ACCOUNT_DELETION_PRIVATE_COLLECTIONS = Object.freeze([
   "challengeEntries",
   "playerNotifications",
   "clientErrorReports",
+  "leagueCompositionProfiles",
 ]);
 
 export const ACCOUNT_DELETION_ANONYMISED_COLLECTIONS = Object.freeze([

@@ -8,8 +8,10 @@ import {
   HOUSE_ROSTER_PLAYER_REST_WEEKS,
 } from "../src/constants/seasons.js";
 import {
+  createCompositionProfile,
   createHouseAssignmentHistoryId,
   getRosterMoveEligibility,
+  normalizeCompositionValue,
   getRosterRestWindow,
   supportsHouseMovementV1,
 } from "../src/services/seasons/houseMovementModel.js";
@@ -138,4 +140,25 @@ test("normal new-season creation now emits the v4 House movement contract", () =
   assert.equal(DEFAULT_LEAGUE_RULESET.version, "season-houses-v4");
   assert.equal(result.value.ruleset.version, "season-houses-v4");
   assert.equal(supportsHouseMovementV1({ rulesVersion: result.value.ruleset.version }), true);
+});
+
+
+test("season composition responses are constrained, private-ready and season scoped", () => {
+  assert.equal(normalizeCompositionValue("woman"), "woman");
+  assert.equal(normalizeCompositionValue("prefer-not-to-say"), "prefer-not-to-say");
+  assert.equal(normalizeCompositionValue("invented-value"), "");
+  assert.deepEqual(createCompositionProfile({
+    leagueId: "season-one",
+    userId: "player-one",
+    value: "man",
+  }), {
+    leagueId: "season-one",
+    userId: "player-one",
+    value: "man",
+    profileVersion: "season-composition-v1",
+  });
+  assert.throws(
+    () => createCompositionProfile({ leagueId: "season-one", userId: "player-one", value: "" }),
+    /available private composition responses/,
+  );
 });

@@ -1873,6 +1873,104 @@ test("Platform Administrator rest override cannot bypass same-week movement, Hou
   }).commit());
 });
 
+test("season composition responses stay private to the owner and authorised administrators", async () => {
+  const leagueId = "season-v4-composition-private";
+  await seedV4RestLockSwapSeason(leagueId);
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const raw = context.firestore();
+    const leagueRef = doc(raw, "leagues", leagueId);
+    const current = (await getDoc(leagueRef)).data();
+    await setDoc(leagueRef, { ...current, administratorIds: ["player-three"] });
+  });
+
+  const profileId = `${leagueId}_player-one`;
+  const owner = playerContext("player-one").firestore();
+  await assertSucceeds(setDoc(doc(owner, "leagueCompositionProfiles", profileId), {
+    leagueId,
+    userId: "player-one",
+    value: "woman",
+    profileVersion: "season-composition-v1",
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  }));
+
+  await assertSucceeds(getDoc(doc(owner, "leagueCompositionProfiles", profileId)));
+  await assertFails(getDoc(doc(playerContext("player-two").firestore(), "leagueCompositionProfiles", profileId)));
+  await assertFails(getDoc(doc(playerContext("player-four").firestore(), "leagueCompositionProfiles", profileId)));
+  await assertSucceeds(getDoc(doc(adminContext().firestore(), "leagueCompositionProfiles", profileId)));
+  await assertSucceeds(getDoc(doc(playerContext("player-three").firestore(), "leagueCompositionProfiles", profileId)));
+  const scopedAdminQuery = await assertSucceeds(getDocs(query(
+    collection(playerContext("player-three").firestore(), "leagueCompositionProfiles"),
+    where("leagueId", "==", leagueId),
+  )));
+  assert.equal(scopedAdminQuery.size, 1);
+  await assertFails(getDocs(query(
+    collection(playerContext("player-two").firestore(), "leagueCompositionProfiles"),
+    where("leagueId", "==", leagueId),
+  )));
+
+  await assertSucceeds(updateDoc(doc(owner, "leagueCompositionProfiles", profileId), {
+    value: "prefer-not-to-say",
+    updatedAt: serverTimestamp(),
+  }));
+  await assertFails(updateDoc(doc(adminContext().firestore(), "leagueCompositionProfiles", profileId), {
+    value: "man",
+    updatedAt: serverTimestamp(),
+  }));
+  await assertSucceeds(deleteDoc(doc(owner, "leagueCompositionProfiles", profileId)));
+});
+
+test("composition responses cannot be forged outside the v4 season membership contract", async () => {
+  const leagueId = "season-v4-composition-guard";
+  await seedV4RestLockSwapSeason(leagueId);
+  const owner = playerContext("player-one").firestore();
+
+  await assertFails(setDoc(doc(owner, "leagueCompositionProfiles", `${leagueId}_player-two`), {
+    leagueId,
+    userId: "player-two",
+    value: "man",
+    profileVersion: "season-composition-v1",
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  }));
+  await assertFails(setDoc(doc(owner, "leagueCompositionProfiles", `${leagueId}_player-one`), {
+    leagueId,
+    userId: "player-one",
+    value: "unsupported",
+    profileVersion: "season-composition-v1",
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  }));
+
+  const unregistered = playerContext("player-four").firestore();
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await deleteDoc(doc(context.firestore(), "leagueMemberships", `${leagueId}_player-four`));
+  });
+  await assertFails(setDoc(doc(unregistered, "leagueCompositionProfiles", `${leagueId}_player-four`), {
+    leagueId,
+    userId: "player-four",
+    value: "non-binary-or-another",
+    profileVersion: "season-composition-v1",
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  }));
+
+  const v3LeagueId = "season-v3-composition-blocked";
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const raw = context.firestore();
+    await setDoc(doc(raw, "leagues", v3LeagueId), seasonDataV3({ status: "active", participantCount: 1, chaosStatus: "activated", active: true }));
+    await setDoc(doc(raw, "leagueMemberships", `${v3LeagueId}_player-one`), membershipData({ leagueId: v3LeagueId, status: "active" }));
+  });
+  await assertFails(setDoc(doc(owner, "leagueCompositionProfiles", `${v3LeagueId}_player-one`), {
+    leagueId: v3LeagueId,
+    userId: "player-one",
+    value: "woman",
+    profileVersion: "season-composition-v1",
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  }));
+});
+
 test("Pocket activities are private, zero-point reserves during the official window", async () => {
   const dates = seasonDates();
   const now = Timestamp.now();
