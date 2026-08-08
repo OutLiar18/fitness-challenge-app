@@ -177,7 +177,20 @@ If the maximum-shape C.H.A.O.S. batch or legitimate v4 roster swap reaches a Fir
 
 ## Checkpoint 5 — audited Platform Administrator correction
 
-Add the narrowly scoped correction/override with immutable reason and audit trail. Current-week, House-lock and leadership protections remain non-bypassable.
+Status: implemented in `0.24.0-dev.14` as the complete movement-administration layer.
+
+- permit only a Platform Administrator to override the persisted one-week post-move rest restriction;
+- require a factual correction reason of 12–500 characters;
+- preserve the override on the immutable roster-swap record, audit event and affected player's assignment-history record;
+- mark only the player whose rest restriction was actually overridden, even though both players participate in the swap;
+- keep same-week repeat movement non-bypassable;
+- keep the per-House weekly roster lock non-bypassable;
+- keep captain/vice-captain protection non-bypassable;
+- keep ordinary House leaders and season-scoped administrators unable to invoke the rest override;
+- expose the override reason in the House History UI and require it in the Platform Administrator roster-turn UI;
+- add no composition profile or weekly-balance persistence.
+
+If the legitimate Platform Administrator override hits a Firestore Rules access/evaluation limit, stop here and redesign the override metadata before Checkpoint 6.
 
 ## Checkpoint 6 — composition/privacy foundation
 

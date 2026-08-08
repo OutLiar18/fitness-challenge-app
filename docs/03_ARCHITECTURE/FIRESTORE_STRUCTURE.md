@@ -131,3 +131,8 @@ Client access:
 
 The live `leagueMemberships` document remains the efficient current-House record. Assignment history is the permanent timeline and does not rewrite historical `leagueContributions`. Trusted account deletion anonymises player identity in these shared records while preserving the House movement facts.
 
+
+
+### v0.24 House movement administrator corrections
+
+A Platform Administrator may bypass only the one-week post-move rest restriction for a factual correction. The immutable `leagueRosterSwaps` document stores `overrideApplied`, `overrideReason`, and `overriddenPlayerIds`. The affected player's `leagueHouseAssignmentHistory` record repeats the correction flag and reason, while the audit event records the same context. Same-week repeat movement, House weekly locks, and current House leadership are never bypassed by this path.

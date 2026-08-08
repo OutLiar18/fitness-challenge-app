@@ -288,7 +288,7 @@ function LeadershipPanel({ league, house, members, membership, elections, manage
   );
 }
 
-function RosterSwapPanel({ league, houses, members, actorId, manager, currentHouse, notify }) {
+function RosterSwapPanel({ league, houses, members, actorId, manager, platformAdmin, currentHouse, notify }) {
   const leader = currentHouse && isHouseLeader(currentHouse, actorId);
   const availableSourceHouses = useMemo(
     () => (manager ? houses : leader ? [currentHouse] : []),
@@ -298,6 +298,7 @@ function RosterSwapPanel({ league, houses, members, actorId, manager, currentHou
   const [targetHouseId, setTargetHouseId] = useState("");
   const [firstPlayerId, setFirstPlayerId] = useState("");
   const [secondPlayerId, setSecondPlayerId] = useState("");
+  const [overrideReason, setOverrideReason] = useState("");
   const [busy, setBusy] = useState(false);
   const sourceHouse =
     availableSourceHouses.find((item) => item.id === sourceHouseId) ||
@@ -317,7 +318,28 @@ function RosterSwapPanel({ league, houses, members, actorId, manager, currentHou
   const targetMembers = members.filter(
     (item) => item.currentHouseId === targetHouseId && !protectedLeaderIds.has(item.userId),
   );
-
+  const weekKey = getSeasonWeekKey(new Date());
+  const selectedFirst = sourceMembers.find((item) => item.userId === firstPlayerId) || null;
+  const selectedSecond = targetMembers.find((item) => item.userId === secondPlayerId) || null;
+  const movedThisWeek = (member) => Boolean(member?.lastRosterWeekKey === weekKey);
+  const resting = (member) => Boolean(
+    supportsHouseMovementV1(league)
+      && member?.rosterLockThroughWeekKey
+      && weekKey <= member.rosterLockThroughWeekKey,
+  );
+  const overrideCandidates = [selectedFirst, selectedSecond].filter(
+    (member) => resting(member) && !movedThisWeek(member),
+  );
+  const overrideRequired = overrideCandidates.length > 0;
+  const invalidSameWeek = [selectedFirst, selectedSecond].some(movedThisWeek);
+  const optionLabel = (member) => {
+    if (movedThisWeek(member)) return `${member.displayName} — already moved this week`;
+    if (resting(member)) {
+      const suffix = member.rosterEligibleWeekKey ? ` until ${member.rosterEligibleWeekKey}` : "";
+      return `${member.displayName} — resting${suffix}`;
+    }
+    return member.displayName;
+  };
 
   if (availableSourceHouses.length === 0 || league.status !== "active") return null;
 
@@ -327,10 +349,20 @@ function RosterSwapPanel({ league, houses, members, actorId, manager, currentHou
     if (!window.confirm("Complete this week’s House roster swap? Earlier contributions will remain with each player’s previous House.")) return;
     setBusy(true);
     try {
-      await swapHousePlayers({ league, firstHouse: sourceHouse, secondHouse: targetHouse, firstPlayer, secondPlayer, actorId });
-      notify("The weekly House roster swap is complete.", "success");
+      await swapHousePlayers({
+        league,
+        firstHouse: sourceHouse,
+        secondHouse: targetHouse,
+        firstPlayer,
+        secondPlayer,
+        actorId,
+        allowRestOverride: platformAdmin && overrideRequired,
+        overrideReason,
+      });
+      notify(overrideRequired ? "The audited House movement correction is complete." : "The weekly House roster swap is complete.", "success");
       setFirstPlayerId("");
       setSecondPlayerId("");
+      setOverrideReason("");
     } catch (error) {
       console.error(error);
       notify(error.message || "The House roster could not be changed.", "error");
@@ -344,11 +376,31 @@ function RosterSwapPanel({ league, houses, members, actorId, manager, currentHou
       <div><p className="section-kicker">Weekly roster turn</p><h2>One strategic House swap</h2><p>Each House may take part in one balanced player swap per week. Captains, vice-captains and league administrators can act; current leaders must be reassigned before they move.</p></div>
       <div className="roster-swap__grid">
         <label>Source House<select value={effectiveSourceHouseId} onChange={(event) => { setSourceHouseId(event.target.value); setFirstPlayerId(""); }}><option value="">Choose House</option>{availableSourceHouses.map((house) => <option key={house.id} value={house.id}>{house.name}</option>)}</select></label>
-        <label>Player leaving<select value={firstPlayerId} onChange={(event) => setFirstPlayerId(event.target.value)}><option value="">Choose player</option>{sourceMembers.map((member) => <option key={member.userId} value={member.userId}>{member.displayName}</option>)}</select></label>
+        <label>Player leaving<select value={firstPlayerId} onChange={(event) => setFirstPlayerId(event.target.value)}><option value="">Choose player</option>{sourceMembers.map((member) => <option key={member.userId} value={member.userId} disabled={movedThisWeek(member) || (resting(member) && !platformAdmin)}>{optionLabel(member)}</option>)}</select></label>
         <label>Other House<select value={targetHouseId} onChange={(event) => { setTargetHouseId(event.target.value); setSecondPlayerId(""); }}><option value="">Choose House</option>{houses.filter((house) => house.id !== effectiveSourceHouseId).map((house) => <option key={house.id} value={house.id}>{house.name}</option>)}</select></label>
-        <label>Player joining<select value={secondPlayerId} onChange={(event) => setSecondPlayerId(event.target.value)}><option value="">Choose player</option>{targetMembers.map((member) => <option key={member.userId} value={member.userId}>{member.displayName}</option>)}</select></label>
+        <label>Player joining<select value={secondPlayerId} onChange={(event) => setSecondPlayerId(event.target.value)}><option value="">Choose player</option>{targetMembers.map((member) => <option key={member.userId} value={member.userId} disabled={movedThisWeek(member) || (resting(member) && !platformAdmin)}>{optionLabel(member)}</option>)}</select></label>
       </div>
-      <button className="button button--danger" type="button" disabled={busy || !sourceHouse || !targetHouse || !sourceMembers.some((item) => item.userId === firstPlayerId) || !targetMembers.some((item) => item.userId === secondPlayerId)} onClick={handleSwap}>{busy ? "Changing Houses…" : "Complete roster swap"}</button>
+      {platformAdmin && overrideRequired && (
+        <div className="roster-override">
+          <div>
+            <p className="section-kicker">Platform Administrator factual correction</p>
+            <strong>Post-move rest override required</strong>
+            <p>This bypass applies only to the one-week rest restriction. Same-week movement, House weekly locks and current leadership remain protected.</p>
+          </div>
+          <label htmlFor="roster-override-reason">Correction reason
+            <textarea
+              id="roster-override-reason"
+              minLength={12}
+              maxLength={500}
+              required
+              value={overrideReason}
+              onChange={(event) => setOverrideReason(event.target.value)}
+              placeholder="Describe the factual error or exceptional correction being made."
+            />
+          </label>
+        </div>
+      )}
+      <button className="button button--danger" type="button" disabled={busy || invalidSameWeek || (overrideRequired && (!platformAdmin || overrideReason.trim().length < 12)) || !sourceHouse || !targetHouse || !sourceMembers.some((item) => item.userId === firstPlayerId) || !targetMembers.some((item) => item.userId === secondPlayerId)} onClick={handleSwap}>{busy ? "Changing Houses…" : overrideRequired ? "Complete audited correction" : "Complete roster swap"}</button>
     </section>
   );
 }
@@ -380,6 +432,9 @@ function AssignmentHistoryPanel({ history }) {
                     ? `Assigned to ${record.toHouseName} by C.H.A.O.S.`
                     : `${record.fromHouseName} → ${record.toHouseName}`}
                 </p>
+                {record.overrideApplied && (
+                  <small className="assignment-history__override">Administrator correction · {record.overrideReason}</small>
+                )}
               </div>
               <time>{record.weekKey || "Opening assignment"}</time>
             </article>
@@ -842,6 +897,7 @@ export default function Houses() {
                 members={members}
                 actorId={user?.uid}
                 manager={manager}
+                platformAdmin={isPlatformAdmin}
                 currentHouse={currentHouse}
                 notify={showToast}
               />

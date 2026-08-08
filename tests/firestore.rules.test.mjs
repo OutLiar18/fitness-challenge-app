@@ -634,9 +634,9 @@ function houseData({
   };
 }
 
-function auditData({ action, entityId = "season-one", summary = "Season operation" }) {
+function auditData({ action, entityId = "season-one", summary = "Season operation", actorId = "admin-one" }) {
   return {
-    actorId: "admin-one",
+    actorId,
     action,
     entityType: "league",
     entityId,
@@ -1398,6 +1398,8 @@ async function seedV4RestLockSwapSeason(leagueId, {
   firstEligibleWeekKey = "",
   secondLockThroughWeekKey = "",
   secondEligibleWeekKey = "",
+  firstLastRosterWeekKey = "",
+  secondLastRosterWeekKey = "",
 } = {}) {
   const firstHouse = houseData({
     leagueId,
@@ -1428,11 +1430,13 @@ async function seedV4RestLockSwapSeason(leagueId, {
       ...membershipData({ leagueId, status: "active", house: firstHouse }),
       rosterLockThroughWeekKey: firstLockThroughWeekKey,
       rosterEligibleWeekKey: firstEligibleWeekKey,
+      lastRosterWeekKey: firstLastRosterWeekKey,
     });
     await setDoc(doc(firestore, "leagueMemberships", `${leagueId}_player-two`), {
       ...membershipData({ leagueId, userId: "player-two", status: "active", house: secondHouse }),
       rosterLockThroughWeekKey: secondLockThroughWeekKey,
       rosterEligibleWeekKey: secondEligibleWeekKey,
+      lastRosterWeekKey: secondLastRosterWeekKey,
     });
     await setDoc(doc(firestore, "leagueMemberships", `${leagueId}_player-three`), {
       ...membershipData({ leagueId, userId: "player-three", status: "active", house: firstHouse }),
@@ -1459,6 +1463,10 @@ function v4RestLockSwapBatch({
   eligibleWeekKey = "2026-08-17",
   firstMembershipEligibleWeekKey = null,
   includeHistory = true,
+  actorId = "admin-one",
+  overrideApplied = false,
+  overrideReason = "",
+  overriddenPlayerIds = [],
 }) {
   const firstEligibleWeekKey = firstMembershipEligibleWeekKey ?? eligibleWeekKey;
   const swapId = `${leagueId}_${firstHouse.id}_${secondHouse.id}_${weekKey}`;
@@ -1466,9 +1474,10 @@ function v4RestLockSwapBatch({
   const batch = writeBatch(firestore);
 
   batch.set(doc(firestore, "auditEvents", auditId), auditData({
-    action: "house.roster-swapped",
+    action: overrideApplied ? "house.roster-rest-overridden" : "house.roster-swapped",
     entityId: leagueId,
-    summary: "Completed a v4 House roster swap with a post-move rest window",
+    summary: overrideApplied ? "Corrected a v4 House movement rest restriction" : "Completed a v4 House roster swap with a post-move rest window",
+    actorId,
   }));
   for (const house of [firstHouse, secondHouse]) {
     batch.set(doc(firestore, "leagueRosterLocks", `${leagueId}_${house.id}_${weekKey}`), {
@@ -1477,7 +1486,7 @@ function v4RestLockSwapBatch({
       weekKey,
       swapId,
       createdAt: serverTimestamp(),
-      createdBy: "admin-one",
+      createdBy: actorId,
     });
   }
   batch.set(doc(firestore, "leagueRosterSwaps", swapId), {
@@ -1489,12 +1498,15 @@ function v4RestLockSwapBatch({
     secondHouseName: secondHouse.data.name,
     firstPlayerId: "player-one",
     secondPlayerId: "player-two",
-    actorId: "admin-one",
+    actorId,
     createdAt: serverTimestamp(),
     lastAuditId: auditId,
     rulesVersion: "season-houses-v4",
     lockThroughWeekKey,
     eligibleWeekKey,
+    overrideApplied,
+    overrideReason,
+    overriddenPlayerIds,
   });
   batch.update(doc(firestore, "leagueMemberships", `${leagueId}_player-one`), {
     currentHouseId: secondHouse.id,
@@ -1534,8 +1546,10 @@ function v4RestLockSwapBatch({
       toHouseName: secondHouse.data.name,
       method: "weekly-swap",
       sourceId: swapId,
+      overrideApplied: overriddenPlayerIds.includes("player-one"),
+      overrideReason: overriddenPlayerIds.includes("player-one") ? overrideReason : "",
       createdAt: serverTimestamp(),
-      createdBy: "admin-one",
+      createdBy: actorId,
       lastAuditId: auditId,
     });
     batch.set(doc(firestore, "leagueHouseAssignmentHistory", `${swapId}_player-two`), {
@@ -1549,8 +1563,10 @@ function v4RestLockSwapBatch({
       toHouseName: firstHouse.data.name,
       method: "weekly-swap",
       sourceId: swapId,
+      overrideApplied: overriddenPlayerIds.includes("player-two"),
+      overrideReason: overriddenPlayerIds.includes("player-two") ? overrideReason : "",
       createdAt: serverTimestamp(),
-      createdBy: "admin-one",
+      createdBy: actorId,
       lastAuditId: auditId,
     });
   }
@@ -1689,6 +1705,172 @@ test("v4 roster swaps enforce the persisted rest week and reopen eligibility aft
   assert.equal(firstAfter.data().rosterEligibleWeekKey, "2026-08-31");
   assert.equal(secondAfter.data().rosterLockThroughWeekKey, "2026-08-24");
   assert.equal(secondAfter.data().rosterEligibleWeekKey, "2026-08-31");
+});
+
+test("only a Platform Administrator can override an active post-move rest with a factual reason", async () => {
+  const firestore = adminContext().firestore();
+  const reason = "Correcting a documented administrator assignment error.";
+
+  const allowedLeagueId = "season-v4-rest-override";
+  const allowed = await seedV4RestLockSwapSeason(allowedLeagueId, {
+    firstLockThroughWeekKey: "2026-08-10",
+    firstEligibleWeekKey: "2026-08-17",
+  });
+  await assertSucceeds(v4RestLockSwapBatch({
+    firestore,
+    leagueId: allowedLeagueId,
+    ...allowed,
+    weekKey: "2026-08-10",
+    lockThroughWeekKey: "2026-08-17",
+    eligibleWeekKey: "2026-08-24",
+    overrideApplied: true,
+    overrideReason: reason,
+    overriddenPlayerIds: ["player-one"],
+  }).commit());
+
+  const swapId = `${allowedLeagueId}_${allowed.firstHouse.id}_${allowed.secondHouse.id}_2026-08-10`;
+  const swap = await getDoc(doc(firestore, "leagueRosterSwaps", swapId));
+  const firstHistory = await getDoc(doc(firestore, "leagueHouseAssignmentHistory", `${swapId}_player-one`));
+  const secondHistory = await getDoc(doc(firestore, "leagueHouseAssignmentHistory", `${swapId}_player-two`));
+  assert.equal(swap.data().overrideApplied, true);
+  assert.deepEqual(swap.data().overriddenPlayerIds, ["player-one"]);
+  assert.equal(firstHistory.data().overrideApplied, true);
+  assert.equal(firstHistory.data().overrideReason, reason);
+  assert.equal(secondHistory.data().overrideApplied, false);
+  assert.equal(secondHistory.data().overrideReason, "");
+
+  const shortReasonLeagueId = "season-v4-rest-override-short";
+  const shortReason = await seedV4RestLockSwapSeason(shortReasonLeagueId, {
+    firstLockThroughWeekKey: "2026-08-10",
+    firstEligibleWeekKey: "2026-08-17",
+  });
+  await assertFails(v4RestLockSwapBatch({
+    firestore,
+    leagueId: shortReasonLeagueId,
+    ...shortReason,
+    weekKey: "2026-08-10",
+    lockThroughWeekKey: "2026-08-17",
+    eligibleWeekKey: "2026-08-24",
+    overrideApplied: true,
+    overrideReason: "Too short",
+    overriddenPlayerIds: ["player-one"],
+  }).commit());
+
+  const houseLeaderLeagueId = "season-v4-rest-override-house-leader";
+  const houseLeaderSeed = await seedV4RestLockSwapSeason(houseLeaderLeagueId, {
+    firstLockThroughWeekKey: "2026-08-10",
+    firstEligibleWeekKey: "2026-08-17",
+  });
+  await assertFails(v4RestLockSwapBatch({
+    firestore: playerContext("player-three").firestore(),
+    leagueId: houseLeaderLeagueId,
+    ...houseLeaderSeed,
+    weekKey: "2026-08-10",
+    lockThroughWeekKey: "2026-08-17",
+    eligibleWeekKey: "2026-08-24",
+    actorId: "player-three",
+    overrideApplied: true,
+    overrideReason: reason,
+    overriddenPlayerIds: ["player-one"],
+  }).commit());
+
+  const seasonAdminLeagueId = "season-v4-rest-override-season-admin";
+  const seasonAdminSeed = await seedV4RestLockSwapSeason(seasonAdminLeagueId, {
+    firstLockThroughWeekKey: "2026-08-10",
+    firstEligibleWeekKey: "2026-08-17",
+  });
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const raw = context.firestore();
+    const leagueRef = doc(raw, "leagues", seasonAdminLeagueId);
+    const current = (await getDoc(leagueRef)).data();
+    await setDoc(leagueRef, { ...current, administratorIds: ["player-three"] });
+  });
+  await assertFails(v4RestLockSwapBatch({
+    firestore: playerContext("player-three").firestore(),
+    leagueId: seasonAdminLeagueId,
+    ...seasonAdminSeed,
+    weekKey: "2026-08-10",
+    lockThroughWeekKey: "2026-08-17",
+    eligibleWeekKey: "2026-08-24",
+    actorId: "player-three",
+    overrideApplied: true,
+    overrideReason: reason,
+    overriddenPlayerIds: ["player-one"],
+  }).commit());
+});
+
+test("Platform Administrator rest override cannot bypass same-week movement, House locks or leadership protection", async () => {
+  const firestore = adminContext().firestore();
+  const reason = "Correcting a documented administrator assignment error.";
+
+  const sameWeekLeagueId = "season-v4-override-same-week";
+  const sameWeek = await seedV4RestLockSwapSeason(sameWeekLeagueId, {
+    firstLockThroughWeekKey: "2026-08-17",
+    firstEligibleWeekKey: "2026-08-24",
+    firstLastRosterWeekKey: "2026-08-10",
+  });
+  await assertFails(v4RestLockSwapBatch({
+    firestore,
+    leagueId: sameWeekLeagueId,
+    ...sameWeek,
+    weekKey: "2026-08-10",
+    lockThroughWeekKey: "2026-08-17",
+    eligibleWeekKey: "2026-08-24",
+    overrideApplied: true,
+    overrideReason: reason,
+    overriddenPlayerIds: ["player-one"],
+  }).commit());
+
+  const lockedLeagueId = "season-v4-override-house-locked";
+  const locked = await seedV4RestLockSwapSeason(lockedLeagueId, {
+    firstLockThroughWeekKey: "2026-08-10",
+    firstEligibleWeekKey: "2026-08-17",
+  });
+  const weekKey = "2026-08-10";
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), "leagueRosterLocks", `${lockedLeagueId}_${locked.firstHouse.id}_${weekKey}`), {
+      leagueId: lockedLeagueId,
+      houseId: locked.firstHouse.id,
+      weekKey,
+      swapId: "previous-swap",
+      createdAt: Timestamp.now(),
+      createdBy: "admin-one",
+    });
+  });
+  await assertFails(v4RestLockSwapBatch({
+    firestore,
+    leagueId: lockedLeagueId,
+    ...locked,
+    weekKey,
+    lockThroughWeekKey: "2026-08-17",
+    eligibleWeekKey: "2026-08-24",
+    overrideApplied: true,
+    overrideReason: reason,
+    overriddenPlayerIds: ["player-one"],
+  }).commit());
+
+  const leaderLeagueId = "season-v4-override-leader";
+  const leader = await seedV4RestLockSwapSeason(leaderLeagueId, {
+    firstLockThroughWeekKey: "2026-08-10",
+    firstEligibleWeekKey: "2026-08-17",
+  });
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const raw = context.firestore();
+    const houseRef = doc(raw, "leagueHouses", leader.firstHouse.id);
+    const current = (await getDoc(houseRef)).data();
+    await setDoc(houseRef, { ...current, captainId: "player-one" });
+  });
+  await assertFails(v4RestLockSwapBatch({
+    firestore,
+    leagueId: leaderLeagueId,
+    ...leader,
+    weekKey: "2026-08-10",
+    lockThroughWeekKey: "2026-08-17",
+    eligibleWeekKey: "2026-08-24",
+    overrideApplied: true,
+    overrideReason: reason,
+    overriddenPlayerIds: ["player-one"],
+  }).commit());
 });
 
 test("Pocket activities are private, zero-point reserves during the official window", async () => {

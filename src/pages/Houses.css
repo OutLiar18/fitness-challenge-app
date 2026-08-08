@@ -251,3 +251,18 @@
     grid-column: 2;
   }
 }
+
+
+.roster-override {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, var(--warning) 50%, var(--border));
+  border-radius: var(--radius-lg);
+  background: var(--warning-soft);
+}
+.roster-override > div { display: grid; gap: 4px; }
+.roster-override p { margin: 0; }
+.roster-override > div > p:last-child { color: var(--text-muted); }
+.roster-override label { display: grid; gap: 7px; font-weight: 820; }
+.assignment-history__override { color: var(--warning); font-weight: 780; }

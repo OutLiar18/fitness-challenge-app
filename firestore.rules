@@ -1883,6 +1883,51 @@ service cloud.firestore {
         && request.resource.data.createdAt == request.time;
     }
 
+    function validRosterSwapV4MovementPolicy(firstBefore, secondBefore) {
+      let firstMovedThisWeek = firstBefore.get("lastRosterWeekKey", "") == request.resource.data.weekKey;
+      let secondMovedThisWeek = secondBefore.get("lastRosterWeekKey", "") == request.resource.data.weekKey;
+      let firstRestActive = firstBefore.get("rosterLockThroughWeekKey", "") != ""
+        && request.resource.data.weekKey <= firstBefore.get("rosterLockThroughWeekKey", "");
+      let secondRestActive = secondBefore.get("rosterLockThroughWeekKey", "") != ""
+        && request.resource.data.weekKey <= secondBefore.get("rosterLockThroughWeekKey", "");
+      let overrideApplied = request.resource.data.get("overrideApplied", false);
+      let overrideReason = request.resource.data.get("overrideReason", "");
+      let overriddenPlayerIds = request.resource.data.get("overriddenPlayerIds", []);
+      return !firstMovedThisWeek
+        && !secondMovedThisWeek
+        && overriddenPlayerIds is list
+        && overriddenPlayerIds.size() <= 2
+        && (
+          (
+            !firstRestActive
+            && !secondRestActive
+            && overrideApplied == false
+            && overrideReason == ""
+            && overriddenPlayerIds.size() == 0
+          )
+          || (
+            (firstRestActive || secondRestActive)
+            && overrideApplied == true
+            && isPlatformAdmin()
+            && overrideReason is string
+            && overrideReason.size() >= 12
+            && overrideReason.size() <= 500
+            && (
+              (firstRestActive && secondRestActive
+                && overriddenPlayerIds.size() == 2
+                && overriddenPlayerIds[0] == request.resource.data.firstPlayerId
+                && overriddenPlayerIds[1] == request.resource.data.secondPlayerId)
+              || (firstRestActive && !secondRestActive
+                && overriddenPlayerIds.size() == 1
+                && overriddenPlayerIds[0] == request.resource.data.firstPlayerId)
+              || (!firstRestActive && secondRestActive
+                && overriddenPlayerIds.size() == 1
+                && overriddenPlayerIds[0] == request.resource.data.secondPlayerId)
+            )
+          )
+        );
+    }
+
     function validRosterSwapCreate(swapId) {
       let firstBefore = get(
         /databases/$(database)/documents/leagueMemberships/$(request.resource.data.leagueId + "_" + request.resource.data.firstPlayerId)
@@ -1906,17 +1951,14 @@ service cloud.firestore {
         /databases/$(database)/documents/leagues/$(request.resource.data.leagueId)
       ).data;
       let v4 = league.rulesVersion == "season-houses-v4";
-      let firstRestActive = firstBefore.get("rosterLockThroughWeekKey", "") != ""
-        && request.resource.data.weekKey <= firstBefore.get("rosterLockThroughWeekKey", "");
-      let secondRestActive = secondBefore.get("rosterLockThroughWeekKey", "") != ""
-        && request.resource.data.weekKey <= secondBefore.get("rosterLockThroughWeekKey", "");
       return request.resource.data.keys().hasOnly(
           v4
             ? [
                 "leagueId", "weekKey", "firstHouseId", "firstHouseName",
                 "secondHouseId", "secondHouseName", "firstPlayerId", "secondPlayerId",
                 "actorId", "createdAt", "lastAuditId", "rulesVersion",
-                "lockThroughWeekKey", "eligibleWeekKey"
+                "lockThroughWeekKey", "eligibleWeekKey", "overrideApplied",
+                "overrideReason", "overriddenPlayerIds"
               ]
             : [
                 "leagueId", "weekKey", "firstHouseId", "firstHouseName",
@@ -1946,8 +1988,6 @@ service cloud.firestore {
             request.resource.data.rulesVersion == "season-houses-v4"
             && request.resource.data.weekKey is string
             && request.resource.data.weekKey.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}")
-            && !firstRestActive
-            && !secondRestActive
             && request.resource.data.lockThroughWeekKey is string
             && request.resource.data.lockThroughWeekKey.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}")
             && request.resource.data.lockThroughWeekKey > request.resource.data.weekKey
@@ -1958,6 +1998,7 @@ service cloud.firestore {
             && secondAfter.rosterLockThroughWeekKey == request.resource.data.lockThroughWeekKey
             && firstAfter.rosterEligibleWeekKey == request.resource.data.eligibleWeekKey
             && secondAfter.rosterEligibleWeekKey == request.resource.data.eligibleWeekKey
+            && validRosterSwapV4MovementPolicy(firstBefore, secondBefore)
             && existsAfter(/databases/$(database)/documents/leagueHouseAssignmentHistory/$(swapId + "_" + request.resource.data.firstPlayerId))
             && existsAfter(/databases/$(database)/documents/leagueHouseAssignmentHistory/$(swapId + "_" + request.resource.data.secondPlayerId))
           )
@@ -1987,7 +2028,7 @@ service cloud.firestore {
       return request.resource.data.keys().hasOnly([
           "leagueId", "userId", "displayName", "weekKey", "fromHouseId",
           "fromHouseName", "toHouseId", "toHouseName", "method", "sourceId",
-          "createdAt", "createdBy", "lastAuditId"
+          "overrideApplied", "overrideReason", "createdAt", "createdBy", "lastAuditId"
         ])
         && historyId == request.resource.data.sourceId + "_" + request.resource.data.userId
         && request.resource.data.leagueId is string
@@ -2028,6 +2069,8 @@ service cloud.firestore {
         && request.resource.data.weekKey == ""
         && request.resource.data.fromHouseId == ""
         && request.resource.data.fromHouseName == "Unassigned"
+        && request.resource.data.get("overrideApplied", false) == false
+        && request.resource.data.get("overrideReason", "") == ""
         && leagueAfter.rulesVersion == "season-houses-v4"
         && leagueAfter.status == "registration"
         && leagueAfter.chaosStatus == "activated"
@@ -2047,6 +2090,7 @@ service cloud.firestore {
       let swap = getAfter(
         /databases/$(database)/documents/leagueRosterSwaps/$(request.resource.data.sourceId)
       ).data;
+      let userOverridden = request.resource.data.userId in swap.get("overriddenPlayerIds", []);
       return request.resource.data.method == "weekly-swap"
         && swap.rulesVersion == "season-houses-v4"
         && swap.createdAt == request.time
@@ -2054,6 +2098,18 @@ service cloud.firestore {
         && swap.actorId == request.auth.uid
         && swap.lastAuditId == request.resource.data.lastAuditId
         && request.resource.data.weekKey == swap.weekKey
+        && (
+          (
+            userOverridden
+            && request.resource.data.get("overrideApplied", false) == true
+            && request.resource.data.get("overrideReason", "") == swap.get("overrideReason", "")
+          )
+          || (
+            !userOverridden
+            && request.resource.data.get("overrideApplied", false) == false
+            && request.resource.data.get("overrideReason", "") == ""
+          )
+        )
         && (
           (
             request.resource.data.userId == swap.firstPlayerId
