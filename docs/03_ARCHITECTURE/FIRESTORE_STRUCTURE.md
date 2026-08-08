@@ -116,3 +116,18 @@ Append-only used-ID summary and selection sequence. A replaced ID remains presen
 ### Frozen policy
 
 `ruleset.powerPlayPolicy.powerPlayDefinitions` is a map keyed by Power Play ID. Weekly assignment name, multiplier and categories must exactly match the frozen definition.
+
+## v0.24 development — immutable House assignment history
+
+### `leagueHouseAssignmentHistory/{sourceId}_{userId}`
+
+Append-only v4 season records for opening C.H.A.O.S. assignments and weekly House roster swaps. Each record preserves the player identity used at the time, previous House, new House, assignment method, source operation, actor, audit link and creation time.
+
+Client access:
+
+- read/query: season members, authorised season administrators and Platform Administrators;
+- create: only as part of a Rules-validated v4 C.H.A.O.S. or weekly roster-swap operation;
+- update/delete: denied to every client role.
+
+The live `leagueMemberships` document remains the efficient current-House record. Assignment history is the permanent timeline and does not rewrite historical `leagueContributions`. Trusted account deletion anonymises player identity in these shared records while preserving the House movement facts.
+

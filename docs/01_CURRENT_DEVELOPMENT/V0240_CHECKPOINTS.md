@@ -141,7 +141,7 @@ If the legitimate v4 swap reaches the evaluator ceiling, stop here and redesign 
 
 ## Checkpoint 3C — enforce the post-move rest week
 
-Status: implemented in `0.24.0-dev.12` as the isolated rest-eligibility enforcement checkpoint.
+Status: **passed** in `0.24.0-dev.12` as the isolated rest-eligibility enforcement checkpoint.
 
 - keep the 3B rest-window write shape unchanged;
 - use the already-loaded pre-swap memberships, adding no new Rules document reads;
@@ -157,7 +157,23 @@ If the legitimate reopened-eligibility swap reaches the evaluator ceiling, stop 
 
 ## Checkpoint 4 — immutable assignment history
 
-Add assignment-history writes separately and verify maximum C.H.A.O.S. and roster-swap batch behaviour.
+Status: implemented in `0.24.0-dev.13` as one coherent history checkpoint.
+
+- add `leagueHouseAssignmentHistory` as the append-only v4 House-assignment timeline;
+- create one deterministic history record per player during opening C.H.A.O.S.;
+- create two deterministic history records in every normal v4 weekly roster-swap transaction;
+- require both weekly-swap history records atomically before the v4 swap may commit;
+- validate weekly history against the already-validated roster-swap document instead of adding redundant membership reads;
+- validate C.H.A.O.S. history against the projected membership/League state from the same activation batch;
+- allow season members and authorised administrators to read/query the history;
+- deny all client update/delete operations so records remain immutable;
+- expose a History tab in the Houses workspace for eligible v4 season participants/administrators;
+- include shared history in trusted account-deletion anonymisation;
+- extend the existing eight-House/sixteen-player C.H.A.O.S. positive path to include all sixteen history writes;
+- retain the one-week rest-window behaviour from Checkpoint 3C;
+- add no administrator movement override, composition profile or weekly-balance persistence.
+
+If the maximum-shape C.H.A.O.S. batch or legitimate v4 roster swap reaches a Firestore Rules access/evaluation limit after history is added, stop here and redesign the history coupling before Checkpoint 5.
 
 ## Checkpoint 5 — audited Platform Administrator correction
 

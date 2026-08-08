@@ -19,6 +19,8 @@ import {
   getSeasonWeekKey,
   isHouseLeader,
 } from "../services/seasons/seasonModel";
+import { supportsHouseMovementV1 } from "../services/seasons/houseMovementModel";
+import { subscribeToHouseAssignmentHistory } from "../services/seasons/houseMovementService";
 import {
   activateChaos,
   createLeagueHouse,
@@ -351,6 +353,43 @@ function RosterSwapPanel({ league, houses, members, actorId, manager, currentHou
   );
 }
 
+function AssignmentHistoryPanel({ history }) {
+  return (
+    <section className="assignment-history card">
+      <div className="assignment-history__heading">
+        <div>
+          <p className="section-kicker">Immutable roster history</p>
+          <h2>House assignment timeline</h2>
+          <p>Opening C.H.A.O.S. assignments and v4 weekly moves are preserved as append-only season records.</p>
+        </div>
+        <span>{history.length} records</span>
+      </div>
+      {history.length === 0 ? (
+        <div className="empty-state">Assignment history will appear after C.H.A.O.S. or the first v4 roster swap.</div>
+      ) : (
+        <div className="assignment-history__list">
+          {history.slice(0, 60).map((record) => (
+            <article key={record.id}>
+              <span className="assignment-history__icon" aria-hidden="true">
+                {record.method === "chaos" ? "⚡" : "🔄"}
+              </span>
+              <div>
+                <strong>{record.displayName}</strong>
+                <p>
+                  {record.method === "chaos"
+                    ? `Assigned to ${record.toHouseName} by C.H.A.O.S.`
+                    : `${record.fromHouseName} → ${record.toHouseName}`}
+                </p>
+              </div>
+              <time>{record.weekKey || "Opening assignment"}</time>
+            </article>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
 export default function Houses() {
   const { user, isPlatformAdmin } = usePlayerData();
   const { leagues, memberships: myMemberships, canManageLeagues } = useLeagues();
@@ -365,9 +404,18 @@ export default function Houses() {
     ? requestedId
     : fallbackId;
   const league = seasonLeagues.find((item) => item.id === selectedId) || null;
+  const movementV1 = supportsHouseMovementV1(league);
+  const canViewAssignmentHistory = Boolean(
+    movementV1
+    && (
+      myMemberships.some((item) => item.leagueId === league?.id)
+      || (canManageLeagues && canManageLeague(league, user?.uid, isPlatformAdmin))
+    )
+  );
   const [housesState, setHousesState] = useState({ leagueId: "", items: [] });
   const [membersState, setMembersState] = useState({ leagueId: "", items: [] });
   const [electionsState, setElectionsState] = useState({ leagueId: "", items: [] });
+  const [historyState, setHistoryState] = useState({ leagueId: "", items: [] });
   const [selectedHouseId, setSelectedHouseId] = useState("");
   const [working, setWorking] = useState(false);
   const [editingHouseId, setEditingHouseId] = useState("");
@@ -392,17 +440,26 @@ export default function Houses() {
       (items) => setElectionsState({ leagueId, items }),
       (error) => showToast(error.message || "Leadership votes could not be loaded.", "error"),
     );
+    const unsubHistory = canViewAssignmentHistory
+      ? subscribeToHouseAssignmentHistory(
+          leagueId,
+          (items) => setHistoryState({ leagueId, items }),
+          (error) => showToast(error.message || "House assignment history could not be loaded.", "error"),
+        )
+      : () => {};
 
     return () => {
       unsubHouses();
       unsubMembers();
       unsubElections();
+      unsubHistory();
     };
-  }, [league?.id, showToast]);
+  }, [league?.id, canViewAssignmentHistory, showToast]);
 
   const houses = housesState.leagueId === league?.id ? housesState.items : [];
   const members = membersState.leagueId === league?.id ? membersState.items : [];
   const elections = electionsState.leagueId === league?.id ? electionsState.items : [];
+  const assignmentHistory = historyState.leagueId === league?.id ? historyState.items : [];
   const membership = myMemberships.find((item) => item.leagueId === league?.id) || null;
   const currentHouse = houses.find((item) => item.id === membership?.currentHouseId) || null;
   const selectedHouse = houses.find((item) => item.id === selectedHouseId)
@@ -450,6 +507,15 @@ export default function Houses() {
             description: "Weekly captain and vice-captain voting",
           },
         ]
+      : []),
+    ...(canViewAssignmentHistory
+      ? [{
+          id: "history",
+          label: "History",
+          icon: "🧭",
+          description: "Immutable House assignment timeline",
+          badge: assignmentHistory.length,
+        }]
       : []),
     ...(canUseRosterTurn
       ? [{
@@ -750,6 +816,16 @@ export default function Houses() {
                 actorId={user?.uid}
                 notify={showToast}
               />
+            </WorkspacePanel>
+          )}
+
+          {canViewAssignmentHistory && (
+            <WorkspacePanel
+              id="history"
+              activeId={resolvedActiveTab}
+              idPrefix={`houses-${league.id}`}
+            >
+              <AssignmentHistoryPanel history={assignmentHistory} />
             </WorkspacePanel>
           )}
 

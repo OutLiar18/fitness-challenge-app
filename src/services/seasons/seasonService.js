@@ -27,6 +27,7 @@ import { calculateEntryPoints } from "../points";
 import { validateEntry } from "../validation";
 import { PLAYER_NOTIFICATION_TYPES } from "../notifications/notificationModel";
 import {
+  createHouseAssignmentHistoryId,
   getRosterRestWindow,
   supportsHouseMovementV1,
 } from "./houseMovementModel";
@@ -227,6 +228,25 @@ export async function activateChaos({ league, houses, memberships, actorId }) {
       houseAssignmentMethod: "chaos",
       updatedAt: serverTimestamp(),
     });
+    if (supportsHouseMovementV1(league)) {
+      const sourceId = `${league.id}_chaos`;
+      const historyId = createHouseAssignmentHistoryId(sourceId, assignment.userId);
+      batch.set(doc(db, "leagueHouseAssignmentHistory", historyId), {
+        leagueId: league.id,
+        userId: assignment.userId,
+        displayName: assignment.displayName || "Champion",
+        weekKey: "",
+        fromHouseId: "",
+        fromHouseName: "Unassigned",
+        toHouseId: assignment.houseId,
+        toHouseName: assignment.houseName,
+        method: "chaos",
+        sourceId,
+        createdAt: serverTimestamp(),
+        createdBy: actorId,
+        lastAuditId: auditReference.id,
+      });
+    }
     setNotification(batch, {
       userId: assignment.userId,
       type: PLAYER_NOTIFICATION_TYPES.CHAOS_ASSIGNMENT,
@@ -464,6 +484,15 @@ export async function swapHousePlayers({ league, firstHouse, secondHouse, firstP
       }
     }
 
+    const firstLive = { id: firstSnapshot.id, ...firstSnapshot.data() };
+    const secondLive = { id: secondSnapshot.id, ...secondSnapshot.data() };
+    const firstHistoryId = movementV1
+      ? createHouseAssignmentHistoryId(swapId, firstLive.userId)
+      : "";
+    const secondHistoryId = movementV1
+      ? createHouseAssignmentHistoryId(swapId, secondLive.userId)
+      : "";
+
     const auditReference = setAudit(transaction, {
       actorId,
       action: "house.roster-swapped",
@@ -538,6 +567,40 @@ export async function swapHousePlayers({ league, firstHouse, secondHouse, firstP
       currentHouseAccentId: firstHouse.accentId,
       ...sharedMembershipUpdate,
     });
+
+    if (movementV1) {
+      transaction.set(doc(db, "leagueHouseAssignmentHistory", firstHistoryId), {
+        leagueId: league.id,
+        userId: firstLive.userId,
+        displayName: firstLive.displayName || "Champion",
+        weekKey,
+        fromHouseId: firstHouse.id,
+        fromHouseName: firstHouse.name,
+        toHouseId: secondHouse.id,
+        toHouseName: secondHouse.name,
+        method: "weekly-swap",
+        sourceId: swapId,
+        createdAt: serverTimestamp(),
+        createdBy: actorId,
+        lastAuditId: auditReference.id,
+      });
+      transaction.set(doc(db, "leagueHouseAssignmentHistory", secondHistoryId), {
+        leagueId: league.id,
+        userId: secondLive.userId,
+        displayName: secondLive.displayName || "Champion",
+        weekKey,
+        fromHouseId: secondHouse.id,
+        fromHouseName: secondHouse.name,
+        toHouseId: firstHouse.id,
+        toHouseName: firstHouse.name,
+        method: "weekly-swap",
+        sourceId: swapId,
+        createdAt: serverTimestamp(),
+        createdBy: actorId,
+        lastAuditId: auditReference.id,
+      });
+    }
+
     setNotification(transaction, {
       userId: firstPlayer.userId,
       type: PLAYER_NOTIFICATION_TYPES.ROSTER_SWAP,

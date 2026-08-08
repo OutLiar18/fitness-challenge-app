@@ -1030,6 +1030,7 @@ test("v4 C.H.A.O.S. supports eight Houses and sixteen players in the real atomic
       await setDoc(doc(firestore, "leagueHouses", house.id), house.data);
     }
     for (const userId of playerIds) {
+      await setDoc(doc(firestore, "users", userId), createProfile(userId));
       await setDoc(
         doc(firestore, "leagueMemberships", `${leagueId}_${userId}`),
         membershipData({ leagueId, userId }),
@@ -1068,6 +1069,22 @@ test("v4 C.H.A.O.S. supports eight Houses and sixteen players in the real atomic
       houseAssignmentMethod: "chaos",
       updatedAt: serverTimestamp(),
     });
+    const sourceId = `${leagueId}_chaos`;
+    batch.set(doc(firestore, "leagueHouseAssignmentHistory", `${sourceId}_${userId}`), {
+      leagueId,
+      userId,
+      displayName: userId.replace("-", " "),
+      weekKey: "",
+      fromHouseId: "",
+      fromHouseName: "Unassigned",
+      toHouseId: house.id,
+      toHouseName: house.data.name,
+      method: "chaos",
+      sourceId,
+      createdAt: serverTimestamp(),
+      createdBy: "admin-one",
+      lastAuditId: auditId,
+    });
     batch.set(
       doc(firestore, "playerNotifications", `chaos-v4-scale-${index + 1}`),
       notificationData({
@@ -1080,6 +1097,18 @@ test("v4 C.H.A.O.S. supports eight Houses and sixteen players in the real atomic
   });
 
   await assertSucceeds(batch.commit());
+
+  const firstHistoryId = `${leagueId}_chaos_${playerIds[0]}`;
+  await assertSucceeds(getDoc(doc(playerContext(playerIds[0]).firestore(), "leagueHouseAssignmentHistory", firstHistoryId)));
+  await assertFails(getDoc(doc(playerContext("player-three").firestore(), "leagueHouseAssignmentHistory", firstHistoryId)));
+  await assertFails(getDocs(query(
+    collection(playerContext("player-three").firestore(), "leagueHouseAssignmentHistory"),
+    where("leagueId", "==", leagueId),
+  )));
+  await assertFails(updateDoc(doc(firestore, "leagueHouseAssignmentHistory", firstHistoryId), {
+    toHouseName: "Rewritten House",
+  }));
+  await assertFails(deleteDoc(doc(firestore, "leagueHouseAssignmentHistory", firstHistoryId)));
 });
 
 test("leadership ballots can open only during an active season", async () => {
@@ -1429,6 +1458,7 @@ function v4RestLockSwapBatch({
   lockThroughWeekKey = "2026-08-10",
   eligibleWeekKey = "2026-08-17",
   firstMembershipEligibleWeekKey = null,
+  includeHistory = true,
 }) {
   const firstEligibleWeekKey = firstMembershipEligibleWeekKey ?? eligibleWeekKey;
   const swapId = `${leagueId}_${firstHouse.id}_${secondHouse.id}_${weekKey}`;
@@ -1492,6 +1522,38 @@ function v4RestLockSwapBatch({
     rosterEligibleWeekKey: eligibleWeekKey,
     updatedAt: serverTimestamp(),
   });
+  if (includeHistory) {
+    batch.set(doc(firestore, "leagueHouseAssignmentHistory", `${swapId}_player-one`), {
+      leagueId,
+      userId: "player-one",
+      displayName: "player one",
+      weekKey,
+      fromHouseId: firstHouse.id,
+      fromHouseName: firstHouse.data.name,
+      toHouseId: secondHouse.id,
+      toHouseName: secondHouse.data.name,
+      method: "weekly-swap",
+      sourceId: swapId,
+      createdAt: serverTimestamp(),
+      createdBy: "admin-one",
+      lastAuditId: auditId,
+    });
+    batch.set(doc(firestore, "leagueHouseAssignmentHistory", `${swapId}_player-two`), {
+      leagueId,
+      userId: "player-two",
+      displayName: "player two",
+      weekKey,
+      fromHouseId: secondHouse.id,
+      fromHouseName: secondHouse.data.name,
+      toHouseId: firstHouse.id,
+      toHouseName: firstHouse.data.name,
+      method: "weekly-swap",
+      sourceId: swapId,
+      createdAt: serverTimestamp(),
+      createdBy: "admin-one",
+      lastAuditId: auditId,
+    });
+  }
   batch.set(doc(firestore, "playerNotifications", `${leagueId}-swap-one`), notificationData({
     userId: "player-one",
     type: "roster-swap",
@@ -1529,6 +1591,48 @@ test("v4 roster swaps persist the one-week rest window and reject membership val
     leagueId: badLeagueId,
     ...bad,
     firstMembershipEligibleWeekKey: "2026-08-24",
+  }).commit());
+});
+
+test("v4 roster swaps require readable immutable assignment history for both players", async () => {
+  const leagueId = "season-v4-history";
+  const seeded = await seedV4RestLockSwapSeason(leagueId);
+  const firestore = adminContext().firestore();
+  const weekKey = "2026-08-03";
+  const swapId = `${leagueId}_${seeded.firstHouse.id}_${seeded.secondHouse.id}_${weekKey}`;
+  const firstHistoryId = `${swapId}_player-one`;
+  const secondHistoryId = `${swapId}_player-two`;
+
+  await assertSucceeds(v4RestLockSwapBatch({
+    firestore,
+    leagueId,
+    ...seeded,
+    weekKey,
+  }).commit());
+
+  const firstHistory = await getDoc(doc(playerContext("player-one").firestore(), "leagueHouseAssignmentHistory", firstHistoryId));
+  const secondHistory = await getDoc(doc(playerContext("player-two").firestore(), "leagueHouseAssignmentHistory", secondHistoryId));
+  const memberHistoryQuery = await assertSucceeds(getDocs(query(
+    collection(playerContext("player-one").firestore(), "leagueHouseAssignmentHistory"),
+    where("leagueId", "==", leagueId),
+  )));
+  assert.equal(memberHistoryQuery.size, 2);
+  assert.equal(firstHistory.data().fromHouseId, seeded.firstHouse.id);
+  assert.equal(firstHistory.data().toHouseId, seeded.secondHouse.id);
+  assert.equal(secondHistory.data().fromHouseId, seeded.secondHouse.id);
+  assert.equal(secondHistory.data().toHouseId, seeded.firstHouse.id);
+  await assertFails(updateDoc(doc(firestore, "leagueHouseAssignmentHistory", firstHistoryId), {
+    toHouseName: "Rewritten House",
+  }));
+  await assertFails(deleteDoc(doc(firestore, "leagueHouseAssignmentHistory", secondHistoryId)));
+
+  const missingLeagueId = "season-v4-history-required";
+  const missingSeed = await seedV4RestLockSwapSeason(missingLeagueId);
+  await assertFails(v4RestLockSwapBatch({
+    firestore,
+    leagueId: missingLeagueId,
+    ...missingSeed,
+    includeHistory: false,
   }).commit());
 });
 

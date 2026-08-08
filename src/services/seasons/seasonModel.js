@@ -216,6 +216,7 @@ export function distributePlayersWithChaos(members = [], houses = [], seed = "ch
     const house = shuffledHouses[index % shuffledHouses.length];
     return {
       userId: member.userId,
+      displayName: member.displayName || "Champion",
       membershipId: member.id,
       houseId: house.id,
       houseName: house.name,

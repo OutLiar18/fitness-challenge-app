@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  ACCOUNT_DELETION_ANONYMISED_COLLECTIONS,
   buildTrustedAccountDeletionAudit,
   replaceDeletedPlayerIdentity,
 } from "../src/services/account/trustedDeletionModel.js";
@@ -87,4 +88,5 @@ test("shared records replace identity without removing competition facts", () =>
   assert.equal(transformed.activityPoints, 15);
   assert.equal(transformed.details.summary, `${identity.displayName} earned points for ${identity.userId}`);
   assert.equal(transformed.details.contact, "");
+  assert.equal(ACCOUNT_DELETION_ANONYMISED_COLLECTIONS.includes("leagueHouseAssignmentHistory"), true);
 });

@@ -25,6 +25,7 @@ export const ACCOUNT_DELETION_ANONYMISED_COLLECTIONS = Object.freeze([
   "librarySuggestions",
   "leadershipVotes",
   "leagueEvidenceReviewers",
+  "leagueHouseAssignmentHistory",
 ]);
 
 function createIssue(severity, code, message) {
