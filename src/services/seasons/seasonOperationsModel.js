@@ -37,7 +37,6 @@ function getDateValue(value) {
 
 export function summarizeEvidenceWorkload({
   claims = [],
-  assignments = [],
   referenceDate = new Date(),
 } = {}) {
   const statusCounts = {
@@ -57,7 +56,6 @@ export function summarizeEvidenceWorkload({
         expired: 0,
         verified: 0,
         rejected: 0,
-        reviewers: 0,
       },
     ]),
   );
@@ -73,14 +71,6 @@ export function summarizeEvidenceWorkload({
     if (status === "verified") category.verified += 1;
     if (status === "rejected") category.rejected += 1;
   });
-
-  assignments
-    .filter((assignment) => assignment.status !== "inactive")
-    .forEach((assignment) => {
-      [...new Set(assignment.categories ?? [])].forEach((category) => {
-        if (categoryCounts[category]) categoryCounts[category].reviewers += 1;
-      });
-    });
 
   return {
     statusCounts,
@@ -184,7 +174,6 @@ export function buildSeasonCommandCentre({
   elections = [],
   claims = [],
   decisions = [],
-  reviewerAssignments = [],
   snapshots = [],
   contributions = [],
   trustedRuns = [],
@@ -194,7 +183,6 @@ export function buildSeasonCommandCentre({
 } = {}) {
   const evidence = summarizeEvidenceWorkload({
     claims,
-    assignments: reviewerAssignments,
     referenceDate,
   });
   const decisionHistory = summarizeDecisionHistory(decisions);
@@ -464,7 +452,6 @@ export function buildSeasonOperationsReport({
   memberships = [],
   claims = [],
   decisions = [],
-  reviewerAssignments = [],
   snapshots = [],
   trustedRuns = [],
   powerPlayAssignments = [],
@@ -487,7 +474,6 @@ export function buildSeasonOperationsReport({
     memberships,
     evidenceClaims: claims,
     evidenceDecisions: decisions,
-    reviewerAssignments,
     leaderboardSnapshots: snapshots,
     trustedSeasonRuns: trustedRuns,
     powerPlayAssignments,

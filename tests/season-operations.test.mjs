@@ -65,11 +65,6 @@ test("evidence workload separates open, expired and decided claims by category",
       { id: "verified-water", category: "water", status: "verified" },
       { id: "rejected-fruit", category: "fruit", status: "rejected" },
     ],
-    assignments: [
-      { status: "active", categories: ["running", "steps"] },
-      { status: "active", categories: ["running"] },
-      { status: "inactive", categories: ["fruit"] },
-    ],
     referenceDate: new Date("2026-08-04T08:00:00.000Z"),
   });
 
@@ -78,8 +73,8 @@ test("evidence workload separates open, expired and decided claims by category",
   assert.equal(summary.statusCounts.expired, 1);
   assert.equal(summary.statusCounts.verified, 1);
   assert.equal(summary.statusCounts.rejected, 1);
-  assert.equal(summary.categoryCounts.running.reviewers, 2);
-  assert.equal(summary.categoryCounts.steps.reviewers, 1);
+  assert.equal(summary.categoryCounts.running.open, 1);
+  assert.equal(summary.categoryCounts.steps.expired, 1);
 });
 
 test("decision history preserves reversals, late exceptions and net point movement", () => {

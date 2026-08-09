@@ -15,7 +15,7 @@ Dense routes use `WorkspaceTabs` on desktop and a native section selector on mob
 
 - `EvidenceWorkspace` lives inside the Seasons route and is available only when the selected v2 season and current role allow it.
 - The queue supports verification-code/player search, category/status filtering and status explanations.
-- Decision controls are disabled for unassigned Season Administrators even when they may manage reviewer assignments or publish snapshots.
+- Evidence decision controls are enabled only for Platform Administrators. League Administrators may retain read-only evidence visibility and authorised snapshot publication.
 - Player-facing evidence status lives in `EntryCard` and the Journal rather than a second duplicate activity list.
 - Copy controls expose only the verification ID, not private profile information.
 

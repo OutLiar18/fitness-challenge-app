@@ -20,55 +20,20 @@ function sortNewest(items = [], field = "createdAt") {
   });
 }
 
-export function subscribeToLeagueEvidenceDecisions(
-  { leagueId, categories = [], canViewAll = false },
-  onUpdate,
-  onError,
-) {
-  if (!leagueId || (!canViewAll && categories.length === 0)) {
+export function subscribeToLeagueEvidenceDecisions(leagueId, onUpdate, onError) {
+  if (!leagueId) {
     onUpdate?.([]);
     return () => {};
   }
 
-  if (canViewAll) {
-    return onSnapshot(
-      query(
-        collection(db, "seasonEvidenceDecisions"),
-        where("leagueId", "==", leagueId),
-      ),
-      (snapshot) => onUpdate?.(sortNewest(mapSnapshot(snapshot))),
-      onError,
-    );
-  }
-
-  const categorySnapshots = new Map();
-  const uniqueCategories = [...new Set(categories)].filter((category) =>
-    ["water", "fruit", "running", "steps"].includes(category),
-  );
-  const publish = () => {
-    const byId = new Map();
-    categorySnapshots.forEach((items) => {
-      items.forEach((item) => byId.set(item.id, item));
-    });
-    onUpdate?.(sortNewest([...byId.values()]));
-  };
-
-  const unsubscribers = uniqueCategories.map((category) =>
-    onSnapshot(
-      query(
-        collection(db, "seasonEvidenceDecisions"),
-        where("leagueId", "==", leagueId),
-        where("category", "==", category),
-      ),
-      (snapshot) => {
-        categorySnapshots.set(category, mapSnapshot(snapshot));
-        publish();
-      },
-      onError,
+  return onSnapshot(
+    query(
+      collection(db, "seasonEvidenceDecisions"),
+      where("leagueId", "==", leagueId),
     ),
+    (snapshot) => onUpdate?.(sortNewest(mapSnapshot(snapshot))),
+    onError,
   );
-
-  return () => unsubscribers.forEach((unsubscribe) => unsubscribe());
 }
 
 export function subscribeToLeagueLeaderboardSnapshots(leagueId, onUpdate, onError) {

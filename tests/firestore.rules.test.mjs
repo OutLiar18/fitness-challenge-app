@@ -2969,7 +2969,6 @@ function evidenceClaimData({
 
 async function seedActiveEvidenceSeason({
   claim,
-  reviewerCategories = [],
   includeSecondMember = true,
 } = {}) {
   const leagueId = claim?.leagueId ?? "season-v2";
@@ -2992,21 +2991,6 @@ async function seedActiveEvidenceSeason({
         doc(firestore, "leagueMemberships", `${leagueId}_player-two`),
         membershipData({ leagueId, userId: "player-two", status: "active", house }),
       );
-    }
-    if (reviewerCategories.length > 0) {
-      await setDoc(doc(firestore, "leagueEvidenceReviewers", `${leagueId}_player-two`), {
-        leagueId,
-        userId: "player-two",
-        displayName: "player two",
-        avatarId: "legacy-trophy",
-        categories: reviewerCategories,
-        status: "active",
-        createdAt: Timestamp.now(),
-        createdBy: "admin-one",
-        updatedAt: Timestamp.now(),
-        updatedBy: "admin-one",
-        lastAuditId: "seed-audit",
-      });
     }
     if (claim) {
       await setDoc(doc(firestore, "seasonEvidenceClaims", claim.id), claim.data);
@@ -3198,91 +3182,60 @@ test("v2 Steps cannot enter competitive standings before proof is verified", asy
   await assertFails(batch.commit());
 });
 
-test("season administrators assign multiple proof categories without rewriting reviewer history", async () => {
+test("retired evidence reviewer assignments cannot be changed by clients", async () => {
   const leagueId = "season-v2";
   await seedActiveEvidenceSeason();
-  const firestore = adminContext().firestore();
   const assignmentId = `${leagueId}_player-two`;
-  const createBatch = writeBatch(firestore);
-  createBatch.set(doc(firestore, "auditEvents", "reviewer-create-audit"), auditData({
-    action: "evidence.reviewer.assigned",
-    entityId: leagueId,
-    summary: "Assigned evidence reviewer",
-  }));
-  createBatch.set(doc(firestore, "leagueEvidenceReviewers", assignmentId), {
+  const assignment = {
     leagueId,
     userId: "player-two",
     displayName: "player two",
     avatarId: "legacy-trophy",
-    categories: ["running", "steps"],
+    categories: ["running"],
     status: "active",
     createdAt: serverTimestamp(),
     createdBy: "admin-one",
     updatedAt: serverTimestamp(),
     updatedBy: "admin-one",
-    lastAuditId: "reviewer-create-audit",
-  });
-  await assertSucceeds(createBatch.commit());
+    lastAuditId: "legacy-reviewer-audit",
+  };
 
-  const created = await getDoc(doc(firestore, "leagueEvidenceReviewers", assignmentId));
-  const updateBatch = writeBatch(firestore);
-  updateBatch.set(doc(firestore, "auditEvents", "reviewer-update-audit"), auditData({
-    action: "evidence.reviewer.assigned",
-    entityId: leagueId,
-    summary: "Updated evidence reviewer",
-  }));
-  updateBatch.update(doc(firestore, "leagueEvidenceReviewers", assignmentId), {
-    categories: ["running", "steps", "water", "fruit"],
-    status: "active",
-    updatedAt: serverTimestamp(),
-    updatedBy: "admin-one",
-    lastAuditId: "reviewer-update-audit",
-  });
-  await assertSucceeds(updateBatch.commit());
-  const updated = await getDoc(doc(firestore, "leagueEvidenceReviewers", assignmentId));
-  assert.deepEqual(updated.data().createdAt, created.data().createdAt);
-  assert.equal(updated.data().createdBy, "admin-one");
+  await assertFails(setDoc(
+    doc(adminContext().firestore(), "leagueEvidenceReviewers", assignmentId),
+    assignment,
+  ));
+  await assertFails(setDoc(
+    doc(playerContext("player-two").firestore(), "leagueEvidenceReviewers", assignmentId),
+    assignment,
+  ));
 });
 
-test("assigned category reviewers release proof-dependent points atomically", async () => {
-  const leagueId = "season-v2";
-  const house = houseData({ leagueId });
-  const base = evidenceClaimData({ leagueId, house });
-  const claim = { id: `${leagueId}_run-entry`, data: base };
-  await seedActiveEvidenceSeason({ claim, reviewerCategories: ["running"] });
-
-  await assertSucceeds(commitEvidenceVerification({
-    firestore: playerContext("player-two").firestore(),
-    actorId: "player-two",
-    claim,
-    decisionId: "decision-reviewer",
-    contributionId: `${leagueId}_${claim.id}_decision-reviewer`,
-  }));
-  await assertSucceeds(getDoc(doc(
-    playerContext().firestore(),
-    "seasonEvidenceClaims",
-    claim.id,
-  )));
-});
-
-test("unassigned reviewers cannot decide another evidence category", async () => {
+test("only Platform Administrators release proof-dependent points atomically", async () => {
   const leagueId = "season-v2";
   const house = houseData({ leagueId });
   const claim = {
     id: `${leagueId}_run-entry`,
     data: evidenceClaimData({ leagueId, house }),
   };
-  await seedActiveEvidenceSeason({ claim, reviewerCategories: ["steps"] });
+  await seedActiveEvidenceSeason({ claim });
+
   await assertFails(commitEvidenceVerification({
     firestore: playerContext("player-two").firestore(),
     actorId: "player-two",
     claim,
-    decisionId: "decision-forbidden",
-    contributionId: `${leagueId}_${claim.id}_decision-forbidden`,
+    decisionId: "decision-player-forbidden",
+    contributionId: `${leagueId}_${claim.id}_decision-player-forbidden`,
+  }));
+  await assertSucceeds(commitEvidenceVerification({
+    firestore: adminContext().firestore(),
+    actorId: "admin-one",
+    claim,
+    decisionId: "decision-platform-admin",
+    contributionId: `${leagueId}_${claim.id}_decision-platform-admin`,
   }));
 });
 
-test("unassigned season administrators cannot bypass category reviewer assignments", async () => {
+test("League Administrators cannot make evidence decisions", async () => {
   const leagueId = "season-v2";
   const house = houseData({ leagueId });
   const claim = {
@@ -3300,50 +3253,62 @@ test("unassigned season administrators cannot bypass category reviewer assignmen
     firestore: playerContext("player-three").firestore(),
     actorId: "player-three",
     claim,
-    decisionId: "decision-unassigned-season-admin",
-    contributionId: `${leagueId}_${claim.id}_decision-unassigned-season-admin`,
+    decisionId: "decision-league-admin-forbidden",
+    contributionId: `${leagueId}_${claim.id}_decision-league-admin-forbidden`,
   }));
 });
 
-test("category reviewers can read only the evidence categories assigned to them", async () => {
+test("League Administrators retain read-only evidence operations access", async () => {
   const leagueId = "season-v2";
   const house = houseData({ leagueId });
-  const runningClaim = {
+  const claim = {
     id: `${leagueId}_run-entry`,
     data: evidenceClaimData({ leagueId, house }),
   };
-  const stepsClaim = {
-    id: `${leagueId}_steps-entry`,
-    data: evidenceClaimData({
-      leagueId,
-      entryId: "steps-entry",
-      category: "steps",
-      house,
-      pendingPoints: 12,
-    }),
-  };
-  await seedActiveEvidenceSeason({
-    claim: runningClaim,
-    reviewerCategories: ["running"],
-  });
+  await seedActiveEvidenceSeason({ claim });
   await testEnvironment.withSecurityRulesDisabled(async (context) => {
-    await setDoc(
-      doc(context.firestore(), "seasonEvidenceClaims", stepsClaim.id),
-      stepsClaim.data,
-    );
+    await updateDoc(doc(context.firestore(), "leagues", leagueId), {
+      administratorIds: ["admin-one", "player-three"],
+    });
   });
 
-  const reviewerFirestore = playerContext("player-two").firestore();
   await assertSucceeds(getDoc(doc(
-    reviewerFirestore,
+    playerContext("player-three").firestore(),
     "seasonEvidenceClaims",
-    runningClaim.id,
+    claim.id,
   )));
   await assertFails(getDoc(doc(
-    reviewerFirestore,
+    playerContext("player-two").firestore(),
     "seasonEvidenceClaims",
-    stepsClaim.id,
+    claim.id,
   )));
+});
+
+test("League Administrators cannot use the late-proof exception", async () => {
+  const leagueId = "season-v2";
+  const house = houseData({ leagueId });
+  const deadlineAt = Timestamp.fromMillis(Date.now() - 60 * 60 * 1000);
+  const claim = {
+    id: `${leagueId}_run-entry`,
+    data: evidenceClaimData({ leagueId, house, deadlineAt }),
+  };
+  await seedActiveEvidenceSeason({ claim });
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await updateDoc(doc(context.firestore(), "leagues", leagueId), {
+      administratorIds: ["admin-one", "player-three"],
+    });
+  });
+
+  await assertFails(commitEvidenceVerification({
+    firestore: playerContext("player-three").firestore(),
+    actorId: "player-three",
+    claim,
+    decisionId: "late-league-admin-forbidden",
+    contributionId: `${leagueId}_${claim.id}_late-league-admin-forbidden`,
+    submittedAt: Timestamp.now(),
+    late: true,
+    reason: "Delayed WhatsApp delivery",
+  }));
 });
 
 test("late proof requires a Platform Administrator and an audit reason", async () => {
@@ -3354,15 +3319,15 @@ test("late proof requires a Platform Administrator and an audit reason", async (
     id: `${leagueId}_run-entry`,
     data: evidenceClaimData({ leagueId, house, deadlineAt }),
   };
-  await seedActiveEvidenceSeason({ claim, reviewerCategories: ["running"] });
+  await seedActiveEvidenceSeason({ claim });
   const lateSubmission = Timestamp.now();
 
   await assertFails(commitEvidenceVerification({
     firestore: playerContext("player-two").firestore(),
     actorId: "player-two",
     claim,
-    decisionId: "late-reviewer",
-    contributionId: `${leagueId}_${claim.id}_late-reviewer`,
+    decisionId: "late-non-admin",
+    contributionId: `${leagueId}_${claim.id}_late-non-admin`,
     submittedAt: lateSubmission,
     late: true,
     reason: "Delayed WhatsApp delivery",

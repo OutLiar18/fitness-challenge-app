@@ -48,41 +48,12 @@ service cloud.firestore {
         );
     }
 
-    function evidenceReviewerDocumentId(leagueId, userId) {
-      return leagueId + "_" + userId;
-    }
-
-    function isEvidenceReviewer(leagueId) {
-      let assignmentPath = /databases/$(database)/documents/leagueEvidenceReviewers/$(evidenceReviewerDocumentId(leagueId, request.auth.uid));
-      return signedIn()
-        && exists(assignmentPath)
-        && get(assignmentPath).data.status == "active"
-        && get(assignmentPath).data.categories is list
-        && get(assignmentPath).data.categories.size() > 0;
-    }
-
-    function isEvidenceReviewerFor(leagueId, category) {
-      let assignmentPath = /databases/$(database)/documents/leagueEvidenceReviewers/$(evidenceReviewerDocumentId(leagueId, request.auth.uid));
-      return signedIn()
-        && exists(assignmentPath)
-        && get(assignmentPath).data.status == "active"
-        && category in get(assignmentPath).data.categories;
-    }
-
-    function canReviewEvidence(leagueId, category) {
-      return isPlatformAdmin()
-        ? true
-        : isEvidenceReviewerFor(leagueId, category);
-    }
-
-    function canReadEvidenceOperations(leagueId, category) {
-      return isLeagueAdministrator(leagueId)
-        || isEvidenceReviewerFor(leagueId, category);
+    function canReadEvidenceOperations(leagueId) {
+      return isLeagueAdministrator(leagueId);
     }
 
     function canReadLiveLeagueOperations(leagueId) {
-      return isLeagueAdministrator(leagueId)
-        || isEvidenceReviewer(leagueId);
+      return isLeagueAdministrator(leagueId);
     }
 
     function managesLeagueAfter(leagueId) {
@@ -2454,61 +2425,6 @@ service cloud.firestore {
         );
     }
 
-    function validEvidenceReviewerBase(assignmentId) {
-      let leagueId = request.resource.data.leagueId;
-      let userId = request.resource.data.userId;
-      let membershipPath = /databases/$(database)/documents/leagueMemberships/$(leagueId + "_" + userId);
-      return isLeagueAdministrator(leagueId)
-        && request.resource.data.keys().hasOnly([
-          "leagueId", "userId", "displayName", "avatarId", "categories",
-          "status", "createdAt", "createdBy", "updatedAt", "updatedBy",
-          "lastAuditId"
-        ])
-        && assignmentId == evidenceReviewerDocumentId(leagueId, userId)
-        && exists(membershipPath)
-        && request.resource.data.displayName
-          == get(membershipPath).data.displayName
-        && request.resource.data.avatarId
-          == get(membershipPath).data.avatarId
-        && request.resource.data.categories is list
-        && request.resource.data.categories.size() <= 4
-        && request.resource.data.categories.hasOnly([
-          "water", "fruit", "running", "steps"
-        ])
-        && (
-          (request.resource.data.categories.size() > 0
-            && request.resource.data.status == "active")
-          || (request.resource.data.categories.size() == 0
-            && request.resource.data.status == "inactive")
-        )
-        && request.resource.data.updatedAt == request.time
-        && request.resource.data.updatedBy == request.auth.uid
-        && request.resource.data.lastAuditId is string
-        && validAuditAfter(
-          request.resource.data.lastAuditId,
-          "league",
-          leagueId
-        );
-    }
-
-    function validEvidenceReviewerCreate(assignmentId) {
-      return validEvidenceReviewerBase(assignmentId)
-        && request.resource.data.createdAt == request.time
-        && request.resource.data.createdBy == request.auth.uid;
-    }
-
-    function validEvidenceReviewerUpdate(assignmentId) {
-      return validEvidenceReviewerBase(assignmentId)
-        && request.resource.data.leagueId == resource.data.leagueId
-        && request.resource.data.userId == resource.data.userId
-        && request.resource.data.createdAt == resource.data.createdAt
-        && request.resource.data.createdBy == resource.data.createdBy
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          "displayName", "avatarId", "categories", "status",
-          "updatedAt", "updatedBy", "lastAuditId"
-        ]);
-    }
-
     function validEvidenceClaimCreate(claimId) {
       let league = get(
         /databases/$(database)/documents/leagues/$(request.resource.data.leagueId)
@@ -2796,7 +2712,7 @@ service cloud.firestore {
         && existsAfter(
           /databases/$(database)/documents/leagueContributions/$(request.resource.data.contributionId)
         );
-      return canReviewEvidence(claim.leagueId, claim.category)
+      return isPlatformAdmin()
         && request.resource.data.keys().hasOnly([
           "claimId", "leagueId", "userId", "entryId", "category",
           "verificationCode", "decisionType", "previousStatus", "nextStatus",
@@ -2880,7 +2796,7 @@ service cloud.firestore {
             ? request.resource.data.status == "reversed"
             : false
         );
-      return canReviewEvidence(resource.data.leagueId, resource.data.category)
+      return isPlatformAdmin()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           "status", "reviewedAt", "reviewedBy", "reviewReason",
           "whatsappSubmittedAt", "verifiedQuantity", "decisionId",
@@ -2942,7 +2858,7 @@ service cloud.firestore {
       let decision = getAfter(
         /databases/$(database)/documents/seasonEvidenceDecisions/$(request.resource.data.evidenceDecisionId)
       ).data;
-      return canReviewEvidence(claim.leagueId, claim.category)
+      return isPlatformAdmin()
         && contributionId == decision.contributionId
         && decision.actorId == request.auth.uid
         && decision.claimId == request.resource.data.evidenceClaimId
@@ -3205,7 +3121,7 @@ service cloud.firestore {
                 "evidence-accepted", "evidence-rejected",
                 "evidence-bonus-awarded", "evidence-decision-reversed"
               ]
-              && canReviewEvidence(claim.leagueId, claim.category)
+              && isPlatformAdmin()
               && claim.reviewedBy == request.auth.uid
               && claim.reviewedAt == request.time
               && (
@@ -3876,23 +3792,15 @@ service cloud.firestore {
     }
 
     match /leagueEvidenceReviewers/{assignmentId} {
-      allow read: if isLeagueAdministrator(resource.data.leagueId)
-        || (signedIn() && resource.data.userId == request.auth.uid)
-        || isEvidenceReviewer(resource.data.leagueId);
-      allow create: if signedIn()
-        && validEvidenceReviewerCreate(assignmentId);
-      allow update: if signedIn()
-        && validEvidenceReviewerUpdate(assignmentId);
-      allow delete: if false;
+      // Retired in v0.24 Checkpoint 8G. Historical documents remain server-managed only.
+      allow read: if isPlatformAdmin();
+      allow create, update, delete: if false;
     }
 
     match /seasonEvidenceClaims/{claimId} {
       allow read: if isPlatformAdmin()
         || (signedIn() && resource.data.userId == request.auth.uid)
-        || canReadEvidenceOperations(
-          resource.data.leagueId,
-          resource.data.category
-        );
+        || canReadEvidenceOperations(resource.data.leagueId);
       allow create: if signedIn() && (
         validEvidenceClaimCreate(claimId)
         || validCorrectionEvidenceClaimCreate(claimId)
@@ -3908,10 +3816,7 @@ service cloud.firestore {
     match /seasonEvidenceDecisions/{decisionId} {
       allow read: if isPlatformAdmin()
         || (signedIn() && resource.data.userId == request.auth.uid)
-        || canReadEvidenceOperations(
-          resource.data.leagueId,
-          resource.data.category
-        );
+        || canReadEvidenceOperations(resource.data.leagueId);
       allow create: if signedIn() && validEvidenceDecisionCreate(decisionId);
       allow update, delete: if false;
     }

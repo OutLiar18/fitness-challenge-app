@@ -263,19 +263,8 @@ export function getEvidenceDisplayStatus(claim, referenceDate = new Date()) {
   return { id: "pending", label: "Awaiting WhatsApp proof", tone: "warning" };
 }
 
-export function canReviewEvidenceCategory({
-  category,
-  userId,
-  isPlatformAdmin = false,
-  reviewerAssignments = [],
-}) {
-  if (isPlatformAdmin) return true;
-  return reviewerAssignments.some(
-    (assignment) =>
-      assignment.userId === userId &&
-      assignment.status !== "inactive" &&
-      assignment.categories?.includes(category),
-  );
+export function canReviewEvidenceCategory({ isPlatformAdmin = false } = {}) {
+  return Boolean(isPlatformAdmin);
 }
 
 export function isLateEvidenceSubmission(claim, submittedAt) {

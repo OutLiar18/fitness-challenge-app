@@ -12,7 +12,7 @@ The command centre gives authorised season operators one calm view of what requi
 
 - Platform Administrators see the complete season operations view.
 - Season managers see the complete season operations view for seasons they manage.
-- Assigned category reviewers see an operations view whose evidence claims and decisions are limited to their assigned categories.
+- League Administrators retain the full managed-season operations view, but evidence decisions remain Platform Administrator-only.
 - Ordinary players do not receive the command centre.
 - Legacy `season-houses-v1` seasons do not receive the v2 evidence command centre.
 
@@ -25,7 +25,7 @@ The command centre derives:
 - C.H.A.O.S. readiness and completed prerequisites;
 - current-week open, closed and finalised leadership ballots;
 - open, expired, accepted, rejected and reversed evidence claims;
-- assigned reviewer count per evidence category;
+- Platform Administrator evidence-decision boundary per category;
 - current leaderboard revision, publication due state and snapshot history;
 - immutable evidence decision history and net point movement.
 
@@ -50,7 +50,6 @@ Authorised users may download a portable JSON report containing the records visi
 - season and command-centre summary;
 - Houses and memberships;
 - evidence claims and immutable decisions;
-- reviewer assignments;
 - leaderboard snapshot history.
 
 The report is generated in the browser and is not uploaded or saved to Firestore. It contains no WhatsApp media or message contents. Administrators should treat it as private operational data.

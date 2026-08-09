@@ -1,10 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
-import {
-  subscribeToEvidenceReviewers,
-  subscribeToLeagueEvidenceClaims,
-} from "../../services/evidence/evidenceService";
+import { subscribeToLeagueEvidenceClaims } from "../../services/evidence/evidenceService";
 import {
   buildSeasonCommandCentre,
   buildSeasonOperationsReport,
@@ -183,7 +180,6 @@ export default function SeasonCommandCentre({
   actorId,
   isPlatformAdmin,
   isLeagueAdministrator,
-  reviewerCategories = [],
   notify,
   onOpenEvidence,
   onOpenHonours,
@@ -193,18 +189,13 @@ export default function SeasonCommandCentre({
   const [elections, setElections] = useState([]);
   const [claims, setClaims] = useState([]);
   const [decisions, setDecisions] = useState([]);
-  const [reviewerAssignments, setReviewerAssignments] = useState([]);
   const [snapshots, setSnapshots] = useState([]);
   const [trustedRuns, setTrustedRuns] = useState([]);
   const [loadingErrors, setLoadingErrors] = useState([]);
   const [downloading, setDownloading] = useState(false);
 
-  const canViewAllEvidence = Boolean(isPlatformAdmin || isLeagueAdministrator);
-  const canViewTrustedOperations = canViewAllEvidence;
-  const categories = useMemo(
-    () => [...new Set(reviewerCategories)].filter((category) => CATEGORY_LABELS[category]),
-    [reviewerCategories],
-  );
+  const canViewEvidenceOperations = Boolean(isPlatformAdmin || isLeagueAdministrator);
+  const canViewTrustedOperations = canViewEvidenceOperations;
 
   const recordError = useCallback((leagueId, source, error) => {
     setLoadingErrors((current) => [
@@ -228,26 +219,13 @@ export default function SeasonCommandCentre({
       setElections,
       (error) => recordError(league.id, "Leadership", error),
     );
-    const unsubscribeReviewers = subscribeToEvidenceReviewers(
-      league.id,
-      setReviewerAssignments,
-      (error) => recordError(league.id, "Reviewer assignments", error),
-    );
     const unsubscribeClaims = subscribeToLeagueEvidenceClaims(
-      {
-        leagueId: league.id,
-        categories,
-        canViewAll: canViewAllEvidence,
-      },
+      league.id,
       setClaims,
       (error) => recordError(league.id, "Evidence claims", error),
     );
     const unsubscribeDecisions = subscribeToLeagueEvidenceDecisions(
-      {
-        leagueId: league.id,
-        categories,
-        canViewAll: canViewAllEvidence,
-      },
+      league.id,
       setDecisions,
       (error) => recordError(league.id, "Evidence decisions", error),
     );
@@ -267,13 +245,12 @@ export default function SeasonCommandCentre({
     return () => {
       unsubscribeHouses();
       unsubscribeElections();
-      unsubscribeReviewers();
       unsubscribeClaims();
       unsubscribeDecisions();
       unsubscribeSnapshots();
       unsubscribeTrustedRuns();
     };
-  }, [canViewAllEvidence, canViewTrustedOperations, categories, league.id, recordError]);
+  }, [canViewTrustedOperations, league.id, recordError]);
 
   const visibleLoadingErrors = loadingErrors.filter((error) => error.leagueId === league.id);
 
@@ -285,14 +262,13 @@ export default function SeasonCommandCentre({
       elections,
       claims,
       decisions,
-      reviewerAssignments,
       snapshots,
       contributions,
       trustedRuns,
       powerPlayAssignments,
       trustedOperationsEnabled: canViewTrustedOperations,
     }),
-    [canViewTrustedOperations, claims, contributions, decisions, elections, houses, league, members, powerPlayAssignments, reviewerAssignments, snapshots, trustedRuns],
+    [canViewTrustedOperations, claims, contributions, decisions, elections, houses, league, members, powerPlayAssignments, snapshots, trustedRuns],
   );
   const health = healthCopy(commandCentre.health);
 
@@ -307,7 +283,6 @@ export default function SeasonCommandCentre({
         memberships: members,
         claims,
         decisions,
-        reviewerAssignments,
         snapshots,
         trustedRuns,
         powerPlayAssignments,
@@ -475,7 +450,7 @@ export default function SeasonCommandCentre({
               <article key={category}>
                 <strong>{CATEGORY_LABELS[category]}</strong>
                 <span>{summary.open} open · {summary.expired} expired</span>
-                <small>{summary.reviewers} assigned {pluralize(summary.reviewers, "reviewer", "reviewers")}</small>
+                <small>Platform Administrator review</small>
               </article>
             ))}
           </div>
@@ -531,7 +506,7 @@ export default function SeasonCommandCentre({
           <strong>Reports reflect the data visible to your role</strong>
           <p>
             Platform and season administrators receive the complete season operations record.
-            Category reviewers receive only the evidence categories they are authorised to view.
+            Only Platform Administrators can make evidence decisions. League Administrators retain read-only evidence visibility for season operations.
             WhatsApp media is never included.
           </p>
         </div>

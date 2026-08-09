@@ -141,30 +141,11 @@ test("expired proof stays visible and only Platform Administrators may accept it
   }).valid, true);
 });
 
-test("category reviewers are limited to assigned queues while only Platform Administrators override", () => {
-  const assignments = [{
-    userId: "reviewer-one",
-    status: "active",
-    categories: ["running", "steps"],
-  }];
-
+test("only Platform Administrators can make evidence decisions", () => {
   assert.equal(canReviewEvidenceCategory({
-    category: "running",
-    userId: "reviewer-one",
-    reviewerAssignments: assignments,
-  }), true);
-  assert.equal(canReviewEvidenceCategory({
-    category: "fruit",
-    userId: "reviewer-one",
-    reviewerAssignments: assignments,
+    isPlatformAdmin: false,
   }), false);
   assert.equal(canReviewEvidenceCategory({
-    category: "fruit",
-    userId: "league-admin",
-  }), false);
-  assert.equal(canReviewEvidenceCategory({
-    category: "fruit",
-    userId: "platform-admin",
     isPlatformAdmin: true,
   }), true);
 });

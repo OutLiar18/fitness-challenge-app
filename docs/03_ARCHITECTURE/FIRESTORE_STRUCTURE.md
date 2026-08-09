@@ -32,7 +32,7 @@ Current production: v0.20.0
 
 - `seasonEvidenceClaims/{claimId}`
 - `seasonEvidenceDecisions/{decisionId}`
-- `leagueEvidenceReviewers/{leagueId_userId}`
+- `leagueEvidenceReviewers/{leagueId_userId}` — retired legacy records; no longer used for client authorization or new writes.
 - `leagueLeaderboardSnapshots/{leagueId_dateKey_revision}`
 
 Collections appear only after their first document is created.
@@ -60,7 +60,7 @@ Rules deny all use of permanent-Team collections.
 - Invitation collections support direct known-code reads, not enumeration.
 - Membership and participant counts change atomically.
 - Claim creation is linked to the newly created source entry through `evidenceClaimIds`.
-- Reviewer assignment changes require an audit record and preserve original creation metadata.
+- New reviewer assignments are disabled; historical assignment documents remain server-managed legacy data.
 - Evidence decisions, claim status, contribution release/reversal, notification and audit records are atomic.
 - Player leaderboard snapshots are immutable and player-readable only after publication.
 - Players cannot read another player's live contribution stream in v2.
@@ -68,7 +68,7 @@ Rules deny all use of permanent-Team collections.
 
 ## v0.19 command-centre reads
 
-The command centre reads existing collections only: `leagues`, `leagueHouses`, `leagueMemberships`, `leadershipElections`, `seasonEvidenceClaims`, `seasonEvidenceDecisions`, `leagueEvidenceReviewers`, `leagueContributions` and `leagueLeaderboardSnapshots`. Security Rules are unchanged from v0.18.0. Queries remain role-scoped and no command-centre collection is introduced.
+The command centre reads existing collections only: `leagues`, `leagueHouses`, `leagueMemberships`, `leadershipElections`, `seasonEvidenceClaims`, `seasonEvidenceDecisions`, `leagueContributions` and `leagueLeaderboardSnapshots`. Security Rules are unchanged from v0.18.0. Queries remain role-scoped and no command-centre collection is introduced.
 
 ## v0.20.0 additions
 

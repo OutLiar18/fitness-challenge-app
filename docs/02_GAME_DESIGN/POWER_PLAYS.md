@@ -72,7 +72,7 @@ Excluded:
 
 ## Activity-date rule
 
-The challenge date of the activity determines the relevant official week. A Running or Steps contribution released after proof review still receives the Power Play that applied when the activity occurred, not the week when a reviewer accepted it.
+The challenge date of the activity determines the relevant official week. A Running or Steps contribution released after proof review still receives the Power Play that applied when the activity occurred, not the week when a Platform Administrator accepted it.
 
 Running's Cardio and Running contribution groups are evaluated separately by their score category. A Cardio-only Power Play does not multiply the Running portion, and vice versa, unless both categories are targeted.
 

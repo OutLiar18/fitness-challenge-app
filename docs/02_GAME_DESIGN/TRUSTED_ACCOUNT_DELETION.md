@@ -45,7 +45,7 @@ The processor removes eligible account-owned data such as:
 - challenge entries;
 - private notifications;
 - owner-readable client error reports;
-- private reviewer assignments.
+- retired legacy reviewer assignments, when present.
 
 ## Shared records anonymised
 

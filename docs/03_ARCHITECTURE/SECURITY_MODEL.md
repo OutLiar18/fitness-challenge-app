@@ -20,12 +20,12 @@ Current production: v0.20.0
 - Claim category, House identity, dates and pending values must match the source entry and frozen season policy.
 - Players may read their own claims but cannot change review state.
 
-## Reviewer scope
+## Evidence decision scope
 
 - Platform Administrators may review all categories.
-- Assigned reviewers are resolved through `leagueEvidenceReviewers/{leagueId_userId}`.
-- Assigned reviewers may query/read only their assigned categories.
-- Season Administrators may manage assignments and publication but do not automatically pass evidence-decision checks.
+- `leagueEvidenceReviewers` is retired from client authorization and accepts no new client writes.
+- Platform Administrators are the only browser role that passes evidence-decision checks.
+- League/Season Administrators may retain managed-season evidence read access and authorised publication without gaining evidence-decision authority.
 - Only Platform Administrators may accept late proof.
 
 ## Atomic decisions
@@ -34,7 +34,7 @@ Rules validate the decision, claim update, audit event, optional contribution an
 
 ## Published standings
 
-- Administrators/evidence operators may read live contributions as needed for operations.
+- Platform and League Administrators may read live contributions as needed for operations.
 - v2 players read published snapshots instead of another player's live contributions.
 - Snapshot creation is restricted to authorised season operators with matching audit metadata.
 - Snapshot revision identifiers and league latest-snapshot pointers must remain consistent.
@@ -49,7 +49,7 @@ Profile roles, account requests, season lifecycle, C.H.A.O.S., leadership, swaps
 
 ## v0.19 role-scoped operations reporting
 
-The command centre does not expand Firestore authority. Platform and season administrators read records already permitted by v0.18.0 Rules. Category reviewers receive only assigned evidence claim/decision queries. Reports are generated from successfully read records, so unavailable data is not bypassed or inferred. Operations exports contain no proof media.
+The command centre does not expand Firestore authority. Platform and season administrators read records allowed for managed-season operations. Evidence decision writes are Platform Administrator-only. Reports are generated from successfully read records, so unavailable data is not bypassed or inferred. Operations exports contain no proof media.
 
 ## Audited factual correction authority
 

@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { EVIDENCE_REVIEW_CATEGORY_OPTIONS } from "../../constants/evidence";
 import {
-  canReviewEvidenceCategory,
   getEvidenceClaimSummary,
   getEvidenceDisplayStatus,
   getTimeZoneDateKey,
@@ -11,8 +9,6 @@ import {
 import {
   decideEvidenceClaim,
   publishLeaderboardSnapshot,
-  saveEvidenceReviewerAssignment,
-  subscribeToEvidenceReviewers,
   subscribeToLeagueEvidenceClaims,
 } from "../../services/evidence/evidenceService";
 import { formatDateTimeLocalValue, parseDateTimeLocalValue, toDate } from "../../services/dateService";
@@ -64,7 +60,6 @@ function ClaimReviewForm({
   league,
   actorId,
   isPlatformAdmin,
-  reviewerAssignments,
   notify,
 }) {
   const [submittedAt, setSubmittedAt] = useState(() => formatDateTimeLocalValue(new Date()));
@@ -81,12 +76,7 @@ function ClaimReviewForm({
   }
 
   const status = getEvidenceDisplayStatus(claim);
-  const mayReview = canReviewEvidenceCategory({
-    category: claim.category,
-    userId: actorId,
-    isPlatformAdmin,
-    reviewerAssignments,
-  });
+  const mayReview = Boolean(isPlatformAdmin);
   const quantityRequired = ["water", "fruit"].includes(claim.category);
   const canReverse = ["verified", "rejected"].includes(claim.status);
 
@@ -103,7 +93,6 @@ function ClaimReviewForm({
         verifiedQuantity,
         reason,
         isPlatformAdmin,
-        reviewerAssignments,
       });
       notify?.(
         action === "verify"
@@ -189,7 +178,7 @@ function ClaimReviewForm({
 
       {!mayReview && (
         <div className="inline-alert inline-alert--danger" role="alert">
-          You are not assigned to review this evidence category.
+          Only Platform Administrators can make evidence decisions.
         </div>
       )}
 
@@ -225,93 +214,6 @@ function ClaimReviewForm({
           </button>
         )}
       </div>
-    </section>
-  );
-}
-
-function ReviewerAssignment({ league, members, assignments, actorId, notify }) {
-  const [memberId, setMemberId] = useState("");
-  const [categories, setCategories] = useState([]);
-  const [saving, setSaving] = useState(false);
-
-  function handleMemberChange(event) {
-    const nextMemberId = event.target.value;
-    const assignment = assignments.find((item) => item.userId === nextMemberId);
-    setMemberId(nextMemberId);
-    setCategories(assignment?.categories ?? []);
-  }
-
-  function toggleCategory(category) {
-    setCategories((current) =>
-      current.includes(category)
-        ? current.filter((item) => item !== category)
-        : [...current, category],
-    );
-  }
-
-  async function save() {
-    const member = members.find((item) => item.userId === memberId);
-    if (!member || saving) return;
-    setSaving(true);
-    try {
-      await saveEvidenceReviewerAssignment({
-        league,
-        member,
-        categories,
-        actorId,
-      });
-      notify?.("Evidence reviewer assignment saved.", "success");
-    } catch (error) {
-      console.error(error);
-      notify?.(error.message || "The reviewer assignment could not be saved.", "error");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  return (
-    <section className="evidence-reviewers card">
-      <div>
-        <p className="section-kicker">Delegated administration</p>
-        <h3>Category reviewers</h3>
-        <p>Platform Administrators retain access to every category. Assign season members to one or more proof queues.</p>
-      </div>
-      <label className="form-field">
-        <span>Season member</span>
-        <select value={memberId} onChange={handleMemberChange}>
-          <option value="">Choose a member</option>
-          {members.map((member) => (
-            <option key={member.userId} value={member.userId}>{member.displayName}</option>
-          ))}
-        </select>
-      </label>
-      {memberId && (
-        <div className="evidence-reviewers__categories">
-          {EVIDENCE_REVIEW_CATEGORY_OPTIONS.map((option) => (
-            <label key={option.id}>
-              <input
-                type="checkbox"
-                checked={categories.includes(option.id)}
-                onChange={() => toggleCategory(option.id)}
-              />
-              <span>{option.label}</span>
-            </label>
-          ))}
-        </div>
-      )}
-      <button className="button button--secondary" type="button" disabled={!memberId || saving} onClick={save}>
-        {saving ? "Saving assignment…" : "Save reviewer assignment"}
-      </button>
-      {assignments.filter((item) => item.status !== "inactive").length > 0 && (
-        <div className="evidence-reviewers__list">
-          {assignments.filter((item) => item.status !== "inactive").map((assignment) => (
-            <article key={assignment.id}>
-              <strong>{assignment.displayName}</strong>
-              <span>{assignment.categories.join(", ")}</span>
-            </article>
-          ))}
-        </div>
-      )}
     </section>
   );
 }
@@ -405,54 +307,21 @@ export default function EvidenceWorkspace({
   onSnapshotPublished,
 }) {
   const [claims, setClaims] = useState([]);
-  const [assignments, setAssignments] = useState([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("open");
   const [selectedId, setSelectedId] = useState("");
   const [loadingError, setLoadingError] = useState("");
   const automaticAttempted = useRef(false);
 
-  const allEvidenceCategories = useMemo(
-    () => new Set(["water", "fruit", "running", "steps"]),
-    [],
-  );
-  const actorAssignment = useMemo(
-    () => assignments.find(
-      (item) => item.userId === actorId && item.status !== "inactive",
-    ),
-    [actorId, assignments],
-  );
-  const reviewableCategories = useMemo(
-    () => isPlatformAdmin
-      ? allEvidenceCategories
-      : new Set(actorAssignment?.categories ?? []),
-    [actorAssignment, allEvidenceCategories, isPlatformAdmin],
-  );
-  const canViewAllClaims = Boolean(isPlatformAdmin || isLeagueAdministrator);
-  const viewableCategories = canViewAllClaims
-    ? allEvidenceCategories
-    : reviewableCategories;
-
-  useEffect(() => subscribeToEvidenceReviewers(
-    league.id,
-    setAssignments,
-    (error) => setLoadingError(error.message || "Reviewer assignments could not be loaded."),
-  ), [league.id]);
-
   useEffect(() => subscribeToLeagueEvidenceClaims(
-    {
-      leagueId: league.id,
-      categories: [...viewableCategories],
-      canViewAll: canViewAllClaims,
-    },
+    league.id,
     setClaims,
     (error) => setLoadingError(error.message || "Evidence claims could not be loaded."),
-  ), [canViewAllClaims, league.id, viewableCategories]);
+  ), [league.id]);
 
   const visibleClaims = useMemo(() => {
     const queryText = search.trim().toLowerCase();
     return claims.filter((claim) => {
-      if (!viewableCategories.has(claim.category)) return false;
       const displayStatus = getEvidenceDisplayStatus(claim)?.id;
       if (statusFilter === "open" && !["pending", "expired", "reversed"].includes(displayStatus)) return false;
       if (statusFilter !== "all" && statusFilter !== "open" && displayStatus !== statusFilter) return false;
@@ -460,7 +329,7 @@ export default function EvidenceWorkspace({
       return [claim.verificationCode, claim.displayName, claim.category, claim.houseName]
         .some((value) => String(value ?? "").toLowerCase().includes(queryText));
     });
-  }, [claims, search, statusFilter, viewableCategories]);
+  }, [claims, search, statusFilter]);
 
   const selectedClaim = visibleClaims.find((claim) => claim.id === selectedId)
     ?? visibleClaims[0]
@@ -525,7 +394,7 @@ export default function EvidenceWorkspace({
         <article><span>Awaiting proof</span><strong>{metrics.pending}</strong></article>
         <article><span>Past deadline</span><strong>{metrics.expired}</strong></article>
         <article><span>Accepted</span><strong>{metrics.verified}</strong></article>
-        <article><span>Your review categories</span><strong>{reviewableCategories.size}</strong></article>
+        <article><span>Decision authority</span><strong>{isPlatformAdmin ? "Platform Admin" : "Read only"}</strong></article>
       </section>
 
       <div className="evidence-layout">
@@ -567,30 +436,20 @@ export default function EvidenceWorkspace({
           league={league}
           actorId={actorId}
           isPlatformAdmin={isPlatformAdmin}
-          reviewerAssignments={assignments}
           notify={notify}
         />
       </div>
 
       {isLeagueAdministrator && (
-        <>
-          <ReviewerAssignment
-            league={league}
-            members={members}
-            assignments={assignments}
-            actorId={actorId}
-            notify={notify}
-          />
-          <SnapshotPublisher
-            league={league}
-            members={members}
-            contributions={contributions}
-            powerPlayAssignments={powerPlayAssignments}
-            actorId={actorId}
-            notify={notify}
-            onPublished={onSnapshotPublished}
-          />
-        </>
+        <SnapshotPublisher
+          league={league}
+          members={members}
+          contributions={contributions}
+          powerPlayAssignments={powerPlayAssignments}
+          actorId={actorId}
+          notify={notify}
+          onPublished={onSnapshotPublished}
+        />
       )}
     </div>
   );

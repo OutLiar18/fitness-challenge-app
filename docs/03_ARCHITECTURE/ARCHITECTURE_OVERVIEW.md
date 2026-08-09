@@ -26,8 +26,8 @@ Current production: v0.20.0
 
 ## Existing evidence and season architecture
 
-- `evidenceModel.js` owns policy normalization, claim identities, verification codes, point allocation, deadlines, permissions and decision validation.
-- `evidenceService.js` owns subscriptions, assignments, transactional decisions, notifications and snapshot publication.
+- `evidenceModel.js` owns policy normalization, claim identities, verification codes, point allocation, deadlines, Platform Administrator authority and decision validation.
+- `evidenceService.js` owns subscriptions, Platform Administrator-only transactional decisions, notifications and snapshot publication.
 - `entryRepository.js` creates source entries, immediate contributions and evidence claims atomically.
 - `leagueModel.js` calculates evidence-aware live standings and honours from immutable contributions.
 - `SeasonCommandCentre` derives role-aware operational priorities without changing scoring or evidence authority.
@@ -44,7 +44,7 @@ The current no-cost iteration performs constrained transactions from the client,
 
 - Historical entries, contributions, decisions, correction records and published snapshots remain immutable.
 - Correction heads are the only mutable correction pointer and move forward one sequence at a time.
-- Category reviewers subscribe only to assigned evidence queues.
+- League Administrators may read managed-season evidence for operations; only Platform Administrators may make evidence decisions.
 - Player standings read the latest published snapshot rather than all live contributions.
 - Journal rendering is paginated by recorded day, although the underlying owner entry subscription still loads the full personal history.
 - Whole-database reconciliation and trusted server recalculation remain future work.

@@ -65,7 +65,6 @@
 
 .evidence-browser,
 .evidence-review,
-.evidence-reviewers,
 .evidence-snapshot {
   display: grid;
   gap: 16px;
@@ -153,41 +152,6 @@
   gap: 10px;
 }
 
-.evidence-reviewers__categories {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 9px;
-}
-
-.evidence-reviewers__categories label {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  padding: 10px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface-soft);
-}
-
-.evidence-reviewers__list {
-  display: grid;
-  gap: 8px;
-}
-
-.evidence-reviewers__list article {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 12px;
-  border-radius: var(--radius-sm);
-  background: var(--surface-soft);
-}
-
-.evidence-reviewers__list span {
-  color: var(--text-muted);
-  text-align: right;
-}
-
 .evidence-snapshot__metrics {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -205,7 +169,6 @@
   .evidence-browser__filters,
   .evidence-review__form,
   .evidence-review__facts,
-  .evidence-reviewers__categories,
   .evidence-snapshot__metrics {
     grid-template-columns: 1fr;
   }

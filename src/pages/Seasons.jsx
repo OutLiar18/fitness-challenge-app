@@ -36,10 +36,7 @@ import {
   transitionLeague,
 } from "../services/leagues/leagueService";
 import { copyTextToClipboard } from "../utils/clipboard";
-import {
-  subscribeToLeaderboardSnapshot,
-  subscribeToReviewerAssignmentsForUser,
-} from "../services/evidence/evidenceService";
+import { subscribeToLeaderboardSnapshot } from "../services/evidence/evidenceService";
 import { subscribeToLeaguePowerPlayWeeks } from "../services/seasons/powerPlayService";
 import { resolveWorkspaceTab } from "../services/ui/workspaceModel";
 import {
@@ -460,7 +457,7 @@ function LeagueCreationForm({ actorId, notify }) {
         <ul className="season-evidence-config__rules">
           <li>Running proof must show the date, distance and duration; pace is calculated automatically.</li>
           <li>Steps proof must show the date, total steps and a recognisable app or device.</li>
-          <li>Platform Administrators can review all categories; assigned reviewers are configured after registration opens.</li>
+          <li>Only Platform Administrators can accept, reject or reverse evidence decisions.</li>
           <li>Players see a daily published snapshot while administrators retain live standings.</li>
         </ul>
         <label className="league-pocket-toggle">
@@ -612,7 +609,6 @@ function LeagueDetail({
     leagueId: "",
     items: [],
   });
-  const [reviewerAssignments, setReviewerAssignments] = useState([]);
   const [publishedSnapshot, setPublishedSnapshot] = useState(null);
   const [powerPlayAssignments, setPowerPlayAssignments] = useState([]);
   const [workingAction, setWorkingAction] = useState("");
@@ -621,23 +617,15 @@ function LeagueDetail({
     canManage && canManageLeague(league, userId, isPlatformAdmin);
   const isHouseSeason =
     league.mode === "season" && String(league.ruleset?.version ?? "").startsWith("season-houses-v");
-  const reviewerAssignment = reviewerAssignments.find(
-    (assignment) => assignment.leagueId === league.id && assignment.status !== "inactive",
-  );
-  const isEvidenceReviewer = Boolean(reviewerAssignment?.categories?.length);
   const evidenceEnabled = Boolean(league.ruleset?.evidencePolicy);
   const powerPlayEnabled = Boolean(league.ruleset?.modules?.powerPlay === true);
   const canViewLiveStandings = Boolean(
-    isManager
-      || (evidenceEnabled && isEvidenceReviewer)
-      || (!evidenceEnabled && membership),
+    isManager || (!evidenceEnabled && membership),
   );
   const canViewStandings = Boolean(membership || canViewLiveStandings);
-  const canOperateEvidence = Boolean(
-    evidenceEnabled && (isManager || isEvidenceReviewer),
-  );
+  const canOperateEvidence = Boolean(evidenceEnabled && isManager);
   const canViewCommandCentre = Boolean(
-    isHouseSeason && evidenceEnabled && (isManager || isEvidenceReviewer),
+    isHouseSeason && evidenceEnabled && isManager,
   );
   const detailTabs = SEASON_DETAIL_TABS.filter((tab) => {
     if (tab.id === "operations") return canViewCommandCentre;
@@ -647,15 +635,6 @@ function LeagueDetail({
   });
   const resolvedDetailTab =
     resolveWorkspaceTab(detailTabs, activeTab)?.id ?? "overview";
-
-  useEffect(() => {
-    if (!userId) return undefined;
-    return subscribeToReviewerAssignmentsForUser(
-      userId,
-      setReviewerAssignments,
-      (error) => notify(error.message || "Evidence reviewer access could not be loaded.", "error"),
-    );
-  }, [notify, userId]);
 
   useEffect(() => {
     if (!powerPlayEnabled) return undefined;
@@ -971,7 +950,6 @@ function LeagueDetail({
             actorId={userId}
             isPlatformAdmin={isPlatformAdmin}
             isLeagueAdministrator={isManager}
-            reviewerCategories={reviewerAssignment?.categories ?? EMPTY_ITEMS}
             notify={notify}
             onOpenEvidence={() => setActiveTab("evidence")}
             onOpenHonours={() => setActiveTab("honours")}
