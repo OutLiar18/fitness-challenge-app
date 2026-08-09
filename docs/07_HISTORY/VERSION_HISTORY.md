@@ -6,6 +6,7 @@
 
 | Version | Date | Milestone |
 |---|---|---|
+| 0.24.0 | 9 August 2026 | House Movement v4, immutable assignment history, composition privacy and weekly House balance; verified production deployment |
 | 0.23.5 | 7 August 2026 | Stable v0.23 security/runtime checkpoint; verified production deployment |
 | 0.23.0 | 5 August 2026 | Themed no-repeat Power Plays; verified production deployment |
 | 0.22.0 | 5 August 2026 | Trusted account deletion and anonymised shared history; verified production deployment |

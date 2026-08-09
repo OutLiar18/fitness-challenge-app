@@ -1,9 +1,9 @@
 # Champions Legacy Challenge
 
 <!-- RELEASE_STATUS: DEPLOYED -->
-Source version: **0.23.5**  
-Production version: **0.23.5**  
-Status: **v0.23.5 stability candidate; verified production deployment complete; pre-v1.0**
+Source version: **0.24.0**
+Production version: **0.24.0**
+Status: **v0.24.0 verified, deployed and production-smoke-tested; pre-v1.0**
 
 Champions Legacy Challenge is a gamified personal-development platform that rewards consistent, factual progress across fitness, reading, nutrition, movement and skill development.
 
@@ -13,53 +13,68 @@ Champions Legacy Challenge is a gamified personal-development platform that rewa
 - Ten factual activity categories with one central explainable Points Engine.
 - Goals, streaks, shields, Experience Points, achievements, records, timeline and Personal Analytics.
 - Trusted administration, immutable audit history, moderation, shared libraries and first-party error reporting.
-- Season-scoped Houses with C.H.A.O.S., leadership, roster movement, Pocket Week and historical House allocation.
+- Season-scoped Houses with C.H.A.O.S., leadership, Pocket Week, historical House attribution and themed no-repeat Power Plays.
 - External WhatsApp proof, immutable published standings, audited factual corrections, trusted season reconciliation and trusted account deletion.
+- `season-houses-v4` House Movement with one-week post-move rest, immutable assignment history, audited Platform Administrator rest correction, optional private composition profiles and privacy-safe weekly House-balance snapshots.
 
-## v0.23.5 — Stable Power Plays checkpoint
+## v0.24.0 — House Movement and Weekly Balance
 
+v0.24.0 completes the controlled House Movement rebuild that was deliberately excluded from the v0.23.5 stability checkpoint.
 
-This stabilization release is intentionally based on the verified v0.23.0 runtime and Firestore security model. It preserves themed Power Plays and the existing v3 season/House behaviour while excluding the unfinished v0.24 House Movement expansion (one-week post-move rest locks, composition profiles and weekly House-balance snapshots).
+Key additions:
 
-New `season-houses-v3` seasons gain one theme-named Power Play per official season week:
+- one-week post-move roster stability for v4 seasons;
+- initial C.H.A.O.S. assignment remains exempt from the movement rest rule;
+- immutable House-assignment history for C.H.A.O.S. and weekly movement;
+- Platform Administrator-only rest override with a factual audit reason;
+- same-week movement, House locks and leadership protection remain non-bypassable;
+- optional private season-composition responses with least-privilege access;
+- `house-balance-v1` weekly public/private snapshots with three-response suppression;
+- House balance remains informational only and has no scoring effect;
+- Firestore Rules were compacted and routed so the complete maximum-shape Rules suite is evaluator-clean.
 
-- ten required base Power Plays, one for each activity category;
-- unique season-themed names such as **Release the Kraken** for a mythological Water week;
-- controlled custom Power Plays covering one or multiple categories at 2× or 3×;
-- deterministic random selection from the unused enabled pool;
-- no selected, redrawn or corrected Power Play can ever be used again in that season;
-- activity-date scoring, including proof released later for Running or Steps;
-- activity points are multiplied before the ordinary league activity cap;
-- evidence bonuses, goals, missions, streaks, Experience Points and administrator adjustments are not multiplied;
-- identical multiplied contributions drive individual standings, House standings and honours;
-- immutable weekly assignment history, audit records and trusted-reconciliation checks.
+## Production verification
 
-Power Play names and definitions freeze when registration opens. Existing v1 and v2 seasons retain their historical behaviour.
-
-## Production
-
-v0.23.0 is deployed at:
+Production URL:
 
 `https://champions-legacy-challenge.web.app`
 
-## Release gates
+Release evidence:
+
+- deployed source commit: `b5e7c083c0ba7730f21b8a92b30530f3ebb8374c`;
+- 131 domain tests passed;
+- 79 Firestore Security Rules tests passed;
+- frozen Rules: 3,501 lines / 160,395 bytes;
+- frozen Rules SHA-256: `2ab1e569f4699e0018f3c5b7e5225a9fb42d65b835215fc9b8917ab21c701573`;
+- active Ruleset: `projects/fitnesschallengeapp-9e87f/rulesets/45a2ef28-df8b-4751-bbd2-dfed2c45a109`;
+- Hosting deployed 66 files to target `app`;
+- live `index.html` SHA-256 matched the local production build: `32df0e0ee05ee5b61a31d51857fe4c0ed30fa99c583248438a37e692a0a51cdc`;
+- all 17 referenced live assets, SPA fallback and configured headers were verified;
+- read-only and controlled profile-write production smoke checks passed.
+
+Detailed release evidence is recorded in `docs/07_HISTORY/V0240_PRODUCTION_RELEASE.md`.
+
+## Local setup and verification
 
 ```powershell
 npm install
 npm run check
 npm run test:rules
 npm run check:release
-npm audit
 ```
 
-Expected v0.23.5 targets are **120 domain tests**, **51 Firestore Security Rules tests**, clean ESLint, a successful Vite build and release-readiness for Hosting target `app`. Do not run `npm audit fix` or `npm audit fix --force`.
+Production deployment scripts inside the development repository remain intentionally blocked. Production activation is performed only through reviewed, scope-specific release runners.
 
-## Power Play documentation
+## Documentation
 
-- `docs/02_GAME_DESIGN/POWER_PLAYS.md`
-- `docs/04_DEVELOPMENT/POWER_PLAY_OPERATIONS.md`
-- `docs/03_ARCHITECTURE/decisions/ADR-030-themed-no-repeat-power-plays.md`
+Start with:
+
+- `docs/06_CHAT_HANDOVER/CHAT_BRIEFING.md`
+- `docs/06_CHAT_HANDOVER/RECENT_SESSION_SUMMARY.md`
+- `docs/01_CURRENT_DEVELOPMENT/CURRENT_STATE.md`
+- `docs/01_CURRENT_DEVELOPMENT/NEXT_SESSION.md`
+- `docs/07_HISTORY/V0240_PRODUCTION_RELEASE.md`
 
 ## Release boundary
 
-v0.23.5 is not v1.0. The deferred v0.24 House Movement work must not be copied into this stabilization branch until its Rules architecture is redesigned and independently verified. Weekly roster stability, weekly gender-composition balancing, Five Fires, the Buddy Bonus decision, late-season twists, hardening, full-product polish and the complete season rehearsal still remain ahead.
+v0.24.0 is **not** v1.0. Five Fires, the Buddy Bonus decision, late-season twists, security/operational hardening, full-product polish and the complete season rehearsal remain future pre-v1.0 work. Do not create or tag v1.0 without explicit approval.

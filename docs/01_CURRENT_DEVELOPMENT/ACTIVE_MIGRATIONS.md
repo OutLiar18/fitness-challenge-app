@@ -1,29 +1,28 @@
 # Champions Legacy Challenge — Active Migrations
 
 <!-- RELEASE_STATUS: DEPLOYED -->
-Last updated: 5 August 2026
+Last updated: 9 August 2026
 
-## v0.23.0 Power Plays
+## Current status
 
-Status: Implementation, Windows verification and production deployment complete; release commit pending.
+There is no incomplete v0.24 migration.
 
-No bulk migration is required.
+The House Movement and weekly-balance rebuild is complete and deployed:
 
-- Existing `season-houses-v1` and `season-houses-v2` seasons remain unchanged and Power Play-disabled.
-- Newly created seasons use `season-houses-v3` and include a draft Power Play pool.
-- Draft v3 seasons may edit theme names, descriptions, enabled state and custom controlled definitions.
-- Registration freezes the Power Play policy, including the canonical `powerPlayDefinitions` map.
-- Weekly assignment documents are created only when an authorised operator selects a week.
+- `season-houses-v4` is the current new-season contract;
+- one-week post-move rest state is persisted and enforced;
+- C.H.A.O.S. remains exempt from the move-rest rule;
+- immutable assignment history is active;
+- Platform Administrator rest correction is audited;
+- optional private season-composition profiles are active;
+- `house-balance-v1` public/private weekly snapshots are active and non-scoring;
+- themed no-repeat Power Plays remain integrated with the v4 season contract;
+- evaluator-aware Firestore Rules routing is the frozen production boundary.
 
-## New records
+## Historical compatibility
 
-- `leaguePowerPlayWeeks/{leagueId}_{weekKey}` — immutable factual weekly selection with permitted audited redraw/correction fields.
-- `leagues/{leagueId}.powerPlayState` — used-ID and selection-sequence summary used to enforce no-repeat selection.
-- `leagues/{leagueId}.ruleset.powerPlayPolicy` — frozen pool and canonical definition map.
+Existing older season rulesets retain their documented historical behaviour. Do not rewrite an active historical season into v4 merely to make it current.
 
-## Compatibility
+## Next migration boundary
 
-- Existing activity and contribution documents are unchanged.
-- Standings derive Power Play multipliers at read/reconciliation time using contribution challenge dates and immutable assignments.
-- Running and Steps proof released later uses the Power Play from the original activity week.
-- Trusted reconciliation fingerprints include the weekly assignment ledger.
+No v0.25 migration exists yet. Five Fires and any remaining competition mechanics must be designed first. Add a migration plan only if the approved design introduces a real stored-data or rules-contract transition.

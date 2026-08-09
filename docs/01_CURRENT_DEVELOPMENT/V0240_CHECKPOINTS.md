@@ -1,6 +1,6 @@
 # Champions Legacy Challenge — v0.24.0 Checkpoint Plan
 
-Date: 7 August 2026  
+Date: 7 August 2026
 Baseline: verified and deployed v0.23.5
 
 ## Development rule
@@ -229,3 +229,59 @@ Status: implemented in `0.24.0-dev.16` as the final security-sensitive feature c
 ## Visual work
 
 The black + dark blood-red warrior/Spartan/knight/samurai redesign is deferred to the dedicated polish release. The Power Plays workspace has a known visual-quality issue and needs a focused CSS/layout pass; do not mix that work into Rules-sensitive checkpoints.
+
+## Checkpoints 8A–8L — release hardening and final Rules freeze
+
+Status: **complete**.
+
+The 8-series isolated and removed Firestore Rules evaluator-risk before production activation. The sequence froze the v0.24.0 package version, hardened Rules, restricted evidence decisions to Platform Administrators, simplified trusted transactions and derived records, simplified trusted Platform operations, introduced evaluator-aware write routing, and finally froze the exact successful Rules candidate in Checkpoint 8L.
+
+Final 8L baseline:
+
+- deployed source commit: `b5e7c083c0ba7730f21b8a92b30530f3ebb8374c`;
+- 131 domain tests;
+- 79 Firestore Rules tests;
+- zero 1,000-expression evaluator-limit messages in the complete final Rules suite;
+- `firestore.rules`: 3,501 lines / 160,395 bytes;
+- SHA-256: `2ab1e569f4699e0018f3c5b7e5225a9fb42d65b835215fc9b8917ab21c701573`.
+
+ADR-031 records the final Rules freeze.
+
+## Checkpoint 9A — production Firestore Rules activation
+
+Status: **passed 9 August 2026**.
+
+- the full release gate passed immediately before production;
+- exactly one Rules-only deployment was performed with Firebase CLI 15.26.0;
+- Firebase compiled and released the frozen Rules;
+- read-only remote verification downloaded the active Ruleset source and reproduced the exact frozen SHA-256;
+- active Ruleset: `projects/fitnesschallengeapp-9e87f/rulesets/45a2ef28-df8b-4751-bbd2-dfed2c45a109`;
+- the runtime executable referenced the same Ruleset.
+
+## Checkpoint 9B — production Hosting activation
+
+Status: **passed 9 August 2026**.
+
+- the full release gate passed again;
+- the production `.env` and built bundle were validated against `fitnesschallengeapp-9e87f`;
+- exactly one `hosting:app` deployment was performed;
+- 66 files were released to `champions-legacy-challenge`;
+- live `index.html` SHA-256 matched the local build: `32df0e0ee05ee5b61a31d51857fe4c0ed30fa99c583248438a37e692a0a51cdc`;
+- all 17 referenced live assets, immutable cache policy, configured security headers and SPA fallback passed read-only verification;
+- Firestore Rules were not redeployed by 9B.
+
+## Checkpoint 9C — production smoke validation
+
+Status: **passed 9 August 2026**.
+
+- Dashboard, Activity Log, Houses/Seasons and Profile loaded successfully;
+- sign-out and sign-in succeeded;
+- a temporary profile display-name change persisted through refresh;
+- the original display name was restored and persisted through refresh;
+- no fake challenge activity or competition contribution was created.
+
+## Checkpoint 9D — release finalisation
+
+Status: **documentation/tag finalisation**.
+
+9D performs no Firebase operation. It records the release evidence, commits documentation-only finalisation changes, and creates the annotated `v0.24.0` tag on the exact deployed source commit `b5e7c083c0ba7730f21b8a92b30530f3ebb8374c`.

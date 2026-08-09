@@ -1,7 +1,49 @@
+# v0.24.0 — House Movement and Weekly Balance
+
+<!-- RELEASE_STATUS: DEPLOYED -->
+Date: 9 August 2026
+Status: Verified production deployment and smoke validation complete
+
+## Summary
+
+v0.24.0 completes the safer rebuild of House Movement that was deliberately deferred from v0.23.5. The release adds weekly roster stability, immutable movement history and privacy-safe composition balancing while preserving themed Power Plays and existing competition integrity.
+
+## New competition behaviour
+
+- Players moved during a weekly roster period receive a one-week post-move rest before they may be moved again.
+- Opening C.H.A.O.S. assignment does not count as a move.
+- C.H.A.O.S. and weekly moves create immutable House-assignment history.
+- Platform Administrators may override only an active rest restriction and must record a factual reason.
+- Same-week repeat movement, House weekly locks and captain/vice-captain protection cannot be overridden.
+
+## Composition privacy and weekly balance
+
+- Season members may optionally provide one private season-scoped composition response.
+- Individual responses remain visible only to the owner and authorised administrators.
+- Weekly House-balance snapshots suppress small disclosed groups and keep exact counts administrator-only.
+- Balance classifications are informational; they do not alter points, standings or Power Plays.
+
+## Security hardening
+
+The final Rules hardening sequence reduced evaluator pressure while preserving authority boundaries. Evidence decisions remain Platform Administrator-only. Trusted write paths were simplified and routed to relevant validators before the production Rules freeze.
+
+## Verification
+
+- 131 domain tests passed.
+- 79 Firestore Security Rules tests passed.
+- Complete final Rules suite contained zero 1,000-expression evaluator-limit messages.
+- Active production Rules source exactly matches SHA-256 `2ab1e569f4699e0018f3c5b7e5225a9fb42d65b835215fc9b8917ab21c701573`.
+- Hosting live index and all referenced build assets matched the verified local build byte-for-byte.
+- Production read-only navigation and reversible profile-write smoke tests passed.
+
+This remains pre-v1.0.
+
+---
+
 # v0.23.5 — Stability Checkpoint
 
 <!-- RELEASE_STATUS: DEPLOYED -->
-Date: 7 August 2026  
+Date: 7 August 2026
 Status: Verified production deployment complete
 
 ## Purpose
@@ -40,7 +82,7 @@ This remains pre-v1.0.
 ## Previous release notes — v0.23.0
 
 <!-- RELEASE_STATUS: DEPLOYED -->
-Date: 5 August 2026  
+Date: 5 August 2026
 Status: Verified production deployment
 
 ## What is new

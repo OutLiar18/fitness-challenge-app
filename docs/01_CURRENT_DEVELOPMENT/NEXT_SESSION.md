@@ -1,20 +1,30 @@
 # Champions Legacy Challenge — Next Session
 
 <!-- RELEASE_STATUS: DEPLOYED -->
-Current source: v0.23.5 stability candidate  
-Current production: v0.23.5
+Current source: v0.24.0
+Current production: v0.24.0
 
 ## First action
 
-Run the complete release gate from the one restored `fitness-tracker` folder:
+Begin v0.25.0 as a design/planning session, not a production operation.
 
-```powershell
-npm install
-npm run check:release
-```
+Load:
 
-Expected: 120 domain tests, 51 Firestore Rules tests, clean lint/build, and successful v0.23.5 release-readiness.
+- `docs/06_CHAT_HANDOVER/CHAT_BRIEFING.md`
+- `docs/06_CHAT_HANDOVER/RECENT_SESSION_SUMMARY.md`
+- `docs/01_CURRENT_DEVELOPMENT/CURRENT_STATE.md`
+- `docs/01_CURRENT_DEVELOPMENT/ROADMAP.md`
+- the relevant competition/game-design documents before changing code.
 
-If it passes, run `npm run deploy:production`. That command deploys Rules first and only deploys Hosting if Rules succeed. Verify the production site, then run `npm run finalise:release`.
+## v0.25.0 priorities
 
-Do not reintroduce the v0.24 House Movement files or Rules until that feature receives a new Rules architecture.
+1. Define the exact Five Fires rules and data model.
+2. Decide whether Buddy Bonuses belong in the same release or remain deferred.
+3. Define safe boundaries for any late-season twist framework.
+4. Check interactions with Power Plays, House movement, evidence, standings and weekly House balance before implementation.
+
+## Production boundary
+
+v0.24.0 is already verified and live. Do not rerun Checkpoints 9A or 9B, do not redeploy Rules or Hosting, and do not use production seasons as development fixtures.
+
+Keep the project pre-v1.0.

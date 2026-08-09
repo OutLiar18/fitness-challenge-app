@@ -1,15 +1,33 @@
-# Recent Session Summary — v0.23.0
+# Recent Session Summary — v0.24.0 Production Release
 
 <!-- RELEASE_STATUS: DEPLOYED -->
-Date: 5 August 2026
+Date: 9 August 2026
 
-The user approved the full Power Play policy and added two non-negotiable rules:
+v0.24.0 completed the controlled House Movement rebuild and is now verified in production.
 
-1. Every name must be unique and written for that season's theme.
-2. Once selected, a Power Play may not be used again for the remainder of the season.
+## What shipped
 
-The candidate now provides ten base category plays, controlled custom 2×/3× plays, random selection without replacement, pre-week redraw, locked audited correction, activity-date scoring and trusted reconciliation. Selected, redrawn and corrected-away plays all remain consumed.
+- `season-houses-v4` as the current new-season contract.
+- One-week post-move roster rest with C.H.A.O.S. exemption.
+- Immutable House-assignment history.
+- Platform Administrator-only rest correction with factual audit reasons.
+- Optional private composition responses.
+- `house-balance-v1` privacy-safe weekly snapshots with no scoring effect.
+- Themed no-repeat Power Plays preserved across the v4 season contract.
+- Evaluator-aware Firestore Rules routing and compact trusted write boundaries.
 
-Existing v1/v2 seasons remain unchanged; new seasons use v3. The packaging environment passes 120 domain tests. Windows must still run installation, lint, build, 51 Firestore Rules tests, release-readiness and npm audit before deployment.
+## Final verification
 
-The next planned release after v0.23 is weekly roster stability and the weekly composition-balance foundation.
+- 131 domain tests passed.
+- 79 Firestore Rules tests passed.
+- Final Rules suite produced zero 1,000-expression evaluator-limit messages.
+- Frozen Rules SHA-256: `2ab1e569f4699e0018f3c5b7e5225a9fb42d65b835215fc9b8917ab21c701573`.
+- Rules-only production activation succeeded and the active remote Ruleset source matched the frozen source byte-for-byte.
+- Hosting-only production activation succeeded; the live index and 17 referenced assets matched the verified build byte-for-byte.
+- Read-only production navigation and reversible profile-write smoke tests passed.
+
+Deployed source commit: `b5e7c083c0ba7730f21b8a92b30530f3ebb8374c`.
+
+## Next
+
+Begin v0.25.0 design for Five Fires and the remaining competition decisions. Do not touch production while those rules remain unresolved. The project remains pre-v1.0.
