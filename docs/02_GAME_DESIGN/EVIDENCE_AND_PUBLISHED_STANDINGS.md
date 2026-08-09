@@ -213,3 +213,7 @@ A required Running or Steps proof claim can be marked `superseded` only through 
 <!-- RELEASE_STATUS: DEPLOYED -->
 
 Before a trusted publication, evidence claims, decisions and released contribution links are checked alongside correction records. Broken proof relationships block publication. Accepted evidence remains represented by immutable contributions; the trusted command does not rereview WhatsApp media or alter evidence decisions.
+
+## Trusted derived-record boundary — Checkpoint 8I
+
+Evidence/correction contributions, evidence notifications and published leaderboard snapshots are derived records produced by already-authorised workflows. Firestore Rules keep the hard security relationships — authorised actor, claim/correction identity, immutable records, recipient ownership, House scope and atomic publication pointer — while avoiding duplicate reconstruction of the same source facts. Player-originated activity contributions and proof claims remain strictly validated against their source entry, membership and season contract.

@@ -2540,13 +2540,11 @@ service cloud.firestore {
         );
     }
     function validCorrectionEvidenceClaimCreate(claimId) {
-      let correction = getAfter(
-        /databases/$(database)/documents/entryCorrections/$(request.resource.data.correctionId)
-      ).data;
-      let replacement = getAfter(
-        /databases/$(database)/documents/challengeEntries/$(correction.replacementEntryId)
-      ).data;
       let data = request.resource.data;
+      let correction = getAfter(
+        /databases/$(database)/documents/entryCorrections/$(data.correctionId)
+      ).data;
+      let required = data.claimType == "required-proof";
       return isPlatformAdmin()
         && data.keys().hasOnly([
           "leagueId", "leagueName", "userId", "displayName", "avatarId",
@@ -2563,23 +2561,18 @@ service cloud.firestore {
         && correction.status == "completed"
         && correction.actorId == request.auth.uid
         && claimId in correction.replacementClaimIds
-        && correction.userId == data.userId
-        && correction.category == data.category
-        && replacement.userId == data.userId
-        && replacement.category == data.category
-        && replacement.challengeDate == data.challengeDate
-        && claimId in replacement.evidenceClaimIds
+        && data.userId == correction.userId
+        && data.category == correction.category
+        && data.challengeDate == correction.challengeDate
         && data.leagueId in correction.affectedLeagueIds
         && data.category in ["water", "fruit", "running", "steps"]
         && data.claimType in ["required-proof", "daily-bonus"]
         && validEvidenceVerificationCode(data.category, data.verificationCode)
         && data.status == "pending"
         && data.pendingPoints is number
-        && data.pendingPoints >= 0
-        && data.pendingPoints <= 10000
+        && data.pendingPoints >= 0 && data.pendingPoints <= 10000
         && data.bonusPointsAvailable is number
-        && data.bonusPointsAvailable >= 0
-        && data.bonusPointsAvailable <= 100
+        && data.bonusPointsAvailable >= 0 && data.bonusPointsAvailable <= 100
         && data.releasedPoints == 0
         && data.decisionId == ""
         && data.releasedContributionId == ""
@@ -2589,7 +2582,7 @@ service cloud.firestore {
         && data.correctionIds == [data.correctionId]
         && data.entryIds == [correction.replacementEntryId]
         && (
-          data.claimType == "required-proof"
+          required
             ? data.entryId == correction.replacementEntryId
               && data.pendingPoints > 0
               && data.bonusPointsAvailable == 0
@@ -2601,65 +2594,43 @@ service cloud.firestore {
         && data.createdAt == request.time
         && data.updatedAt == request.time;
     }
-    function validEvidenceClaimSupersede(claimId) {
-      let correction = getAfter(
-        /databases/$(database)/documents/entryCorrections/$(request.resource.data.correctionId)
-      ).data;
-      return isPlatformAdmin()
-        && resource.data.claimType == "required-proof"
-        && claimId in correction.sourceClaimIds
-        && correction.actorId == request.auth.uid
-        && correction.userId == resource.data.userId
-        && correction.category == resource.data.category
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          "status", "reviewedAt", "reviewedBy", "reviewReason",
-          "supersededByClaimId", "correctionId", "correctionIds", "updatedAt"
-        ])
-        && request.resource.data.status == "superseded"
-        && request.resource.data.reviewedAt == request.time
-        && request.resource.data.reviewedBy == request.auth.uid
-        && request.resource.data.supersededByClaimId is string
-        && (
-          request.resource.data.supersededByClaimId == ""
-          || request.resource.data.supersededByClaimId in correction.replacementClaimIds
-        )
-        && request.resource.data.correctionIds is list
-        && request.resource.data.correctionIds.size()
-          == resource.data.get("correctionIds", []).size() + 1
-        && request.resource.data.correctionIds.hasAll(
-          resource.data.get("correctionIds", [])
-        )
-        && request.resource.data.correctionId in request.resource.data.correctionIds
-        && request.resource.data.updatedAt == request.time;
-    }
-    function validDailyEvidenceClaimCorrection(claimId) {
-      let correctionId = request.resource.data.correctionIds[
-        request.resource.data.correctionIds.size() - 1
-      ];
+    function validEvidenceClaimCorrection(claimId) {
+      let data = request.resource.data;
+      let correctionId = resource.data.claimType == "required-proof"
+        ? data.correctionId
+        : data.correctionIds[data.correctionIds.size() - 1];
       let correction = getAfter(
         /databases/$(database)/documents/entryCorrections/$(correctionId)
       ).data;
-      return isPlatformAdmin()
-        && resource.data.claimType == "daily-bonus"
-        && claimId in correction.dailyClaimIds
-        && correction.actorId == request.auth.uid
+      let priorCorrectionIds = resource.data.get("correctionIds", []);
+      let linked = correction.actorId == request.auth.uid
         && correction.userId == resource.data.userId
         && correction.category == resource.data.category
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          "entryIds", "correctionIds", "updatedAt"
-        ])
-        && request.resource.data.entryIds is list
-        && request.resource.data.entryIds.size() == resource.data.entryIds.size() + 1
-        && request.resource.data.entryIds.hasAll(resource.data.entryIds)
-        && correction.replacementEntryId in request.resource.data.entryIds
-        && request.resource.data.correctionIds is list
-        && request.resource.data.correctionIds.size()
-          == resource.data.get("correctionIds", []).size() + 1
-        && request.resource.data.correctionIds.hasAll(
-          resource.data.get("correctionIds", [])
-        )
-        && correctionId in request.resource.data.correctionIds
-        && request.resource.data.updatedAt == request.time;
+        && data.correctionIds is list
+        && data.correctionIds.size() == priorCorrectionIds.size() + 1
+        && data.correctionIds.hasAll(priorCorrectionIds)
+        && correctionId in data.correctionIds
+        && data.updatedAt == request.time;
+      return isPlatformAdmin() && linked && (
+        resource.data.claimType == "required-proof"
+          ? claimId in correction.sourceClaimIds
+            && data.diff(resource.data).affectedKeys().hasOnly([
+              "status", "reviewedAt", "reviewedBy", "reviewReason",
+              "supersededByClaimId", "correctionId", "correctionIds", "updatedAt"
+            ])
+            && data.status == "superseded"
+            && data.reviewedAt == request.time
+            && data.reviewedBy == request.auth.uid
+            && data.supersededByClaimId is string
+            && (data.supersededByClaimId == "" || data.supersededByClaimId in correction.replacementClaimIds)
+          : resource.data.claimType == "daily-bonus"
+            && claimId in correction.dailyClaimIds
+            && data.diff(resource.data).affectedKeys().hasOnly(["entryIds", "correctionIds", "updatedAt"])
+            && data.entryIds is list
+            && data.entryIds.size() == resource.data.entryIds.size() + 1
+            && data.entryIds.hasAll(resource.data.entryIds)
+            && correction.replacementEntryId in data.entryIds
+      );
     }
     function validEvidenceDecisionCreate(decisionId) {
       let data = request.resource.data;
@@ -2777,10 +2748,7 @@ service cloud.firestore {
     }
     function validEvidenceContributionCreate(contributionId) {
       let data = request.resource.data;
-      let claim = get(
-        /databases/$(database)/documents/seasonEvidenceClaims/$(data.evidenceClaimId)
-      ).data;
-      let claimAfter = getAfter(
+      let claim = getAfter(
         /databases/$(database)/documents/seasonEvidenceClaims/$(data.evidenceClaimId)
       ).data;
       let decision = getAfter(
@@ -2791,7 +2759,7 @@ service cloud.firestore {
         && decision.actorId == request.auth.uid
         && decision.claimId == data.evidenceClaimId
         && decision.pointsDelta == data.activityPoints
-        && claimAfter.decisionId == data.evidenceDecisionId
+        && claim.decisionId == data.evidenceDecisionId
         && data.leagueId == claim.leagueId
         && data.userId == claim.userId
         && data.category == claim.category
@@ -2799,10 +2767,9 @@ service cloud.firestore {
         && data.source in ["evidence-release", "evidence-bonus", "evidence-reversal"]
         && data.get("correctionId", "") == ""
         && data.get("correctionRole", "") == ""
-        && data.createdAt == request.time
         && data.activityPoints is number
-        && data.activityPoints >= -10000
-        && data.activityPoints <= 10000;
+        && data.activityPoints >= -10000 && data.activityPoints <= 10000
+        && data.createdAt == request.time;
     }
 
     function validActivityLeagueContributionCreate(contributionId) {
@@ -2932,61 +2899,51 @@ service cloud.firestore {
     }
 
     function validLeaderboardSnapshotCreate(snapshotId) {
-      let league = get(
-        /databases/$(database)/documents/leagues/$(request.resource.data.leagueId)
+      let data = request.resource.data;
+      let league = getAfter(
+        /databases/$(database)/documents/leagues/$(data.leagueId)
       ).data;
-      let leagueAfter = getAfter(
-        /databases/$(database)/documents/leagues/$(request.resource.data.leagueId)
-      ).data;
-      return isLeagueAdministrator(request.resource.data.leagueId)
-        && request.resource.data.keys().hasOnly([
+      return isLeagueAdministrator(data.leagueId)
+        && data.keys().hasOnly([
           "leagueId", "rulesVersion", "publicationType", "replacesSnapshotId",
           "publicationDateKey", "players", "houses", "honours",
           "publishedAt", "publishedBy", "lastAuditId"
         ])
         && league.status in ["active", "completed"]
-        && request.resource.data.rulesVersion == league.rulesVersion
-        && request.resource.data.publicationType in ["manual", "automatic-fallback"]
-        && request.resource.data.replacesSnapshotId is string
-        && request.resource.data.publicationDateKey is string
-        && request.resource.data.publicationDateKey.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
-        && request.resource.data.players is list
-        && request.resource.data.players.size() <= 160
-        && request.resource.data.houses is list
-        && request.resource.data.houses.size() <= 8
-        && request.resource.data.honours is map
-        && request.resource.data.publishedAt == request.time
-        && request.resource.data.publishedBy == request.auth.uid
-        && request.resource.data.lastAuditId is string
-        && validAuditAfter(
-          request.resource.data.lastAuditId,
-          "league",
-          request.resource.data.leagueId
-        )
-        && leagueAfter.publishedLeaderboardSnapshotId == snapshotId
-        && leagueAfter.publishedLeaderboardAt == request.time
-        && leagueAfter.publishedLeaderboardBy == request.auth.uid;
+        && data.rulesVersion == league.rulesVersion
+        && data.publicationType in ["manual", "automatic-fallback"]
+        && data.replacesSnapshotId is string
+        && data.publicationDateKey is string
+        && data.publicationDateKey.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && data.players is list && data.players.size() <= 160
+        && data.houses is list && data.houses.size() <= 8
+        && data.honours is map
+        && data.publishedAt == request.time
+        && data.publishedBy == request.auth.uid
+        && data.lastAuditId is string
+        && validAuditAfter(data.lastAuditId, "league", data.leagueId)
+        && league.publishedLeaderboardSnapshotId == snapshotId
+        && league.publishedLeaderboardAt == request.time
+        && league.publishedLeaderboardBy == request.auth.uid;
     }
     function validEvidenceNotificationCreate(notificationId) {
-      let claimId = request.resource.data.get("evidenceClaimId", "");
+      let data = request.resource.data;
+      let claimId = data.get("evidenceClaimId", "");
       let claim = getAfter(
         /databases/$(database)/documents/seasonEvidenceClaims/$(claimId)
       ).data;
-      let deadlineMissed = request.resource.data.type == "evidence-deadline-missed";
       return claimId != ""
-        && request.resource.data.userId == claim.userId
-        && request.resource.data.leagueId == claim.leagueId
-        && request.resource.data.houseId == claim.houseId
+        && data.userId == claim.userId
+        && data.leagueId == claim.leagueId
+        && data.houseId == claim.houseId
         && (
-          deadlineMissed
-            ? (
-              notificationId == "evidence-deadline_" + claimId
+          data.type == "evidence-deadline-missed"
+            ? notificationId == "evidence-deadline_" + claimId
               && request.auth.uid == claim.userId
               && claim.status == "pending"
               && request.time > claim.deadlineAt
-            )
             : isPlatformAdmin()
-              && request.resource.data.type in [
+              && data.type in [
                 "evidence-accepted", "evidence-rejected",
                 "evidence-bonus-awarded", "evidence-decision-reversed"
               ]
@@ -2996,84 +2953,44 @@ service cloud.firestore {
     }
 
     function validPlayerNotificationCreate(notificationId) {
-      let recipientMembership = getAfter(
-        /databases/$(database)/documents/leagueMemberships/$(request.resource.data.leagueId + "_" + request.resource.data.userId)
+      let data = request.resource.data;
+      let membership = getAfter(
+        /databases/$(database)/documents/leagueMemberships/$(data.leagueId + "_" + data.userId)
       ).data;
-      let sameHouse = request.resource.data.houseId != ""
-        && recipientMembership.currentHouseId == request.resource.data.houseId;
-      return request.resource.data.keys().hasOnly([
+      let sameHouse = data.houseId != "" && membership.currentHouseId == data.houseId;
+      return data.keys().hasOnly([
           "userId", "type", "title", "message", "leagueId", "houseId",
           "evidenceClaimId", "actionPath", "createdAt", "readAt", "readBy"
         ])
-        && request.resource.data.type in [
+        && data.type in [
           "chaos-assignment", "leadership-vote-open", "leadership-result",
           "roster-swap", "pocket-redeemed", "season-notice",
           "evidence-accepted", "evidence-rejected", "evidence-bonus-awarded",
           "evidence-decision-reversed", "evidence-deadline-missed",
           "power-play-selected", "power-play-corrected"
         ]
-        && request.resource.data.title is string
-        && request.resource.data.title.size() >= 3
-        && request.resource.data.title.size() <= 120
-        && request.resource.data.message is string
-        && request.resource.data.message.size() >= 3
-        && request.resource.data.message.size() <= 500
-        && request.resource.data.actionPath is string
-        && request.resource.data.actionPath.size() <= 200
-        && request.resource.data.get("evidenceClaimId", "") is string
-        && request.resource.data.createdAt == request.time
-        && request.resource.data.readAt == null
-        && request.resource.data.readBy == ""
-        && recipientMembership.leagueId == request.resource.data.leagueId
+        && data.title is string && data.title.size() >= 3 && data.title.size() <= 120
+        && data.message is string && data.message.size() >= 3 && data.message.size() <= 500
+        && data.actionPath is string && data.actionPath.size() <= 200
+        && data.get("evidenceClaimId", "") is string
+        && data.createdAt == request.time
+        && data.readAt == null
+        && data.readBy == ""
+        && membership.leagueId == data.leagueId
         && (
-          request.resource.data.type == "chaos-assignment"
-            ? (
-              isLeagueAdministrator(request.resource.data.leagueId)
-              && sameHouse
-            )
-            : (
-              request.resource.data.type == "leadership-vote-open"
-                ? (
-                  (
-                    isLeagueAdministrator(request.resource.data.leagueId)
-                      ? true
-                      : currentHouseLeader(request.resource.data.houseId)
-                  )
-                  && sameHouse
-                )
-                : (
-                  request.resource.data.type == "leadership-result"
-                    ? (
-                      isLeagueAdministrator(request.resource.data.leagueId)
-                      && sameHouse
-                    )
-                    : (
-                      request.resource.data.type == "roster-swap"
-                        ? (
-                          (
-                            isLeagueAdministrator(request.resource.data.leagueId)
-                              ? true
-                              : leadsHouseInLeague(request.resource.data.leagueId)
-                          )
-                          && sameHouse
-                        )
-                        : (
-                          request.resource.data.type == "pocket-redeemed"
-                            ? (
-                              request.resource.data.userId == request.auth.uid
-                              && sameHouse
-                            )
-                            : (
-                              request.resource.data.type in [
-                                "season-notice", "power-play-selected", "power-play-corrected"
-                              ]
-                                ? isLeagueAdministrator(request.resource.data.leagueId)
-                                : validEvidenceNotificationCreate(notificationId)
-                            )
-                        )
-                    )
-                )
-            )
+          data.type == "chaos-assignment"
+            ? isLeagueAdministrator(data.leagueId) && sameHouse
+            : data.type == "leadership-vote-open"
+              ? (isLeagueAdministrator(data.leagueId) || currentHouseLeader(data.houseId)) && sameHouse
+              : data.type == "leadership-result"
+                ? isLeagueAdministrator(data.leagueId) && sameHouse
+                : data.type == "roster-swap"
+                  ? (isLeagueAdministrator(data.leagueId) || leadsHouseInLeague(data.leagueId)) && sameHouse
+                  : data.type == "pocket-redeemed"
+                    ? data.userId == request.auth.uid && sameHouse
+                    : data.type in ["season-notice", "power-play-selected", "power-play-corrected"]
+                      ? isLeagueAdministrator(data.leagueId)
+                      : validEvidenceNotificationCreate(notificationId)
         );
     }
 
@@ -3644,8 +3561,7 @@ service cloud.firestore {
       );
       allow update: if signedIn() && (
         validEvidenceClaimUpdate(claimId)
-        || validEvidenceClaimSupersede(claimId)
-        || validDailyEvidenceClaimCorrection(claimId)
+        || validEvidenceClaimCorrection(claimId)
       );
       allow delete: if false;
     }

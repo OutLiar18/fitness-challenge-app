@@ -82,3 +82,7 @@ Credential files and local reports are ignored by Git. No client can write `seas
 - Locked correction requires Platform Administrator authority, a reason, an unused replacement and immutable history fields.
 - Weekly assignment facts must match the frozen definition map.
 - Trusted reconciliation remains the final publication integrity check.
+
+## Checkpoint 8I trusted derived records
+
+Derived records do not become unrestricted writes. Evidence/correction contributions remain actor- and source-bound, evidence notifications remain recipient-bound, and leaderboard snapshots remain atomically linked to the league publication pointer and audit event. The reduction removes duplicate validation already guaranteed by the authoritative claim, correction or publication transaction; it does not relax ordinary player contribution or evidence-claim creation.

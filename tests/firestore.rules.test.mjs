@@ -3210,6 +3210,41 @@ test("retired evidence reviewer assignments cannot be changed by clients", async
   ));
 });
 
+test("evidence deadline notifications remain bound to the claim owner", async () => {
+  const leagueId = "season-v2";
+  const house = houseData({ leagueId });
+  const claim = {
+    id: `${leagueId}_deadline-owner`,
+    data: evidenceClaimData({
+      leagueId,
+      entryId: "deadline-owner",
+      challengeDate: Timestamp.now(),
+      deadlineAt: Timestamp.fromMillis(Date.now() - 60 * 60 * 1000),
+      house,
+    }),
+  };
+  await seedActiveEvidenceSeason({ claim });
+
+  await assertFails(setDoc(doc(
+    playerContext("player-two").firestore(),
+    "playerNotifications",
+    `evidence-deadline_${claim.id}`,
+  ), {
+    userId: "player-one",
+    type: "evidence-deadline-missed",
+    title: "Proof deadline missed",
+    message: "Your proof deadline has passed.",
+    leagueId,
+    houseId: house.id,
+    evidenceClaimId: claim.id,
+    actionPath: "/activity?tab=journal",
+    createdAt: serverTimestamp(),
+    readAt: null,
+    readBy: "",
+  }));
+});
+
+
 test("only Platform Administrators release proof-dependent points atomically", async () => {
   const leagueId = "season-v2";
   const house = houseData({ leagueId });
@@ -3451,6 +3486,36 @@ test("v2 players read published snapshots but not another player's live contribu
   ), { publicationType: "automatic-fallback" }));
 });
 
+test("leaderboard snapshots still require the atomic league publication pointer", async () => {
+  const leagueId = "season-v2";
+  const house = await seedActiveEvidenceSeason();
+  const firestore = adminContext().firestore();
+  const snapshotId = "detached-snapshot";
+  const auditId = "detached-snapshot-audit";
+  const batch = writeBatch(firestore);
+  batch.set(doc(firestore, "auditEvents", auditId), auditData({
+    action: "leaderboard.snapshot.published",
+    entityId: leagueId,
+    summary: "Attempted detached leaderboard snapshot",
+  }));
+  batch.set(doc(firestore, "leagueLeaderboardSnapshots", snapshotId), {
+    leagueId,
+    rulesVersion: "season-houses-v2",
+    publicationType: "manual",
+    replacesSnapshotId: "",
+    publicationDateKey: "2026-08-04",
+    players: [{ userId: "player-one", displayName: "player one", totalPoints: 10, rank: 1 }],
+    houses: [{ houseId: house.id, houseName: house.data.name, totalPoints: 10, rank: 1 }],
+    honours: { individual: [], houseChampions: [], houseOfChampions: null },
+    publishedAt: serverTimestamp(),
+    publishedBy: "admin-one",
+    lastAuditId: auditId,
+  });
+
+  await assertFails(batch.commit());
+});
+
+
 
 function ordinaryEntryData({
   userId = "player-one",
@@ -3585,6 +3650,123 @@ test("trusted Platform Administrator corrections still require a matching immuta
     auditEntityId: "different-correction",
   }));
 });
+
+test("trusted correction contributions remain bound to the correction identity", async () => {
+  const challengeDate = Timestamp.now();
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), "entryCorrections", "bound-correction"), {
+      rootEntryId: "bound-source",
+      sourceEntryId: "bound-source",
+      replacementEntryId: "bound-replacement",
+      userId: "player-one",
+      category: "water",
+      challengeDate,
+      sequence: 1,
+      reason: "Corrected an inaccurate water quantity.",
+      actorId: "admin-one",
+      sourcePoints: 2,
+      replacementPoints: 3,
+      pointDelta: 1,
+      affectedLeagueIds: ["season-v2"],
+      sourceContributionIds: ["source-contribution"],
+      reversalContributionIds: ["bound-reversal"],
+      replacementContributionIds: [],
+      sourceClaimIds: [],
+      replacementClaimIds: [],
+      dailyClaimIds: [],
+      status: "completed",
+      lastAuditId: "seed-audit",
+      createdAt: Timestamp.now(),
+    });
+  });
+
+  await assertFails(setDoc(doc(
+    adminContext().firestore(),
+    "leagueContributions",
+    "bound-reversal",
+  ), {
+    leagueId: "season-v2",
+    entryId: "bound-source",
+    userId: "player-two",
+    displayName: "player two",
+    avatarId: "legacy-trophy",
+    houseId: "house-springbok",
+    houseName: "House Springbok",
+    houseEmblemId: "springbok",
+    teamId: "house-springbok",
+    teamName: "House Springbok",
+    category: "water",
+    scoreCategory: "water",
+    pointGroup: "activity",
+    challengeDate,
+    activityPoints: -2,
+    rulesVersion: "season-houses-v2",
+    source: "correction-reversal",
+    sourceRedemptionId: "",
+    evidenceClaimId: "",
+    evidenceDecisionId: "",
+    correctionId: "bound-correction",
+    correctionRole: "reversal",
+    replacesContributionIds: ["source-contribution"],
+    createdAt: serverTimestamp(),
+  }));
+});
+
+test("daily evidence claims append corrected entries through the trusted correction link", async () => {
+  const leagueId = "season-v2";
+  const claimId = `${leagueId}_player-one_2026-08-04_water`;
+  const challengeDate = Timestamp.fromDate(new Date("2026-08-04T10:00:00Z"));
+  const house = houseData({ leagueId });
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "seasonEvidenceClaims", claimId), evidenceClaimData({
+      leagueId,
+      entryId: "daily-source",
+      category: "water",
+      claimType: "daily-bonus",
+      challengeDate,
+      house,
+      pendingPoints: 0,
+      bonusPointsAvailable: 2,
+    }));
+    await setDoc(doc(firestore, "entryCorrections", "daily-correction"), {
+      rootEntryId: "daily-source",
+      sourceEntryId: "daily-source",
+      replacementEntryId: "daily-replacement",
+      userId: "player-one",
+      category: "water",
+      challengeDate,
+      sequence: 1,
+      reason: "Corrected the recorded daily water quantity.",
+      actorId: "admin-one",
+      sourcePoints: 2,
+      replacementPoints: 3,
+      pointDelta: 1,
+      affectedLeagueIds: [leagueId],
+      sourceContributionIds: [],
+      reversalContributionIds: [],
+      replacementContributionIds: [],
+      sourceClaimIds: [],
+      replacementClaimIds: [],
+      dailyClaimIds: [claimId],
+      status: "completed",
+      lastAuditId: "seed-audit",
+      createdAt: Timestamp.now(),
+    });
+  });
+
+  await assertSucceeds(updateDoc(doc(
+    adminContext().firestore(),
+    "seasonEvidenceClaims",
+    claimId,
+  ), {
+    entryIds: ["daily-source", "daily-replacement"],
+    correctionIds: ["daily-correction"],
+    updatedAt: serverTimestamp(),
+  }));
+});
+
+
 
 test("ordinary players cannot create correction records or replacement entries", async () => {
   const challengeDate = await seedOrdinaryCorrectionSource();

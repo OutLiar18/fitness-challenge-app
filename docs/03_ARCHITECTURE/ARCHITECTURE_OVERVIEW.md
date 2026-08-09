@@ -69,3 +69,7 @@ Power Plays follow the existing configuration → service → derived-view archi
 - `PowerPlayWorkspace` provides draft configuration and weekly operations.
 - `leagueModel.js`, honours, Command Centre and trusted reconciliation consume the same pure multiplier helper.
 - Firestore Rules validate frozen definitions and no-repeat state; browser clients cannot invent alternate formulas.
+
+## Checkpoint 8I derived-record compaction
+
+Trusted administrative outputs now use a narrower Rules boundary. Evidence and correction contributions remain linked to their immutable decision/correction records; evidence notifications remain linked to the claim owner; and published leaderboard snapshots still require the atomic league publication pointer. This removes repeated reads and duplicated comparisons from derived records while leaving player-originated contribution validation unchanged.
