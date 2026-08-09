@@ -90,3 +90,7 @@ Derived records do not become unrestricted writes. Evidence/correction contribut
 ## Checkpoint 8J trusted Platform operations
 
 Platform-Administrator-only operational writes use the same trusted-client principle as evidence administration: Rules keep the role gate, allowed state transition, actor/timestamp ownership, immutable history and matching audit-event link, while presentation-length and duplicated service-layer validation are not recomputed for trusted writes. This applies to announcement administration, suggestion review/publication, shared-library publication/archival, client-error resolution and account-deletion acknowledgement. Player-originated suggestions, error reports and deletion request/cancel/reopen flows remain strictly validated and unchanged.
+
+## Checkpoint 8K evaluator-aware routing
+
+The Rules evaluator no longer walks every expensive league-update alternative for a single write. `affectedKeys()` selects the relevant league operation family before its existing validator runs, and Power Play week updates select redraw before the week starts or correction once the week has started. Each selected validator retains its original `hasOnly(...)`, role, audit and atomic-link checks, so mixed-operation payloads remain denied. Account deletion create/reopen also share one requested-state validator; ownership, allowed fields and the seven-day trusted-deletion contract remain unchanged.

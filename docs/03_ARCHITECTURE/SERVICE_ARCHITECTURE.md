@@ -71,3 +71,7 @@ Personal providers expose both `rawEntries` and resolved active `entries`. All e
 ## Checkpoint 8J Platform operations boundary
 
 Announcement administration, suggestion moderation/publication, library publishing, client-error resolution and deletion-request acknowledgement remain service-owned Platform Administrator workflows. Their Rules validate authority, state movement and audit binding rather than duplicating every field-level service validation. Player-owned submissions and account-request lifecycle writes keep their existing strict Rules validators.
+
+## Checkpoint 8K Rules request routing
+
+Service payloads do not change. Firestore Rules now dispatch league updates from their changed-field set and dispatch Power Play week updates from the week boundary before invoking the existing operation validator. The account service continues to send the same deletion-request shape; Rules reuse one requested-state validator for both first request and reopen. No new service write path or authority is introduced.

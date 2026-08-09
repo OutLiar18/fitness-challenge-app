@@ -77,3 +77,7 @@ Trusted administrative outputs now use a narrower Rules boundary. Evidence and c
 ## Checkpoint 8J trusted Platform operations
 
 Administrative content and support workflows now share the trusted Platform Administrator boundary already used by evidence/correction administration. Browser services still build the complete validated payload, and Firestore Rules retain authorization, transition, actor/time, audit-link and immutability guarantees. Ordinary-player creation paths are not widened.
+
+## Checkpoint 8K evaluator-aware write routing
+
+Firestore update authorization now routes a league write by the fields it actually changes before entering the expensive operation-specific validator. Participant-count joins/leaves remain the only non-administrator league update path; status, C.H.A.O.S., leaderboard publication, Power Play pool and Power Play state changes still require league-administrator authority. Power Play week updates are routed by whether the official week has started, keeping redraw and locked-correction validation disjoint. This changes evaluation order, not the accepted data contracts.

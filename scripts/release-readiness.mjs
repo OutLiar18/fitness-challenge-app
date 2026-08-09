@@ -11,7 +11,7 @@ const projectRoot = process.cwd();
 const failures = [];
 
 const expectedHashes = {
-  "firestore.rules": "0ffa958a31cf2562acb00132a42a171eb89d8764848cca95aeb60df38b2ebc82",
+  "firestore.rules": "2ab1e569f4699e0018f3c5b7e5225a9fb42d65b835215fc9b8917ab21c701573",
   "tests/firestore.rules.test.mjs": "96e349f9fd0896da712799d6de7799de8dd21b508641dbffdedc3a9dda13f37b",
   "tests/evidence-system.test.mjs": "390a3f7daaee5eed7c6c82d8efc2321548125e41f727d0e174ba5a7fb075a4d6",
   "tests/season-operations.test.mjs": "7ac8a1f87b6ca618cbc5abcc56a1c7559b4a23b94fde74c41b4d25160e78dea4",
@@ -149,9 +149,14 @@ requireText("docs/03_ARCHITECTURE/decisions/ADR-029-trusted-platform-operations.
   "Trusted Platform Operations Boundary",
   "Player-originated suggestion creation, client-error report creation",
 ]);
-requireText("docs/03_ARCHITECTURE/decisions/ADR-029-trusted-platform-operations.md", [
-  "Trusted Platform Operations Boundary",
-  "Player-originated suggestion creation, client-error report creation",
+requireText("docs/03_ARCHITECTURE/decisions/ADR-030-evaluator-aware-write-routing.md", [
+  "Evaluator-Aware Write Routing",
+  "maximum of 1000 expressions",
+]);
+requireText("firestore.rules", [
+  "function validLeagueUpdate(leagueId)",
+  "validRequestedDeletionState",
+  "request.time < resource.data.startDate",
 ]);
 requireText("src/services/evidence/evidenceService.js", [
   "Only Platform Administrators can review evidence.",
@@ -168,7 +173,7 @@ if (failures.length > 0) {
   process.exitCode = 1;
 } else {
   console.log("Release-readiness structure verified for v0.24.0.");
-  console.log("Frozen baseline: 131 domain tests, 79 Firestore Rules tests, Platform-Administrator-only evidence decisions, trusted derived-record and Platform-operations boundaries, v4 House Movement, composition privacy, and house-balance-v1 hashes pinned.");
+  console.log("Frozen baseline: 131 domain tests, 79 Firestore Rules tests, Platform-Administrator-only evidence decisions, trusted derived-record, Platform-operations and evaluator-routing boundaries, v4 House Movement, composition privacy, and house-balance-v1 hashes pinned.");
   console.log("Firebase production mapping verified: fitnesschallengeapp-9e87f -> Hosting target app -> champions-legacy-challenge.");
   console.log("Production deploy scripts remain intentionally blocked. No deployment is performed by check:release.");
 }
