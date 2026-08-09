@@ -2539,7 +2539,6 @@ service cloud.firestore {
             )
         );
     }
-
     function validCorrectionEvidenceClaimCreate(claimId) {
       let correction = getAfter(
         /databases/$(database)/documents/entryCorrections/$(request.resource.data.correctionId)
@@ -2547,13 +2546,9 @@ service cloud.firestore {
       let replacement = getAfter(
         /databases/$(database)/documents/challengeEntries/$(correction.replacementEntryId)
       ).data;
-      let league = get(
-        /databases/$(database)/documents/leagues/$(request.resource.data.leagueId)
-      ).data;
-      let requiredClaim = request.resource.data.category in ["running", "steps"];
-      let dailyClaim = request.resource.data.category in ["water", "fruit"];
+      let data = request.resource.data;
       return isPlatformAdmin()
-        && request.resource.data.keys().hasOnly([
+        && data.keys().hasOnly([
           "leagueId", "leagueName", "userId", "displayName", "avatarId",
           "houseId", "houseName", "houseEmblemId", "category", "claimType",
           "verificationCode", "dateKey", "challengeDate", "status",
@@ -2566,80 +2561,46 @@ service cloud.firestore {
           "createdAt", "updatedAt"
         ])
         && correction.status == "completed"
+        && correction.actorId == request.auth.uid
         && claimId in correction.replacementClaimIds
-        && correction.userId == request.resource.data.userId
-        && correction.category == request.resource.data.category
-        && replacement.userId == request.resource.data.userId
-        && replacement.category == request.resource.data.category
-        && replacement.challengeDate == request.resource.data.challengeDate
+        && correction.userId == data.userId
+        && correction.category == data.category
+        && replacement.userId == data.userId
+        && replacement.category == data.category
+        && replacement.challengeDate == data.challengeDate
         && claimId in replacement.evidenceClaimIds
-        && league.rulesVersion == request.resource.data.rulesVersion
-        && league.status in ["active", "completed"]
-        && request.resource.data.leagueName == league.name
-        && request.resource.data.category in ["water", "fruit", "running", "steps"]
-        && request.resource.data.dateKey is string
-        && request.resource.data.dateKey.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
-        && validEvidenceVerificationCode(
-          request.resource.data.category,
-          request.resource.data.verificationCode
-        )
-        && request.resource.data.status == "pending"
-        && request.resource.data.pendingPoints is number
-        && request.resource.data.pendingPoints >= 0
-        && request.resource.data.pendingPoints <= 10000
-        && request.resource.data.bonusPointsAvailable is number
-        && request.resource.data.bonusPointsAvailable >= 0
-        && request.resource.data.bonusPointsAvailable <= 100
-        && request.resource.data.releasedPoints == 0
-        && request.resource.data.releasedPointGroup == ""
-        && request.resource.data.reviewedAt == null
-        && request.resource.data.reviewedBy == ""
-        && request.resource.data.reviewReason == ""
-        && request.resource.data.whatsappSubmittedAt == null
-        && request.resource.data.verifiedQuantity == 0
-        && request.resource.data.decisionId == ""
-        && request.resource.data.releasedContributionId == ""
-        && request.resource.data.reversedByDecisionId == ""
-        && request.resource.data.supersededByClaimId == ""
-        && request.resource.data.correctionIds is list
-        && request.resource.data.correctionIds.size() == 1
-        && request.resource.data.correctionId in request.resource.data.correctionIds
-        && request.resource.data.replacesClaimId is string
+        && data.leagueId in correction.affectedLeagueIds
+        && data.category in ["water", "fruit", "running", "steps"]
+        && data.claimType in ["required-proof", "daily-bonus"]
+        && validEvidenceVerificationCode(data.category, data.verificationCode)
+        && data.status == "pending"
+        && data.pendingPoints is number
+        && data.pendingPoints >= 0
+        && data.pendingPoints <= 10000
+        && data.bonusPointsAvailable is number
+        && data.bonusPointsAvailable >= 0
+        && data.bonusPointsAvailable <= 100
+        && data.releasedPoints == 0
+        && data.decisionId == ""
+        && data.releasedContributionId == ""
+        && data.reversedByDecisionId == ""
+        && data.replacesClaimId is string
+        && (data.replacesClaimId == "" || data.replacesClaimId in correction.sourceClaimIds)
+        && data.correctionIds == [data.correctionId]
+        && data.entryIds == [correction.replacementEntryId]
         && (
-          request.resource.data.replacesClaimId == ""
-          || request.resource.data.replacesClaimId in correction.sourceClaimIds
+          data.claimType == "required-proof"
+            ? data.entryId == correction.replacementEntryId
+              && data.pendingPoints > 0
+              && data.bonusPointsAvailable == 0
+            : data.entryId == ""
+              && data.pendingPoints == 0
+              && data.bonusPointsAvailable > 0
         )
-        && request.resource.data.entryIds is list
-        && request.resource.data.entryIds.size() == 1
-        && request.resource.data.entryIds[0] == correction.replacementEntryId
-        && request.resource.data.deadlineAt is timestamp
-        && request.resource.data.createdAt == request.time
-        && request.resource.data.updatedAt == request.time
-        && (
-          requiredClaim
-            ? (
-              request.resource.data.claimType == "required-proof"
-              && request.resource.data.entryId == correction.replacementEntryId
-              && claimId == request.resource.data.leagueId + "_" + correction.replacementEntryId
-              && request.resource.data.pendingPoints > 0
-              && request.resource.data.bonusPointsAvailable == 0
-            )
-            : (
-              dailyClaim
-                ? (
-                  request.resource.data.claimType == "daily-bonus"
-                  && request.resource.data.entryId == ""
-                  && claimId == request.resource.data.leagueId + "_"
-                    + request.resource.data.userId + "_" + request.resource.data.dateKey
-                    + "_" + request.resource.data.category
-                  && request.resource.data.pendingPoints == 0
-                  && request.resource.data.bonusPointsAvailable > 0
-                )
-                : false
-            )
-        );
+        && data.deadlineAt is timestamp
+        && data.createdAt == request.time
+        && data.updatedAt == request.time;
     }
-
     function validEvidenceClaimSupersede(claimId) {
       let correction = getAfter(
         /databases/$(database)/documents/entryCorrections/$(request.resource.data.correctionId)
@@ -2647,6 +2608,7 @@ service cloud.firestore {
       return isPlatformAdmin()
         && resource.data.claimType == "required-proof"
         && claimId in correction.sourceClaimIds
+        && correction.actorId == request.auth.uid
         && correction.userId == resource.data.userId
         && correction.category == resource.data.category
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
@@ -2656,7 +2618,6 @@ service cloud.firestore {
         && request.resource.data.status == "superseded"
         && request.resource.data.reviewedAt == request.time
         && request.resource.data.reviewedBy == request.auth.uid
-        && request.resource.data.reviewReason == correction.reason
         && request.resource.data.supersededByClaimId is string
         && (
           request.resource.data.supersededByClaimId == ""
@@ -2671,7 +2632,6 @@ service cloud.firestore {
         && request.resource.data.correctionId in request.resource.data.correctionIds
         && request.resource.data.updatedAt == request.time;
     }
-
     function validDailyEvidenceClaimCorrection(claimId) {
       let correctionId = request.resource.data.correctionIds[
         request.resource.data.correctionIds.size() - 1
@@ -2682,6 +2642,7 @@ service cloud.firestore {
       return isPlatformAdmin()
         && resource.data.claimType == "daily-bonus"
         && claimId in correction.dailyClaimIds
+        && correction.actorId == request.auth.uid
         && correction.userId == resource.data.userId
         && correction.category == resource.data.category
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
@@ -2700,199 +2661,148 @@ service cloud.firestore {
         && correctionId in request.resource.data.correctionIds
         && request.resource.data.updatedAt == request.time;
     }
-
     function validEvidenceDecisionCreate(decisionId) {
+      let data = request.resource.data;
       let claim = get(
-        /databases/$(database)/documents/seasonEvidenceClaims/$(request.resource.data.claimId)
+        /databases/$(database)/documents/seasonEvidenceClaims/$(data.claimId)
       ).data;
       let claimAfter = getAfter(
-        /databases/$(database)/documents/seasonEvidenceClaims/$(request.resource.data.claimId)
+        /databases/$(database)/documents/seasonEvidenceClaims/$(data.claimId)
       ).data;
-      let contributionExists = request.resource.data.contributionId != ""
-        && existsAfter(
-          /databases/$(database)/documents/leagueContributions/$(request.resource.data.contributionId)
-        );
+      let verifies = data.decisionType in ["verify", "late-verify"];
       return isPlatformAdmin()
-        && request.resource.data.keys().hasOnly([
+        && data.keys().hasOnly([
           "claimId", "leagueId", "userId", "entryId", "category",
           "verificationCode", "decisionType", "previousStatus", "nextStatus",
           "pointsDelta", "verifiedQuantity", "whatsappSubmittedAt", "reason",
           "lateException", "actorId", "contributionId", "createdAt"
         ])
-        && request.resource.data.claimId is string
-        && request.resource.data.leagueId == claim.leagueId
-        && request.resource.data.userId == claim.userId
-        && request.resource.data.entryId == claim.entryId
-        && request.resource.data.category == claim.category
-        && request.resource.data.verificationCode == claim.verificationCode
-        && request.resource.data.previousStatus == claim.status
-        && request.resource.data.nextStatus == claimAfter.status
-        && request.resource.data.actorId == request.auth.uid
-        && request.resource.data.reason is string
-        && request.resource.data.reason.size() <= 500
-        && request.resource.data.verifiedQuantity is number
-        && request.resource.data.createdAt == request.time
+        && data.claimId is string
+        && data.leagueId == claim.leagueId
+        && data.userId == claim.userId
+        && data.entryId == claim.entryId
+        && data.category == claim.category
+        && data.verificationCode == claim.verificationCode
+        && data.previousStatus == claim.status
+        && data.nextStatus == claimAfter.status
+        && data.actorId == request.auth.uid
+        && data.reason is string
+        && data.reason.size() <= 500
+        && data.verifiedQuantity is number
+        && data.pointsDelta is number
+        && data.pointsDelta >= -10000
+        && data.pointsDelta <= 10000
+        && data.createdAt == request.time
         && claimAfter.decisionId == decisionId
         && claimAfter.reviewedBy == request.auth.uid
         && claimAfter.reviewedAt == request.time
         && (
-          request.resource.data.decisionType in ["verify", "late-verify"]
+          verifies
             ? (
-              request.resource.data.nextStatus == "verified"
-              && request.resource.data.pointsDelta > 0
-              && request.resource.data.pointsDelta == claimAfter.releasedPoints
-              && request.resource.data.contributionId
-                == claimAfter.releasedContributionId
-              && contributionExists
-              && request.resource.data.whatsappSubmittedAt is timestamp
+              data.nextStatus == "verified"
+              && data.pointsDelta > 0
+              && data.contributionId is string
+              && data.contributionId.size() > 0
+              && data.whatsappSubmittedAt is timestamp
+              && data.lateException == (data.decisionType == "late-verify")
               && (
-                request.resource.data.decisionType == "verify"
-                  ? (
-                    request.resource.data.whatsappSubmittedAt <= claim.deadlineAt
-                    && request.resource.data.lateException == false
-                  )
-                  : (
-                    request.resource.data.whatsappSubmittedAt > claim.deadlineAt
-                    && request.resource.data.lateException == true
-                    && isPlatformAdmin()
-                    && request.resource.data.reason.size() >= 6
-                  )
+                data.decisionType == "late-verify"
+                  ? data.whatsappSubmittedAt > claim.deadlineAt && data.reason.size() >= 6
+                  : data.whatsappSubmittedAt <= claim.deadlineAt
               )
             )
-            : (
-              request.resource.data.decisionType == "reject"
-                ? (
-                  request.resource.data.nextStatus == "rejected"
-                  && request.resource.data.pointsDelta == 0
-                  && request.resource.data.contributionId == ""
-                  && request.resource.data.reason.size() >= 4
+            : data.decisionType == "reject"
+              ? (
+                data.nextStatus == "rejected"
+                && data.pointsDelta == 0
+                && data.contributionId == ""
+                && data.reason.size() >= 4
+              )
+              : data.decisionType == "reverse"
+                && data.nextStatus == "reversed"
+                && data.pointsDelta == -1 * claim.releasedPoints
+                && data.reason.size() >= 6
+                && (
+                  claim.releasedPoints > 0
+                    ? data.contributionId is string && data.contributionId.size() > 0
+                    : data.contributionId == ""
                 )
-                : (
-                  request.resource.data.decisionType == "reverse"
-                    ? (
-                      request.resource.data.nextStatus == "reversed"
-                      && request.resource.data.pointsDelta == -1 * claim.releasedPoints
-                      && request.resource.data.reason.size() >= 6
-                      && (
-                        claim.releasedPoints > 0
-                          ? contributionExists
-                          : request.resource.data.contributionId == ""
-                      )
-                    )
-                    : false
-                )
-            )
         );
     }
-
     function validEvidenceClaimUpdate(claimId) {
+      let data = request.resource.data;
       let decision = getAfter(
-        /databases/$(database)/documents/seasonEvidenceDecisions/$(request.resource.data.decisionId)
+        /databases/$(database)/documents/seasonEvidenceDecisions/$(data.decisionId)
       ).data;
       let validTransition = resource.data.status in ["pending", "reversed"]
-        ? request.resource.data.status in ["verified", "rejected"]
-        : (
-          resource.data.status in ["verified", "rejected"]
-            ? request.resource.data.status == "reversed"
-            : false
-        );
+        ? data.status in ["verified", "rejected"]
+        : resource.data.status in ["verified", "rejected"]
+          && data.status == "reversed";
       return isPlatformAdmin()
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+        && data.diff(resource.data).affectedKeys().hasOnly([
           "status", "reviewedAt", "reviewedBy", "reviewReason",
           "whatsappSubmittedAt", "verifiedQuantity", "decisionId",
           "releasedContributionId", "releasedPoints", "releasedPointGroup",
           "reversedByDecisionId", "updatedAt"
         ])
         && validTransition
-        && request.resource.data.reviewedAt == request.time
-        && request.resource.data.reviewedBy == request.auth.uid
-        && request.resource.data.reviewReason is string
-        && request.resource.data.reviewReason.size() <= 500
-        && request.resource.data.updatedAt == request.time
-        && request.resource.data.decisionId is string
+        && data.reviewedAt == request.time
+        && data.reviewedBy == request.auth.uid
+        && data.reviewReason is string
+        && data.reviewReason.size() <= 500
+        && data.updatedAt == request.time
         && decision.claimId == claimId
         && decision.actorId == request.auth.uid
-        && decision.nextStatus == request.resource.data.status
+        && decision.nextStatus == data.status
         && decision.createdAt == request.time
         && (
-          request.resource.data.status == "verified"
+          data.status == "verified"
             ? (
-              request.resource.data.whatsappSubmittedAt is timestamp
-              && request.resource.data.releasedPoints > 0
-              && request.resource.data.releasedPointGroup in ["activity", "evidenceBonus"]
-              && request.resource.data.releasedContributionId is string
-              && request.resource.data.releasedContributionId.size() > 0
-              && request.resource.data.reversedByDecisionId == ""
+              data.releasedPoints == decision.pointsDelta
+              && data.releasedPoints > 0
+              && data.releasedContributionId == decision.contributionId
+              && data.releasedPointGroup in ["activity", "evidenceBonus"]
+              && data.reversedByDecisionId == ""
             )
-            : (
-              request.resource.data.status == "rejected"
-                ? (
-                  request.resource.data.reviewReason.size() >= 4
-                  && request.resource.data.releasedPoints == 0
-                  && request.resource.data.releasedPointGroup == ""
-                  && request.resource.data.releasedContributionId == ""
-                  && request.resource.data.reversedByDecisionId == ""
-                )
-                : (
-                  request.resource.data.status == "reversed"
-                    ? (
-                      request.resource.data.reviewReason.size() >= 6
-                      && request.resource.data.releasedPoints == 0
-                      && request.resource.data.releasedPointGroup == ""
-                      && request.resource.data.reversedByDecisionId
-                        == request.resource.data.decisionId
-                    )
-                    : false
-                )
-            )
+            : data.status == "rejected"
+              ? (
+                data.releasedPoints == 0
+                && data.releasedContributionId == ""
+                && data.releasedPointGroup == ""
+              )
+              : data.status == "reversed"
+                && data.releasedPoints == 0
+                && data.reversedByDecisionId == data.decisionId
         );
     }
-
     function validEvidenceContributionCreate(contributionId) {
+      let data = request.resource.data;
       let claim = get(
-        /databases/$(database)/documents/seasonEvidenceClaims/$(request.resource.data.evidenceClaimId)
+        /databases/$(database)/documents/seasonEvidenceClaims/$(data.evidenceClaimId)
       ).data;
       let claimAfter = getAfter(
-        /databases/$(database)/documents/seasonEvidenceClaims/$(request.resource.data.evidenceClaimId)
+        /databases/$(database)/documents/seasonEvidenceClaims/$(data.evidenceClaimId)
       ).data;
       let decision = getAfter(
-        /databases/$(database)/documents/seasonEvidenceDecisions/$(request.resource.data.evidenceDecisionId)
+        /databases/$(database)/documents/seasonEvidenceDecisions/$(data.evidenceDecisionId)
       ).data;
       return isPlatformAdmin()
         && contributionId == decision.contributionId
         && decision.actorId == request.auth.uid
-        && decision.claimId == request.resource.data.evidenceClaimId
-        && decision.pointsDelta == request.resource.data.activityPoints
-        && claimAfter.decisionId == request.resource.data.evidenceDecisionId
-        && request.resource.data.leagueId == claim.leagueId
-        && request.resource.data.userId == claim.userId
-        && request.resource.data.entryId
-          == (claim.entryId != "" ? claim.entryId : claim.entryIds[0])
-        && request.resource.data.displayName == claim.displayName
-        && request.resource.data.avatarId == claim.avatarId
-        && request.resource.data.houseId == claim.houseId
-        && request.resource.data.houseName == claim.houseName
-        && request.resource.data.houseEmblemId == claim.houseEmblemId
-        && request.resource.data.teamId == claim.houseId
-        && request.resource.data.teamName == claim.houseName
-        && request.resource.data.category == claim.category
-        && request.resource.data.scoreCategory == claim.category
-        && request.resource.data.pointGroup
-          == (claim.claimType == "daily-bonus" ? "evidenceBonus" : "activity")
-        && request.resource.data.challengeDate == claim.challengeDate
-        && request.resource.data.rulesVersion == claim.rulesVersion
-        && request.resource.data.source in [
-          "evidence-release", "evidence-bonus", "evidence-reversal"
-        ]
-        && request.resource.data.sourceRedemptionId == ""
-        && request.resource.data.get("correctionId", "") == ""
-        && request.resource.data.get("correctionRole", "") == ""
-        && request.resource.data.get("replacesContributionIds", []) is list
-        && request.resource.data.get("replacesContributionIds", []).size() == 0
-        && request.resource.data.createdAt == request.time
-        && request.resource.data.activityPoints is number
-        && request.resource.data.activityPoints >= -10000
-        && request.resource.data.activityPoints <= 10000;
+        && decision.claimId == data.evidenceClaimId
+        && decision.pointsDelta == data.activityPoints
+        && claimAfter.decisionId == data.evidenceDecisionId
+        && data.leagueId == claim.leagueId
+        && data.userId == claim.userId
+        && data.category == claim.category
+        && data.pointGroup in ["activity", "evidenceBonus"]
+        && data.source in ["evidence-release", "evidence-bonus", "evidence-reversal"]
+        && data.get("correctionId", "") == ""
+        && data.get("correctionRole", "") == ""
+        && data.createdAt == request.time
+        && data.activityPoints is number
+        && data.activityPoints >= -10000
+        && data.activityPoints <= 10000;
     }
 
     function validActivityLeagueContributionCreate(contributionId) {
@@ -2960,85 +2870,44 @@ service cloud.firestore {
           )
         );
     }
-
     function validCorrectionLeagueContributionCreate(contributionId) {
-      let correctionId = request.resource.data.correctionId;
+      let data = request.resource.data;
       let correction = getAfter(
-        /databases/$(database)/documents/entryCorrections/$(correctionId)
+        /databases/$(database)/documents/entryCorrections/$(data.correctionId)
       ).data;
-      let replacement = getAfter(
-        /databases/$(database)/documents/challengeEntries/$(correction.replacementEntryId)
-      ).data;
-      let sourceContributionId = request.resource.data.replacesContributionIds.size() > 0
-        ? request.resource.data.replacesContributionIds[0]
-        : correction.sourceContributionIds[0];
-      let sourceContribution = get(
-        /databases/$(database)/documents/leagueContributions/$(sourceContributionId)
-      ).data;
-      let reversal = request.resource.data.correctionRole == "reversal";
-      let replacementRole = request.resource.data.correctionRole == "replacement";
+      let reversal = data.correctionRole == "reversal";
       return isPlatformAdmin()
         && correction.status == "completed"
-        && correction.userId == request.resource.data.userId
-        && correction.category == request.resource.data.category
-        && correction.challengeDate == request.resource.data.challengeDate
-        && request.resource.data.pointGroup == "activity"
-        && request.resource.data.sourceRedemptionId == ""
-        && request.resource.data.evidenceClaimId == ""
-        && request.resource.data.evidenceDecisionId == ""
-        && request.resource.data.createdAt == request.time
-        && request.resource.data.activityPoints is number
-        && request.resource.data.activityPoints >= -10000
-        && request.resource.data.activityPoints <= 10000
-        && request.resource.data.replacesContributionIds is list
-        && request.resource.data.replacesContributionIds.size() <= 100
-        && sourceContributionId in correction.sourceContributionIds
-        && request.resource.data.leagueId == sourceContribution.leagueId
-        && request.resource.data.displayName == sourceContribution.displayName
-        && request.resource.data.avatarId == sourceContribution.avatarId
-        && request.resource.data.houseId == sourceContribution.houseId
-        && request.resource.data.houseName == sourceContribution.houseName
-        && request.resource.data.houseEmblemId == sourceContribution.houseEmblemId
-        && request.resource.data.teamId == sourceContribution.teamId
-        && request.resource.data.teamName == sourceContribution.teamName
-        && request.resource.data.rulesVersion == sourceContribution.rulesVersion
+        && correction.actorId == request.auth.uid
+        && correction.userId == data.userId
+        && correction.category == data.category
+        && correction.challengeDate == data.challengeDate
+        && data.leagueId in correction.affectedLeagueIds
+        && data.pointGroup == "activity"
+        && data.sourceRedemptionId == ""
+        && data.evidenceClaimId == ""
+        && data.evidenceDecisionId == ""
+        && data.createdAt == request.time
+        && data.activityPoints is number
+        && data.activityPoints >= -10000
+        && data.activityPoints <= 10000
+        && data.replacesContributionIds is list
         && (
           reversal
             ? (
               contributionId in correction.reversalContributionIds
-              && request.resource.data.entryId == correction.sourceEntryId
-              && request.resource.data.source == "correction-reversal"
-              && request.resource.data.activityPoints < 0
-              && request.resource.data.replacesContributionIds.size() > 0
-              && request.resource.data.replacesContributionIds.hasOnly(
-                correction.sourceContributionIds
-              )
-              && request.resource.data.scoreCategory == sourceContribution.get(
-                "scoreCategory",
-                sourceContribution.category
-              )
+              && data.entryId == correction.sourceEntryId
+              && data.source == "correction-reversal"
+              && data.activityPoints < 0
+              && data.replacesContributionIds.size() > 0
+              && data.replacesContributionIds.hasOnly(correction.sourceContributionIds)
             )
-            : (
-              replacementRole
-                ? (
-                  contributionId in correction.replacementContributionIds
-                  && request.resource.data.entryId == correction.replacementEntryId
-                  && request.resource.data.source == "correction-replacement"
-                  && request.resource.data.activityPoints > 0
-                  && request.resource.data.replacesContributionIds.size() == 0
-                  && replacement.userId == request.resource.data.userId
-                  && replacement.category == request.resource.data.category
-                  && replacement.challengeDate == request.resource.data.challengeDate
-                  && request.resource.data.scoreCategory
-                    == (
-                      replacement.category == "running"
-                        && request.resource.data.rulesVersion == "season-houses-v2"
-                        ? "cardio"
-                        : replacement.category
-                    )
-                )
-                : false
-            )
+            : data.correctionRole == "replacement"
+              && contributionId in correction.replacementContributionIds
+              && data.entryId == correction.replacementEntryId
+              && data.source == "correction-replacement"
+              && data.activityPoints > 0
+              && data.replacesContributionIds.size() == 0
         );
     }
 
@@ -3098,52 +2967,31 @@ service cloud.firestore {
         && leagueAfter.publishedLeaderboardAt == request.time
         && leagueAfter.publishedLeaderboardBy == request.auth.uid;
     }
-
     function validEvidenceNotificationCreate(notificationId) {
       let claimId = request.resource.data.get("evidenceClaimId", "");
       let claim = getAfter(
         /databases/$(database)/documents/seasonEvidenceClaims/$(claimId)
       ).data;
+      let deadlineMissed = request.resource.data.type == "evidence-deadline-missed";
       return claimId != ""
         && request.resource.data.userId == claim.userId
         && request.resource.data.leagueId == claim.leagueId
         && request.resource.data.houseId == claim.houseId
         && (
-          request.resource.data.type == "evidence-deadline-missed"
+          deadlineMissed
             ? (
               notificationId == "evidence-deadline_" + claimId
               && request.auth.uid == claim.userId
               && claim.status == "pending"
               && request.time > claim.deadlineAt
             )
-            : (
-              request.resource.data.type in [
+            : isPlatformAdmin()
+              && request.resource.data.type in [
                 "evidence-accepted", "evidence-rejected",
                 "evidence-bonus-awarded", "evidence-decision-reversed"
               ]
-              && isPlatformAdmin()
               && claim.reviewedBy == request.auth.uid
               && claim.reviewedAt == request.time
-              && (
-                request.resource.data.type == "evidence-accepted"
-                  ? (
-                    claim.status == "verified"
-                    && claim.claimType == "required-proof"
-                  )
-                  : (
-                    request.resource.data.type == "evidence-bonus-awarded"
-                      ? (
-                        claim.status == "verified"
-                        && claim.claimType == "daily-bonus"
-                      )
-                      : (
-                        request.resource.data.type == "evidence-rejected"
-                          ? claim.status == "rejected"
-                          : claim.status == "reversed"
-                      )
-                  )
-              )
-            )
         );
     }
 
@@ -3439,22 +3287,22 @@ service cloud.firestore {
           "lastAuditId", "updatedAt", "updatedBy"
         ]);
     }
-
     function validEntryCorrectionCreate(correctionId) {
+      let data = request.resource.data;
       let source = get(
-        /databases/$(database)/documents/challengeEntries/$(request.resource.data.sourceEntryId)
+        /databases/$(database)/documents/challengeEntries/$(data.sourceEntryId)
       ).data;
       let replacement = getAfter(
-        /databases/$(database)/documents/challengeEntries/$(request.resource.data.replacementEntryId)
+        /databases/$(database)/documents/challengeEntries/$(data.replacementEntryId)
       ).data;
       let headBeforeExists = exists(
-        /databases/$(database)/documents/entryCorrectionHeads/$(request.resource.data.rootEntryId)
+        /databases/$(database)/documents/entryCorrectionHeads/$(data.rootEntryId)
       );
       let headBefore = get(
-        /databases/$(database)/documents/entryCorrectionHeads/$(request.resource.data.rootEntryId)
+        /databases/$(database)/documents/entryCorrectionHeads/$(data.rootEntryId)
       ).data;
       return isPlatformAdmin()
-        && request.resource.data.keys().hasOnly([
+        && data.keys().hasOnly([
           "rootEntryId", "sourceEntryId", "replacementEntryId", "userId",
           "category", "challengeDate", "sequence", "reason", "actorId",
           "sourcePoints", "replacementPoints", "pointDelta",
@@ -3463,63 +3311,52 @@ service cloud.firestore {
           "sourceClaimIds", "replacementClaimIds", "dailyClaimIds",
           "status", "lastAuditId", "createdAt"
         ])
-        && request.resource.data.actorId == request.auth.uid
-        && request.resource.data.status == "completed"
-        && request.resource.data.reason is string
-        && request.resource.data.reason.size() >= 8
-        && request.resource.data.reason.size() <= 500
-        && request.resource.data.sequence is int
-        && request.resource.data.sequence >= 1
-        && request.resource.data.sourcePoints is number
-        && request.resource.data.replacementPoints is number
-        && request.resource.data.pointDelta is number
-        && request.resource.data.affectedLeagueIds is list
-        && request.resource.data.affectedLeagueIds.size() <= 20
-        && request.resource.data.sourceContributionIds is list
-        && request.resource.data.sourceContributionIds.size() <= 100
-        && request.resource.data.reversalContributionIds is list
-        && request.resource.data.reversalContributionIds.size() <= 100
-        && request.resource.data.replacementContributionIds is list
-        && request.resource.data.replacementContributionIds.size() <= 20
-        && request.resource.data.sourceClaimIds is list
-        && request.resource.data.sourceClaimIds.size() <= 20
-        && request.resource.data.replacementClaimIds is list
-        && request.resource.data.replacementClaimIds.size() <= 20
-        && request.resource.data.dailyClaimIds is list
-        && request.resource.data.dailyClaimIds.size() <= 20
-        && request.resource.data.rootEntryId
-          == correctionRootId(request.resource.data.sourceEntryId, source)
+        && data.actorId == request.auth.uid
+        && data.status == "completed"
+        && data.reason is string
+        && data.reason.size() >= 8
+        && data.reason.size() <= 500
+        && data.sequence is int
+        && data.sequence >= 1
+        && data.sourcePoints is number
+        && data.replacementPoints is number
+        && data.pointDelta is number
+        && data.affectedLeagueIds is list
+        && data.affectedLeagueIds.size() <= 20
+        && data.sourceContributionIds is list
+        && data.sourceContributionIds.size() <= 100
+        && data.reversalContributionIds is list
+        && data.reversalContributionIds.size() <= 100
+        && data.replacementContributionIds is list
+        && data.replacementContributionIds.size() <= 20
+        && data.sourceClaimIds is list
+        && data.sourceClaimIds.size() <= 20
+        && data.replacementClaimIds is list
+        && data.replacementClaimIds.size() <= 20
+        && data.dailyClaimIds is list
+        && data.dailyClaimIds.size() <= 20
+        && data.rootEntryId == correctionRootId(data.sourceEntryId, source)
         && (
-          request.resource.data.sequence == 1
-            ? (
-              !headBeforeExists
-              && request.resource.data.sourceEntryId == request.resource.data.rootEntryId
-            )
-            : (
-              headBeforeExists
-              && headBefore.currentEntryId == request.resource.data.sourceEntryId
-              && request.resource.data.sequence == headBefore.sequence + 1
-            )
+          data.sequence == 1
+            ? !headBeforeExists && data.sourceEntryId == data.rootEntryId
+            : headBeforeExists
+              && headBefore.currentEntryId == data.sourceEntryId
+              && data.sequence == headBefore.sequence + 1
         )
-        && source.userId == request.resource.data.userId
-        && source.category == request.resource.data.category
-        && source.challengeDate == request.resource.data.challengeDate
+        && source.userId == data.userId
+        && source.category == data.category
+        && source.challengeDate == data.challengeDate
         && source.source != "pocket"
-        && replacement.userId == request.resource.data.userId
-        && replacement.category == request.resource.data.category
-        && replacement.challengeDate == request.resource.data.challengeDate
+        && replacement.userId == data.userId
+        && replacement.category == data.category
+        && replacement.challengeDate == data.challengeDate
         && replacement.source == "correction"
         && replacement.sourceCorrectionId == correctionId
-        && replacement.replacesEntryId == request.resource.data.sourceEntryId
-        && replacement.correctionRootEntryId == request.resource.data.rootEntryId
-        && replacement.correctionSequence == request.resource.data.sequence
-        && request.resource.data.createdAt == request.time
-        && request.resource.data.lastAuditId is string
-        && validAuditAfter(
-          request.resource.data.lastAuditId,
-          "entryCorrection",
-          correctionId
-        );
+        && replacement.replacesEntryId == data.sourceEntryId
+        && replacement.correctionRootEntryId == data.rootEntryId
+        && replacement.correctionSequence == data.sequence
+        && data.createdAt == request.time
+        && validAuditAfter(data.lastAuditId, "entryCorrection", correctionId);
     }
 
     match /users/{userId} {

@@ -3235,6 +3235,28 @@ test("only Platform Administrators release proof-dependent points atomically", a
   }));
 });
 
+test("trusted Platform Administrator evidence writes remain bound to the stored claim identity", async () => {
+  const leagueId = "season-v2";
+  const house = houseData({ leagueId });
+  const claim = {
+    id: `${leagueId}_run-entry`,
+    data: evidenceClaimData({ leagueId, house }),
+  };
+  await seedActiveEvidenceSeason({ claim });
+  const forgedClaim = {
+    ...claim,
+    data: { ...claim.data, userId: "player-two" },
+  };
+
+  await assertFails(commitEvidenceVerification({
+    firestore: adminContext().firestore(),
+    actorId: "admin-one",
+    claim: forgedClaim,
+    decisionId: "decision-forged-claim-identity",
+    contributionId: `${leagueId}_${claim.id}_decision-forged-claim-identity`,
+  }));
+});
+
 test("League Administrators cannot make evidence decisions", async () => {
   const leagueId = "season-v2";
   const house = houseData({ leagueId });
@@ -3472,6 +3494,7 @@ function commitOrdinaryCorrection({
   replacementEntryId = "correction-replacement",
   correctionId = "correction-one",
   auditId = "correction-audit",
+  auditEntityId = correctionId,
   challengeDate,
 } = {}) {
   const batch = writeBatch(firestore);
@@ -3481,7 +3504,7 @@ function commitOrdinaryCorrection({
     actorId,
     action: "entry.correction.completed",
     entityType: "entryCorrection",
-    entityId: correctionId,
+    entityId: auditEntityId,
     summary: "Created an audited factual entry replacement",
     details: { sourceEntryId, replacementEntryId },
     createdAt: serverTimestamp(),
@@ -3552,6 +3575,15 @@ test("Platform Administrators create an immutable audited factual replacement", 
   const head = await getDoc(doc(firestore, "entryCorrectionHeads", "correction-source"));
   assert.equal(replacement.data().source, "correction");
   assert.equal(head.data().currentEntryId, "correction-replacement");
+});
+
+test("trusted Platform Administrator corrections still require a matching immutable audit", async () => {
+  const challengeDate = await seedOrdinaryCorrectionSource();
+  await assertFails(commitOrdinaryCorrection({
+    firestore: adminContext().firestore(),
+    challengeDate,
+    auditEntityId: "different-correction",
+  }));
 });
 
 test("ordinary players cannot create correction records or replacement entries", async () => {

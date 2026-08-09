@@ -6,13 +6,13 @@ const EXPECTED_VERSION = "0.24.0";
 const EXPECTED_PROJECT = "fitnesschallengeapp-9e87f";
 const EXPECTED_HOSTING_TARGET = "app";
 const EXPECTED_HOSTING_SITE = "champions-legacy-challenge";
-const EXPECTED_RULES_TEST_COUNT = 69;
+const EXPECTED_RULES_TEST_COUNT = 71;
 const projectRoot = process.cwd();
 const failures = [];
 
 const expectedHashes = {
-  "firestore.rules": "be25e05fc2ecf246c8235a1fb70b289b66351a8beb4c95885f3e9a91062aa115",
-  "tests/firestore.rules.test.mjs": "d6522f947e5cbff8e3af5b3d06027d8422746f5913544f5afa903e64d1a3a993",
+  "firestore.rules": "0b45a9e2380226f5ee0739bcb80934b4a8f000566a7176686630151eaec7a5d0",
+  "tests/firestore.rules.test.mjs": "7999920c914910984e04e621e95e2c2b12b0eb480cdb0df5d0fa498a8b80c7ec",
   "tests/evidence-system.test.mjs": "390a3f7daaee5eed7c6c82d8efc2321548125e41f727d0e174ba5a7fb075a4d6",
   "tests/season-operations.test.mjs": "7ac8a1f87b6ca618cbc5abcc56a1c7559b4a23b94fde74c41b4d25160e78dea4",
   "src/services/evidence/evidenceModel.js": "2a544b847bc89f847bdc211053a2b03033a6ba2b18ce9fe196feb8bda282b6f5",
@@ -137,6 +137,10 @@ requireText("firestore.rules", [
   "leagueHouseAssignmentHistory",
   "Retired in v0.24 Checkpoint 8G",
 ]);
+requireText("docs/03_ARCHITECTURE/decisions/ADR-027-trusted-platform-admin-transactions.md", [
+  "Trusted Platform Administrator Transaction Boundary",
+  "Player-originated evidence claim creation remains strictly validated",
+]);
 requireText("src/services/evidence/evidenceService.js", [
   "Only Platform Administrators can review evidence.",
 ]);
@@ -152,7 +156,7 @@ if (failures.length > 0) {
   process.exitCode = 1;
 } else {
   console.log("Release-readiness structure verified for v0.24.0.");
-  console.log("Frozen baseline: 131 domain tests, 69 Firestore Rules tests, Platform-Administrator-only evidence decisions, v4 House Movement, composition privacy, and house-balance-v1 hashes pinned.");
+  console.log("Frozen baseline: 131 domain tests, 71 Firestore Rules tests, Platform-Administrator-only evidence decisions, v4 House Movement, composition privacy, and house-balance-v1 hashes pinned.");
   console.log("Firebase production mapping verified: fitnesschallengeapp-9e87f -> Hosting target app -> champions-legacy-challenge.");
   console.log("Production deploy scripts remain intentionally blocked. No deployment is performed by check:release.");
 }

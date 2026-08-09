@@ -129,6 +129,12 @@ A late submission may be accepted only by a Platform Administrator and only with
 - League/Season Administrators retain read-only evidence visibility needed for season operations and may publish standings when otherwise authorised.
 - League/Season Administrator authority does not grant proof-decision authority.
 
+## Trusted administrative transaction boundary
+
+Platform Administrator evidence decisions and factual corrections are privileged operational writes. The app continues to calculate and write the same decision, contribution, notification and correction records, but Firestore Rules do not independently recompute every duplicated display/scoring field for an already-authorised Platform Administrator. Rules still require the authenticated Platform Administrator, bind evidence decisions to the stored claim, preserve allowed status transitions, require correction audit linkage and forward-only correction history, and keep the resulting records immutable.
+
+This boundary reduces Rules evaluator and compiled-size pressure without weakening player or League Administrator permissions.
+
 ## Decision model
 
 A Platform Administrator may:

@@ -30,7 +30,7 @@ Current production: v0.20.0
 
 ## Atomic decisions
 
-Rules validate the decision, claim update, audit event, optional contribution and notification together. Contributions use signed deltas for reversals. Existing decisions and snapshots cannot be updated or deleted.
+Evidence decisions remain atomic across the decision record, claim update, optional contribution and notification. Because only Platform Administrators may perform these writes, Checkpoint 8H treats them as trusted administrative transactions: Rules enforce actor identity, claim linkage, allowed status transitions, bounded point deltas and immutable records without re-deriving every copied presentation or scoring field. Contributions use signed deltas for reversals. Existing decisions and snapshots cannot be updated or deleted.
 
 ## Published standings
 
@@ -53,7 +53,7 @@ The command centre does not expand Firestore authority. Platform and season admi
 
 ## Audited factual correction authority
 
-Only Platform Administrators may create correction replacements, correction heads, correction records, correction contributions or correction-specific claim transitions. Rules keep user, category and challenge date fixed, block Pocket sources, require a matching audit event, enforce forward-only correction sequences and prevent corrected source entries from being deleted. Players may read only correction records that belong to them.
+Only Platform Administrators may create correction replacements, correction heads, correction records, correction contributions or correction-specific claim transitions. Checkpoint 8H keeps the correction chain, source/replacement identity, matching immutable audit event, forward-only sequence and Pocket exclusion as hard Rules invariants, while trusting the Platform Administrator workflow for duplicated calculation and display fields. Corrected source entries remain protected from deletion. Players may read only correction records that belong to them.
 
 ## Local Admin SDK trust boundary — v0.21.0
 

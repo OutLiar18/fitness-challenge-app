@@ -36,6 +36,10 @@ Current production: v0.20.0
 
 ADR-021 through ADR-027 define the current season, information architecture, progressive disclosure, account-control, external-evidence, operations and correction foundations. Older Team ADRs remain historical and may be superseded.
 
+## Privileged administrative writes
+
+Platform-Admin-only evidence decisions and factual correction transactions use a trusted administrative transaction boundary. Firestore Rules continue to enforce role, identity, audit linkage, immutable history and status-transition invariants, while duplicated derived/presentation fields are validated by the application workflow rather than recomputed again inside Rules.
+
 ## Security and trust boundary
 
 The current no-cost iteration performs constrained transactions from the client, but the client cannot grant authority. Rules validate document shape, atomic relationships, immutable history and role scope. Only Platform Administrators may create factual corrections. A future trusted backend remains recommended for prize-bearing competition, scheduled publication, whole-season reconciliation and destructive account operations.
