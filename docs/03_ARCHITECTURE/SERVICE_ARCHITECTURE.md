@@ -67,3 +67,7 @@ Personal providers expose both `rawEntries` and resolved active `entries`. All e
 - `applyPowerPlayToContributionPoints` is the single multiplier helper used by standings, honours and operations.
 - `selectRandomPowerPlay` and `correctPowerPlayAssignment` use transactions and audit writes.
 - Player subscriptions use direct started-week document listeners to avoid composite-index dependence and future-week disclosure.
+
+## Checkpoint 8J Platform operations boundary
+
+Announcement administration, suggestion moderation/publication, library publishing, client-error resolution and deletion-request acknowledgement remain service-owned Platform Administrator workflows. Their Rules validate authority, state movement and audit binding rather than duplicating every field-level service validation. Player-owned submissions and account-request lifecycle writes keep their existing strict Rules validators.

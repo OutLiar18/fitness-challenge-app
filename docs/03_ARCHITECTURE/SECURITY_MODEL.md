@@ -86,3 +86,7 @@ Credential files and local reports are ignored by Git. No client can write `seas
 ## Checkpoint 8I trusted derived records
 
 Derived records do not become unrestricted writes. Evidence/correction contributions remain actor- and source-bound, evidence notifications remain recipient-bound, and leaderboard snapshots remain atomically linked to the league publication pointer and audit event. The reduction removes duplicate validation already guaranteed by the authoritative claim, correction or publication transaction; it does not relax ordinary player contribution or evidence-claim creation.
+
+## Checkpoint 8J trusted Platform operations
+
+Platform-Administrator-only operational writes use the same trusted-client principle as evidence administration: Rules keep the role gate, allowed state transition, actor/timestamp ownership, immutable history and matching audit-event link, while presentation-length and duplicated service-layer validation are not recomputed for trusted writes. This applies to announcement administration, suggestion review/publication, shared-library publication/archival, client-error resolution and account-deletion acknowledgement. Player-originated suggestions, error reports and deletion request/cancel/reopen flows remain strictly validated and unchanged.

@@ -361,6 +361,110 @@ test("resolving an error report requires a Platform Administrator and an audit e
   await assertSucceeds(batch.commit());
 });
 
+test("trusted announcement writes remain audit-bound", async () => {
+  const firestore = adminContext().firestore();
+  const batch = writeBatch(firestore);
+  const announcementId = "announcement-audited";
+  const auditId = "announcement-create-audit";
+
+  batch.set(doc(firestore, "auditEvents", auditId), {
+    actorId: "admin-one",
+    action: "announcement.created",
+    entityType: "announcement",
+    entityId: announcementId,
+    summary: "Created an audited announcement",
+    details: {},
+    createdAt: serverTimestamp(),
+  });
+  batch.set(doc(firestore, "announcements", announcementId), {
+    title: "Audited release",
+    summary: "A trusted administrator created this announcement.",
+    body: "This announcement remains bound to its immutable audit event.",
+    type: "release",
+    icon: "",
+    status: "published",
+    featured: false,
+    version: "0.24.0",
+    createdAt: serverTimestamp(),
+    createdBy: "admin-one",
+    updatedAt: serverTimestamp(),
+    updatedBy: "admin-one",
+    publishedAt: serverTimestamp(),
+    lastAuditId: auditId,
+  });
+  await assertSucceeds(batch.commit());
+
+  await assertFails(
+    setDoc(doc(firestore, "announcements", "announcement-detached"), {
+      title: "Detached announcement",
+      summary: "This trusted write is missing its required audit record.",
+      body: "Platform Administrator authority does not remove the audit requirement.",
+      type: "release",
+      icon: "",
+      status: "published",
+      featured: false,
+      version: "0.24.0",
+      createdAt: serverTimestamp(),
+      createdBy: "admin-one",
+      updatedAt: serverTimestamp(),
+      updatedBy: "admin-one",
+      publishedAt: serverTimestamp(),
+      lastAuditId: "missing-announcement-audit",
+    }),
+  );
+});
+
+test("trusted library publication remains audit-bound", async () => {
+  const firestore = adminContext().firestore();
+  await assertFails(
+    setDoc(doc(firestore, "libraryReleases", "release-detached"), {
+      version: "0.24.1",
+      notes: "A detached release must not be accepted.",
+      status: "published",
+      itemIds: ["skill_example"],
+      itemCount: 1,
+      createdAt: serverTimestamp(),
+      createdBy: "admin-one",
+      publishedAt: serverTimestamp(),
+      lastAuditId: "missing-library-release-audit",
+    }),
+  );
+});
+
+test("trusted error resolution remains audit-bound", async () => {
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), "clientErrorReports", "report-detached-resolution"), {
+      name: "Error",
+      message: "This report is used to test detached resolution.",
+      stack: "",
+      source: "rules-test",
+      route: "/dashboard",
+      releaseVersion: "0.24.0",
+      context: { summary: "{}" },
+      userAgent: "Rules test",
+      occurredAt: Timestamp.now(),
+      fingerprint: "rules-test|Error|detached-resolution",
+      userId: "player-one",
+      status: "open",
+      reportedAt: Timestamp.now(),
+      resolvedAt: null,
+      resolvedBy: "",
+      resolutionNote: "",
+      lastAuditId: "",
+    });
+  });
+
+  await assertFails(
+    updateDoc(doc(adminContext().firestore(), "clientErrorReports", "report-detached-resolution"), {
+      status: "resolved",
+      resolvedAt: serverTimestamp(),
+      resolvedBy: "admin-one",
+      resolutionNote: "This should fail without a matching audit record.",
+      lastAuditId: "missing-error-resolution-audit",
+    }),
+  );
+});
+
 test("published library releases are immutable after creation", async () => {
   await testEnvironment.withSecurityRulesDisabled(async (context) => {
     await setDoc(doc(context.firestore(), "libraryReleases", "release_0.10.0"), {
@@ -2800,6 +2904,46 @@ test("Platform Administrators acknowledge deletion requests with an audit record
       doc(playerContext().firestore(), "accountDeletionRequests", "player-one"),
       { status: "cancelled", cancelledAt: serverTimestamp(), updatedAt: serverTimestamp() },
     ),
+  );
+});
+
+test("trusted deletion acknowledgement remains audit-bound", async () => {
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), "accountDeletionRequests", "player-two"), {
+      userId: "player-two",
+      email: "player-two@example.com",
+      displayName: "Second Player",
+      status: "requested",
+      reasonCode: "privacy",
+      acknowledgementVersion: 2,
+      requestedAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
+      cancelledAt: null,
+      acknowledgedAt: null,
+      acknowledgedBy: "",
+      lastAuditId: "",
+      deletionPolicyVersion: "trusted-deletion-v1",
+      waitingPeriodDays: 7,
+      processingAt: null,
+      processingBy: "",
+      completedAt: null,
+      completedBy: "",
+      executionId: "",
+      anonymizedPlayerId: "",
+      anonymizedDisplayName: "",
+      failureAt: null,
+      failureMessage: "",
+    });
+  });
+
+  await assertFails(
+    updateDoc(doc(adminContext().firestore(), "accountDeletionRequests", "player-two"), {
+      status: "acknowledged",
+      acknowledgedAt: serverTimestamp(),
+      acknowledgedBy: "admin-one",
+      updatedAt: serverTimestamp(),
+      lastAuditId: "missing-account-deletion-audit",
+    }),
   );
 });
 

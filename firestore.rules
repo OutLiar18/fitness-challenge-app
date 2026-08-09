@@ -549,118 +549,61 @@ service cloud.firestore {
     }
 
     function validSuggestionReview(entityType, suggestionId) {
+      let data = request.resource.data;
       return resource.data.status == "pending"
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          "status",
-          "reviewedAt",
-          "reviewedBy",
-          "rejectionReason",
-          "lastAuditId"
-        ])
-        && request.resource.data.status in ["approved", "rejected"]
-        && request.resource.data.reviewedAt == request.time
-        && request.resource.data.reviewedBy == request.auth.uid
-        && request.resource.data.rejectionReason is string
-        && request.resource.data.rejectionReason.size() <= 500
-        && (
-          request.resource.data.status == "approved"
-          || request.resource.data.rejectionReason.size() >= 4
-        )
-        && request.resource.data.lastAuditId is string
-        && validAuditAfter(
-          request.resource.data.lastAuditId,
-          entityType,
-          suggestionId
-        );
+        && data.diff(resource.data).affectedKeys().hasOnly(["status", "reviewedAt", "reviewedBy", "rejectionReason", "lastAuditId"])
+        && data.status in ["approved", "rejected"]
+        && data.reviewedAt == request.time
+        && data.reviewedBy == request.auth.uid
+        && data.rejectionReason is string
+        && data.rejectionReason.size() <= 500
+        && (data.status == "approved" || data.rejectionReason.size() >= 4)
+        && validAuditAfter(data.lastAuditId, entityType, suggestionId);
     }
 
     function validAnnouncementData() {
-      return request.resource.data.keys().hasOnly([
-          "title",
-          "summary",
-          "body",
-          "type",
-          "icon",
-          "status",
-          "featured",
-          "version",
-          "createdAt",
-          "createdBy",
-          "updatedAt",
-          "updatedBy",
-          "publishedAt",
-          "lastAuditId"
+      let data = request.resource.data;
+      return data.keys().hasOnly([
+          "title", "summary", "body", "type", "icon", "status", "featured",
+          "version", "createdAt", "createdBy", "updatedAt", "updatedBy",
+          "publishedAt", "lastAuditId"
         ])
-        && request.resource.data.title is string
-        && request.resource.data.title.size() >= 4
-        && request.resource.data.title.size() <= 90
-        && request.resource.data.summary is string
-        && request.resource.data.summary.size() >= 10
-        && request.resource.data.summary.size() <= 220
-        && request.resource.data.body is string
-        && request.resource.data.body.size() >= 20
-        && request.resource.data.body.size() <= 4000
-        && request.resource.data.type in [
-          "release",
-          "feature",
-          "challenge",
-          "community",
-          "maintenance"
-        ]
-        && request.resource.data.icon is string
-        && request.resource.data.icon.size() <= 8
-        && request.resource.data.status in ["draft", "published", "archived"]
-        && request.resource.data.featured is bool
-        && request.resource.data.version is string
-        && request.resource.data.version.size() <= 20
-        && request.resource.data.createdAt is timestamp
-        && request.resource.data.createdBy is string
-        && request.resource.data.updatedAt is timestamp
-        && request.resource.data.updatedBy is string
-        && (
-          request.resource.data.publishedAt == null
-          || request.resource.data.publishedAt is timestamp
-        )
-        && (
-          request.resource.data.status != "published"
-          || (
-            request.resource.data.publishedAt is timestamp
-            && request.resource.data.publishedAt <= request.time
-          )
-        )
-        && request.resource.data.lastAuditId is string;
+        && data.title is string
+        && data.summary is string
+        && data.body is string
+        && data.type in ["release", "feature", "challenge", "community", "maintenance"]
+        && data.icon is string
+        && data.status in ["draft", "published", "archived"]
+        && data.featured is bool
+        && data.version is string
+        && data.createdAt is timestamp
+        && data.createdBy is string
+        && data.updatedAt is timestamp
+        && data.updatedBy is string
+        && (data.publishedAt == null || data.publishedAt is timestamp)
+        && data.lastAuditId is string;
     }
 
     function validAnnouncementCreate(announcementId) {
+      let data = request.resource.data;
       return validAnnouncementData()
-        && request.resource.data.createdAt == request.time
-        && request.resource.data.createdBy == request.auth.uid
-        && request.resource.data.updatedAt == request.time
-        && request.resource.data.updatedBy == request.auth.uid
-        && validAuditAfter(
-          request.resource.data.lastAuditId,
-          "announcement",
-          announcementId
-        );
+        && data.createdAt == request.time
+        && data.createdBy == request.auth.uid
+        && data.updatedAt == request.time
+        && data.updatedBy == request.auth.uid
+        && (data.status == "published" ? data.publishedAt is timestamp && data.publishedAt <= request.time : data.publishedAt == null)
+        && validAuditAfter(data.lastAuditId, "announcement", announcementId);
     }
 
     function validAnnouncementUpdate(announcementId) {
+      let data = request.resource.data;
       return validAnnouncementData()
-        && request.resource.data.createdAt == resource.data.createdAt
-        && request.resource.data.createdBy == resource.data.createdBy
-        && request.resource.data.updatedAt == request.time
-        && request.resource.data.updatedBy == request.auth.uid
-        && (
-          resource.data.status != "published"
-            && request.resource.data.status == "published"
-            ? request.resource.data.publishedAt == request.time
-            : request.resource.data.publishedAt == resource.data.publishedAt
-        )
-        && validAuditAfter(
-          request.resource.data.lastAuditId,
-          "announcement",
-          announcementId
-        );
+        && data.createdAt == resource.data.createdAt
+        && data.createdBy == resource.data.createdBy
+        && data.updatedAt == request.time
+        && data.updatedBy == request.auth.uid
+        && (resource.data.status != "published" && data.status == "published" ? data.publishedAt == request.time : data.publishedAt == resource.data.publishedAt)
+        && validAuditAfter(data.lastAuditId, "announcement", announcementId);
     }
 
     function validAnnouncementRead(announcementId) {
@@ -674,140 +617,58 @@ service cloud.firestore {
 
 
     function validSuggestionPublish(entityType, suggestionId) {
+      let data = request.resource.data;
       return resource.data.status == "approved"
         && resource.data.get("publicationStatus", "unpublished") != "published"
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          "publicationStatus",
-          "publishedAt",
-          "publishedBy",
-          "publishedLibraryItemId",
-          "libraryVersion",
-          "lastAuditId"
-        ])
-        && request.resource.data.publicationStatus == "published"
-        && request.resource.data.publishedAt == request.time
-        && request.resource.data.publishedBy == request.auth.uid
-        && request.resource.data.publishedLibraryItemId is string
-        && request.resource.data.publishedLibraryItemId.size() >= 3
-        && request.resource.data.publishedLibraryItemId.size() <= 160
-        && request.resource.data.libraryVersion is string
-        && request.resource.data.libraryVersion.size() >= 5
-        && request.resource.data.libraryVersion.size() <= 40
-        && request.resource.data.lastAuditId is string
-        && validAuditAfter(
-          request.resource.data.lastAuditId,
-          entityType,
-          suggestionId
-        );
+        && data.diff(resource.data).affectedKeys().hasOnly(["publicationStatus", "publishedAt", "publishedBy", "publishedLibraryItemId", "libraryVersion", "lastAuditId"])
+        && data.publicationStatus == "published"
+        && data.publishedAt == request.time
+        && data.publishedBy == request.auth.uid
+        && data.publishedLibraryItemId is string && data.publishedLibraryItemId.size() >= 3
+        && data.libraryVersion is string && data.libraryVersion.size() >= 5
+        && validAuditAfter(data.lastAuditId, entityType, suggestionId);
     }
 
     function validPublishedLibraryItemCreate(itemId) {
-      return request.resource.data.keys().hasOnly([
-          "itemType",
-          "name",
-          "normalizedName",
-          "definition",
-          "status",
-          "libraryVersion",
-          "sourceSuggestionId",
-          "sourceCollection",
-          "releaseId",
-          "createdAt",
-          "createdBy",
-          "updatedAt",
-          "updatedBy",
-          "publishedAt",
-          "archivedAt",
-          "lastAuditId"
+      let data = request.resource.data;
+      return data.keys().hasOnly([
+          "itemType", "name", "normalizedName", "definition", "status", "libraryVersion",
+          "sourceSuggestionId", "sourceCollection", "releaseId", "createdAt", "createdBy",
+          "updatedAt", "updatedBy", "publishedAt", "archivedAt", "lastAuditId"
         ])
-        && request.resource.data.itemType in ["exercise", "cardio", "skill"]
-        && request.resource.data.name is string
-        && request.resource.data.name.size() >= 2
-        && request.resource.data.name.size() <= 120
-        && request.resource.data.normalizedName is string
-        && request.resource.data.normalizedName.size() >= 2
-        && request.resource.data.normalizedName.size() <= 140
-        && request.resource.data.definition is map
-        && request.resource.data.status == "published"
-        && request.resource.data.libraryVersion is string
-        && request.resource.data.libraryVersion.size() >= 5
-        && request.resource.data.libraryVersion.size() <= 40
-        && request.resource.data.sourceSuggestionId is string
-        && request.resource.data.sourceSuggestionId.size() >= 1
-        && request.resource.data.sourceCollection in [
-          "exerciseSuggestions",
-          "librarySuggestions"
-        ]
-        && request.resource.data.releaseId is string
-        && request.resource.data.releaseId.size() >= 1
-        && request.resource.data.createdAt == request.time
-        && request.resource.data.createdBy == request.auth.uid
-        && request.resource.data.updatedAt == request.time
-        && request.resource.data.updatedBy == request.auth.uid
-        && request.resource.data.publishedAt == request.time
-        && request.resource.data.archivedAt == null
-        && request.resource.data.lastAuditId is string
-        && validAuditAfter(
-          request.resource.data.lastAuditId,
-          "publishedLibraryItem",
-          itemId
-        );
+        && data.itemType in ["exercise", "cardio", "skill"]
+        && data.name is string && data.normalizedName is string && data.definition is map
+        && data.status == "published"
+        && data.libraryVersion is string && data.libraryVersion.size() >= 5
+        && data.sourceSuggestionId is string && data.sourceSuggestionId.size() >= 1
+        && data.sourceCollection in ["exerciseSuggestions", "librarySuggestions"]
+        && data.releaseId is string && data.releaseId.size() >= 1
+        && data.createdAt == request.time && data.updatedAt == request.time
+        && data.createdBy == request.auth.uid && data.updatedBy == request.auth.uid
+        && data.publishedAt == request.time && data.archivedAt == null
+        && validAuditAfter(data.lastAuditId, "publishedLibraryItem", itemId);
     }
 
     function validPublishedLibraryItemArchive(itemId) {
+      let data = request.resource.data;
       return resource.data.status == "published"
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          "status",
-          "updatedAt",
-          "updatedBy",
-          "archivedAt",
-          "lastAuditId"
-        ])
-        && request.resource.data.status == "archived"
-        && request.resource.data.updatedAt == request.time
-        && request.resource.data.updatedBy == request.auth.uid
-        && request.resource.data.archivedAt == request.time
-        && request.resource.data.lastAuditId is string
-        && validAuditAfter(
-          request.resource.data.lastAuditId,
-          "publishedLibraryItem",
-          itemId
-        );
+        && data.diff(resource.data).affectedKeys().hasOnly(["status", "updatedAt", "updatedBy", "archivedAt", "lastAuditId"])
+        && data.status == "archived"
+        && data.updatedAt == request.time && data.updatedBy == request.auth.uid
+        && data.archivedAt == request.time
+        && validAuditAfter(data.lastAuditId, "publishedLibraryItem", itemId);
     }
 
     function validLibraryReleaseCreate(releaseId) {
-      return request.resource.data.keys().hasOnly([
-          "version",
-          "notes",
-          "status",
-          "itemIds",
-          "itemCount",
-          "createdAt",
-          "createdBy",
-          "publishedAt",
-          "lastAuditId"
-        ])
-        && request.resource.data.version is string
-        && request.resource.data.version.size() >= 5
-        && request.resource.data.version.size() <= 40
-        && request.resource.data.notes is string
-        && request.resource.data.notes.size() >= 10
-        && request.resource.data.notes.size() <= 1000
-        && request.resource.data.status == "published"
-        && request.resource.data.itemIds is list
-        && request.resource.data.itemIds.size() >= 1
-        && request.resource.data.itemIds.size() <= 8
-        && request.resource.data.itemCount is int
-        && request.resource.data.itemCount == request.resource.data.itemIds.size()
-        && request.resource.data.createdAt == request.time
-        && request.resource.data.createdBy == request.auth.uid
-        && request.resource.data.publishedAt == request.time
-        && request.resource.data.lastAuditId is string
-        && validAuditAfter(
-          request.resource.data.lastAuditId,
-          "libraryRelease",
-          releaseId
-        );
+      let data = request.resource.data;
+      return data.keys().hasOnly(["version", "notes", "status", "itemIds", "itemCount", "createdAt", "createdBy", "publishedAt", "lastAuditId"])
+        && data.version is string && data.notes is string
+        && data.status == "published"
+        && data.itemIds is list && data.itemIds.size() >= 1 && data.itemIds.size() <= 8
+        && data.itemCount is int && data.itemCount == data.itemIds.size()
+        && data.createdAt == request.time && data.createdBy == request.auth.uid
+        && data.publishedAt == request.time
+        && validAuditAfter(data.lastAuditId, "libraryRelease", releaseId);
     }
 
     function validClientErrorReportCreate() {
@@ -863,26 +724,13 @@ service cloud.firestore {
     }
 
     function validClientErrorReportResolve(reportId) {
+      let data = request.resource.data;
       return resource.data.status == "open"
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          "status",
-          "resolvedAt",
-          "resolvedBy",
-          "resolutionNote",
-          "lastAuditId"
-        ])
-        && request.resource.data.status == "resolved"
-        && request.resource.data.resolvedAt == request.time
-        && request.resource.data.resolvedBy == request.auth.uid
-        && request.resource.data.resolutionNote is string
-        && request.resource.data.resolutionNote.size() >= 4
-        && request.resource.data.resolutionNote.size() <= 500
-        && request.resource.data.lastAuditId is string
-        && validAuditAfter(
-          request.resource.data.lastAuditId,
-          "clientErrorReport",
-          reportId
-        );
+        && data.diff(resource.data).affectedKeys().hasOnly(["status", "resolvedAt", "resolvedBy", "resolutionNote", "lastAuditId"])
+        && data.status == "resolved"
+        && data.resolvedAt == request.time && data.resolvedBy == request.auth.uid
+        && data.resolutionNote is string && data.resolutionNote.size() >= 4 && data.resolutionNote.size() <= 500
+        && validAuditAfter(data.lastAuditId, "clientErrorReport", reportId);
     }
 
     function validCoachPreferences() {
@@ -3138,24 +2986,13 @@ service cloud.firestore {
     }
 
     function validAccountDeletionRequestAcknowledge(requestId) {
+      let data = request.resource.data;
       return resource.data.status == "requested"
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          "status",
-          "acknowledgedAt",
-          "acknowledgedBy",
-          "updatedAt",
-          "lastAuditId"
-        ])
-        && request.resource.data.status == "acknowledged"
-        && request.resource.data.acknowledgedAt == request.time
-        && request.resource.data.acknowledgedBy == request.auth.uid
-        && request.resource.data.updatedAt == request.time
-        && request.resource.data.lastAuditId is string
-        && validAuditAfter(
-          request.resource.data.lastAuditId,
-          "accountDeletionRequest",
-          requestId
-        );
+        && data.diff(resource.data).affectedKeys().hasOnly(["status", "acknowledgedAt", "acknowledgedBy", "updatedAt", "lastAuditId"])
+        && data.status == "acknowledged"
+        && data.acknowledgedAt == request.time && data.updatedAt == request.time
+        && data.acknowledgedBy == request.auth.uid
+        && validAuditAfter(data.lastAuditId, "accountDeletionRequest", requestId);
     }
 
     function validEntryCorrectionHeadBase(rootEntryId) {

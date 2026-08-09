@@ -6,13 +6,13 @@ const EXPECTED_VERSION = "0.24.0";
 const EXPECTED_PROJECT = "fitnesschallengeapp-9e87f";
 const EXPECTED_HOSTING_TARGET = "app";
 const EXPECTED_HOSTING_SITE = "champions-legacy-challenge";
-const EXPECTED_RULES_TEST_COUNT = 75;
+const EXPECTED_RULES_TEST_COUNT = 79;
 const projectRoot = process.cwd();
 const failures = [];
 
 const expectedHashes = {
-  "firestore.rules": "d9e97fff5e3680b8a3bdc6c48d898056bdb35e34618a0c1a732512a89dfcc198",
-  "tests/firestore.rules.test.mjs": "ac5dbb114f2b33d0125459dc0a8c6c47dec736554bb74fa1be4932559e663bbc",
+  "firestore.rules": "0ffa958a31cf2562acb00132a42a171eb89d8764848cca95aeb60df38b2ebc82",
+  "tests/firestore.rules.test.mjs": "96e349f9fd0896da712799d6de7799de8dd21b508641dbffdedc3a9dda13f37b",
   "tests/evidence-system.test.mjs": "390a3f7daaee5eed7c6c82d8efc2321548125e41f727d0e174ba5a7fb075a4d6",
   "tests/season-operations.test.mjs": "7ac8a1f87b6ca618cbc5abcc56a1c7559b4a23b94fde74c41b4d25160e78dea4",
   "src/services/evidence/evidenceModel.js": "2a544b847bc89f847bdc211053a2b03033a6ba2b18ce9fe196feb8bda282b6f5",
@@ -145,6 +145,14 @@ requireText("docs/03_ARCHITECTURE/decisions/ADR-028-trusted-derived-record-bound
   "Trusted Derived-Record Boundary",
   "No ordinary player gains a new write path",
 ]);
+requireText("docs/03_ARCHITECTURE/decisions/ADR-029-trusted-platform-operations.md", [
+  "Trusted Platform Operations Boundary",
+  "Player-originated suggestion creation, client-error report creation",
+]);
+requireText("docs/03_ARCHITECTURE/decisions/ADR-029-trusted-platform-operations.md", [
+  "Trusted Platform Operations Boundary",
+  "Player-originated suggestion creation, client-error report creation",
+]);
 requireText("src/services/evidence/evidenceService.js", [
   "Only Platform Administrators can review evidence.",
 ]);
@@ -160,7 +168,7 @@ if (failures.length > 0) {
   process.exitCode = 1;
 } else {
   console.log("Release-readiness structure verified for v0.24.0.");
-  console.log("Frozen baseline: 131 domain tests, 75 Firestore Rules tests, Platform-Administrator-only evidence decisions, trusted derived-record boundaries, v4 House Movement, composition privacy, and house-balance-v1 hashes pinned.");
+  console.log("Frozen baseline: 131 domain tests, 79 Firestore Rules tests, Platform-Administrator-only evidence decisions, trusted derived-record and Platform-operations boundaries, v4 House Movement, composition privacy, and house-balance-v1 hashes pinned.");
   console.log("Firebase production mapping verified: fitnesschallengeapp-9e87f -> Hosting target app -> champions-legacy-challenge.");
   console.log("Production deploy scripts remain intentionally blocked. No deployment is performed by check:release.");
 }
