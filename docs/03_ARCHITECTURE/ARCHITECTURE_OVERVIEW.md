@@ -81,3 +81,8 @@ Administrative content and support workflows now share the trusted Platform Admi
 ## Checkpoint 8K evaluator-aware write routing
 
 Firestore update authorization now routes a league write by the fields it actually changes before entering the expensive operation-specific validator. Participant-count joins/leaves remain the only non-administrator league update path; status, C.H.A.O.S., leaderboard publication, Power Play pool and Power Play state changes still require league-administrator authority. Power Play week updates are routed by whether the official week has started, keeping redraw and locked-correction validation disjoint. This changes evaluation order, not the accepted data contracts.
+
+
+## Checkpoint 8L final v0.24 Rules freeze
+
+Checkpoint 8L freezes the evaluator-clean Checkpoint 8K Firestore Rules without further authorization changes. The final 8-series release gate requires the complete Rules suite and representative high-risk transaction probes to remain free of the 1,000-expression evaluator-limit message. The frozen Rules hash, production project/Hosting mapping, blocked deploy scripts, v0.24 version, test counts and critical v0.24 source hashes are verified before any production Rules activation attempt.

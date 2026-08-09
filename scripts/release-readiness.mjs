@@ -153,6 +153,10 @@ requireText("docs/03_ARCHITECTURE/decisions/ADR-030-evaluator-aware-write-routin
   "Evaluator-Aware Write Routing",
   "maximum of 1000 expressions",
 ]);
+requireText("docs/03_ARCHITECTURE/decisions/ADR-031-v024-final-rules-freeze.md", [
+  "v0.24 Final Rules Freeze",
+  "Freeze the Checkpoint 8K Firestore Rules byte-for-byte",
+]);
 requireText("firestore.rules", [
   "function validLeagueUpdate(leagueId)",
   "validRequestedDeletionState",
@@ -173,7 +177,7 @@ if (failures.length > 0) {
   process.exitCode = 1;
 } else {
   console.log("Release-readiness structure verified for v0.24.0.");
-  console.log("Frozen baseline: 131 domain tests, 79 Firestore Rules tests, Platform-Administrator-only evidence decisions, trusted derived-record, Platform-operations and evaluator-routing boundaries, v4 House Movement, composition privacy, and house-balance-v1 hashes pinned.");
+  console.log("Final 8-series freeze: 131 domain tests, 79 Firestore Rules tests, evaluator-clean Checkpoint 8K Rules hash pinned, Platform-Administrator-only evidence decisions, trusted derived-record, Platform-operations and evaluator-routing boundaries, v4 House Movement, composition privacy, and house-balance-v1 hashes pinned.");
   console.log("Firebase production mapping verified: fitnesschallengeapp-9e87f -> Hosting target app -> champions-legacy-challenge.");
   console.log("Production deploy scripts remain intentionally blocked. No deployment is performed by check:release.");
 }
