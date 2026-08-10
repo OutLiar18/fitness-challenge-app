@@ -224,6 +224,262 @@ service cloud.firestore {
         );
     }
 
+    function validSeasonBonusReason(reason) {
+      return reason is string
+        && reason.size() >= 6
+        && reason.size() <= 300;
+    }
+
+    function validSeasonBonusPositivePoints(points) {
+      return points is int && points >= 1 && points <= 10000;
+    }
+
+    function validSeasonBonusAdjustmentPoints(points) {
+      return points is int && points != 0 && points >= -10000 && points <= 10000;
+    }
+
+    function validSeasonBonusAuditAfter(auditId, action, leagueId, referenceId) {
+      let audit = getAfter(
+        /databases/$(database)/documents/auditEvents/$(auditId)
+      ).data;
+      return audit.actorId == request.auth.uid
+        && audit.action == action
+        && audit.entityType == "league"
+        && audit.entityId == leagueId
+        && audit.createdAt == request.time
+        && audit.details is map
+        && audit.details.get("referenceId", "") == referenceId;
+    }
+
+    function validSeasonBonusRequestCreate(requestId) {
+      let data = request.resource.data;
+      let league = get(
+        /databases/$(database)/documents/leagues/$(data.leagueId)
+      ).data;
+      let membership = get(
+        /databases/$(database)/documents/leagueMemberships/$(data.leagueId + "_" + data.userId)
+      ).data;
+      return data.keys().hasOnly([
+          "leagueId", "userId", "displayName", "points", "reason", "status",
+          "requestedBy", "requestedAt", "reviewedBy", "reviewedAt",
+          "reviewReason", "awardId", "lastAuditId"
+        ])
+        && isLeagueAdministrator(data.leagueId)
+        && league.mode == "season"
+        && league.status == "active"
+        && request.time >= league.startDate && request.time <= league.endDate
+        && membership.leagueId == data.leagueId
+        && membership.userId == data.userId
+        && membership.status == "active"
+        && membership.currentHouseId != ""
+        && data.displayName == membership.displayName
+        && validSeasonBonusPositivePoints(data.points)
+        && validSeasonBonusReason(data.reason)
+        && data.status == "pending"
+        && data.requestedBy == request.auth.uid
+        && data.requestedAt == request.time
+        && data.reviewedBy == ""
+        && data.reviewedAt == null
+        && data.reviewReason == ""
+        && data.awardId == ""
+        && data.lastAuditId is string
+        && validSeasonBonusAuditAfter(
+          data.lastAuditId,
+          "season-bonus.requested",
+          data.leagueId,
+          requestId
+        );
+    }
+
+    function validSeasonBonusRequestReview(requestId) {
+      let data = request.resource.data;
+      let approved = data.status == "approved";
+      let rejected = data.status == "rejected";
+      return isPlatformAdmin()
+        && resource.data.status == "pending"
+        && data.diff(resource.data).affectedKeys().hasOnly([
+          "status", "reviewedBy", "reviewedAt", "reviewReason", "awardId", "lastAuditId"
+        ])
+        && (approved || rejected)
+        && data.reviewedBy == request.auth.uid
+        && data.reviewedAt == request.time
+        && data.reviewReason is string
+        && data.reviewReason.size() <= 300
+        && (approved || data.reviewReason.size() >= 4)
+        && data.lastAuditId is string
+        && validSeasonBonusAuditAfter(
+          data.lastAuditId,
+          approved ? "season-bonus.request-approved" : "season-bonus.request-rejected",
+          data.leagueId,
+          requestId
+        )
+        && (
+          approved
+            ? (
+              data.awardId is string
+              && data.awardId != ""
+              && existsAfter(
+                /databases/$(database)/documents/seasonBonusAwards/$(data.awardId)
+              )
+              && getAfter(
+                /databases/$(database)/documents/seasonBonusAwards/$(data.awardId)
+              ).data.requestId == requestId
+              && getAfter(
+                /databases/$(database)/documents/seasonBonusAwards/$(data.awardId)
+              ).data.userId == data.userId
+              && getAfter(
+                /databases/$(database)/documents/seasonBonusAwards/$(data.awardId)
+              ).data.points == data.points
+            )
+            : data.awardId == ""
+        );
+    }
+
+    function validSeasonBonusAwardCommon(awardId) {
+      let data = request.resource.data;
+      let league = get(
+        /databases/$(database)/documents/leagues/$(data.leagueId)
+      ).data;
+      return isPlatformAdmin()
+        && data.keys().hasOnly([
+          "leagueId", "userId", "displayName", "avatarId",
+          "houseId", "houseName", "houseEmblemId", "points", "reason",
+          "kind", "source", "requestId", "requestedBy", "correctsAwardId",
+          "contributionId", "rulesVersion", "challengeDate",
+          "awardedAt", "awardedBy", "lastAuditId"
+        ])
+        && league.mode == "season"
+        && league.status in ["active", "completed"]
+        && data.leagueId is string && data.leagueId.size() > 0
+        && data.userId is string && data.userId.size() > 0
+        && data.displayName is string && data.displayName.size() >= 2 && data.displayName.size() <= 80
+        && data.avatarId is string && data.avatarId.size() > 0 && data.avatarId.size() <= 80
+        && data.houseId is string && data.houseId.size() > 0
+        && data.houseName is string && data.houseName.size() > 0 && data.houseName.size() <= 80
+        && data.houseEmblemId is string && data.houseEmblemId.size() > 0 && data.houseEmblemId.size() <= 80
+        && validSeasonBonusReason(data.reason)
+        && data.contributionId == "season_bonus_" + awardId
+        && data.rulesVersion == league.rulesVersion
+        && data.challengeDate is timestamp
+        && data.challengeDate >= league.startDate && data.challengeDate <= league.endDate
+        && data.awardedAt == request.time
+        && data.awardedBy == request.auth.uid
+        && data.lastAuditId is string;
+    }
+
+    function validCurrentSeasonBonusIdentity(data) {
+      let membership = get(
+        /databases/$(database)/documents/leagueMemberships/$(data.leagueId + "_" + data.userId)
+      ).data;
+      return membership.leagueId == data.leagueId
+        && membership.userId == data.userId
+        && membership.status == "active"
+        && membership.currentHouseId != ""
+        && data.displayName == membership.displayName
+        && data.avatarId == membership.avatarId
+        && data.houseId == membership.currentHouseId
+        && data.houseName == membership.currentHouseName
+        && data.houseEmblemId == membership.currentHouseEmblemId;
+    }
+
+    function validDirectSeasonBonusAward(awardId) {
+      let data = request.resource.data;
+      let league = get(
+        /databases/$(database)/documents/leagues/$(data.leagueId)
+      ).data;
+      return validSeasonBonusAwardCommon(awardId)
+        && league.status == "active"
+        && request.time >= league.startDate && request.time <= league.endDate
+        && data.challengeDate == request.time
+        && validCurrentSeasonBonusIdentity(data)
+        && validSeasonBonusPositivePoints(data.points)
+        && data.kind == "bonus"
+        && data.source == "platform-direct"
+        && data.requestId == ""
+        && data.requestedBy == ""
+        && data.correctsAwardId == ""
+        && validSeasonBonusAuditAfter(
+          data.lastAuditId,
+          "season-bonus.direct-awarded",
+          data.leagueId,
+          awardId
+        );
+    }
+
+    function validRequestedSeasonBonusAward(awardId) {
+      let data = request.resource.data;
+      let league = get(
+        /databases/$(database)/documents/leagues/$(data.leagueId)
+      ).data;
+      let bonusRequest = getAfter(
+        /databases/$(database)/documents/seasonBonusRequests/$(data.requestId)
+      ).data;
+      return validSeasonBonusAwardCommon(awardId)
+        && league.status == "active"
+        && request.time >= league.startDate && request.time <= league.endDate
+        && data.challengeDate == request.time
+        && validCurrentSeasonBonusIdentity(data)
+        && validSeasonBonusPositivePoints(data.points)
+        && data.kind == "bonus"
+        && data.source == "league-admin-request"
+        && data.requestId != ""
+        && data.correctsAwardId == ""
+        && bonusRequest.status == "approved"
+        && bonusRequest.awardId == awardId
+        && bonusRequest.leagueId == data.leagueId
+        && bonusRequest.userId == data.userId
+        && bonusRequest.points == data.points
+        && bonusRequest.reason == data.reason
+        && bonusRequest.requestedBy == data.requestedBy
+        && bonusRequest.reviewedBy == request.auth.uid
+        && bonusRequest.reviewedAt == request.time
+        && bonusRequest.lastAuditId == data.lastAuditId
+        && validSeasonBonusAuditAfter(
+          data.lastAuditId,
+          "season-bonus.request-approved",
+          data.leagueId,
+          data.requestId
+        );
+    }
+
+    function validCorrectedSeasonBonusAward(awardId) {
+      let data = request.resource.data;
+      let original = get(
+        /databases/$(database)/documents/seasonBonusAwards/$(data.correctsAwardId)
+      ).data;
+      return validSeasonBonusAwardCommon(awardId)
+        && validSeasonBonusAdjustmentPoints(data.points)
+        && data.kind == "correction"
+        && data.source == "platform-correction"
+        && data.requestId == ""
+        && data.requestedBy == ""
+        && data.correctsAwardId != ""
+        && original.leagueId == data.leagueId
+        && original.userId == data.userId
+        && original.displayName == data.displayName
+        && original.avatarId == data.avatarId
+        && original.houseId == data.houseId
+        && original.houseName == data.houseName
+        && original.houseEmblemId == data.houseEmblemId
+        && original.rulesVersion == data.rulesVersion
+        && original.challengeDate == data.challengeDate
+        && validSeasonBonusAuditAfter(
+          data.lastAuditId,
+          "season-bonus.corrected",
+          data.leagueId,
+          awardId
+        );
+    }
+
+    function validSeasonBonusAwardCreate(awardId) {
+      return request.resource.data.source == "platform-direct"
+        ? validDirectSeasonBonusAward(awardId)
+        : request.resource.data.source == "league-admin-request"
+          ? validRequestedSeasonBonusAward(awardId)
+          : request.resource.data.source == "platform-correction"
+            && validCorrectedSeasonBonusAward(awardId);
+    }
+
     function validUserProfile(userId) {
       return request.resource.data.keys().hasOnly([
           "uid",
@@ -2840,6 +3096,43 @@ service cloud.firestore {
         );
     }
 
+    function validSeasonBonusContributionCreate(contributionId) {
+      let data = request.resource.data;
+      let award = getAfter(
+        /databases/$(database)/documents/seasonBonusAwards/$(data.bonusAwardId)
+      ).data;
+      return isPlatformAdmin()
+        && contributionId == award.contributionId
+        && contributionId == "season_bonus_" + data.bonusAwardId
+        && award.awardedBy == request.auth.uid
+        && award.awardedAt == request.time
+        && data.leagueId == award.leagueId
+        && data.entryId == ""
+        && data.userId == award.userId
+        && data.displayName == award.displayName
+        && data.avatarId == award.avatarId
+        && data.houseId == award.houseId
+        && data.houseName == award.houseName
+        && data.houseEmblemId == award.houseEmblemId
+        && data.teamId == award.houseId
+        && data.teamName == award.houseName
+        && data.category == "seasonBonus"
+        && data.scoreCategory == "seasonBonus"
+        && data.pointGroup == "seasonBonus"
+        && data.challengeDate == award.challengeDate
+        && data.activityPoints == award.points
+        && data.rulesVersion == award.rulesVersion
+        && data.source == "season-bonus"
+        && data.sourceRedemptionId == ""
+        && data.evidenceClaimId == ""
+        && data.evidenceDecisionId == ""
+        && data.correctionId == ""
+        && data.correctionRole == ""
+        && data.replacesContributionIds is list
+        && data.replacesContributionIds.size() == 0
+        && data.createdAt == request.time;
+    }
+
     function validLeagueContributionCreate(contributionId) {
       return request.resource.data.keys().hasOnly([
           "leagueId", "entryId", "userId", "displayName", "avatarId",
@@ -2847,16 +3140,18 @@ service cloud.firestore {
           "category", "scoreCategory", "pointGroup", "challengeDate",
           "activityPoints", "rulesVersion", "source", "sourceRedemptionId",
           "evidenceClaimId", "evidenceDecisionId", "correctionId",
-          "correctionRole", "replacesContributionIds", "createdAt"
+          "correctionRole", "replacesContributionIds", "bonusAwardId", "createdAt"
         ])
         && (
-          request.resource.data.get("correctionId", "") != ""
-            ? validCorrectionLeagueContributionCreate(contributionId)
-            : (
-              request.resource.data.get("evidenceDecisionId", "") == ""
-                ? validActivityLeagueContributionCreate(contributionId)
-                : validEvidenceContributionCreate(contributionId)
-            )
+          request.resource.data.get("bonusAwardId", "") != ""
+            ? validSeasonBonusContributionCreate(contributionId)
+            : request.resource.data.get("correctionId", "") != ""
+              ? validCorrectionLeagueContributionCreate(contributionId)
+              : (
+                request.resource.data.get("evidenceDecisionId", "") == ""
+                  ? validActivityLeagueContributionCreate(contributionId)
+                  : validEvidenceContributionCreate(contributionId)
+              )
         );
     }
 
@@ -3484,6 +3779,21 @@ service cloud.firestore {
       allow create: if signedIn() && validPlayerNotificationCreate(notificationId);
       allow update: if signedIn() && validPlayerNotificationRead();
       allow delete: if false;
+    }
+
+    match /seasonBonusRequests/{requestId} {
+      allow read: if isPlatformAdmin()
+        || isLeagueAdministrator(resource.data.leagueId);
+      allow create: if signedIn() && validSeasonBonusRequestCreate(requestId);
+      allow update: if signedIn() && validSeasonBonusRequestReview(requestId);
+      allow delete: if false;
+    }
+
+    match /seasonBonusAwards/{awardId} {
+      allow read: if isPlatformAdmin()
+        || isLeagueAdministrator(resource.data.leagueId);
+      allow create: if signedIn() && validSeasonBonusAwardCreate(awardId);
+      allow update, delete: if false;
     }
 
     match /leagueContributions/{contributionId} {

@@ -5151,3 +5151,378 @@ test("registration and historical seasons cannot be hard-deleted", async () => {
   batch.delete(doc(firestore, "leagues", leagueId));
   await assertFails(batch.commit());
 });
+
+async function seedSeasonBonusRulesFixture({ houseId = "bonus-house-a", houseName = "Bonus House A" } = {}) {
+  const now = Date.now();
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "users", "league-admin"), createProfile("league-admin", "leagueAdmin"));
+    await setDoc(doc(firestore, "leagues", "bonus-league"), {
+      name: "Bonus Test Season",
+      mode: "season",
+      status: "active",
+      startDate: Timestamp.fromDate(new Date(now - 24 * 60 * 60 * 1000)),
+      endDate: Timestamp.fromDate(new Date(now + 24 * 60 * 60 * 1000)),
+      rulesVersion: "season-houses-v4",
+      administratorIds: ["league-admin"],
+    });
+    await setDoc(doc(firestore, "leagueMemberships", "bonus-league_player-one"), {
+      leagueId: "bonus-league",
+      userId: "player-one",
+      displayName: "Test Player",
+      avatarId: "legacy-trophy",
+      status: "active",
+      currentHouseId: houseId,
+      currentHouseName: houseName,
+      currentHouseEmblemId: "springbok",
+    });
+  });
+}
+
+function bonusAuditData({ actorId, action, referenceId, points = 50 }) {
+  return {
+    actorId,
+    action,
+    entityType: "league",
+    entityId: "bonus-league",
+    summary: `${action} for season bonus test`,
+    details: { referenceId, userId: "player-one", points },
+    createdAt: serverTimestamp(),
+  };
+}
+
+function bonusRequestData({ requestId = "bonus-request-one", auditId = "bonus-request-audit", points = 50 } = {}) {
+  return {
+    leagueId: "bonus-league",
+    userId: "player-one",
+    displayName: "Test Player",
+    points,
+    reason: "Exceptional sportsmanship during the season",
+    status: "pending",
+    requestedBy: "league-admin",
+    requestedAt: serverTimestamp(),
+    reviewedBy: "",
+    reviewedAt: null,
+    reviewReason: "",
+    awardId: "",
+    lastAuditId: auditId,
+    requestId,
+  };
+}
+
+function addBonusAwardBatchWrites(batch, firestore, {
+  awardId,
+  auditId,
+  auditAction,
+  auditReferenceId = awardId,
+  points = 50,
+  houseId = "bonus-house-a",
+  houseName = "Bonus House A",
+  kind = "bonus",
+  source = "platform-direct",
+  requestId = "",
+  requestedBy = "",
+  correctsAwardId = "",
+  challengeDate = serverTimestamp(),
+  reason = "Exceptional sportsmanship during the season",
+  actorId = "admin-one",
+}) {
+  const contributionId = `season_bonus_${awardId}`;
+  batch.set(doc(firestore, "auditEvents", auditId), bonusAuditData({
+    actorId,
+    action: auditAction,
+    referenceId: auditReferenceId,
+    points,
+  }));
+  batch.set(doc(firestore, "seasonBonusAwards", awardId), {
+    leagueId: "bonus-league",
+    userId: "player-one",
+    displayName: "Test Player",
+    avatarId: "legacy-trophy",
+    houseId,
+    houseName,
+    houseEmblemId: "springbok",
+    points,
+    reason,
+    kind,
+    source,
+    requestId,
+    requestedBy,
+    correctsAwardId,
+    contributionId,
+    rulesVersion: "season-houses-v4",
+    challengeDate,
+    awardedAt: serverTimestamp(),
+    awardedBy: actorId,
+    lastAuditId: auditId,
+  });
+  batch.set(doc(firestore, "leagueContributions", contributionId), {
+    leagueId: "bonus-league",
+    entryId: "",
+    userId: "player-one",
+    displayName: "Test Player",
+    avatarId: "legacy-trophy",
+    houseId,
+    houseName,
+    houseEmblemId: "springbok",
+    teamId: houseId,
+    teamName: houseName,
+    category: "seasonBonus",
+    scoreCategory: "seasonBonus",
+    pointGroup: "seasonBonus",
+    challengeDate,
+    activityPoints: points,
+    rulesVersion: "season-houses-v4",
+    source: "season-bonus",
+    sourceRedemptionId: "",
+    evidenceClaimId: "",
+    evidenceDecisionId: "",
+    correctionId: "",
+    correctionRole: "",
+    replacesContributionIds: [],
+    bonusAwardId: awardId,
+    createdAt: serverTimestamp(),
+  });
+}
+
+test("League Administrators may submit an audited season bonus request without changing points", async () => {
+  await seedSeasonBonusRulesFixture();
+  const firestore = playerContext("league-admin").firestore();
+  const batch = writeBatch(firestore);
+  const requestId = "bonus-request-submit";
+  const auditId = "bonus-request-submit-audit";
+  batch.set(doc(firestore, "auditEvents", auditId), bonusAuditData({
+    actorId: "league-admin",
+    action: "season-bonus.requested",
+    referenceId: requestId,
+  }));
+  const requestData = bonusRequestData({ requestId, auditId });
+  delete requestData.requestId;
+  batch.set(doc(firestore, "seasonBonusRequests", requestId), requestData);
+  await assertSucceeds(batch.commit());
+
+  const normalFirestore = playerContext().firestore();
+  await assertFails(getDoc(doc(normalFirestore, "seasonBonusRequests", requestId)));
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const snapshot = await getDocs(collection(context.firestore(), "leagueContributions"));
+    assert.equal(snapshot.size, 0);
+  });
+});
+
+test("ordinary players cannot request League Season bonus points", async () => {
+  await seedSeasonBonusRulesFixture();
+  const firestore = playerContext().firestore();
+  const requestId = "bonus-request-player";
+  const data = bonusRequestData({ requestId, auditId: "missing-audit" });
+  delete data.requestId;
+  await assertFails(setDoc(doc(firestore, "seasonBonusRequests", requestId), data));
+});
+
+test("League Administrators cannot directly create a bonus award or contribution", async () => {
+  await seedSeasonBonusRulesFixture();
+  const firestore = playerContext("league-admin").firestore();
+  const batch = writeBatch(firestore);
+  const awardId = "league-admin-direct-award";
+  const challengeDate = serverTimestamp();
+  addBonusAwardBatchWrites(batch, firestore, {
+    awardId,
+    auditId: "league-admin-direct-audit",
+    auditAction: "season-bonus.direct-awarded",
+    challengeDate,
+    actorId: "league-admin",
+  });
+  await assertFails(batch.commit());
+});
+
+test("Platform Administrators atomically award the same bonus to the player and current House", async () => {
+  await seedSeasonBonusRulesFixture();
+  const firestore = adminContext().firestore();
+  const batch = writeBatch(firestore);
+  const awardId = "platform-direct-award";
+  const challengeDate = serverTimestamp();
+  addBonusAwardBatchWrites(batch, firestore, {
+    awardId,
+    auditId: "platform-direct-audit",
+    auditAction: "season-bonus.direct-awarded",
+    points: 75,
+    challengeDate,
+  });
+  await assertSucceeds(batch.commit());
+  const award = await getDoc(doc(firestore, "seasonBonusAwards", awardId));
+  const contribution = await getDoc(doc(firestore, "leagueContributions", `season_bonus_${awardId}`));
+  assert.equal(award.data().points, 75);
+  assert.equal(contribution.data().activityPoints, 75);
+  assert.equal(contribution.data().houseId, "bonus-house-a");
+});
+
+test("Platform approval resolves the player's House at approval time rather than request time", async () => {
+  await seedSeasonBonusRulesFixture();
+  const requestId = "bonus-request-moved-player";
+  const requestAuditId = "bonus-request-moved-audit";
+  const leagueAdminFirestore = playerContext("league-admin").firestore();
+  const requestBatch = writeBatch(leagueAdminFirestore);
+  requestBatch.set(doc(leagueAdminFirestore, "auditEvents", requestAuditId), bonusAuditData({
+    actorId: "league-admin",
+    action: "season-bonus.requested",
+    referenceId: requestId,
+  }));
+  const requestData = bonusRequestData({ requestId, auditId: requestAuditId });
+  delete requestData.requestId;
+  requestBatch.set(doc(leagueAdminFirestore, "seasonBonusRequests", requestId), requestData);
+  await assertSucceeds(requestBatch.commit());
+
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await updateDoc(doc(context.firestore(), "leagueMemberships", "bonus-league_player-one"), {
+      currentHouseId: "bonus-house-b",
+      currentHouseName: "Bonus House B",
+      currentHouseEmblemId: "springbok",
+    });
+  });
+
+  const firestore = adminContext().firestore();
+  const batch = writeBatch(firestore);
+  const awardId = "approved-after-move";
+  const auditId = "approved-after-move-audit";
+  const challengeDate = serverTimestamp();
+  addBonusAwardBatchWrites(batch, firestore, {
+    awardId,
+    auditId,
+    auditAction: "season-bonus.request-approved",
+    auditReferenceId: requestId,
+    houseId: "bonus-house-b",
+    houseName: "Bonus House B",
+    source: "league-admin-request",
+    requestId,
+    requestedBy: "league-admin",
+    challengeDate,
+  });
+  batch.update(doc(firestore, "seasonBonusRequests", requestId), {
+    status: "approved",
+    reviewedBy: "admin-one",
+    reviewedAt: serverTimestamp(),
+    reviewReason: "",
+    awardId,
+    lastAuditId: auditId,
+  });
+  await assertSucceeds(batch.commit());
+  const award = await getDoc(doc(firestore, "seasonBonusAwards", awardId));
+  assert.equal(award.data().houseId, "bonus-house-b");
+});
+
+test("Platform Administrators can reject a League Administrator bonus request without creating points", async () => {
+  await seedSeasonBonusRulesFixture();
+  const requestId = "bonus-request-reject";
+  const requestAuditId = "bonus-request-reject-submit-audit";
+  const leagueAdminFirestore = playerContext("league-admin").firestore();
+  const requestBatch = writeBatch(leagueAdminFirestore);
+  requestBatch.set(doc(leagueAdminFirestore, "auditEvents", requestAuditId), bonusAuditData({
+    actorId: "league-admin",
+    action: "season-bonus.requested",
+    referenceId: requestId,
+  }));
+  const requestData = bonusRequestData({ requestId, auditId: requestAuditId });
+  delete requestData.requestId;
+  requestBatch.set(doc(leagueAdminFirestore, "seasonBonusRequests", requestId), requestData);
+  await assertSucceeds(requestBatch.commit());
+
+  const firestore = adminContext().firestore();
+  const batch = writeBatch(firestore);
+  const auditId = "bonus-request-rejected-audit";
+  batch.set(doc(firestore, "auditEvents", auditId), bonusAuditData({
+    actorId: "admin-one",
+    action: "season-bonus.request-rejected",
+    referenceId: requestId,
+  }));
+  batch.update(doc(firestore, "seasonBonusRequests", requestId), {
+    status: "rejected",
+    reviewedBy: "admin-one",
+    reviewedAt: serverTimestamp(),
+    reviewReason: "The proposed award does not meet the season criteria.",
+    awardId: "",
+    lastAuditId: auditId,
+  });
+  await assertSucceeds(batch.commit());
+});
+
+test("bonus corrections preserve the original award House and remain immutable ledger adjustments", async () => {
+  await seedSeasonBonusRulesFixture();
+  const firestore = adminContext().firestore();
+  const originalBatch = writeBatch(firestore);
+  const originalId = "bonus-original-award";
+  const originalChallengeDate = serverTimestamp();
+  addBonusAwardBatchWrites(originalBatch, firestore, {
+    awardId: originalId,
+    auditId: "bonus-original-audit",
+    auditAction: "season-bonus.direct-awarded",
+    points: 100,
+    challengeDate: originalChallengeDate,
+  });
+  await assertSucceeds(originalBatch.commit());
+  const original = await getDoc(doc(firestore, "seasonBonusAwards", originalId));
+
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await updateDoc(doc(context.firestore(), "leagueMemberships", "bonus-league_player-one"), {
+      currentHouseId: "bonus-house-b",
+      currentHouseName: "Bonus House B",
+    });
+  });
+
+  const correctionBatch = writeBatch(firestore);
+  const correctionId = "bonus-correction-award";
+  addBonusAwardBatchWrites(correctionBatch, firestore, {
+    awardId: correctionId,
+    auditId: "bonus-correction-audit",
+    auditAction: "season-bonus.corrected",
+    points: -25,
+    houseId: "bonus-house-a",
+    houseName: "Bonus House A",
+    kind: "correction",
+    source: "platform-correction",
+    correctsAwardId: originalId,
+    challengeDate: original.data().challengeDate,
+    reason: "Correct the duplicated portion of the original award",
+  });
+  await assertSucceeds(correctionBatch.commit());
+  const correction = await getDoc(doc(firestore, "seasonBonusAwards", correctionId));
+  assert.equal(correction.data().houseId, "bonus-house-a");
+  assert.equal(correction.data().points, -25);
+  await assertFails(updateDoc(doc(firestore, "seasonBonusAwards", correctionId), { points: -20 }));
+});
+
+test("Platform bonus review queue is globally visible only to Platform Administrators", async () => {
+  await seedSeasonBonusRulesFixture();
+  const leagueAdminFirestore = playerContext("league-admin").firestore();
+  const requestId = "bonus-request-global-review";
+  const auditId = "bonus-request-global-review-audit";
+  const batch = writeBatch(leagueAdminFirestore);
+  batch.set(doc(leagueAdminFirestore, "auditEvents", auditId), bonusAuditData({
+    actorId: "league-admin",
+    action: "season-bonus.requested",
+    referenceId: requestId,
+  }));
+  const requestData = bonusRequestData({ requestId, auditId });
+  delete requestData.requestId;
+  batch.set(doc(leagueAdminFirestore, "seasonBonusRequests", requestId), requestData);
+  await assertSucceeds(batch.commit());
+
+  const platformFirestore = adminContext().firestore();
+  const platformQueue = query(
+    collection(platformFirestore, "seasonBonusRequests"),
+    where("status", "==", "pending"),
+  );
+  const platformSnapshot = await assertSucceeds(getDocs(platformQueue));
+  assert.equal(platformSnapshot.size, 1);
+
+  const scopedLeagueAdminQueue = query(
+    collection(leagueAdminFirestore, "seasonBonusRequests"),
+    where("leagueId", "==", "bonus-league"),
+  );
+  const scopedSnapshot = await assertSucceeds(getDocs(scopedLeagueAdminQueue));
+  assert.equal(scopedSnapshot.size, 1);
+
+  const unscopedLeagueAdminQueue = query(
+    collection(leagueAdminFirestore, "seasonBonusRequests"),
+    where("status", "==", "pending"),
+  );
+  await assertFails(getDocs(unscopedLeagueAdminQueue));
+});

@@ -37,14 +37,13 @@ v0.24.0 remains the verified production baseline. Its Firestore Rules and Hostin
 - once registration opens, Houses and seasons remain historical competition structures and cannot be hard-deleted through the app;
 - Authentication-user deletion remains in the existing trusted Admin SDK workflow, with shared competition facts anonymised/preserved instead of being corrupted.
 
-### 25D — League Season bonus points
+### 25D — League Season bonus points — COMPLETE
 - Platform Administrators may directly award a player bonus points with a mandatory reason;
-- the same approved amount is credited to the player's House for that league season;
-- the House attribution is frozen at award/approval time and later movement cannot rewrite it;
-- League Administrators may submit a scoped bonus request with a mandatory reason but cannot alter competitive totals directly;
-- Platform Administrators are notified and must approve or reject League Administrator requests;
-- approval atomically creates the player award, matching House contribution and immutable audit history;
-- mistakes are corrected by a separate positive/negative adjustment rather than rewriting an existing award.
+- League Administrators may submit scoped requests but cannot alter competitive totals directly; Platform Administrators receive a global Inbox review signal and must approve or reject;
+- approval/direct award atomically creates an immutable award, matching contribution and audit history;
+- the same raw bonus amount is added to the player and the House recorded at award/approval time, bypassing activity caps, participation bonuses and Power Play multipliers;
+- later roster movement cannot relocate historical bonus points;
+- corrections are separate positive/negative ledger adjustments and remain attached to the original award's House rather than the player's current House.
 
 Five Fires and Buddy Bonuses are intentionally removed from the pre-v1.0 roadmap. Unspecified late-season twists are not blockers for v1.0 and will only be implemented if explicitly designed and approved later.
 

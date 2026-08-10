@@ -1,0 +1,158 @@
+.season-bonus {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.season-bonus__review-alert {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  padding: 1rem;
+  border: 1px solid var(--color-warning-border, rgba(245, 158, 11, 0.4));
+  border-radius: 0.9rem;
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.season-bonus__review-alert > span {
+  font-size: 1.35rem;
+}
+
+.season-bonus__review-alert p,
+.season-bonus__form p,
+.season-bonus__history > div > p,
+.season-bonus__correction p {
+  margin: 0.25rem 0 0;
+  color: var(--text-muted);
+}
+
+.season-bonus__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 1rem;
+}
+
+.season-bonus__form,
+.season-bonus__review,
+.season-bonus__correction {
+  display: grid;
+  align-content: start;
+  gap: 0.9rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--surface-soft);
+}
+
+.season-bonus__form label,
+.season-bonus__review-controls label,
+.season-bonus__correction label {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.season-bonus__form label > span,
+.season-bonus__review-controls label > span,
+.season-bonus__correction label > span {
+  font-weight: 700;
+}
+
+.season-bonus__form select,
+.season-bonus__form input,
+.season-bonus__form textarea,
+.season-bonus__review-controls input,
+.season-bonus__correction input,
+.season-bonus__correction textarea {
+  width: 100%;
+}
+
+.season-bonus__request-list,
+.season-bonus__award-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.season-bonus__request,
+.season-bonus__award {
+  padding: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 0.8rem;
+  background: var(--surface-card, rgba(255, 255, 255, 0.03));
+}
+
+.season-bonus__request-topline,
+.season-bonus__award {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.season-bonus__request p {
+  margin: 0.45rem 0;
+}
+
+.season-bonus__request small,
+.season-bonus__award small,
+.season-bonus__award span {
+  color: var(--text-muted);
+}
+
+.season-bonus__review-controls {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.8rem;
+}
+
+.season-bonus__review-controls > div,
+.season-bonus__correction-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.season-bonus__history {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.season-bonus__award > div {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.season-bonus__award > div:last-child {
+  justify-items: end;
+  text-align: right;
+}
+
+.season-bonus__award b {
+  font-size: 1.1rem;
+}
+
+.season-bonus__correction {
+  grid-template-columns: minmax(0, 1.25fr) minmax(8rem, 0.35fr) minmax(0, 1fr);
+  align-items: end;
+}
+
+.season-bonus__correction-actions {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 900px) {
+  .season-bonus__grid,
+  .season-bonus__correction {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .season-bonus__request-topline,
+  .season-bonus__award {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .season-bonus__award > div:last-child {
+    justify-items: start;
+    text-align: left;
+  }
+}

@@ -138,9 +138,30 @@ export function calculateLeagueStandings(
   const memberMap = new Map(memberships.map((member) => [member.userId, member]));
   const playerDays = new Map();
   const housePlayerDays = new Map();
+  const playerBonusPoints = new Map();
+  const houseBonusPoints = new Map();
   const includedCategories = new Set(ruleset.includedCategories ?? []);
 
   contributions.forEach((contribution) => {
+    if (contribution.pointGroup === "seasonBonus") {
+      const points = Number(contribution.activityPoints);
+      const userId = contribution.userId;
+      const houseId = contribution.houseId || contribution.teamId || "";
+      if (!Number.isFinite(points) || !userId || !houseId) return;
+      playerBonusPoints.set(userId, (playerBonusPoints.get(userId) ?? 0) + points);
+      const houseRow = houseBonusPoints.get(houseId) ?? {
+        houseId,
+        houseName: contribution.houseName || contribution.teamName || "House",
+        houseEmblemId: contribution.houseEmblemId || "springbok",
+        points: 0,
+        contributingPlayerIds: new Set(),
+      };
+      houseRow.points += points;
+      houseRow.contributingPlayerIds.add(userId);
+      houseBonusPoints.set(houseId, houseRow);
+      return;
+    }
+
     const scoreCategory = contribution.scoreCategory || contribution.category;
     if (!includedCategories.has(scoreCategory)) return;
 
@@ -212,7 +233,7 @@ export function calculateLeagueStandings(
     row.evidenceBonusPoints += totals.evidenceBonusPoints;
     row.activeDays += totals.activeDay ? 1 : 0;
     row.entriesRecorded += day.entryIds.size;
-    row.totalPoints = row.activityPoints + row.consistencyPoints + row.evidenceBonusPoints;
+    row.totalPoints = row.activityPoints + row.consistencyPoints + row.evidenceBonusPoints + row.seasonBonusPoints;
     playerRows.set(day.userId, row);
   });
 
@@ -220,6 +241,13 @@ export function calculateLeagueStandings(
     if (!playerRows.has(member.userId)) {
       playerRows.set(member.userId, createPlayerStanding(member, member.userId));
     }
+  });
+  playerBonusPoints.forEach((bonusPoints, userId) => {
+    const member = memberMap.get(userId) ?? {};
+    const row = playerRows.get(userId) ?? createPlayerStanding(member, userId);
+    row.seasonBonusPoints += bonusPoints;
+    row.totalPoints = row.activityPoints + row.consistencyPoints + row.evidenceBonusPoints + row.seasonBonusPoints;
+    playerRows.set(userId, row);
   });
 
   const players = [...playerRows.values()]
@@ -251,6 +279,7 @@ export function calculateLeagueStandings(
       activityPoints: 0,
       consistencyPoints: 0,
       evidenceBonusPoints: 0,
+      seasonBonusPoints: 0,
       activeDays: 0,
       contributingPlayerIds: new Set(),
     };
@@ -261,6 +290,18 @@ export function calculateLeagueStandings(
     row.activeDays += totals.activeDay ? 1 : 0;
     row.contributingPlayerIds.add(day.userId);
     houseRows.set(houseKey, row);
+  });
+  houseBonusPoints.forEach((bonus, houseId) => {
+    const row = houseRows.get(houseId) ?? {
+      houseId, houseName: bonus.houseName, houseEmblemId: bonus.houseEmblemId,
+      teamId: houseId, teamName: bonus.houseName, totalPoints: 0, activityPoints: 0,
+      consistencyPoints: 0, evidenceBonusPoints: 0, seasonBonusPoints: 0, activeDays: 0,
+      contributingPlayerIds: new Set(),
+    };
+    row.seasonBonusPoints += bonus.points;
+    row.totalPoints += bonus.points;
+    bonus.contributingPlayerIds.forEach((userId) => row.contributingPlayerIds.add(userId));
+    houseRows.set(houseId, row);
   });
 
   const houses = [...houseRows.values()]
@@ -341,6 +382,7 @@ function createPlayerStanding(member = {}, userId = "") {
     activityPoints: 0,
     consistencyPoints: 0,
     evidenceBonusPoints: 0,
+    seasonBonusPoints: 0,
     totalPoints: 0,
     activeDays: 0,
     entriesRecorded: 0,
@@ -436,10 +478,23 @@ function rankHouseContributors(
 ) {
   const memberMap = new Map(memberships.map((member) => [member.userId, member]));
   const days = new Map();
+  const bonusRows = new Map();
 
   contributions.forEach((contribution) => {
-    const dateKey = getContributionDateKey(contribution);
     const houseId = contribution.houseId || contribution.teamId || "";
+    if (contribution.pointGroup === "seasonBonus") {
+      if (!houseId || !contribution.userId) return;
+      const points = Number(contribution.activityPoints);
+      if (!Number.isFinite(points)) return;
+      const key = `${houseId}:${contribution.userId}`;
+      const row = bonusRows.get(key) ?? {
+        houseId, houseName: contribution.houseName || contribution.teamName || "House",
+        houseEmblemId: contribution.houseEmblemId || "springbok",
+        ...getMemberIdentity(memberMap, contribution.userId), totalPoints: 0, activeDays: 0,
+      };
+      row.totalPoints += points; bonusRows.set(key, row); return;
+    }
+    const dateKey = getContributionDateKey(contribution);
     if (!dateKey || !houseId || !contribution.userId) return;
     const scoreCategory = contribution.scoreCategory || contribution.category;
     const key = `${houseId}:${contribution.userId}:${dateKey}`;
@@ -487,6 +542,11 @@ function rankHouseContributors(
     row.activeDays += totals.activeDay ? 1 : 0;
     rows.set(key, row);
   });
+  bonusRows.forEach((bonus, key) => {
+    const row = rows.get(key) ?? bonus;
+    if (row !== bonus) row.totalPoints += bonus.totalPoints;
+    rows.set(key, row);
+  });
 
   const byHouse = new Map();
   rows.forEach((row) => {
@@ -501,7 +561,7 @@ function rankHouseContributors(
         second.totalPoints - first.totalPoints ||
         second.activeDays - first.activeDays ||
         first.displayName.localeCompare(second.displayName),
-    )[0])
+    ).find((candidate) => candidate.totalPoints > 0) ?? null)
     .filter(Boolean)
     .sort((first, second) => first.houseName.localeCompare(second.houseName));
 }

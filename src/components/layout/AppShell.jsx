@@ -15,6 +15,7 @@ import useAnnouncements from "../../hooks/useAnnouncements";
 import useNotifications from "../../hooks/useNotifications";
 import usePlayerData from "../../hooks/usePlayerData";
 import { logoutUser } from "../../services/auth/authService";
+import { subscribeToPendingSeasonBonusRequests } from "../../services/seasons/seasonBonusService";
 import { formatRole } from "../../utils/displayFormatters";
 import { isValidMbtiType } from "../../constants/mbtiProfiles";
 import PlayerAvatar from "../profile/PlayerAvatar";
@@ -160,6 +161,7 @@ export default function AppShell() {
   const { profile, user, progression, error, isPlatformAdmin } = usePlayerData();
   const { unreadCount: announcementUnreadCount } = useAnnouncements();
   const { unreadCount: notificationUnreadCount } = useNotifications();
+  const [bonusReviewCount, setBonusReviewCount] = useState(0);
   const [moreOpen, setMoreOpen] = useState(false);
   const [moreMode, setMoreMode] = useState("desktop");
   const [brandClicks, setBrandClicks] = useState(0);
@@ -171,7 +173,8 @@ export default function AppShell() {
 
   const displayName = getDisplayName(profile, user);
   const activeItem = getNavigationItemByPath(location.pathname);
-  const inboxUnreadCount = announcementUnreadCount + notificationUnreadCount;
+  const inboxAttentionCount =
+    announcementUnreadCount + notificationUnreadCount + (isPlatformAdmin ? bonusReviewCount : 0);
   const desktopMoreIsActive = Boolean(
     activeItem &&
       (activeItem.id === "admin" ||
@@ -186,6 +189,14 @@ export default function AppShell() {
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }, [location.pathname, location.search]);
+
+  useEffect(() => {
+    if (!isPlatformAdmin) return undefined;
+    return subscribeToPendingSeasonBonusRequests(
+      (items) => setBonusReviewCount(items.length),
+      () => setBonusReviewCount(0),
+    );
+  }, [isPlatformAdmin]);
 
   useEffect(() => {
     if (!secretMessage) return undefined;
@@ -321,7 +332,7 @@ export default function AppShell() {
                 <NavigationLink
                   key={item.id}
                   item={item}
-                  badge={item.id === INBOX_NAV_ITEM.id ? inboxUnreadCount : undefined}
+                  badge={item.id === INBOX_NAV_ITEM.id ? inboxAttentionCount : undefined}
                   onNavigate={handleNavigation}
                 />
               ))}
@@ -425,17 +436,17 @@ export default function AppShell() {
               }`
             }
             aria-label={
-              item.id === INBOX_NAV_ITEM.id && inboxUnreadCount > 0
-                ? `${item.label}, ${inboxUnreadCount} unread`
+              item.id === INBOX_NAV_ITEM.id && inboxAttentionCount > 0
+                ? `${item.label}, ${inboxAttentionCount} unread or awaiting review`
                 : item.label
             }
             onClick={handleNavigation}
           >
             <span className="app-mobile-nav__icon" aria-hidden="true">
               {item.icon}
-              {item.id === INBOX_NAV_ITEM.id && inboxUnreadCount > 0 && (
+              {item.id === INBOX_NAV_ITEM.id && inboxAttentionCount > 0 && (
                 <span className="app-mobile-nav__badge">
-                  {inboxUnreadCount > 9 ? "9+" : inboxUnreadCount}
+                  {inboxAttentionCount > 9 ? "9+" : inboxAttentionCount}
                 </span>
               )}
             </span>

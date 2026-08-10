@@ -6,14 +6,14 @@ Current production: v0.24.0
 
 ## First action
 
-Begin 25D: implement League Season bonus points as an isolated, audit-bound Rules checkpoint. Do not modify production.
+Run consolidated v0.25.0 verification and release-readiness checks. Do not modify production automatically.
 
 ## v0.25.0 order
 
 1. 25A existing-app correctness foundations — complete.
 2. 25B MBTI-based player profiles — complete.
 3. 25C safe deletion/recovery behaviour — complete.
-4. Implement 25D League Season bonus points and its isolated Firestore Rules/tests.
+4. 25D League Season bonus points — complete.
 
 ## 25B completed product direction
 
@@ -29,6 +29,10 @@ Begin 25D: implement League Season bonus points as an isolated, audit-bound Rule
 ## 25C completed safety boundary
 
 Platform Administrators may hard-delete only empty Houses and zero-participant seasons that are still drafts. Draft season deletion removes its draft Houses and closed invitation record atomically and preserves a deterministic audit event. League Administrators cannot hard-delete. Once registration opens, the season and Houses are historical structures and remain protected. User Authentication deletion stays in the trusted Admin SDK workflow.
+
+## 25D completed competition boundary
+
+League Administrators may submit reasoned bonus requests only for active players in seasons they administer. Platform Administrators receive pending-review attention, approve/reject requests, may award directly, and may create separate corrective adjustments. Awards flow through a dedicated immutable season-bonus contribution ledger, bypass daily activity caps/participation/Power Plays, credit the player and award-time House equally, and preserve that historical House through later movement or correction.
 
 ## Responsive boundary
 

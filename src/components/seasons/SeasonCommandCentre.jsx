@@ -18,6 +18,7 @@ import {
   subscribeToLeagueHouses,
 } from "../../services/seasons/seasonService";
 import { toDate } from "../../services/dateService";
+import BonusPointsWorkspace from "./BonusPointsWorkspace";
 import {
   formatNumber,
   formatPoints,
@@ -384,6 +385,15 @@ export default function SeasonCommandCentre({
         </div>
       </section>
 
+      <BonusPointsWorkspace
+        key={league.id}
+        league={league}
+        members={members}
+        actorId={actorId}
+        isPlatformAdmin={isPlatformAdmin}
+        isLeagueAdministrator={isLeagueAdministrator}
+        notify={notify}
+      />
 
       {canViewTrustedOperations && (
         <section

@@ -6,7 +6,7 @@ import {
 } from "../leagues/leagueModel";
 import { getSeasonPowerPlayWeeks } from "./powerPlayModel";
 
-export const TRUSTED_SEASON_MODEL_VERSION = "trusted-season-v2";
+export const TRUSTED_SEASON_MODEL_VERSION = "trusted-season-v3";
 export const TRUSTED_RUN_STALE_HOURS = 26;
 
 const ISSUE_SEVERITIES = Object.freeze({
@@ -65,6 +65,7 @@ function canonicalContribution(item = {}) {
     evidenceDecisionId: item.evidenceDecisionId || "",
     correctionId: item.correctionId || "",
     correctionRole: item.correctionRole || "",
+    bonusAwardId: item.bonusAwardId || "",
   };
 }
 
@@ -137,6 +138,7 @@ function canonicalPlayerRow(row = {}) {
     activityPoints: roundPoints(row.activityPoints),
     consistencyPoints: roundPoints(row.consistencyPoints),
     evidenceBonusPoints: roundPoints(row.evidenceBonusPoints),
+    seasonBonusPoints: roundPoints(row.seasonBonusPoints),
     totalPoints: roundPoints(row.totalPoints),
     activeDays: Number(row.activeDays ?? 0),
     entriesRecorded: Number(row.entriesRecorded ?? 0),
@@ -151,6 +153,7 @@ function canonicalHouseRow(row = {}) {
     activityPoints: roundPoints(row.activityPoints),
     consistencyPoints: roundPoints(row.consistencyPoints),
     evidenceBonusPoints: roundPoints(row.evidenceBonusPoints),
+    seasonBonusPoints: roundPoints(row.seasonBonusPoints),
     totalPoints: roundPoints(row.totalPoints),
     activeDays: Number(row.activeDays ?? 0),
     memberCount: Number(row.memberCount ?? 0),
@@ -244,6 +247,7 @@ function inspectContribution(contribution, league, maps, includedCategories) {
   const id = contribution.id || "unknown";
   const points = Number(contribution.activityPoints);
   const scoreCategory = contribution.scoreCategory || contribution.category;
+  const seasonBonus = contribution.pointGroup === "seasonBonus";
 
   if (contribution.leagueId !== league.id) {
     issues.push(createIssue("blocking", "CONTRIBUTION_WRONG_SEASON", "A contribution belongs to a different season.", "leagueContribution", id));
@@ -259,8 +263,22 @@ function inspectContribution(contribution, league, maps, includedCategories) {
   } else if (!isEntryWithinLeague(contribution, league)) {
     issues.push(createIssue("blocking", "CONTRIBUTION_OUTSIDE_SEASON", "A contribution falls outside the season dates.", "leagueContribution", id));
   }
-  if (!includedCategories.has(scoreCategory)) {
+  if (!seasonBonus && !includedCategories.has(scoreCategory)) {
     issues.push(createIssue("blocking", "CONTRIBUTION_CATEGORY_EXCLUDED", `The score category ${scoreCategory || "unknown"} is not included in the frozen ruleset.`, "leagueContribution", id));
+  }
+  if (seasonBonus) {
+    if (contribution.category !== "seasonBonus" || scoreCategory !== "seasonBonus") {
+      issues.push(createIssue("blocking", "SEASON_BONUS_CATEGORY_INVALID", "A League Season bonus contribution must use the dedicated seasonBonus category.", "leagueContribution", id));
+    }
+    if (contribution.source !== "season-bonus" || !contribution.bonusAwardId) {
+      issues.push(createIssue("blocking", "SEASON_BONUS_AWARD_LINK_INVALID", "A League Season bonus contribution must point to its immutable bonus award.", "leagueContribution", id));
+    }
+    if (contribution.entryId || contribution.evidenceClaimId || contribution.evidenceDecisionId || contribution.correctionId || contribution.correctionRole) {
+      issues.push(createIssue("blocking", "SEASON_BONUS_SOURCE_LINK_INVALID", "A League Season bonus cannot masquerade as activity, evidence or entry correction data.", "leagueContribution", id));
+    }
+    if (!Number.isInteger(points) || points === 0 || Math.abs(points) > 10000) {
+      issues.push(createIssue("blocking", "SEASON_BONUS_POINTS_INVALID", "A League Season bonus contribution must use a non-zero whole-number adjustment within the supported range.", "leagueContribution", id));
+    }
   }
   if (contribution.entryId && !maps.entries.has(contribution.entryId)) {
     issues.push(createIssue("warning", "CONTRIBUTION_ENTRY_UNAVAILABLE", "The source entry is no longer readable, but the immutable competition contribution remains.", "leagueContribution", id));

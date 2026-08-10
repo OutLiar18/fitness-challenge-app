@@ -45,9 +45,16 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - registration, active, completed and archived seasons remain protected historical structures;
 - player Authentication deletion stays in the trusted Admin SDK workflow and preserves/anonymises competition facts where required.
 
-### Later v0.25 work
+### Checkpoint 25D — League Season bonus points — complete
+- Platform Administrators can award directly with a mandatory reason;
+- League Administrators can submit scoped requests only, with Platform review required before standings change;
+- pending League Administrator requests surface as Platform Admin Inbox attention and in the season review workspace;
+- every awarded point is written through the immutable contribution ledger and credited equally to the player and the House captured at award/approval time;
+- League Season bonus points bypass ordinary activity caps, participation bonuses and Power Play multipliers and do not create category champion titles;
+- corrections are separate positive/negative adjustments that preserve the original award's House attribution.
 
-- 25D: League Season bonus points where Platform Administrators can award directly and League Administrators can only request, with Platform review required before points are applied to the player and their House.
+### Next v0.25 action
+Run consolidated v0.25 application/Rules/release-readiness verification before any production activation.
 
 ## Responsive development boundary
 
