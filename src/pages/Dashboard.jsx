@@ -3,19 +3,15 @@ import { useNavigate } from "react-router-dom";
 
 import DailyGoals from "../components/dashboard/DailyGoals";
 import DailyProgress from "../components/dashboard/DailyProgress";
-import MotivationCard from "../components/dashboard/MotivationCard";
 import ProgressionCard from "../components/dashboard/ProgressionCard";
 import QuickActions from "../components/dashboard/QuickActions";
-import StatsCard from "../components/dashboard/StatsCard";
 import TopCategories from "../components/dashboard/TopCategories";
 import WelcomeCard from "../components/dashboard/WelcomeCard";
 import { GOAL_PERIODS } from "../constants/goals";
 import usePlayerData from "../hooks/usePlayerData";
 import {
   getGoalsForPeriod,
-  getTodayEntryCount,
   getTopCategories,
-  getTotalEntries,
 } from "../services/statistics";
 import "./Dashboard.css";
 
@@ -30,15 +26,7 @@ export default function Dashboard() {
   );
 
   const topCategories = useMemo(() => getTopCategories(entries), [entries]);
-  const stats = useMemo(
-    () => ({
-      points: progression.score.totalPoints,
-      todayPoints: progression.score.todayPoints,
-      entries: getTotalEntries(entries),
-      todayEntries: getTodayEntryCount(entries),
-    }),
-    [entries, progression],
-  );
+
 
   function handleGoalSelect(categoryId) {
     navigate(`/log?category=${encodeURIComponent(categoryId)}`);
@@ -46,16 +34,11 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-page page-stack">
-      <WelcomeCard profile={profile} user={user} />
+      <WelcomeCard profile={profile} user={user} playerSeed={user?.uid || user?.email} />
 
       <QuickActions />
 
-      <StatsCard stats={stats} />
-
-      <div className="dashboard-overview-grid">
-        <ProgressionCard progression={progression} />
-        <MotivationCard playerSeed={user?.uid || user?.email} />
-      </div>
+      <ProgressionCard progression={progression} />
 
       <div className="dashboard-insights">
         <DailyProgress goals={goals} period={goalPeriod} />

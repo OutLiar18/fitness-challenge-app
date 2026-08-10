@@ -1,7 +1,7 @@
 .welcome-card {
   position: relative;
   display: flex;
-  min-height: 230px;
+  min-height: 300px;
   align-items: flex-end;
   justify-content: space-between;
   gap: 28px;
@@ -29,7 +29,7 @@
 .welcome-card__content {
   position: relative;
   z-index: 1;
-  max-width: 650px;
+  width: min(100%, 820px);
 }
 
 .welcome-card__eyebrow {
@@ -47,10 +47,113 @@
   font-size: clamp(2rem, 5vw, 3.6rem);
 }
 
-.welcome-card__content > p:last-child {
-  max-width: 50ch;
-  margin-bottom: 0;
+.welcome-card__intro {
+  max-width: 58ch;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.welcome-card__transmission {
+  max-width: 760px;
+  margin-top: 24px;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 18px;
+  background: rgba(8, 19, 53, 0.34);
+  backdrop-filter: blur(12px);
+}
+
+.welcome-card__transmission-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.welcome-card__transmission-heading span,
+.welcome-card__transmission-heading strong {
+  display: block;
+}
+
+.welcome-card__transmission-heading > div > span {
+  color: #f6cc75;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.welcome-card__transmission-heading > div > strong {
+  margin-top: 4px;
+  font-size: 0.95rem;
+}
+
+.welcome-card__transmission-button {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 15px;
+  border: 2px solid #f6cc75;
+  border-radius: 12px;
+  color: #16214a;
+  background: #f6cc75;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 3px 0 rgba(67, 42, 3, 0.4);
+}
+
+.welcome-card__transmission-button:hover {
+  transform: translateY(-1px);
+}
+
+.welcome-card__transmission-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 rgba(67, 42, 3, 0.4);
+}
+
+.welcome-card__transmission blockquote {
+  margin: 16px 0 0;
+}
+
+.welcome-card__transmission blockquote p {
+  margin: 0;
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.welcome-card__transmission cite {
+  display: block;
+  margin-top: 7px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.74rem;
+  font-style: normal;
+  font-weight: 750;
+}
+
+.welcome-card__transmission-extras {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.welcome-card__transmission-extras p {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
   color: rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.welcome-card__transmission-extras strong {
+  color: #fff;
 }
 
 .welcome-card__badge {
@@ -71,15 +174,6 @@
   backdrop-filter: blur(10px);
 }
 
-@media (max-width: 620px) {
-  .welcome-card {
-    min-height: 250px;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-end;
-  }
-}
-
 .welcome-card__identity {
   position: relative;
   z-index: 1;
@@ -93,10 +187,40 @@
   border-color: rgba(255, 255, 255, 0.55);
 }
 
-@media (max-width: 620px) {
+@media (max-width: 900px) {
+  .welcome-card {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
   .welcome-card__identity {
     grid-template-columns: auto auto;
     align-items: center;
     justify-items: start;
+  }
+}
+
+@media (max-width: 620px) {
+  .welcome-card {
+    min-height: 0;
+    padding: 24px 20px;
+  }
+
+  .welcome-card__transmission-heading,
+  .welcome-card__transmission-extras {
+    grid-template-columns: 1fr;
+  }
+
+  .welcome-card__transmission-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .welcome-card__transmission-button {
+    width: 100%;
+  }
+
+  .welcome-card__transmission-extras {
+    display: grid;
   }
 }

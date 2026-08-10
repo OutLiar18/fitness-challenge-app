@@ -10,9 +10,11 @@ export default function PageHeader({
   return (
     <header className="page-header card">
       <div className="page-header__identity">
-        <span className="page-header__icon" aria-hidden="true">
-          {icon}
-        </span>
+        {icon ? (
+          <span className="page-header__icon" aria-hidden="true">
+            {icon}
+          </span>
+        ) : null}
 
         <div>
           {eyebrow && <p className="page-header__eyebrow">{eyebrow}</p>}

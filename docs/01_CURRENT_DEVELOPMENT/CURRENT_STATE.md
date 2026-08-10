@@ -1,73 +1,46 @@
 # Champions Legacy Challenge — Current State
 
-<!-- RELEASE_STATUS: DEPLOYED -->
-Version: 0.24.0
+<!-- RELEASE_STATUS: DEVELOPMENT -->
+Source version: 0.25.0 development
 Production version: 0.24.0
-Last updated: 9 August 2026
-Status: Verified production release; pre-v1.0
+Last updated: 10 August 2026
+Status: Active pre-v1.0 development
 
-## Product state
+## Production baseline
 
-Champions Legacy Challenge is live on Firebase Hosting with the v0.24.0 frontend and the byte-verified v0.24.0 Firestore Rules active in production.
+v0.24.0 remains live and verified on Firebase Hosting with the byte-verified v0.24.0 Firestore Rules active in production. Production release evidence remains in `docs/07_HISTORY/V0240_PRODUCTION_RELEASE.md`.
 
-The platform combines factual personal tracking, progression, season-scoped Houses, themed Power Plays, WhatsApp evidence, audited corrections, controlled published standings, trusted reconciliation, trusted account deletion and the v4 House Movement foundation.
+## v0.25.0 development scope
 
-## v0.24.0 systems now in production
+The competition roadmap has been simplified. Five Fires and Buddy Bonuses are removed. v0.25.0 is now focused on existing-app correctness, MBTI-based player profiles, safe administrator deletion/recovery semantics and League Season bonus-point administration.
 
-### House Movement v4
+### Checkpoint 25A — existing-app correctness foundations
 
-- New seasons use `season-houses-v4`.
-- Weekly roster swaps persist a one-week post-move rest window.
-- A player cannot be moved again during the following movement period.
-- Initial C.H.A.O.S. assignment does not count as a move.
-- Same-week repeat movement, House weekly locks and captain/vice-captain protection remain enforced.
-- Platform Administrators may override only the active rest restriction and must provide a factual reason.
+- route/navigation changes return the page to the top;
+- `Log activity` no longer receives a permanent green accent when inactive;
+- the shell lifetime score is explicitly labelled `total points`;
+- Champion Transmission is integrated into the welcome area with a prominent message-cycle action;
+- the motivational library is expanded;
+- the redundant four-stat Dashboard summary is removed;
+- the Profile PageHeader no longer renders a redundant identity icon block;
+- Summit Falcon uses a broadly supported temporary eagle symbol until the generic avatar system is replaced in 25B;
+- all touched layouts retain responsive breakpoints.
 
-### Assignment history
+25A does not modify Firestore Rules and does not deploy anything.
 
-- C.H.A.O.S. and weekly moves create immutable House-assignment history.
-- Historical House attribution cannot be rewritten by later movement.
-- Assignment history participates in trusted account-deletion anonymisation where required.
+### Next — 25B MBTI identity system
 
-### Composition privacy and weekly balance
+The generic avatar catalogue will be replaced by 16 MBTI-based profiles. Players who do not know their type may use a 12-question in-app rough estimate or follow a link to 16Personalities for a longer external test, then confirm/select their profile.
 
-- Season members may optionally self-declare one of the frozen `season-composition-v1` responses.
-- Exact responses remain private to the owner and authorised administrators.
-- `prefer-not-to-say` remains private and is excluded from disclosed-composition percentages.
-- `house-balance-v1` creates immutable weekly public/private snapshots.
-- Public summaries suppress composition when a House has fewer than three disclosed responses.
-- Exact counts remain administrator-only.
-- House balance is informational and `scoringEnabled` remains false.
+### Later v0.25 work
 
-### Power Plays and existing competition systems
+- 25C: safe Platform Administrator deletion/recovery behaviour;
+- 25D: League Season bonus points where Platform Administrators can award directly and League Administrators can only request, with Platform review required before points are applied to the player and their House.
 
-- Themed no-repeat Power Plays remain active and compatible with v4 seasons.
-- Existing evidence, corrections, standings, honours, Pocket Week and trusted reconciliation behaviour is preserved.
-- Evidence decisions remain Platform Administrator-only; League Administrators retain only their permitted read/operational access.
+## Responsive development boundary
 
-## Production verification
+Current manual observations are desktop-first. Dedicated mobile/tablet visual acceptance is deferred to v0.27.0, but responsiveness remains a non-negotiable requirement for every earlier change.
 
-- Deployed source commit: `b5e7c083c0ba7730f21b8a92b30530f3ebb8374c`.
-- 131/131 domain tests passed.
-- 79/79 Firestore Rules tests passed.
-- Complete Rules suite contained zero `maximum of 1000 expressions` evaluator-limit messages at the final freeze.
-- Frozen Rules SHA-256: `2ab1e569f4699e0018f3c5b7e5225a9fb42d65b835215fc9b8917ab21c701573`.
-- Active production Ruleset: `projects/fitnesschallengeapp-9e87f/rulesets/45a2ef28-df8b-4751-bbd2-dfed2c45a109`.
-- Remote Rules source matched the frozen local source byte-for-byte at 3,501 lines / 160,395 bytes.
-- Hosting target `app` deployed 66 files to `champions-legacy-challenge`.
-- Live `index.html` and all 17 referenced assets matched the verified build byte-for-byte.
-- SPA fallback and configured Hosting headers passed live verification.
-- Production read-only navigation smoke and a reversible profile-write smoke both passed.
+## Production boundary
 
-## Operational boundaries
-
-- Development-repository production deployment scripts remain intentionally blocked.
-- Future production changes require a new reviewed release scope rather than reusing the v0.24 activation runners.
-- No fake activity entry was created during production smoke validation.
-- Firebase Storage remains unused.
-- Full final cross-device, keyboard, screen-reader, dark-mode and visual review remains scheduled for the dedicated polish release.
-- Do not call or tag v1.0 without explicit approval.
-
-## Immediate next step
-
-Begin v0.25.0 design work for Five Fires and the remaining competition decisions. Do not change production while that design is unresolved.
+No v0.25 checkpoint may change production unless it reaches a dedicated reviewed release-activation stage. Development-repository production deployment scripts remain blocked.

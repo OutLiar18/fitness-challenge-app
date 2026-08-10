@@ -1,30 +1,19 @@
 # Champions Legacy Challenge — Current Context
 
-<!-- RELEASE_STATUS: DEPLOYED -->
-Current source: v0.24.0
+<!-- RELEASE_STATUS: DEVELOPMENT -->
+Current source: v0.25.0 development
 Current production: v0.24.0
-Last updated: 9 August 2026
+Last updated: 10 August 2026
 
-v0.24.0 is complete in production.
+v0.24.0 is the verified production baseline and must remain untouched during ordinary v0.25 development.
 
-Release closure:
+v0.25.0 now focuses on four controlled work areas:
 
-- Checkpoint 8L froze the final evaluator-clean Firestore Rules candidate.
-- Checkpoint 9A deployed Rules only and remotely verified the active Ruleset source byte-for-byte.
-- Checkpoint 9B deployed Hosting only and verified the live index, referenced assets, SPA fallback and configured headers.
-- Checkpoint 9C passed read-only production navigation and a reversible profile-write smoke test.
-- Checkpoint 9D records the release and tags the exact deployed source commit.
+1. 25A — basic existing-app correctness fixes;
+2. 25B — 16-profile MBTI identity system with an optional 12-question rough-estimate flow and external 16Personalities link;
+3. 25C — safe Platform Administrator deletion/recovery semantics;
+4. 25D — League Season bonus points with Platform Administrator direct awards and Platform-reviewed League Administrator requests.
 
-Deployed source commit:
+Five Fires and Buddy Bonuses have been removed from the roadmap. Broad visual polish is deferred to v0.27.0, but every implementation must remain responsive across desktop/tablet/mobile. Current acceptance observations are being made on desktop only.
 
-`b5e7c083c0ba7730f21b8a92b30530f3ebb8374c`
-
-Frozen production Rules SHA-256:
-
-`2ab1e569f4699e0018f3c5b7e5225a9fb42d65b835215fc9b8917ab21c701573`
-
-Active Ruleset:
-
-`projects/fitnesschallengeapp-9e87f/rulesets/45a2ef28-df8b-4751-bbd2-dfed2c45a109`
-
-The next development target is v0.25.0. Five Fires is confirmed for design; Buddy Bonuses and late-season twists still require explicit product decisions. Do not deploy or modify production as part of design work.
+25A intentionally changes no Firestore Rules and performs no Firebase deployment.

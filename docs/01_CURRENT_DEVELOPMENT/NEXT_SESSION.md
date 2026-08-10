@@ -1,30 +1,30 @@
 # Champions Legacy Challenge — Next Session
 
-<!-- RELEASE_STATUS: DEPLOYED -->
-Current source: v0.24.0
+<!-- RELEASE_STATUS: DEVELOPMENT -->
+Current source: v0.25.0 development
 Current production: v0.24.0
 
 ## First action
 
-Begin v0.25.0 as a design/planning session, not a production operation.
+Continue from the latest clean v0.25.0 checkpoint. Do not modify production.
 
-Load:
+## v0.25.0 order
 
-- `docs/06_CHAT_HANDOVER/CHAT_BRIEFING.md`
-- `docs/06_CHAT_HANDOVER/RECENT_SESSION_SUMMARY.md`
-- `docs/01_CURRENT_DEVELOPMENT/CURRENT_STATE.md`
-- `docs/01_CURRENT_DEVELOPMENT/ROADMAP.md`
-- the relevant competition/game-design documents before changing code.
+1. Complete/review 25A existing-app correctness foundations.
+2. Build 25B MBTI-based player profiles.
+3. Define and implement 25C safe deletion/recovery behaviour.
+4. Implement 25D League Season bonus points and its isolated Firestore Rules/tests.
 
-## v0.25.0 priorities
+## 25B locked product direction
 
-1. Define the exact Five Fires rules and data model.
-2. Decide whether Buddy Bonuses belong in the same release or remain deferred.
-3. Define safe boundaries for any late-season twist framework.
-4. Check interactions with Power Plays, House movement, evidence, standings and weekly House balance before implementation.
+- exactly 16 personality profiles corresponding to MBTI type codes;
+- direct selection when the player knows their type;
+- `unsure / don't know` offers a 12-question quick estimate (three questions per MBTI dimension);
+- the estimate is guidance only and the player confirms/selects the final profile;
+- offer a link to 16Personalities for a more detailed external test;
+- profile guidance should describe tendencies, strengths, possible challenges, helpful approaches and interpersonal compatibility carefully rather than presenting personality predictions as certainty;
+- keep profile definitions and artwork local to the frontend to avoid Firebase Storage/quota complexity.
 
-## Production boundary
+## Responsive boundary
 
-v0.24.0 is already verified and live. Do not rerun Checkpoints 9A or 9B, do not redeploy Rules or Hosting, and do not use production seasons as development fixtures.
-
-Keep the project pre-v1.0.
+The developer is currently reviewing desktop. Dedicated mobile/tablet visual review is deferred to v0.27.0, but all new components must remain responsive and must not introduce desktop-only assumptions.

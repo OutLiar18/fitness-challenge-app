@@ -183,6 +183,10 @@ export default function AppShell() {
   );
 
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [location.pathname, location.search]);
+
+  useEffect(() => {
     if (!secretMessage) return undefined;
     const timeout = window.setTimeout(() => setSecretMessage(""), 4200);
     return () => window.clearTimeout(timeout);
@@ -235,6 +239,11 @@ export default function AppShell() {
     setMoreOpen(false);
   }
 
+  function handleNavigation() {
+    closeMoreMenu();
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }
+
   function toggleMoreMenu(trigger, mode) {
     activeMoreButtonRef.current = trigger;
     setMoreMode(mode);
@@ -242,6 +251,7 @@ export default function AppShell() {
   }
 
   function handleBrandClick() {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     navigate("/dashboard");
     const nextClicks = brandClicks + 1;
     setBrandClicks(nextClicks);
@@ -274,7 +284,7 @@ export default function AppShell() {
       id: "points",
       icon: "⭐",
       value: compactNumberFormatter.format(progression.score.totalPoints),
-      label: "points",
+      label: "total points",
     },
   ];
 
@@ -311,7 +321,7 @@ export default function AppShell() {
                   key={item.id}
                   item={item}
                   badge={item.id === INBOX_NAV_ITEM.id ? inboxUnreadCount : undefined}
-                  onNavigate={closeMoreMenu}
+                  onNavigate={handleNavigation}
                 />
               ))}
             </div>
@@ -342,7 +352,7 @@ export default function AppShell() {
             className={({ isActive }) => `app-player${isActive ? " app-player--active" : ""}`}
             to="/profile"
             aria-label={`Open ${displayName}'s profile`}
-            onClick={closeMoreMenu}
+            onClick={handleNavigation}
           >
             <LegacyAvatar avatarId={profile?.avatarId} size="small" decorative />
             <span className="app-player__copy">
@@ -404,7 +414,7 @@ export default function AppShell() {
                 ? `${item.label}, ${inboxUnreadCount} unread`
                 : item.label
             }
-            onClick={closeMoreMenu}
+            onClick={handleNavigation}
           >
             <span className="app-mobile-nav__icon" aria-hidden="true">
               {item.icon}
@@ -448,7 +458,7 @@ export default function AppShell() {
             isAdmin={isPlatformAdmin}
             displayName={displayName}
             avatarId={profile?.avatarId}
-            onNavigate={closeMoreMenu}
+            onNavigate={handleNavigation}
             onLogout={handleLogout}
           />
         </>

@@ -229,7 +229,7 @@ export default function Profile() {
         eyebrow="Player identity"
         title={displayName}
         description="Build an identity that feels like yours while keeping account and competitive permissions secure."
-        icon="👤"
+        icon={null}
         actions={
           <Link className="button button--primary" to="/progress">
             View full progress

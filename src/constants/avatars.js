@@ -76,7 +76,7 @@ export const LEGACY_AVATARS = Object.freeze([
   {
     id: "summit-falcon",
     name: "Summit Falcon",
-    symbol: "🪶",
+    symbol: "🦅",
     primary: "#18885b",
     secondary: "#dff5ea",
     description: "Focused on the next height, not the dramatic weather report.",

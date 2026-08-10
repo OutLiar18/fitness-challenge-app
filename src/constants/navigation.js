@@ -16,7 +16,6 @@ export const CORE_NAV_ITEMS = Object.freeze([
     to: "/log",
     tone: "green",
     description: "Record activities and review your journal.",
-    accent: true,
   },
   {
     id: "progress",

@@ -1,69 +1,86 @@
 # Champions Legacy Challenge — Roadmap
 
-<!-- RELEASE_STATUS: DEPLOYED -->
-Last updated: 9 August 2026
+<!-- RELEASE_STATUS: DEVELOPMENT -->
+Last updated: 10 August 2026
 
 ## Current production — v0.24.0
 
-### House Movement and weekly balance
+v0.24.0 remains the verified production baseline. Its Firestore Rules and Hosting release were activated and independently verified on 9 August 2026. Production must not be changed by ordinary development checkpoints.
 
-- `season-houses-v4` is live for newly created seasons;
-- one-week post-move roster stability is persisted and enforced;
-- initial C.H.A.O.S. assignment does not count as a move;
-- immutable House-assignment history preserves movement facts;
-- Platform Administrator-only rest correction requires a factual audit reason;
-- same-week movement, House weekly locks and leadership protection remain non-bypassable;
-- optional private season-composition responses support balancing without exposing individual responses;
-- `house-balance-v1` publishes privacy-safe weekly summaries with three-response suppression;
-- exact composition counts remain administrator-only;
-- weekly balance remains informational only and cannot alter points or standings;
-- themed no-repeat Power Plays remain integrated with v4 seasons;
-- evaluator-aware Rules routing keeps the final 79-test Rules suite below the 1,000-expression ceiling.
+## Current development — v0.25.0
 
-Production activation and smoke validation completed on 9 August 2026. Detailed evidence is in `docs/07_HISTORY/V0240_PRODUCTION_RELEASE.md`.
+### 25A — Existing-app correctness foundations
 
-## Remaining planned pre-v1.0 iterations
+- snap route/navigation changes to the top of the page;
+- make `Log activity` use its green navigation treatment only while that route is active;
+- label the shell lifetime score as `total points`;
+- move Champion Transmission into the welcome area and make message cycling more discoverable;
+- expand the built-in motivational message library;
+- remove the redundant Dashboard four-stat summary;
+- remove the redundant Profile PageHeader icon block while retaining the actual profile identity/avatar section;
+- keep all touched layouts responsive even though dedicated mobile/tablet visual acceptance remains scheduled for v0.27.0.
 
-### v0.25.0 — Five Fires and remaining competition design
+### 25B — MBTI-based player profiles
 
-- define and implement Five Fires after a dedicated rules decision;
-- decide Buddy Bonuses;
-- establish a safe late-season twist framework;
-- verify interactions with Power Plays, roster movement, evidence, standings and weekly House balance.
+- replace the generic Legacy Avatar catalogue with 16 MBTI-based profiles;
+- let players directly select a known MBTI type;
+- when unsure, offer a 12-question in-app quick estimate using three questions per E/I, S/N, T/F and J/P dimension;
+- show the estimated dimensions and require the player to review/select the suggested type rather than silently assigning it;
+- offer an external link to 16Personalities for a longer personality test, after which the player manually selects the result;
+- store only the selected type/source in the player profile while keeping profile definitions, guidance and artwork in the frontend;
+- provide strengths, possible challenges, category/thriving suggestions and interpersonal tendencies as guidance rather than deterministic psychological claims.
 
-This may split into two releases if the final Five Fires design is substantial.
+### 25C — Safe Platform Administrator deletion/recovery behaviour
 
-### v0.26.0 — Security and operational hardening
+- define hard-delete versus archive/anonymise boundaries before implementation;
+- permit true deletion only where historical/relational integrity remains safe;
+- handle Authentication-user deletion through trusted administrator tooling rather than exposing destructive credentials to the browser;
+- preserve immutable competition history where erasing it would corrupt season facts;
+- test destructive paths separately and aggressively.
+
+### 25D — League Season bonus points
+
+- Platform Administrators may directly award a player bonus points with a mandatory reason;
+- the same approved amount is credited to the player's House for that league season;
+- the House attribution is frozen at award/approval time and later movement cannot rewrite it;
+- League Administrators may submit a scoped bonus request with a mandatory reason but cannot alter competitive totals directly;
+- Platform Administrators are notified and must approve or reject League Administrator requests;
+- approval atomically creates the player award, matching House contribution and immutable audit history;
+- mistakes are corrected by a separate positive/negative adjustment rather than rewriting an existing award.
+
+Five Fires and Buddy Bonuses are intentionally removed from the pre-v1.0 roadmap. Unspecified late-season twists are not blockers for v1.0 and will only be implemented if explicitly designed and approved later.
+
+## v0.26.0 — Security and operational hardening
 
 - administrator permission review;
 - public/private read audit;
+- Rules complexity/simplification review;
 - dependency and Rules-warning review without breaking automatic fixes;
 - trusted-tool recovery, backup and operational checks.
 
-### v0.27.0 — Full application review and polish
+## v0.27.0 — Full application UX, accessibility and performance review
 
 - every page and workflow;
-- mobile, tablet and desktop;
-- keyboard, screen reader and focus management;
-- dark mode, visual consistency, loading/empty/error states and performance.
+- dedicated desktop, tablet and mobile acceptance review;
+- keyboard, screen-reader and focus management;
+- dark mode, visual consistency, loading/empty/error states and performance;
+- bundle/code-splitting review.
 
-### v0.28.0 — Complete season rehearsal
+Responsive behaviour remains a requirement for every earlier implementation even though detailed mobile visual review is deferred to this release.
+
+## v0.28.0 — Complete league-season rehearsal
 
 - registration, C.H.A.O.S., Houses and leadership;
 - Pocket Week, evidence, corrections and roster changes;
-- Power Plays and weekly balancing;
+- Power Plays, bonus-point administration and weekly balancing;
 - trusted reconciliation, publication, honours and account deletion;
-- recovery runbook and final release checklist.
+- adversarial Rules cases, recovery runbook and final release checklist.
 
 Only after this may the project become a v1.0 candidate, and only with explicit approval.
 
 ## Confirmed inactive/rejected mechanics
 
-- Diamonds, player prices and the old transfer-market model remain rejected because they encouraged imbalance, commoditised strong players and risked treating lower performers as disposable.
-- Original one-player-per-House immunity is replaced by the one-week post-move stability rule.
-
-## Confirmed but not yet designed
-
-- Five Fires is intended for implementation.
-- Buddy Bonuses and late-season twists remain decisions for later.
-- Weekly composition balance is locked as `house-balance-v1`: total-variation distance against the season disclosed distribution, with three-response suppression and no scoring effect.
+- Diamonds, player prices and the old transfer-market model remain rejected.
+- Original one-player-per-House immunity remains replaced by the one-week post-move stability rule.
+- Five Fires is removed from the planned product.
+- Buddy Bonuses are removed from the planned product.
