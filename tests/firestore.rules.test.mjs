@@ -142,6 +142,24 @@ test("players cannot change their trusted role", async () => {
   );
 });
 
+test("players may select only one of the 16 supported MBTI Legacy Profiles", async () => {
+  const firestore = playerContext().firestore();
+
+  await assertSucceeds(
+    updateDoc(doc(firestore, "users", "player-one"), {
+      mbtiType: "INTJ",
+      profileUpdatedAt: serverTimestamp(),
+    }),
+  );
+
+  await assertFails(
+    updateDoc(doc(firestore, "users", "player-one"), {
+      mbtiType: "ABCD",
+      profileUpdatedAt: serverTimestamp(),
+    }),
+  );
+});
+
 test("authenticated players can create sanitised error reports", async () => {
   const firestore = playerContext().firestore();
 

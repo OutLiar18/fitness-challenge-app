@@ -12,10 +12,9 @@ v0.24.0 remains live and verified on Firebase Hosting with the byte-verified v0.
 
 ## v0.25.0 development scope
 
-The competition roadmap has been simplified. Five Fires and Buddy Bonuses are removed. v0.25.0 is now focused on existing-app correctness, MBTI-based player profiles, safe administrator deletion/recovery semantics and League Season bonus-point administration.
+The competition roadmap has been simplified. Five Fires and Buddy Bonuses are removed. v0.25.0 is focused on existing-app correctness, MBTI-based player profiles, safe administrator deletion/recovery semantics and League Season bonus-point administration.
 
-### Checkpoint 25A — existing-app correctness foundations
-
+### Checkpoint 25A — existing-app correctness foundations — complete
 - route/navigation changes return the page to the top;
 - `Log activity` no longer receives a permanent green accent when inactive;
 - the shell lifetime score is explicitly labelled `total points`;
@@ -23,18 +22,27 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - the motivational library is expanded;
 - the redundant four-stat Dashboard summary is removed;
 - the Profile PageHeader no longer renders a redundant identity icon block;
-- Summit Falcon uses a broadly supported temporary eagle symbol until the generic avatar system is replaced in 25B;
 - all touched layouts retain responsive breakpoints.
 
-25A does not modify Firestore Rules and does not deploy anything.
+### Checkpoint 25B — MBTI Legacy Profiles — complete
+- 16 local MBTI-based Legacy Profiles replace generic avatar selection as the primary player identity experience;
+- players may select a known type directly;
+- unsure players may take a 12-question quick estimate using three questions per E/I, S/N, T/F and J/P dimension;
+- the estimate shows answer leans and suggests a type, but the player must choose the final profile;
+- players may open the current 16Personalities free test externally and return to select their result;
+- profile guidance includes strengths, watch-outs, Challenge approaches and potentially complementary profiles with explicit non-deterministic wording;
+- only optional `mbtiType` is added to the player document; questions, scoring, guidance and emblem artwork remain local frontend code;
+- legacy avatar data remains available for backwards compatibility until a player chooses an MBTI profile;
+- responsive layouts are included for profile selection and the quick-test flow.
 
-### Next — 25B MBTI identity system
+25B changes Firestore Rules only to permit and validate the optional player-owned `mbtiType` field. It does not change scoring, league permissions, evidence authority, House history or production Firebase state.
 
-The generic avatar catalogue will be replaced by 16 MBTI-based profiles. Players who do not know their type may use a 12-question in-app rough estimate or follow a link to 16Personalities for a longer external test, then confirm/select their profile.
+### Next — 25C safe deletion/recovery
+
+Define hard-delete versus archive/anonymise boundaries for users, draft Houses and draft seasons before implementing any destructive behaviour.
 
 ### Later v0.25 work
 
-- 25C: safe Platform Administrator deletion/recovery behaviour;
 - 25D: League Season bonus points where Platform Administrators can award directly and League Administrators can only request, with Platform review required before points are applied to the player and their House.
 
 ## Responsive development boundary

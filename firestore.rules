@@ -97,6 +97,15 @@ service cloud.firestore {
       ];
     }
 
+    function validMbtiType(mbtiType) {
+      return mbtiType in [
+        "ISTJ", "ISFJ", "INFJ", "INTJ",
+        "ISTP", "ISFP", "INFP", "INTP",
+        "ESTP", "ESFP", "ENFP", "ENTP",
+        "ESTJ", "ESFJ", "ENFJ", "ENTJ"
+      ];
+    }
+
     function validRole(role) {
       return role in ["user", "leagueAdmin", "admin"];
     }
@@ -150,6 +159,7 @@ service cloud.firestore {
           "role",
           "team",
           "avatarId",
+          "mbtiType",
           "joinedAt",
           "onboardingVersion",
           "onboardingCompletedAt",
@@ -169,6 +179,10 @@ service cloud.firestore {
         && request.resource.data.team is string
         && request.resource.data.team.size() <= 80
         && validAvatarId(request.resource.data.avatarId)
+        && (
+          request.resource.data.get("mbtiType", "") == ""
+          || validMbtiType(request.resource.data.get("mbtiType", ""))
+        )
         && request.resource.data.joinedAt is timestamp
         && request.resource.data.onboardingVersion == 0
         && request.resource.data.onboardingCompletedAt == null
@@ -204,6 +218,7 @@ service cloud.firestore {
       return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           "displayName",
           "avatarId",
+          "mbtiType",
           "onboardingVersion",
           "onboardingCompletedAt",
           "onboardingUpdatedAt",
@@ -213,6 +228,10 @@ service cloud.firestore {
         && request.resource.data.displayName.size() >= 2
         && request.resource.data.displayName.size() <= 40
         && validAvatarId(request.resource.data.avatarId)
+        && (
+          request.resource.data.get("mbtiType", "") == ""
+          || validMbtiType(request.resource.data.get("mbtiType", ""))
+        )
         && request.resource.data.profileUpdatedAt == request.time
         && validOnboardingProfileUpdate();
     }

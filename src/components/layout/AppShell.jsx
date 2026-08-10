@@ -16,7 +16,8 @@ import useNotifications from "../../hooks/useNotifications";
 import usePlayerData from "../../hooks/usePlayerData";
 import { logoutUser } from "../../services/auth/authService";
 import { formatRole } from "../../utils/displayFormatters";
-import LegacyAvatar from "../profile/LegacyAvatar";
+import { isValidMbtiType } from "../../constants/mbtiProfiles";
+import PlayerAvatar from "../profile/PlayerAvatar";
 import "./AppShell.css";
 
 const compactNumberFormatter = new Intl.NumberFormat(undefined, {
@@ -78,7 +79,7 @@ function MoreMenu({
   mode,
   isAdmin,
   displayName,
-  avatarId,
+  profile,
   onNavigate,
   onLogout,
 }) {
@@ -93,7 +94,7 @@ function MoreMenu({
       tabIndex={-1}
     >
       <div className="app-more-panel__header">
-        <LegacyAvatar avatarId={avatarId} size="medium" decorative />
+        <PlayerAvatar profile={profile} size="medium" decorative />
         <div>
           <strong>{displayName}</strong>
           <small>Choose the next chapter</small>
@@ -354,7 +355,7 @@ export default function AppShell() {
             aria-label={`Open ${displayName}'s profile`}
             onClick={handleNavigation}
           >
-            <LegacyAvatar avatarId={profile?.avatarId} size="small" decorative />
+            <PlayerAvatar profile={profile} size="small" decorative />
             <span className="app-player__copy">
               <strong>{displayName}</strong>
               <small>{formatRole(profile?.role)}</small>
@@ -390,6 +391,20 @@ export default function AppShell() {
         </header>
 
         <main className="app-content" id="main-content" tabIndex={-1}>
+          {location.pathname === "/dashboard" && profile && !isValidMbtiType(profile?.mbtiType) && (
+            <div className="app-profile-prompt" role="status">
+              <div className="app-profile-prompt__copy">
+                <span aria-hidden="true">🧭</span>
+                <div>
+                  <strong>Choose your Legacy Profile</strong>
+                  <small>Know your MBTI type, use the 12-question quick estimate, or take a longer external test.</small>
+                </div>
+              </div>
+              <NavLink className="button button--primary" to="/profile" onClick={handleNavigation}>
+                Choose profile
+              </NavLink>
+            </div>
+          )}
           {error && (
             <div className="inline-alert inline-alert--danger app-content__error" role="alert">
               {error}
@@ -457,7 +472,7 @@ export default function AppShell() {
             mode={moreMode}
             isAdmin={isPlatformAdmin}
             displayName={displayName}
-            avatarId={profile?.avatarId}
+            profile={profile}
             onNavigate={handleNavigation}
             onLogout={handleLogout}
           />

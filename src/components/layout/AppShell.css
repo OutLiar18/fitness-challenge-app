@@ -776,3 +776,34 @@
 .app-content:focus {
   outline: none;
 }
+
+/* v0.25.0 25B — Legacy Profile prompt */
+.app-profile-prompt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border: 2px solid color-mix(in srgb, var(--primary) 38%, var(--border));
+  border-radius: 17px;
+  background: var(--primary-soft);
+}
+.app-profile-prompt__copy {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+}
+.app-profile-prompt__copy > span { font-size: 1.35rem; }
+.app-profile-prompt__copy strong,
+.app-profile-prompt__copy small { display: block; }
+.app-profile-prompt__copy small { margin-top: 3px; color: var(--text-muted); }
+
+.app-player .mbti-avatar,
+.app-more-panel__header .mbti-avatar { flex-shrink: 0; }
+
+@media (max-width: 620px) {
+  .app-profile-prompt { align-items: stretch; flex-direction: column; }
+  .app-profile-prompt .button { width: 100%; }
+}

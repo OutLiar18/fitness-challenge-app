@@ -2,6 +2,10 @@ import {
   DEFAULT_AVATAR_ID,
   isValidAvatarId,
 } from "../../constants/avatars";
+import {
+  isValidMbtiType,
+  normalizeMbtiType,
+} from "../../constants/mbtiProfiles";
 
 export const PROFILE_LIMITS = Object.freeze({
   displayNameMin: 2,
@@ -16,6 +20,9 @@ export function normalizeProfileUpdate(input = {}) {
     avatarId: isValidAvatarId(input.avatarId)
       ? input.avatarId
       : DEFAULT_AVATAR_ID,
+    mbtiType: isValidMbtiType(input.mbtiType)
+      ? normalizeMbtiType(input.mbtiType)
+      : "",
   };
 }
 
@@ -32,7 +39,11 @@ export function validateProfileUpdate(input = {}) {
   }
 
   if (!isValidAvatarId(input.avatarId)) {
-    errors.push("Choose a valid Legacy Avatar.");
+    errors.push("Your existing Legacy Avatar is not valid.");
+  }
+
+  if (input.mbtiType && !isValidMbtiType(input.mbtiType)) {
+    errors.push("Choose a valid MBTI Legacy Profile.");
   }
 
   return {

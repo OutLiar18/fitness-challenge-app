@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-
 import WorkspaceTabs, {
   WorkspacePanel,
 } from "../components/common/WorkspaceTabs";
 import PageHeader from "../components/layout/PageHeader";
-import AvatarPicker from "../components/profile/AvatarPicker";
-import LegacyAvatar from "../components/profile/LegacyAvatar";
-import { DEFAULT_AVATAR_ID, getAvatarById } from "../constants/avatars";
+import MbtiProfileChooser from "../components/profile/MbtiProfileChooser";
+import PlayerAvatar from "../components/profile/PlayerAvatar";
+import { DEFAULT_AVATAR_ID } from "../constants/avatars";
+import {
+  getMbtiProfileByType,
+  isValidMbtiType,
+} from "../constants/mbtiProfiles";
 import usePlayerData from "../hooks/usePlayerData";
 import useLeagues from "../hooks/useLeagues";
 import {
@@ -28,13 +31,13 @@ const PROFILE_TABS = Object.freeze([
     id: "overview",
     label: "Overview",
     icon: "⚡",
-    description: "Account details and current legacy",
+    description: "Account details, current legacy and personality guidance",
   },
   {
     id: "personalise",
     label: "Personalise",
-    icon: "🎨",
-    description: "Change your display name and Legacy Avatar",
+    icon: "🧭",
+    description: "Change your display name and choose your Legacy Profile",
   },
   {
     id: "protections",
@@ -63,26 +66,30 @@ function formatTimestamp(value) {
 function ProfileEditor({ profile, user }) {
   const initial = normalizeProfileUpdate({
     displayName:
-      profile?.displayName ||
-      profile?.fullName ||
-      user?.displayName ||
-      "Champion",
+      profile?.displayName
+      || profile?.fullName
+      || user?.displayName
+      || "Champion",
     avatarId: profile?.avatarId || DEFAULT_AVATAR_ID,
+    mbtiType: profile?.mbtiType || "",
   });
 
   const [displayName, setDisplayName] = useState(initial.displayName);
-  const [avatarId, setAvatarId] = useState(initial.avatarId);
+  const [mbtiType, setMbtiType] = useState(initial.mbtiType);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState(null);
-
   const changed =
-    displayName.trim().replace(/\s+/g, " ") !== initial.displayName ||
-    avatarId !== initial.avatarId;
+    displayName.trim().replace(/\s+/g, " ") !== initial.displayName
+    || mbtiType !== initial.mbtiType;
 
   async function handleSubmit(event) {
     event.preventDefault();
 
-    const result = validateProfileUpdate({ displayName, avatarId });
+    const result = validateProfileUpdate({
+      displayName,
+      avatarId: initial.avatarId,
+      mbtiType,
+    });
 
     if (!result.valid) {
       setStatus({ type: "error", message: result.errors.join(" ") });
@@ -99,12 +106,13 @@ function ProfileEditor({ profile, user }) {
 
     setSaving(true);
     setStatus(null);
-
     try {
       await updateUserProfile(user.uid, result.value);
       setStatus({
         type: "success",
-        message: "Profile updated successfully.",
+        message: result.value.mbtiType
+          ? `Profile updated. ${result.value.mbtiType} is now your Legacy Profile.`
+          : "Profile updated successfully.",
       });
     } catch (error) {
       console.error(error);
@@ -117,6 +125,12 @@ function ProfileEditor({ profile, user }) {
     }
   }
 
+  const previewProfile = {
+    ...profile,
+    avatarId: initial.avatarId,
+    mbtiType,
+  };
+
   return (
     <form className="profile-editor card" onSubmit={handleSubmit}>
       <div className="profile-editor__header">
@@ -124,12 +138,11 @@ function ProfileEditor({ profile, user }) {
           <p>Personalise</p>
           <h2>Choose your player identity</h2>
           <p>
-            Your display name and built-in avatar appear throughout Champions
-            Legacy Challenge.
+            Your Legacy Profile gives you a built-in identity and reflective guidance
+            without changing scoring, permissions or competitive history.
           </p>
         </div>
-
-        <LegacyAvatar avatarId={avatarId} size="hero" />
+        <PlayerAvatar profile={previewProfile} size="hero" />
       </div>
 
       <div className="profile-editor__field">
@@ -147,11 +160,7 @@ function ProfileEditor({ profile, user }) {
         <small>This can be changed without changing your sign-in email.</small>
       </div>
 
-      <AvatarPicker
-        value={avatarId}
-        onChange={setAvatarId}
-        disabled={saving}
-      />
+      <MbtiProfileChooser value={mbtiType} onChange={setMbtiType} disabled={saving} />
 
       {status && (
         <div
@@ -176,14 +185,13 @@ function ProfileEditor({ profile, user }) {
         >
           {saving ? "Saving profile…" : "Save profile"}
         </button>
-
         <button
           className="button button--secondary"
           type="button"
           disabled={saving || !changed}
           onClick={() => {
             setDisplayName(initial.displayName);
-            setAvatarId(initial.avatarId);
+            setMbtiType(initial.mbtiType);
             setStatus(null);
           }}
         >
@@ -191,6 +199,58 @@ function ProfileEditor({ profile, user }) {
         </button>
       </div>
     </form>
+  );
+}
+
+function PersonalityGuidance({ personality }) {
+  if (!personality) return null;
+
+  return (
+    <section className="profile-personality card" aria-labelledby="personality-guidance-title">
+      <div className="profile-personality__heading">
+        <div>
+          <p>Legacy Profile guidance</p>
+          <h2 id="personality-guidance-title">How {personality.title} may thrive</h2>
+          <p>
+            Use these ideas as prompts, not rules. Personality frameworks describe tendencies;
+            your habits, circumstances and choices matter more than four letters.
+          </p>
+        </div>
+        <span className="profile-personality__code">{personality.type}</span>
+      </div>
+
+      <div className="profile-personality__grid">
+        <article>
+          <h3>Natural advantages</h3>
+          <div className="profile-personality__chips">
+            {personality.strengths.map((strength) => <span key={strength}>{strength}</span>)}
+          </div>
+        </article>
+        <article>
+          <h3>Watch for</h3>
+          <ul>{personality.watchouts.map((item) => <li key={item}>{item}</li>)}</ul>
+        </article>
+        <article className="profile-personality__wide">
+          <h3>Challenge approaches that may help</h3>
+          <ul>{personality.thrive.map((item) => <li key={item}>{item}</li>)}</ul>
+        </article>
+      </div>
+
+      <div className="profile-personality__connections">
+        <div>
+          <p>Potentially complementary profiles</p>
+          <small>
+            These are conversation starters for teamwork, not compatibility predictions.
+          </small>
+        </div>
+        <div>
+          {personality.connections.map((type) => {
+            const profile = getMbtiProfileByType(type);
+            return <span key={type}>{type} · {profile?.title}</span>;
+          })}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -203,19 +263,17 @@ export default function Profile() {
     || memberships[0]
     || null;
   const currentSeason = leagues.find((item) => item.id === currentMembership?.leagueId) || null;
-
   const displayName =
-    profile?.displayName ||
-    profile?.fullName ||
-    user?.displayName ||
-    "Champion";
-  const avatarId = profile?.avatarId || DEFAULT_AVATAR_ID;
-  const avatar = getAvatarById(avatarId);
+    profile?.displayName
+    || profile?.fullName
+    || user?.displayName
+    || "Champion";
+  const personality = getMbtiProfileByType(profile?.mbtiType);
+  const hasPersonality = isValidMbtiType(profile?.mbtiType);
   const entryCount = getTotalEntries(entries);
-
   const accountDetails = [
     ["Display name", displayName],
-    ["Legacy Avatar", avatar.name],
+    ["Legacy Profile", hasPersonality ? `${personality.type} · ${personality.title}` : "Not selected"],
     ["Email", profile?.email || user?.email || "Not available"],
     ["Role", formatRole(profile?.role)],
     ["Current season", currentSeason?.name || "No season joined"],
@@ -238,22 +296,27 @@ export default function Profile() {
       />
 
       <section className="profile-identity card">
-        <LegacyAvatar avatarId={avatarId} size="hero" />
-
+        <PlayerAvatar profile={profile} size="hero" />
         <div className="profile-identity__copy">
-          <p>Your Legacy Avatar</p>
-          <h2>{avatar.name}</h2>
+          <p>Your Legacy Profile</p>
+          <h2>{personality ? `${personality.type} · ${personality.title}` : "Choose the profile that feels most like you"}</h2>
           <p>
-            <em>{avatar.description}</em>
+            <em>
+              {personality?.tagline
+                || "Know your MBTI type? Select it directly. Unsure? Use the 12-question quick estimate or a longer external test."}
+            </em>
           </p>
-
           <div className="profile-identity__chips">
             <span>Level {progression.xp.level}</span>
             <span>{progression.xp.title}</span>
-            <span>
-              {progression.streak.currentStreak}-day streak
-            </span>
+            <span>{progression.streak.currentStreak}-day streak</span>
+            {personality && <span>{personality.type}</span>}
           </div>
+          {!personality && (
+            <button className="button button--primary profile-identity__choose" type="button" onClick={() => setActiveTab("personalise")}>
+              Choose my Legacy Profile
+            </button>
+          )}
         </div>
       </section>
 
@@ -275,7 +338,6 @@ export default function Profile() {
                 <h2 id="account-title">Player details</h2>
               </div>
             </div>
-
             <dl className="profile-details">
               {accountDetails.map(([label, value]) => (
                 <div key={label}>
@@ -294,7 +356,6 @@ export default function Profile() {
                 <h2 id="snapshot-title">Current legacy</h2>
               </div>
             </div>
-
             <div className="profile-metrics">
               <article>
                 <strong>Level {progression.xp.level}</strong>
@@ -315,6 +376,7 @@ export default function Profile() {
             </div>
           </section>
         </div>
+        <PersonalityGuidance personality={personality} />
       </WorkspacePanel>
 
       <WorkspacePanel id="personalise" activeId={activeTab} idPrefix="profile">
@@ -327,35 +389,30 @@ export default function Profile() {
             <p>Account protections</p>
             <h2>Your identity and permissions stay separate</h2>
             <p>
-              Changing your display name or avatar cannot change your email,
-              trusted role, season membership or competitive history. Legacy Coach
-              preferences remain private to your account, while completed league
-              results keep their original seasonal record.
+              Changing your display name or Legacy Profile cannot change your email,
+              trusted role, season membership, scoring or competitive history. Personality
+              guidance remains a reflective frontend feature and is not used to calculate points.
             </p>
           </div>
-
-          <div
-            className="profile-preferences__chips"
-            aria-label="Current account protections"
-          >
+          <div className="profile-preferences__chips" aria-label="Current account protections">
             <span>Protected role</span>
-            <span>Private coach settings</span>
+            <span>No personality scoring</span>
             <span>Immutable league history</span>
-            <span>Local built-in avatars</span>
+            <span>Local profile artwork</span>
           </div>
-
           <Link className="button button--secondary" to="/help">
             Open Help & Privacy
           </Link>
         </section>
 
         <section className="profile-easter-egg card">
-          <span aria-hidden="true">🕵️</span>
+          <span aria-hidden="true">🧭</span>
           <div>
-            <strong>Classified player intelligence</strong>
+            <strong>Personality is a lens, not a limit</strong>
             <p>
-              The avatar is decorative. The actual superpower remains showing up
-              when motivation has mysteriously left the group chat.
+              The quick test only estimates a four-letter profile from 12 answers. You choose
+              the final type, and nothing in Champions Legacy Challenge treats it as a diagnosis
+              or a prediction of what you can achieve.
             </p>
           </div>
         </section>
