@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { isPlatformAdministrator } from "../src/services/admin/adminAuthorityModel.js";
 
 import {
   ANNOUNCEMENT_STATUS_IDS,
@@ -37,6 +38,13 @@ import {
   formatPaceLong,
   formatPoints,
 } from "../src/utils/displayFormatters.js";
+
+test("Platform Administrator UI authority follows only the trusted Firestore profile role", () => {
+  assert.equal(isPlatformAdministrator({ role: "admin" }), true);
+  assert.equal(isPlatformAdministrator({ role: "leagueAdmin" }), false);
+  assert.equal(isPlatformAdministrator({ role: "user" }), false);
+  assert.equal(isPlatformAdministrator(null), false);
+});
 
 test("Trusted role and announcement identifiers remain unique", () => {
   assert.equal(new Set(USER_ROLE_IDS).size, USER_ROLE_IDS.length);

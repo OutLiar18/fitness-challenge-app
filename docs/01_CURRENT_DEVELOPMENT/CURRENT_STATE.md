@@ -83,8 +83,17 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - run the existing application + Firestore Rules gates;
 - perform no Firebase deployment.
 
+#### Checkpoint 26B — canonical Platform Administrator authority
+- Firestore `users/{uid}.role == "admin"` is the single Platform Administrator authority source;
+- stale or legacy Firebase Auth `admin:true` custom claims do not grant Platform Administrator access;
+- client UI gating uses the same trusted profile-role contract as Firestore Rules;
+- the full Rules suite exercises profile-role administration without relying on an admin custom claim;
+- audited Platform Administrator role changes remain supported for other users;
+- self-role changes remain denied;
+- existing v0.25 production remains unchanged until a later dedicated v0.26 release activation.
+
 ### Next action
-Review the 26A findings and select the first isolated remediation checkpoint.
+Review League Administrator scope and the seven development-only dependency advisories, then choose the next isolated v0.26 remediation.
 
 ## Responsive development boundary
 

@@ -6,7 +6,7 @@ Current production: v0.25.0
 
 ## First action
 
-Complete Checkpoint 26A security-baseline capture, review its dependency/runtime findings, then choose the first isolated v0.26 remediation. Do not modify or retag the frozen v0.25.0 production release.
+Continue from completed Checkpoint 26B. Review League Administrator scope and the seven development-only dependency advisories before choosing 26C. Keep v0.25.0 production frozen and do not deploy the local 26B Rules change without a dedicated reviewed v0.26 activation stage.
 
 ## v0.25.0 order
 
@@ -57,3 +57,7 @@ The developer is currently reviewing desktop. Dedicated mobile/tablet visual rev
 ## v0.26.0 security workflow
 
 26A is discovery-only: no Rules policy changes, no App Check enforcement, no dependency auto-fix and no Firebase deployment. Later remediation checkpoints must keep Firestore Rules/security-sensitive changes isolated and emulator-tested.
+
+## Checkpoint 26B authority contract
+
+Platform Administrator authority is canonical in the trusted Firestore profile role. A Firebase Auth custom claim named `admin` is no longer accepted by Firestore Rules or client navigation as an alternative authority source. This removes stale-claim privilege persistence after an audited role demotion.

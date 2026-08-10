@@ -16,15 +16,33 @@ const pkg = JSON.parse(load("package.json"));
 const rules = load("firestore.rules");
 const firebase = JSON.parse(load("firebase.json"));
 const firebaseBootstrap = load("src/firebase.js");
+const playerDataProvider = load("src/context/PlayerDataProvider.jsx");
+const adminAuthorityModel = load("src/services/admin/adminAuthorityModel.js");
 const accountDelete = load("scripts/trusted-account-delete.mjs");
 
 if (pkg.version !== "0.26.0") {
   throw new Error(`Expected package version 0.26.0, found ${pkg.version}.`);
 }
 
-requireText(rules, 'request.auth.token.get("admin", false) == true', "Platform Admin Auth claim source");
-requireText(rules, '.data.role == "admin"', "Platform Admin Firestore profile source");
+if (rules.includes('request.auth.token.get("admin", false) == true')) {
+  throw new Error("Platform Administrator authority must not fall back to an Auth custom claim after 26B.");
+}
+requireText(rules, '.data.role == "admin"', "canonical Platform Admin Firestore profile source");
+requireText(rules, "return hasPlatformAdminProfile();", "profile-only Platform Admin authority");
 requireText(rules, '.data.role == "leagueAdmin"', "League Admin profile source");
+if (playerDataProvider.includes("claims?.admin")) {
+  throw new Error("Client Platform Administrator gating must not fall back to an Auth custom claim after 26B.");
+}
+requireText(
+  playerDataProvider,
+  "isPlatformAdministrator(data.profile)",
+  "client profile-only Platform Admin authority",
+);
+requireText(
+  adminAuthorityModel,
+  'profile?.role === "admin"',
+  "Platform Admin authority model",
+);
 requireText(rules, 'match /users/{userId}', "user profile match");
 requireText(rules, 'allow read: if isOwner(userId) || isPlatformAdmin();', "private user-profile read boundary");
 requireText(rules, 'match /auditEvents/{auditId}', "audit collection");
@@ -66,10 +84,10 @@ console.log(`Rules get() occurrences  : ${accessCalls.get}`);
 console.log(`Rules exists() occurrences: ${accessCalls.exists}`);
 console.log(`Rules getAfter()          : ${accessCalls.getAfter}`);
 console.log(`Rules existsAfter()       : ${accessCalls.existsAfter}`);
-console.log("Platform Admin sources   : Auth custom claim OR Firestore role profile");
+console.log("Platform Admin source    : Firestore trusted role profile ONLY");
 console.log("League Admin profile     : present");
 console.log("Final deny-all fallback  : present");
 console.log("App Check integration    : absent (baseline finding)");
 console.log(`Explicit Hosting CSP     : ${hasCsp ? "present" : "absent (baseline finding)"}`);
 console.log("Trusted deletion recovery: failure state present; multi-phase review required");
-console.log("Static 26A baseline PASSED");
+console.log("Static v0.26 security guard PASSED (26A baseline + 26B authority contract)");

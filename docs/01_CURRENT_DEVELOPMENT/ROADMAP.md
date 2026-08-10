@@ -75,8 +75,15 @@ Five Fires and Buddy Bonuses are intentionally removed from the pre-v1.0 roadmap
 - full application and Firestore Rules regression gate;
 - no Firebase deployment.
 
+### 26B — Canonical Platform Administrator authority — COMPLETE
+- use the trusted Firestore profile role as the single Platform Administrator authority source;
+- remove the Auth-token `admin:true` fallback from Firestore Rules and client UI gating;
+- make the existing Rules administrator context profile-only so the full suite proves that authority path;
+- prove claim-only and stale-claim sessions cannot retain Platform Administrator access;
+- no Firebase deployment.
+
 ### Later v0.26 remediation
-- tighten administrator permission boundaries where the baseline proves it is useful;
+- tighten remaining administrator permission boundaries where the baseline proves it is useful;
 - improve public/private read boundaries where needed;
 - simplify Rules without weakening validation or audit binding;
 - resolve dependency/security warnings conservatively;

@@ -2,6 +2,7 @@ import { useMemo } from "react";
 
 import useAuth from "../hooks/useAuth";
 import useDashboardData from "../hooks/useDashboardData";
+import { isPlatformAdministrator } from "../services/admin/adminAuthorityModel";
 import {
   buildEntryDateIndex,
   buildJournalDateSummaries,
@@ -39,8 +40,7 @@ export function PlayerDataProvider({ children }) {
     () => getProgressionSummary(activeEntries),
     [activeEntries],
   );
-  const isPlatformAdmin =
-    claims?.admin === true || data.profile?.role === "admin";
+  const isPlatformAdmin = isPlatformAdministrator(data.profile);
 
   const value = useMemo(
     () => ({

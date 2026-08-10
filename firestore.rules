@@ -10,10 +10,6 @@ service cloud.firestore {
       return signedIn() && request.auth.uid == userId;
     }
 
-    function hasPlatformAdminClaim() {
-      return signedIn()
-        && request.auth.token.get("admin", false) == true;
-    }
 
     function hasPlatformAdminProfile() {
       return signedIn()
@@ -21,7 +17,7 @@ service cloud.firestore {
     }
 
     function isPlatformAdmin() {
-      return hasPlatformAdminClaim() ? true : hasPlatformAdminProfile();
+      return hasPlatformAdminProfile();
     }
 
     function hasLeagueAdminProfile() {

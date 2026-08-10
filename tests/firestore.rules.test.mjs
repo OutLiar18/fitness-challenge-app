@@ -35,6 +35,12 @@ function playerContext(userId = "player-one") {
 function adminContext(userId = "admin-one") {
   return testEnvironment.authenticatedContext(userId, {
     email: `${userId}@example.com`,
+  });
+}
+
+function claimOnlyAdminContext(userId = "claim-only-admin") {
+  return testEnvironment.authenticatedContext(userId, {
+    email: `${userId}@example.com`,
     admin: true,
   });
 }
@@ -139,6 +145,68 @@ test("players cannot change their trusted role", async () => {
     updateDoc(doc(firestore, "users", "player-one"), {
       role: "admin",
     }),
+  );
+});
+
+test("Platform Administrator authority follows only the trusted Firestore profile role", async () => {
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(
+      doc(context.firestore(), "users", "claim-only-admin"),
+      createProfile("claim-only-admin", "user"),
+    );
+  });
+
+  await assertFails(
+    getDocs(collection(claimOnlyAdminContext().firestore(), "users")),
+  );
+
+  await assertSucceeds(
+    getDocs(collection(adminContext().firestore(), "users")),
+  );
+});
+
+test("a stale admin custom claim cannot survive an audited profile demotion", async () => {
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(
+      doc(context.firestore(), "users", "stale-admin"),
+      createProfile("stale-admin", "admin"),
+    );
+  });
+
+  const staleClaimFirestore = claimOnlyAdminContext("stale-admin").firestore();
+
+  await assertSucceeds(
+    getDocs(collection(staleClaimFirestore, "users")),
+  );
+
+  const firestore = adminContext().firestore();
+  const auditId = "demote-stale-admin";
+  const batch = writeBatch(firestore);
+
+  batch.set(doc(firestore, "auditEvents", auditId), {
+    actorId: "admin-one",
+    action: "user.access.updated",
+    entityType: "user",
+    entityId: "stale-admin",
+    summary: "Demoted stale-claim administrator",
+    details: {
+      previousRole: "admin",
+      nextRole: "user",
+    },
+    createdAt: serverTimestamp(),
+  });
+
+  batch.update(doc(firestore, "users", "stale-admin"), {
+    role: "user",
+    adminUpdatedAt: serverTimestamp(),
+    adminUpdatedBy: "admin-one",
+    lastAuditId: auditId,
+  });
+
+  await assertSucceeds(batch.commit());
+
+  await assertFails(
+    getDocs(collection(staleClaimFirestore, "users")),
   );
 });
 

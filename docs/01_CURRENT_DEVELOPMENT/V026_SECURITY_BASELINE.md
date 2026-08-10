@@ -81,3 +81,21 @@ The repository pins current dependency ranges through the lockfile, but advisory
 - dependency audit summaries captured outside the repository;
 - repository contains only reviewed 26A version/docs/scanner changes;
 - checkpoint committed and pushed to `development/v0.26.0`.
+
+## 26B resolution — canonical Platform Administrator authority
+
+26A identified two simultaneous Platform Administrator authority sources: Firebase Auth `admin:true` and Firestore `users/{uid}.role == "admin"`. The application also managed trusted roles by writing the Firestore profile, which meant the two sources could diverge.
+
+26B resolves that ambiguity by making the trusted Firestore profile role canonical for Platform Administrator access across both Firestore Rules and client UI gating.
+
+Security consequences:
+- a claim-only session is not a Platform Administrator;
+- the normal Rules administrator test context carries no admin custom claim, so existing privileged Rules tests prove profile-role authority directly;
+- an audited profile demotion removes Platform Administrator authority even if the user's ID token still carries a stale `admin:true` custom claim;
+- ordinary users still cannot change their own trusted role;
+- Platform Administrators still cannot change their own trusted role through the client role-management path;
+- role changes remain audit-bound.
+
+Canonical local Firestore Rules SHA-256 after 26B: `4740edd168e495a70ac8a6252bb57c3986d30995b5372198c357adaa859f6b84`.
+
+This is a local development Rules change only. Production v0.25.0 Rules remain unchanged until a dedicated v0.26 release activation.
