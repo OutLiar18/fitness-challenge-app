@@ -1,5 +1,8 @@
 # ADR-026 — Season Command Centre and Role-scoped Reports
 
+> **Superseded in v0.24 Checkpoint 8G:** category-reviewer assignments are retired. Only Platform Administrators may make evidence decisions; League Administrators retain their broader season-operations role without evidence-decision authority.
+
+
 Status: Accepted  
 Date: 4 August 2026
 

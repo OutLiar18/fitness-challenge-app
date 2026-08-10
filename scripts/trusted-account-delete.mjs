@@ -30,6 +30,7 @@ const DIRECT_RECORD_QUERIES = Object.freeze([
   ["challengeEntries", "userId", "delete"],
   ["playerNotifications", "userId", "delete"],
   ["clientErrorReports", "userId", "delete"],
+  ["leagueCompositionProfiles", "userId", "delete"],
   ["entryCorrectionHeads", "userId", "anonymise"],
   ["entryCorrections", "userId", "anonymise"],
   ["leagueMemberships", "userId", "anonymise"],
@@ -43,6 +44,7 @@ const DIRECT_RECORD_QUERIES = Object.freeze([
   ["leadershipVotes", "voterId", "anonymise"],
   ["leadershipVotes", "candidateId", "anonymise"],
   ["leagueEvidenceReviewers", "userId", "delete"],
+  ["leagueHouseAssignmentHistory", "userId", "anonymise"],
 ]);
 
 const RELATED_LEAGUE_COLLECTIONS = Object.freeze([
@@ -427,6 +429,13 @@ function transformRecord(item, sources, executionId, now) {
       ...next,
       submittedBy: identity.userId,
       challengeEntryId: "",
+      ...metadata,
+    };
+  } else if (item.collectionName === "leagueHouseAssignmentHistory") {
+    next = {
+      ...next,
+      userId: identity.userId,
+      displayName: identity.displayName,
       ...metadata,
     };
   } else if (item.collectionName === "leagueHouses") {

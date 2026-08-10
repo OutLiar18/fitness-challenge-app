@@ -1,18 +1,19 @@
 # Champions Legacy Challenge — Deployment Guide
 
-## Hosting
+## Production identity
 
-Production target: `app`  
-Site: `champions-legacy-challenge`  
-URL: `https://champions-legacy-challenge.web.app`
+Firebase project: `fitnesschallengeapp-9e87f`
+Hosting target: `app`
+Hosting site: `champions-legacy-challenge`
+Live URL: `https://champions-legacy-challenge.web.app`
 
 ## Prerequisites
 
 - Node/npm installed.
-- Firebase CLI available through project scripts.
-- Java 21 for Rules tests.
+- Java 21 available for Firestore Rules emulator tests.
 - Correct Firebase project mapping in `.firebaserc`.
-- Local `.env` preserved outside update packages.
+- Local production `.env` preserved outside updater packages.
+- Firebase CLI authentication available only on the trusted deployment computer.
 
 ## Verification
 
@@ -21,43 +22,46 @@ npm install
 npm run check
 npm run test:rules
 npm run check:release
-npm audit
 ```
 
-## v0.18.0 deployment
+Do not proceed when a release gate fails.
 
-Evidence document shapes and Rules change together. After all gates pass:
+## Production safety model
 
-```powershell
-npm run deploy:production
-```
+The development repository intentionally blocks its generic production deployment scripts. Use only a reviewed release runner built for the exact scope required by the release.
 
-This reruns release-readiness and deploys `firestore:rules,hosting:app` together.
+Before any deployment, verify:
 
-## Included documentation finalisation
+- exact source commit/version;
+- clean or explicitly understood Git state;
+- exact Rules/configuration hashes required by the release;
+- Firebase project and Hosting target mapping;
+- full release gate;
+- production environment values when Hosting is being built.
 
-After Firebase reports a successful Rules and Hosting deployment, run `FINALISE_RELEASE.ps1` from the extracted main updater. It calls the in-repository finalisation script, changes candidate release records to deployed records and is idempotent.
+Never combine an unrelated resource into a deployment for convenience.
 
-Do not create or download a separate documentation-sync package.
+## v0.24.0 reference deployment
 
-## Rollback
+v0.24.0 used:
 
-Firebase Hosting versions can be rolled back independently, but v0.18.0 frontend and Rules should remain aligned. Preserve the pre-update timestamped backup created by `APPLY_UPDATE.ps1` until the release is verified and committed.
+- Checkpoint 9A: one `firestore:rules` production attempt only;
+- remote read-only verification of the active Ruleset source;
+- Checkpoint 9B: one `hosting:app` production attempt only;
+- read-only live-site verification;
+- Checkpoint 9C: minimal production smoke;
+- Checkpoint 9D: documentation and Git finalisation with no Firebase command.
 
-## v0.20.0 deployment note
+The v0.24.0 production evidence is recorded in `docs/07_HISTORY/V0240_PRODUCTION_RELEASE.md`.
 
-This release changes Firestore Security Rules. After `npm run check:release` passes, deploy Rules and Hosting together with `npm run deploy:production`. Do not use the Hosting-only command for this release.
+## Failure handling
 
-## Trusted operations are not a deployed backend
+If a deployment command fails, do not automatically retry. Determine first whether Firebase created/released any new resource. If Hosting uploaded but live verification fails, inspect the live version before deciding on rollback or another deployment. If Rules deployment reports ambiguity, inspect the active Release/Ruleset before taking further action.
 
-<!-- RELEASE_STATUS: DEPLOYED -->
+## Trusted operations
 
-v0.21.0 deploys the browser UI and Firestore Rules only. `scripts/trusted-season-reconcile.mjs` stays in the source repository and runs manually from the trusted administrator computer. No function, scheduler or credential is uploaded by `npm run deploy:production`.
+Trusted season reconciliation and account deletion require private Admin SDK credentials outside the repository. These are operational tools, not deployed backend services.
 
-## v0.22.0 release note
+## Dependency safety
 
-Deploy Firestore Rules and Hosting together. Do not run a real account deletion as part of release verification. Configure trusted credentials only from the private operations runbook after deployment/finalisation when an actual eligible request exists.
-
-## v0.23.0 release note
-
-The release changes Firestore Rules and Hosting, so use `npm run deploy:production` only after 120 domain tests, 51 Rules tests, lint, build and release-readiness pass. No Power Play data migration is required. Do not use a production season to test locked correction behaviour.
+Do not run `npm audit fix --force` during deployment preparation. Dependency changes belong in a separately tested development release.

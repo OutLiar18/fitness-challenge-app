@@ -1,5 +1,8 @@
 # ADR-025 — External Evidence and Published Daily Standings
 
+> **Superseded in v0.24 Checkpoint 8G:** category-reviewer assignments are retired. Only Platform Administrators may make evidence decisions; League Administrators retain read-only evidence operations visibility and leaderboard publication responsibilities.
+
+
 Status: Accepted  
 Date: 4 August 2026
 

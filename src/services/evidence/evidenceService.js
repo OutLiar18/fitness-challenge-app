@@ -10,7 +10,6 @@ import {
   setDoc,
   Timestamp,
   where,
-  writeBatch,
 } from "firebase/firestore";
 
 import { db } from "../../firebase";
@@ -86,123 +85,17 @@ export function subscribeToUserEvidenceClaims(userId, onUpdate, onError) {
   );
 }
 
-export function subscribeToLeagueEvidenceClaims(
-  { leagueId, categories = [], canViewAll = false },
-  onUpdate,
-  onError,
-) {
-  if (!leagueId || (!canViewAll && categories.length === 0)) {
-    onUpdate?.([]);
-    return () => {};
-  }
-
-  if (canViewAll) {
-    return onSnapshot(
-      query(collection(db, "seasonEvidenceClaims"), where("leagueId", "==", leagueId)),
-      (snapshot) => onUpdate?.(sortClaims(mapSnapshot(snapshot))),
-      onError,
-    );
-  }
-
-  const categorySnapshots = new Map();
-  const uniqueCategories = [...new Set(categories)].filter((category) =>
-    ["water", "fruit", "running", "steps"].includes(category),
-  );
-  const publishMergedClaims = () => {
-    const claimsById = new Map();
-    categorySnapshots.forEach((items) => {
-      items.forEach((item) => claimsById.set(item.id, item));
-    });
-    onUpdate?.(sortClaims([...claimsById.values()]));
-  };
-
-  const unsubscribers = uniqueCategories.map((category) =>
-    onSnapshot(
-      query(
-        collection(db, "seasonEvidenceClaims"),
-        where("leagueId", "==", leagueId),
-        where("category", "==", category),
-      ),
-      (snapshot) => {
-        categorySnapshots.set(category, mapSnapshot(snapshot));
-        publishMergedClaims();
-      },
-      onError,
-    ),
-  );
-
-  return () => unsubscribers.forEach((unsubscribe) => unsubscribe());
-}
-
-export function subscribeToReviewerAssignmentsForUser(userId, onUpdate, onError) {
-  if (!userId) {
-    onUpdate?.([]);
-    return () => {};
-  }
-  return onSnapshot(
-    query(collection(db, "leagueEvidenceReviewers"), where("userId", "==", userId)),
-    (snapshot) => onUpdate?.(mapSnapshot(snapshot)),
-    onError,
-  );
-}
-
-export function subscribeToEvidenceReviewers(leagueId, onUpdate, onError) {
+export function subscribeToLeagueEvidenceClaims(leagueId, onUpdate, onError) {
   if (!leagueId) {
     onUpdate?.([]);
     return () => {};
   }
+
   return onSnapshot(
-    query(collection(db, "leagueEvidenceReviewers"), where("leagueId", "==", leagueId)),
-    (snapshot) => onUpdate?.(mapSnapshot(snapshot)),
+    query(collection(db, "seasonEvidenceClaims"), where("leagueId", "==", leagueId)),
+    (snapshot) => onUpdate?.(sortClaims(mapSnapshot(snapshot))),
     onError,
   );
-}
-
-export async function saveEvidenceReviewerAssignment({
-  league,
-  member,
-  categories,
-  actorId,
-}) {
-  if (!league?.id || !member?.userId || !actorId) {
-    throw new Error("Choose a valid season member and reviewer assignment.");
-  }
-  const uniqueCategories = [...new Set(categories ?? [])].filter((category) =>
-    ["water", "fruit", "running", "steps"].includes(category),
-  );
-  const reference = doc(db, "leagueEvidenceReviewers", `${league.id}_${member.userId}`);
-  const existingSnapshot = await getDoc(reference);
-  const existing = existingSnapshot.exists() ? existingSnapshot.data() : null;
-  const batch = writeBatch(db);
-  const action = uniqueCategories.length > 0
-    ? "evidence.reviewer.assigned"
-    : "evidence.reviewer.removed";
-  const auditReference = addAuditWrite(batch, {
-    actorId,
-    action,
-    entityType: "league",
-    entityId: league.id,
-    summary: `${uniqueCategories.length > 0 ? "Assigned" : "Removed"} evidence reviewer: ${member.displayName || member.userId}`,
-    details: {
-      reviewerId: member.userId,
-      categories: uniqueCategories,
-    },
-  });
-
-  batch.set(reference, {
-    leagueId: league.id,
-    userId: member.userId,
-    displayName: member.displayName || "Champion",
-    avatarId: member.avatarId || "legacy-trophy",
-    categories: uniqueCategories,
-    status: uniqueCategories.length > 0 ? "active" : "inactive",
-    createdAt: existing?.createdAt ?? serverTimestamp(),
-    createdBy: existing?.createdBy ?? actorId,
-    updatedAt: serverTimestamp(),
-    updatedBy: actorId,
-    lastAuditId: auditReference.id,
-  }, { merge: true });
-  await batch.commit();
 }
 
 function getDecisionNotification(claim, nextStatus, points, reason) {
@@ -269,18 +162,12 @@ export async function decideEvidenceClaim({
   verifiedQuantity,
   reason,
   isPlatformAdmin = false,
-  reviewerAssignments = [],
 }) {
   if (!actorId || !claim?.id || !league?.id) {
     throw new Error("Choose a valid evidence claim.");
   }
-  if (!canReviewEvidenceCategory({
-    category: claim.category,
-    userId: actorId,
-    isPlatformAdmin,
-    reviewerAssignments,
-  })) {
-    throw new Error("You are not assigned to review this evidence category.");
+  if (!canReviewEvidenceCategory({ isPlatformAdmin })) {
+    throw new Error("Only Platform Administrators can review evidence.");
   }
 
   const policy = normalizeEvidencePolicy(league.ruleset?.evidencePolicy);

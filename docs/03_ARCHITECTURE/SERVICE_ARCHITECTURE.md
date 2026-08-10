@@ -7,25 +7,25 @@ Current release target: v0.23.0
 
 - Points services calculate factual activity points.
 - Season models validate lifecycle, Houses, standings and honours.
-- Evidence model normalises frozen policy, creates claim identities/codes, allocates immediate versus pending points, validates deadlines/reviewer permissions and determines the 10:00 fallback.
+- Evidence model normalises frozen policy, creates claim identities/codes, allocates immediate versus pending points, validates deadlines/Platform Administrator authority and determines the 10:00 fallback.
 - Workspace and account models remain UI-independent.
 
 ## Firestore orchestration
 
 - `entryRepository` builds atomic entry, contribution and evidence-claim writes.
-- `evidenceService` subscribes to owner/scoped queues, manages reviewer assignments, creates transactional decisions and publishes snapshots.
+- `evidenceService` subscribes to owner/managed-season queues, creates Platform Administrator-only transactional decisions and publishes snapshots.
 - `seasonService` enforces v2 Pocket restrictions.
 - Notification and audit services create consistent immutable records.
 
 ## Provider boundaries
 
 - User evidence claims are subscribed for the signed-in player and merged into Journal presentation.
-- Assigned reviewer categories determine evidence queue subscriptions.
+- League Administrators may load managed-season evidence for read-only operations; Platform Administrators alone may decide claims.
 - Player standings subscribe to the latest published snapshot; live contribution subscriptions remain administrative.
 
 ## Rule
 
-Pages render model/service output. They must not reimplement points, deadline, reviewer, snapshot or House-attribution logic.
+Pages render model/service output. They must not reimplement points, deadline, evidence-authority, snapshot or House-attribution logic.
 
 ## v0.19 season operations services
 
@@ -67,3 +67,11 @@ Personal providers expose both `rawEntries` and resolved active `entries`. All e
 - `applyPowerPlayToContributionPoints` is the single multiplier helper used by standings, honours and operations.
 - `selectRandomPowerPlay` and `correctPowerPlayAssignment` use transactions and audit writes.
 - Player subscriptions use direct started-week document listeners to avoid composite-index dependence and future-week disclosure.
+
+## Checkpoint 8J Platform operations boundary
+
+Announcement administration, suggestion moderation/publication, library publishing, client-error resolution and deletion-request acknowledgement remain service-owned Platform Administrator workflows. Their Rules validate authority, state movement and audit binding rather than duplicating every field-level service validation. Player-owned submissions and account-request lifecycle writes keep their existing strict Rules validators.
+
+## Checkpoint 8K Rules request routing
+
+Service payloads do not change. Firestore Rules now dispatch league updates from their changed-field set and dispatch Power Play week updates from the week boundary before invoking the existing operation validator. The account service continues to send the same deletion-request shape; Rules reuse one requested-state validator for both first request and reopen. No new service write path or authority is introduced.

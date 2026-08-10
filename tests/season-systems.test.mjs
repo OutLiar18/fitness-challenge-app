@@ -65,6 +65,7 @@ test("C.H.A.O.S. is deterministic and balances every registered player", () => {
   assert.deepEqual(first, repeated);
   assert.notDeepEqual(first, different);
   assert.equal(first.length, members.length);
+  assert.ok(first.every((assignment) => assignment.displayName));
   assert.ok(first.every((assignment) => houses.some((house) => house.id === assignment.houseId)));
   assert.ok(calculateHouseBalance(first).difference <= 1);
   assert.throws(

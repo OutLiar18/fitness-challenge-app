@@ -7,6 +7,7 @@ import PageHeader from "../components/layout/PageHeader";
 import LegacyAvatar from "../components/profile/LegacyAvatar";
 import {
   HOUSE_ACCENTS,
+  HOUSE_COMPOSITION_OPTIONS,
   HOUSE_EMBLEMS,
   getHouseAccent,
   getHouseEmblem,
@@ -19,6 +20,22 @@ import {
   getSeasonWeekKey,
   isHouseLeader,
 } from "../services/seasons/seasonModel";
+import {
+  getBalanceStatusCopy,
+  supportsHouseMovementV1,
+} from "../services/seasons/houseMovementModel";
+import {
+  calculateWeeklyHouseBalance,
+  clearCompositionProfile,
+  saveCompositionProfile,
+  subscribeToCompositionProfile,
+  subscribeToHouseAssignmentHistory,
+  subscribeToHouseBalanceHouseWeeks,
+  subscribeToHouseBalanceWeeks,
+  subscribeToLeagueCompositionProfiles,
+  subscribeToPrivateHouseBalanceHouseWeeks,
+  subscribeToPrivateHouseBalanceWeeks,
+} from "../services/seasons/houseMovementService";
 import {
   activateChaos,
   createLeagueHouse,
@@ -286,7 +303,7 @@ function LeadershipPanel({ league, house, members, membership, elections, manage
   );
 }
 
-function RosterSwapPanel({ league, houses, members, actorId, manager, currentHouse, notify }) {
+function RosterSwapPanel({ league, houses, members, actorId, manager, platformAdmin, currentHouse, notify }) {
   const leader = currentHouse && isHouseLeader(currentHouse, actorId);
   const availableSourceHouses = useMemo(
     () => (manager ? houses : leader ? [currentHouse] : []),
@@ -296,6 +313,7 @@ function RosterSwapPanel({ league, houses, members, actorId, manager, currentHou
   const [targetHouseId, setTargetHouseId] = useState("");
   const [firstPlayerId, setFirstPlayerId] = useState("");
   const [secondPlayerId, setSecondPlayerId] = useState("");
+  const [overrideReason, setOverrideReason] = useState("");
   const [busy, setBusy] = useState(false);
   const sourceHouse =
     availableSourceHouses.find((item) => item.id === sourceHouseId) ||
@@ -315,7 +333,28 @@ function RosterSwapPanel({ league, houses, members, actorId, manager, currentHou
   const targetMembers = members.filter(
     (item) => item.currentHouseId === targetHouseId && !protectedLeaderIds.has(item.userId),
   );
-
+  const weekKey = getSeasonWeekKey(new Date());
+  const selectedFirst = sourceMembers.find((item) => item.userId === firstPlayerId) || null;
+  const selectedSecond = targetMembers.find((item) => item.userId === secondPlayerId) || null;
+  const movedThisWeek = (member) => Boolean(member?.lastRosterWeekKey === weekKey);
+  const resting = (member) => Boolean(
+    supportsHouseMovementV1(league)
+      && member?.rosterLockThroughWeekKey
+      && weekKey <= member.rosterLockThroughWeekKey,
+  );
+  const overrideCandidates = [selectedFirst, selectedSecond].filter(
+    (member) => resting(member) && !movedThisWeek(member),
+  );
+  const overrideRequired = overrideCandidates.length > 0;
+  const invalidSameWeek = [selectedFirst, selectedSecond].some(movedThisWeek);
+  const optionLabel = (member) => {
+    if (movedThisWeek(member)) return `${member.displayName} — already moved this week`;
+    if (resting(member)) {
+      const suffix = member.rosterEligibleWeekKey ? ` until ${member.rosterEligibleWeekKey}` : "";
+      return `${member.displayName} — resting${suffix}`;
+    }
+    return member.displayName;
+  };
 
   if (availableSourceHouses.length === 0 || league.status !== "active") return null;
 
@@ -325,10 +364,20 @@ function RosterSwapPanel({ league, houses, members, actorId, manager, currentHou
     if (!window.confirm("Complete this week’s House roster swap? Earlier contributions will remain with each player’s previous House.")) return;
     setBusy(true);
     try {
-      await swapHousePlayers({ league, firstHouse: sourceHouse, secondHouse: targetHouse, firstPlayer, secondPlayer, actorId });
-      notify("The weekly House roster swap is complete.", "success");
+      await swapHousePlayers({
+        league,
+        firstHouse: sourceHouse,
+        secondHouse: targetHouse,
+        firstPlayer,
+        secondPlayer,
+        actorId,
+        allowRestOverride: platformAdmin && overrideRequired,
+        overrideReason,
+      });
+      notify(overrideRequired ? "The audited House movement correction is complete." : "The weekly House roster swap is complete.", "success");
       setFirstPlayerId("");
       setSecondPlayerId("");
+      setOverrideReason("");
     } catch (error) {
       console.error(error);
       notify(error.message || "The House roster could not be changed.", "error");
@@ -342,12 +391,321 @@ function RosterSwapPanel({ league, houses, members, actorId, manager, currentHou
       <div><p className="section-kicker">Weekly roster turn</p><h2>One strategic House swap</h2><p>Each House may take part in one balanced player swap per week. Captains, vice-captains and league administrators can act; current leaders must be reassigned before they move.</p></div>
       <div className="roster-swap__grid">
         <label>Source House<select value={effectiveSourceHouseId} onChange={(event) => { setSourceHouseId(event.target.value); setFirstPlayerId(""); }}><option value="">Choose House</option>{availableSourceHouses.map((house) => <option key={house.id} value={house.id}>{house.name}</option>)}</select></label>
-        <label>Player leaving<select value={firstPlayerId} onChange={(event) => setFirstPlayerId(event.target.value)}><option value="">Choose player</option>{sourceMembers.map((member) => <option key={member.userId} value={member.userId}>{member.displayName}</option>)}</select></label>
+        <label>Player leaving<select value={firstPlayerId} onChange={(event) => setFirstPlayerId(event.target.value)}><option value="">Choose player</option>{sourceMembers.map((member) => <option key={member.userId} value={member.userId} disabled={movedThisWeek(member) || (resting(member) && !platformAdmin)}>{optionLabel(member)}</option>)}</select></label>
         <label>Other House<select value={targetHouseId} onChange={(event) => { setTargetHouseId(event.target.value); setSecondPlayerId(""); }}><option value="">Choose House</option>{houses.filter((house) => house.id !== effectiveSourceHouseId).map((house) => <option key={house.id} value={house.id}>{house.name}</option>)}</select></label>
-        <label>Player joining<select value={secondPlayerId} onChange={(event) => setSecondPlayerId(event.target.value)}><option value="">Choose player</option>{targetMembers.map((member) => <option key={member.userId} value={member.userId}>{member.displayName}</option>)}</select></label>
+        <label>Player joining<select value={secondPlayerId} onChange={(event) => setSecondPlayerId(event.target.value)}><option value="">Choose player</option>{targetMembers.map((member) => <option key={member.userId} value={member.userId} disabled={movedThisWeek(member) || (resting(member) && !platformAdmin)}>{optionLabel(member)}</option>)}</select></label>
       </div>
-      <button className="button button--danger" type="button" disabled={busy || !sourceHouse || !targetHouse || !sourceMembers.some((item) => item.userId === firstPlayerId) || !targetMembers.some((item) => item.userId === secondPlayerId)} onClick={handleSwap}>{busy ? "Changing Houses…" : "Complete roster swap"}</button>
+      {platformAdmin && overrideRequired && (
+        <div className="roster-override">
+          <div>
+            <p className="section-kicker">Platform Administrator factual correction</p>
+            <strong>Post-move rest override required</strong>
+            <p>This bypass applies only to the one-week rest restriction. Same-week movement, House weekly locks and current leadership remain protected.</p>
+          </div>
+          <label htmlFor="roster-override-reason">Correction reason
+            <textarea
+              id="roster-override-reason"
+              minLength={12}
+              maxLength={500}
+              required
+              value={overrideReason}
+              onChange={(event) => setOverrideReason(event.target.value)}
+              placeholder="Describe the factual error or exceptional correction being made."
+            />
+          </label>
+        </div>
+      )}
+      <button className="button button--danger" type="button" disabled={busy || invalidSameWeek || (overrideRequired && (!platformAdmin || overrideReason.trim().length < 12)) || !sourceHouse || !targetHouse || !sourceMembers.some((item) => item.userId === firstPlayerId) || !targetMembers.some((item) => item.userId === secondPlayerId)} onClick={handleSwap}>{busy ? "Changing Houses…" : overrideRequired ? "Complete audited correction" : "Complete roster swap"}</button>
     </section>
+  );
+}
+
+function AssignmentHistoryPanel({ history }) {
+  return (
+    <section className="assignment-history card">
+      <div className="assignment-history__heading">
+        <div>
+          <p className="section-kicker">Immutable roster history</p>
+          <h2>House assignment timeline</h2>
+          <p>Opening C.H.A.O.S. assignments and v4 weekly moves are preserved as append-only season records.</p>
+        </div>
+        <span>{history.length} records</span>
+      </div>
+      {history.length === 0 ? (
+        <div className="empty-state">Assignment history will appear after C.H.A.O.S. or the first v4 roster swap.</div>
+      ) : (
+        <div className="assignment-history__list">
+          {history.slice(0, 60).map((record) => (
+            <article key={record.id}>
+              <span className="assignment-history__icon" aria-hidden="true">
+                {record.method === "chaos" ? "⚡" : "🔄"}
+              </span>
+              <div>
+                <strong>{record.displayName}</strong>
+                <p>
+                  {record.method === "chaos"
+                    ? `Assigned to ${record.toHouseName} by C.H.A.O.S.`
+                    : `${record.fromHouseName} → ${record.toHouseName}`}
+                </p>
+                {record.overrideApplied && (
+                  <small className="assignment-history__override">Administrator correction · {record.overrideReason}</small>
+                )}
+              </div>
+              <time>{record.weekKey || "Opening assignment"}</time>
+            </article>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function CompositionBalancePanel({
+  league,
+  actorId,
+  membership,
+  profile,
+  manager,
+  adminProfiles,
+  members,
+  houses,
+  balanceWeeks,
+  balanceHouseWeeks,
+  privateBalanceWeeks,
+  privateBalanceHouseWeeks,
+  notify,
+}) {
+  const [value, setValue] = useState(profile?.value || "");
+  const [busy, setBusy] = useState(false);
+  const weekKey = getSeasonWeekKey(new Date());
+  const currentResult = balanceWeeks.find((item) => item.weekKey === weekKey) || null;
+  const latestResult = currentResult || balanceWeeks[0] || null;
+  const latestResultId = latestResult?.id || "";
+  const publicRows = balanceHouseWeeks.filter((item) => item.resultId === latestResultId);
+  const privateResult = manager
+    ? privateBalanceWeeks.find((item) => item.id === latestResultId) || null
+    : null;
+  const privateRows = manager
+    ? privateBalanceHouseWeeks.filter((item) => item.resultId === latestResultId)
+    : [];
+  const statusCopy = getBalanceStatusCopy(latestResult?.balanceStatus);
+  const optionLabels = new Map(HOUSE_COMPOSITION_OPTIONS.map((option) => [option.id, option.label]));
+  const activeUserIds = new Set(
+    members.filter((item) => item.status === "active").map((item) => item.userId),
+  );
+  const activeProfiles = adminProfiles.filter((item) => activeUserIds.has(item.userId));
+  const disclosedCount = activeProfiles.filter(
+    (item) => item.value && item.value !== "prefer-not-to-say",
+  ).length;
+  const canRespond = Boolean(membership && ["registered", "active"].includes(membership.status));
+
+  async function saveResponse() {
+    if (!value) {
+      notify("Choose a response or remove your existing response.", "error");
+      return;
+    }
+    setBusy(true);
+    try {
+      await saveCompositionProfile({ league, userId: actorId, value });
+      notify("Your private season composition response has been saved.", "success");
+    } catch (error) {
+      console.error(error);
+      notify(error.message || "Your private response could not be saved.", "error");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function removeResponse() {
+    setBusy(true);
+    try {
+      await clearCompositionProfile({ leagueId: league.id, userId: actorId });
+      setValue("");
+      notify("Your private season composition response has been removed.", "success");
+    } catch (error) {
+      console.error(error);
+      notify(error.message || "Your private response could not be removed.", "error");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function calculateBalance() {
+    setBusy(true);
+    try {
+      await calculateWeeklyHouseBalance({
+        league,
+        houses,
+        memberships: members,
+        profiles: adminProfiles,
+        actorId,
+      });
+      notify("This week’s informational House balance snapshot has been preserved.", "success");
+    } catch (error) {
+      console.error(error);
+      notify(error.message || "The weekly House balance could not be calculated.", "error");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="composition-foundation">
+      <section className="composition-privacy card">
+        <div>
+          <p className="section-kicker">Private season data</p>
+          <h2>Optional composition response</h2>
+          <p>
+            This answer belongs only to {league.name}. It is self-declared, optional and removable.
+            Individual responses are not shown to House leaders or ordinary players and never change your points.
+          </p>
+        </div>
+
+        {canRespond ? (
+          <div className="composition-response">
+            <label htmlFor={`season-composition-${league.id}`}>My private response</label>
+            <select
+              id={`season-composition-${league.id}`}
+              value={value}
+              onChange={(event) => setValue(event.target.value)}
+              disabled={busy}
+            >
+              <option value="">Choose a response</option>
+              {HOUSE_COMPOSITION_OPTIONS.map((option) => (
+                <option key={option.id} value={option.id}>{option.label}</option>
+              ))}
+            </select>
+            <div className="composition-response__actions">
+              <button className="button button--primary" type="button" disabled={busy || !value} onClick={saveResponse}>
+                {busy ? "Saving…" : "Save private response"}
+              </button>
+              {profile && (
+                <button className="button button--ghost" type="button" disabled={busy} onClick={removeResponse}>
+                  Remove my response
+                </button>
+              )}
+            </div>
+            <small>
+              “Prefer not to say” records that choice without treating it as disclosed composition data.
+            </small>
+          </div>
+        ) : (
+          <div className="inline-alert inline-alert--info">
+            Only registered season members can submit a composition response.
+          </div>
+        )}
+      </section>
+
+      <section className="house-balance card">
+        <div className="community-section-heading">
+          <div>
+            <p className="section-kicker">Weekly House balance</p>
+            <h2>{latestResult ? statusCopy.label : "No weekly snapshot yet"}</h2>
+          </div>
+          <span>{latestResult?.weekKey || weekKey}</span>
+        </div>
+        <p>
+          {latestResult
+            ? statusCopy.detail
+            : "An authorised administrator can preserve one privacy-safe snapshot for each official season week."}
+        </p>
+
+        {manager && (
+          <div className="house-balance__admin">
+            <div>
+              <strong>{activeProfiles.length} private responses available</strong>
+              <span>{disclosedCount} disclosed for calculation · {activeUserIds.size} active players</span>
+            </div>
+            <button
+              className="button button--primary"
+              type="button"
+              disabled={busy || league.status !== "active" || Boolean(currentResult)}
+              onClick={calculateBalance}
+            >
+              {currentResult ? "This week preserved" : busy ? "Calculating…" : "Preserve this week’s snapshot"}
+            </button>
+          </div>
+        )}
+
+        {latestResult && (
+          <>
+            <div className="house-balance__metrics">
+              <span><strong>{latestResult.rosterSizeDifference}</strong> roster-size spread</span>
+              <span><strong>{latestResult.minimumDisclosureCount}</strong> minimum disclosed per House</span>
+              <span><strong>{latestResult.scoringEnabled ? "On" : "Off"}</strong> scoring effect</span>
+            </div>
+
+            {latestResult.seasonDistributionVisible ? (
+              <div className="house-balance__season-distribution">
+                <strong>Season disclosed distribution</strong>
+                <dl>
+                  {Object.entries(latestResult.seasonCompositionDistribution || {}).map(([id, percentage]) => (
+                    <div key={id}><dt>{optionLabels.get(id) || id}</dt><dd>{percentage}%</dd></div>
+                  ))}
+                </dl>
+              </div>
+            ) : (
+              <div className="inline-alert inline-alert--info">
+                Season composition distribution is suppressed until the minimum disclosure threshold is met.
+              </div>
+            )}
+
+            <div className="house-balance__houses">
+              {publicRows.map((house) => (
+                <article key={house.id}>
+                  <div>
+                    <strong>{house.houseName}</strong>
+                    <span>{house.rosterSize} players</span>
+                  </div>
+                  {house.compositionVisible ? (
+                    <dl>
+                      {Object.entries(house.compositionDistribution || {}).map(([id, percentage]) => (
+                        <div key={id}><dt>{optionLabels.get(id) || id}</dt><dd>{percentage}%</dd></div>
+                      ))}
+                      <div><dt>Season deviation</dt><dd>{house.deviationPercentagePoints} points</dd></div>
+                    </dl>
+                  ) : (
+                    <small>
+                      Composition hidden because fewer than {latestResult.minimumDisclosureCount} disclosed responses protect this House.
+                    </small>
+                  )}
+                </article>
+              ))}
+            </div>
+
+            <div className="inline-alert inline-alert--info">
+              Weekly balance is informational only. It cannot add, remove, reduce or multiply individual or House points.
+            </div>
+          </>
+        )}
+      </section>
+
+      {manager && privateResult && (
+        <section className="composition-coverage card">
+          <div>
+            <p className="section-kicker">Administrator-only exact snapshot</p>
+            <h2>Private calculation record</h2>
+            <p>
+              These counts are retained only for authorised balancing operations. Member-facing House summaries never expose these exact counts.
+            </p>
+          </div>
+          <div className="composition-coverage__metrics">
+            <span><strong>{privateResult.activeMemberCount}</strong> active players</span>
+            <span><strong>{privateResult.responseCount}</strong> responses</span>
+            <span><strong>{privateResult.disclosedCount}</strong> disclosed</span>
+            <span><strong>{privateResult.preferNotToSayCount}</strong> prefer not to say</span>
+          </div>
+          <div className="house-balance__private-houses">
+            {privateRows.map((house) => (
+              <article key={house.id}>
+                <strong>{house.houseName}</strong>
+                <span>{house.disclosedCount} disclosed · {house.undisclosedCount} undisclosed</span>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
   );
 }
 
@@ -365,9 +723,24 @@ export default function Houses() {
     ? requestedId
     : fallbackId;
   const league = seasonLeagues.find((item) => item.id === selectedId) || null;
+  const movementV1 = supportsHouseMovementV1(league);
+  const canViewAssignmentHistory = Boolean(
+    movementV1
+    && (
+      myMemberships.some((item) => item.leagueId === league?.id)
+      || (canManageLeagues && canManageLeague(league, user?.uid, isPlatformAdmin))
+    )
+  );
   const [housesState, setHousesState] = useState({ leagueId: "", items: [] });
   const [membersState, setMembersState] = useState({ leagueId: "", items: [] });
   const [electionsState, setElectionsState] = useState({ leagueId: "", items: [] });
+  const [historyState, setHistoryState] = useState({ leagueId: "", items: [] });
+  const [compositionState, setCompositionState] = useState({ leagueId: "", item: null });
+  const [compositionAdminState, setCompositionAdminState] = useState({ leagueId: "", items: [] });
+  const [balanceState, setBalanceState] = useState({ leagueId: "", items: [] });
+  const [balanceHouseState, setBalanceHouseState] = useState({ leagueId: "", items: [] });
+  const [privateBalanceState, setPrivateBalanceState] = useState({ leagueId: "", items: [] });
+  const [privateBalanceHouseState, setPrivateBalanceHouseState] = useState({ leagueId: "", items: [] });
   const [selectedHouseId, setSelectedHouseId] = useState("");
   const [working, setWorking] = useState(false);
   const [editingHouseId, setEditingHouseId] = useState("");
@@ -392,18 +765,28 @@ export default function Houses() {
       (items) => setElectionsState({ leagueId, items }),
       (error) => showToast(error.message || "Leadership votes could not be loaded.", "error"),
     );
+    const unsubHistory = canViewAssignmentHistory
+      ? subscribeToHouseAssignmentHistory(
+          leagueId,
+          (items) => setHistoryState({ leagueId, items }),
+          (error) => showToast(error.message || "House assignment history could not be loaded.", "error"),
+        )
+      : () => {};
 
     return () => {
       unsubHouses();
       unsubMembers();
       unsubElections();
+      unsubHistory();
     };
-  }, [league?.id, showToast]);
+  }, [league?.id, canViewAssignmentHistory, showToast]);
 
   const houses = housesState.leagueId === league?.id ? housesState.items : [];
   const members = membersState.leagueId === league?.id ? membersState.items : [];
   const elections = electionsState.leagueId === league?.id ? electionsState.items : [];
+  const assignmentHistory = historyState.leagueId === league?.id ? historyState.items : [];
   const membership = myMemberships.find((item) => item.leagueId === league?.id) || null;
+  const membershipUserId = membership?.userId || "";
   const currentHouse = houses.find((item) => item.id === membership?.currentHouseId) || null;
   const selectedHouse = houses.find((item) => item.id === selectedHouseId)
     || currentHouse
@@ -416,6 +799,74 @@ export default function Houses() {
     && canManageLeagues
     && canManageLeague(league, user?.uid, isPlatformAdmin),
   );
+  const canUseComposition = Boolean(movementV1 && (membership || manager));
+
+  useEffect(() => {
+    const leagueId = league?.id;
+    if (!leagueId || !movementV1) return undefined;
+
+    const unsubOwn = membershipUserId && user?.uid
+      ? subscribeToCompositionProfile(
+          leagueId,
+          user.uid,
+          (item) => setCompositionState({ leagueId, item }),
+          (error) => showToast(error.message || "Your private composition response could not be loaded.", "error"),
+        )
+      : () => {};
+    const unsubAdmin = manager
+      ? subscribeToLeagueCompositionProfiles(
+          leagueId,
+          (items) => setCompositionAdminState({ leagueId, items }),
+          (error) => showToast(error.message || "Private composition coverage could not be loaded.", "error"),
+        )
+      : () => {};
+    const unsubBalance = canUseComposition
+      ? subscribeToHouseBalanceWeeks(
+          leagueId,
+          (items) => setBalanceState({ leagueId, items }),
+          (error) => showToast(error.message || "Weekly House balance could not be loaded.", "error"),
+        )
+      : () => {};
+    const unsubBalanceHouses = canUseComposition
+      ? subscribeToHouseBalanceHouseWeeks(
+          leagueId,
+          (items) => setBalanceHouseState({ leagueId, items }),
+          (error) => showToast(error.message || "Weekly House summaries could not be loaded.", "error"),
+        )
+      : () => {};
+    const unsubPrivateBalance = manager
+      ? subscribeToPrivateHouseBalanceWeeks(
+          leagueId,
+          (items) => setPrivateBalanceState({ leagueId, items }),
+          (error) => showToast(error.message || "Private weekly balance could not be loaded.", "error"),
+        )
+      : () => {};
+    const unsubPrivateBalanceHouses = manager
+      ? subscribeToPrivateHouseBalanceHouseWeeks(
+          leagueId,
+          (items) => setPrivateBalanceHouseState({ leagueId, items }),
+          (error) => showToast(error.message || "Private House balance details could not be loaded.", "error"),
+        )
+      : () => {};
+
+    return () => {
+      unsubOwn();
+      unsubAdmin();
+      unsubBalance();
+      unsubBalanceHouses();
+      unsubPrivateBalance();
+      unsubPrivateBalanceHouses();
+    };
+  }, [league?.id, movementV1, membershipUserId, manager, canUseComposition, user?.uid, showToast]);
+
+  const compositionProfile = compositionState.leagueId === league?.id ? compositionState.item : null;
+  const compositionAdminProfiles = compositionAdminState.leagueId === league?.id
+    ? compositionAdminState.items
+    : [];
+  const balanceWeeks = balanceState.leagueId === league?.id ? balanceState.items : [];
+  const balanceHouseWeeks = balanceHouseState.leagueId === league?.id ? balanceHouseState.items : [];
+  const privateBalanceWeeks = privateBalanceState.leagueId === league?.id ? privateBalanceState.items : [];
+  const privateBalanceHouseWeeks = privateBalanceHouseState.leagueId === league?.id ? privateBalanceHouseState.items : [];
   const chaosReadiness = getChaosReadiness({ league, houses, memberships: members });
   const completedChaosChecks = chaosReadiness.checks.filter((check) => check.complete).length;
   const chaosSummary = chaosReadiness.eligible
@@ -450,6 +901,23 @@ export default function Houses() {
             description: "Weekly captain and vice-captain voting",
           },
         ]
+      : []),
+    ...(canViewAssignmentHistory
+      ? [{
+          id: "history",
+          label: "History",
+          icon: "🧭",
+          description: "Immutable House assignment timeline",
+          badge: assignmentHistory.length,
+        }]
+      : []),
+    ...(canUseComposition
+      ? [{
+          id: "balance",
+          label: "Balance",
+          icon: "⚖️",
+          description: "Weekly privacy-safe House balance",
+        }]
       : []),
     ...(canUseRosterTurn
       ? [{
@@ -753,6 +1221,41 @@ export default function Houses() {
             </WorkspacePanel>
           )}
 
+          {canViewAssignmentHistory && (
+            <WorkspacePanel
+              id="history"
+              activeId={resolvedActiveTab}
+              idPrefix={`houses-${league.id}`}
+            >
+              <AssignmentHistoryPanel history={assignmentHistory} />
+            </WorkspacePanel>
+          )}
+
+          {canUseComposition && (
+            <WorkspacePanel
+              id="balance"
+              activeId={resolvedActiveTab}
+              idPrefix={`houses-${league.id}`}
+            >
+              <CompositionBalancePanel
+                key={`${league.id}:${compositionProfile?.value || "unset"}`}
+                league={league}
+                actorId={user?.uid}
+                membership={membership}
+                profile={compositionProfile}
+                manager={manager}
+                adminProfiles={compositionAdminProfiles}
+                members={members}
+                houses={houses}
+                balanceWeeks={balanceWeeks}
+                balanceHouseWeeks={balanceHouseWeeks}
+                privateBalanceWeeks={privateBalanceWeeks}
+                privateBalanceHouseWeeks={privateBalanceHouseWeeks}
+                notify={showToast}
+              />
+            </WorkspacePanel>
+          )}
+
           {canUseRosterTurn && (
             <WorkspacePanel
               id="roster-turn"
@@ -766,6 +1269,7 @@ export default function Houses() {
                 members={members}
                 actorId={user?.uid}
                 manager={manager}
+                platformAdmin={isPlatformAdmin}
                 currentHouse={currentHouse}
                 notify={showToast}
               />

@@ -26,8 +26,8 @@ Current production: v0.20.0
 
 ## Existing evidence and season architecture
 
-- `evidenceModel.js` owns policy normalization, claim identities, verification codes, point allocation, deadlines, permissions and decision validation.
-- `evidenceService.js` owns subscriptions, assignments, transactional decisions, notifications and snapshot publication.
+- `evidenceModel.js` owns policy normalization, claim identities, verification codes, point allocation, deadlines, Platform Administrator authority and decision validation.
+- `evidenceService.js` owns subscriptions, Platform Administrator-only transactional decisions, notifications and snapshot publication.
 - `entryRepository.js` creates source entries, immediate contributions and evidence claims atomically.
 - `leagueModel.js` calculates evidence-aware live standings and honours from immutable contributions.
 - `SeasonCommandCentre` derives role-aware operational priorities without changing scoring or evidence authority.
@@ -35,6 +35,10 @@ Current production: v0.20.0
 ## Current architectural decisions
 
 ADR-021 through ADR-027 define the current season, information architecture, progressive disclosure, account-control, external-evidence, operations and correction foundations. Older Team ADRs remain historical and may be superseded.
+
+## Privileged administrative writes
+
+Platform-Admin-only evidence decisions and factual correction transactions use a trusted administrative transaction boundary. Firestore Rules continue to enforce role, identity, audit linkage, immutable history and status-transition invariants, while duplicated derived/presentation fields are validated by the application workflow rather than recomputed again inside Rules.
 
 ## Security and trust boundary
 
@@ -44,7 +48,7 @@ The current no-cost iteration performs constrained transactions from the client,
 
 - Historical entries, contributions, decisions, correction records and published snapshots remain immutable.
 - Correction heads are the only mutable correction pointer and move forward one sequence at a time.
-- Category reviewers subscribe only to assigned evidence queues.
+- League Administrators may read managed-season evidence for operations; only Platform Administrators may make evidence decisions.
 - Player standings read the latest published snapshot rather than all live contributions.
 - Journal rendering is paginated by recorded day, although the underlying owner entry subscription still loads the full personal history.
 - Whole-database reconciliation and trusted server recalculation remain future work.
@@ -65,3 +69,20 @@ Power Plays follow the existing configuration → service → derived-view archi
 - `PowerPlayWorkspace` provides draft configuration and weekly operations.
 - `leagueModel.js`, honours, Command Centre and trusted reconciliation consume the same pure multiplier helper.
 - Firestore Rules validate frozen definitions and no-repeat state; browser clients cannot invent alternate formulas.
+
+## Checkpoint 8I derived-record compaction
+
+Trusted administrative outputs now use a narrower Rules boundary. Evidence and correction contributions remain linked to their immutable decision/correction records; evidence notifications remain linked to the claim owner; and published leaderboard snapshots still require the atomic league publication pointer. This removes repeated reads and duplicated comparisons from derived records while leaving player-originated contribution validation unchanged.
+
+## Checkpoint 8J trusted Platform operations
+
+Administrative content and support workflows now share the trusted Platform Administrator boundary already used by evidence/correction administration. Browser services still build the complete validated payload, and Firestore Rules retain authorization, transition, actor/time, audit-link and immutability guarantees. Ordinary-player creation paths are not widened.
+
+## Checkpoint 8K evaluator-aware write routing
+
+Firestore update authorization now routes a league write by the fields it actually changes before entering the expensive operation-specific validator. Participant-count joins/leaves remain the only non-administrator league update path; status, C.H.A.O.S., leaderboard publication, Power Play pool and Power Play state changes still require league-administrator authority. Power Play week updates are routed by whether the official week has started, keeping redraw and locked-correction validation disjoint. This changes evaluation order, not the accepted data contracts.
+
+
+## Checkpoint 8L final v0.24 Rules freeze
+
+Checkpoint 8L freezes the evaluator-clean Checkpoint 8K Firestore Rules without further authorization changes. The final 8-series release gate requires the complete Rules suite and representative high-risk transaction probes to remain free of the 1,000-expression evaluator-limit message. The frozen Rules hash, production project/Hosting mapping, blocked deploy scripts, v0.24 version, test counts and critical v0.24 source hashes are verified before any production Rules activation attempt.

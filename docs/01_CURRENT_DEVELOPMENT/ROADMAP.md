@@ -1,49 +1,35 @@
 # Champions Legacy Challenge — Roadmap
 
 <!-- RELEASE_STATUS: DEPLOYED -->
-Last updated: 7 August 2026
+Last updated: 9 August 2026
 
-## Current production — v0.22.0
+## Current production — v0.24.0
 
-Trusted account deletion and anonymised shared history are deployed.
+### House Movement and weekly balance
 
-## Current production — v0.23.0
+- `season-houses-v4` is live for newly created seasons;
+- one-week post-move roster stability is persisted and enforced;
+- initial C.H.A.O.S. assignment does not count as a move;
+- immutable House-assignment history preserves movement facts;
+- Platform Administrator-only rest correction requires a factual audit reason;
+- same-week movement, House weekly locks and leadership protection remain non-bypassable;
+- optional private season-composition responses support balancing without exposing individual responses;
+- `house-balance-v1` publishes privacy-safe weekly summaries with three-response suppression;
+- exact composition counts remain administrator-only;
+- weekly balance remains informational only and cannot alter points or standings;
+- themed no-repeat Power Plays remain integrated with v4 seasons;
+- evaluator-aware Rules routing keeps the final 79-test Rules suite below the 1,000-expression ceiling.
 
-### Themed Power Plays
-
-- ten base category plays;
-- theme-specific unique names;
-- custom controlled 2×/3× multi-category plays;
-- one official weekly selection;
-- random selection without replacement;
-- no reuse anywhere in the same season;
-- activity-date scoring and proof-release compatibility;
-- individual/House/honours/reconciliation integration;
-- audited redraw and correction operations.
-
-## Current stabilization candidate — v0.23.5
-
-- preserve the deployed v0.23 Power Play and season-houses-v3 contract;
-- keep the verified v0.23 Firestore Rules unchanged;
-- remove/defer the unfinished v0.24 House Movement Rules expansion;
-- deploy Rules first and Hosting second so an incompatible frontend cannot overtake production Rules.
+Production activation and smoke validation completed on 9 August 2026. Detailed evidence is in `docs/07_HISTORY/V0240_PRODUCTION_RELEASE.md`.
 
 ## Remaining planned pre-v1.0 iterations
-
-### v0.24.0 — Weekly roster stability and composition-balance foundation (deferred for Rules redesign)
-
-- a player newly moved to a House cannot be moved again during the following weekly movement period;
-- initial C.H.A.O.S. assignment does not count as a move;
-- audited emergency correction path;
-- minimum-data, self-declared composition foundation;
-- transparent weekly House-level balancing design that does not reduce individual earned points.
 
 ### v0.25.0 — Five Fires and remaining competition design
 
 - define and implement Five Fires after a dedicated rules decision;
 - decide Buddy Bonuses;
 - establish a safe late-season twist framework;
-- verify interactions with Power Plays, roster movement and weekly House scoring.
+- verify interactions with Power Plays, roster movement, evidence, standings and weekly House balance.
 
 This may split into two releases if the final Five Fires design is substantial.
 
@@ -73,11 +59,11 @@ Only after this may the project become a v1.0 candidate, and only with explicit 
 
 ## Confirmed inactive/rejected mechanics
 
-- Diamonds, player prices and the transfer market remain rejected because they encouraged imbalance, commoditised strong players and risked treating lower performers as disposable.
+- Diamonds, player prices and the old transfer-market model remain rejected because they encouraged imbalance, commoditised strong players and risked treating lower performers as disposable.
 - Original one-player-per-House immunity is replaced by the one-week post-move stability rule.
 
 ## Confirmed but not yet designed
 
 - Five Fires is intended for implementation.
 - Buddy Bonuses and late-season twists remain decisions for later.
-- Weekly gender-composition balance is required, but its exact transparent House-level formula still needs to be locked.
+- Weekly composition balance is locked as `house-balance-v1`: total-variation distance against the season disclosed distribution, with three-response suppression and no scoring effect.

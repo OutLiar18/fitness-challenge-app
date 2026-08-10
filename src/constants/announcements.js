@@ -72,7 +72,7 @@ export const ANNOUNCEMENTS = Object.freeze([
     summary:
       "Authorised season operators can see next actions, evidence workload, leadership status and publication history in one focused workspace.",
     body:
-      "The new Season Command Centre combines existing House, C.H.A.O.S., leadership, WhatsApp proof and leaderboard records without creating an alternate score. Administrators receive clear next-action guidance, evidence workload by category, immutable decision and snapshot history, plus a downloadable operations report. Category reviewers remain limited to their assigned evidence categories, and no WhatsApp media is stored or exported.",
+      "The new Season Command Centre combines existing House, C.H.A.O.S., leadership, WhatsApp proof and leaderboard records without creating an alternate score. Administrators receive clear next-action guidance, evidence workload by category, immutable decision and snapshot history, plus a downloadable operations report. Only Platform Administrators can make evidence decisions; League Administrators retain their other season operations. No WhatsApp media is stored or exported.",
     publishedAt: "2026-08-04",
     featured: false,
     version: "0.19.0",
@@ -85,7 +85,7 @@ export const ANNOUNCEMENTS = Object.freeze([
     summary:
       "Verification IDs, category review queues and controlled daily leaderboard snapshots keep proof practical without storing media in the app.",
     body:
-      "Running and Steps submissions now hold proof-dependent season points until an authorised reviewer accepts the matching WhatsApp evidence. Water and Fruit can earn one daily three-point proof bonus after their configured target is met. Players send the short verification ID shown beside the entry, while the app stores only structured decisions and audit history. Administrators retain live standings; players see the latest published daily snapshot, with a 10:00 Johannesburg administrator-session fallback when no manual snapshot has been published.",
+      "Running and Steps submissions now hold proof-dependent season points until a Platform Administrator accepts the matching WhatsApp evidence. Water and Fruit can earn one daily three-point proof bonus after their configured target is met. Players send the short verification ID shown beside the entry, while the app stores only structured decisions and audit history. Administrators retain live standings; players see the latest published daily snapshot, with a 10:00 Johannesburg administrator-session fallback when no manual snapshot has been published.",
     publishedAt: "2026-08-04",
     featured: false,
     version: "0.18.0",

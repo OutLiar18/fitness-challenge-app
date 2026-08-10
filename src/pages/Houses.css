@@ -162,3 +162,292 @@
     min-width: 0;
   }
 }
+
+.assignment-history {
+  display: grid;
+  gap: 18px;
+  padding: 24px;
+}
+
+.assignment-history__heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.assignment-history__heading > div {
+  display: grid;
+  gap: 4px;
+}
+
+.assignment-history__heading p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.assignment-history__heading > span {
+  flex: 0 0 auto;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-muted);
+  background: var(--surface-soft);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.assignment-history__list {
+  display: grid;
+  gap: 10px;
+}
+
+.assignment-history__list article {
+  display: grid;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-soft);
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.assignment-history__icon {
+  font-size: 1.3rem;
+}
+
+.assignment-history__list article > div {
+  display: grid;
+  gap: 3px;
+}
+
+.assignment-history__list p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.assignment-history__list time {
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  white-space: nowrap;
+}
+
+@media (max-width: 620px) {
+  .assignment-history {
+    padding: 18px;
+  }
+
+  .assignment-history__heading {
+    flex-direction: column;
+  }
+
+  .assignment-history__list article {
+    align-items: start;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .assignment-history__list time {
+    grid-column: 2;
+  }
+}
+
+
+.roster-override {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, var(--warning) 50%, var(--border));
+  border-radius: var(--radius-lg);
+  background: var(--warning-soft);
+}
+.roster-override > div { display: grid; gap: 4px; }
+.roster-override p { margin: 0; }
+.roster-override > div > p:last-child { color: var(--text-muted); }
+.roster-override label { display: grid; gap: 7px; font-weight: 820; }
+.assignment-history__override { color: var(--warning); font-weight: 780; }
+
+
+.composition-foundation {
+  display: grid;
+  gap: 1rem;
+}
+
+.composition-privacy,
+.composition-coverage {
+  display: grid;
+  gap: 1rem;
+}
+
+.composition-response {
+  display: grid;
+  gap: 0.7rem;
+  max-width: 42rem;
+}
+
+.composition-response label {
+  font-weight: 800;
+}
+
+.composition-response select {
+  width: 100%;
+}
+
+.composition-response__actions,
+.composition-coverage__metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.composition-coverage__metrics span {
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.12));
+  border-radius: 0.8rem;
+  padding: 0.75rem 0.9rem;
+  display: grid;
+  gap: 0.1rem;
+  min-width: 9rem;
+}
+
+.composition-coverage__metrics strong {
+  font-size: 1.2rem;
+}
+
+.house-balance {
+  display: grid;
+  gap: 1rem;
+}
+
+.house-balance > p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.house-balance__admin {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-soft);
+}
+
+.house-balance__admin > div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.house-balance__admin span {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.house-balance__metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.house-balance__metrics span {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-soft);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.house-balance__metrics strong {
+  color: var(--text);
+  font-size: 1.05rem;
+}
+
+.house-balance__season-distribution {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-soft);
+}
+
+.house-balance__season-distribution dl,
+.house-balance__houses dl {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+}
+
+.house-balance__season-distribution dl div,
+.house-balance__houses dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.house-balance__season-distribution dt,
+.house-balance__houses dt {
+  color: var(--text-muted);
+}
+
+.house-balance__season-distribution dd,
+.house-balance__houses dd {
+  margin: 0;
+  font-weight: 800;
+}
+
+.house-balance__houses {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.house-balance__houses article,
+.house-balance__private-houses article {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-soft);
+}
+
+.house-balance__houses article > div:first-child,
+.house-balance__private-houses article {
+  align-content: start;
+}
+
+.house-balance__houses article > div:first-child {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.house-balance__houses article span,
+.house-balance__houses article small,
+.house-balance__private-houses span {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.house-balance__private-houses {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+@media (max-width: 760px) {
+  .house-balance__metrics,
+  .house-balance__houses,
+  .house-balance__private-houses {
+    grid-template-columns: 1fr;
+  }
+
+  .house-balance__admin {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

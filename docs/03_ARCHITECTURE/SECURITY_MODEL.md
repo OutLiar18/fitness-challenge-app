@@ -20,21 +20,21 @@ Current production: v0.20.0
 - Claim category, House identity, dates and pending values must match the source entry and frozen season policy.
 - Players may read their own claims but cannot change review state.
 
-## Reviewer scope
+## Evidence decision scope
 
 - Platform Administrators may review all categories.
-- Assigned reviewers are resolved through `leagueEvidenceReviewers/{leagueId_userId}`.
-- Assigned reviewers may query/read only their assigned categories.
-- Season Administrators may manage assignments and publication but do not automatically pass evidence-decision checks.
+- `leagueEvidenceReviewers` is retired from client authorization and accepts no new client writes.
+- Platform Administrators are the only browser role that passes evidence-decision checks.
+- League/Season Administrators may retain managed-season evidence read access and authorised publication without gaining evidence-decision authority.
 - Only Platform Administrators may accept late proof.
 
 ## Atomic decisions
 
-Rules validate the decision, claim update, audit event, optional contribution and notification together. Contributions use signed deltas for reversals. Existing decisions and snapshots cannot be updated or deleted.
+Evidence decisions remain atomic across the decision record, claim update, optional contribution and notification. Because only Platform Administrators may perform these writes, Checkpoint 8H treats them as trusted administrative transactions: Rules enforce actor identity, claim linkage, allowed status transitions, bounded point deltas and immutable records without re-deriving every copied presentation or scoring field. Contributions use signed deltas for reversals. Existing decisions and snapshots cannot be updated or deleted.
 
 ## Published standings
 
-- Administrators/evidence operators may read live contributions as needed for operations.
+- Platform and League Administrators may read live contributions as needed for operations.
 - v2 players read published snapshots instead of another player's live contributions.
 - Snapshot creation is restricted to authorised season operators with matching audit metadata.
 - Snapshot revision identifiers and league latest-snapshot pointers must remain consistent.
@@ -49,11 +49,11 @@ Profile roles, account requests, season lifecycle, C.H.A.O.S., leadership, swaps
 
 ## v0.19 role-scoped operations reporting
 
-The command centre does not expand Firestore authority. Platform and season administrators read records already permitted by v0.18.0 Rules. Category reviewers receive only assigned evidence claim/decision queries. Reports are generated from successfully read records, so unavailable data is not bypassed or inferred. Operations exports contain no proof media.
+The command centre does not expand Firestore authority. Platform and season administrators read records allowed for managed-season operations. Evidence decision writes are Platform Administrator-only. Reports are generated from successfully read records, so unavailable data is not bypassed or inferred. Operations exports contain no proof media.
 
 ## Audited factual correction authority
 
-Only Platform Administrators may create correction replacements, correction heads, correction records, correction contributions or correction-specific claim transitions. Rules keep user, category and challenge date fixed, block Pocket sources, require a matching audit event, enforce forward-only correction sequences and prevent corrected source entries from being deleted. Players may read only correction records that belong to them.
+Only Platform Administrators may create correction replacements, correction heads, correction records, correction contributions or correction-specific claim transitions. Checkpoint 8H keeps the correction chain, source/replacement identity, matching immutable audit event, forward-only sequence and Pocket exclusion as hard Rules invariants, while trusting the Platform Administrator workflow for duplicated calculation and display fields. Corrected source entries remain protected from deletion. Players may read only correction records that belong to them.
 
 ## Local Admin SDK trust boundary — v0.21.0
 
@@ -82,3 +82,15 @@ Credential files and local reports are ignored by Git. No client can write `seas
 - Locked correction requires Platform Administrator authority, a reason, an unused replacement and immutable history fields.
 - Weekly assignment facts must match the frozen definition map.
 - Trusted reconciliation remains the final publication integrity check.
+
+## Checkpoint 8I trusted derived records
+
+Derived records do not become unrestricted writes. Evidence/correction contributions remain actor- and source-bound, evidence notifications remain recipient-bound, and leaderboard snapshots remain atomically linked to the league publication pointer and audit event. The reduction removes duplicate validation already guaranteed by the authoritative claim, correction or publication transaction; it does not relax ordinary player contribution or evidence-claim creation.
+
+## Checkpoint 8J trusted Platform operations
+
+Platform-Administrator-only operational writes use the same trusted-client principle as evidence administration: Rules keep the role gate, allowed state transition, actor/timestamp ownership, immutable history and matching audit-event link, while presentation-length and duplicated service-layer validation are not recomputed for trusted writes. This applies to announcement administration, suggestion review/publication, shared-library publication/archival, client-error resolution and account-deletion acknowledgement. Player-originated suggestions, error reports and deletion request/cancel/reopen flows remain strictly validated and unchanged.
+
+## Checkpoint 8K evaluator-aware routing
+
+The Rules evaluator no longer walks every expensive league-update alternative for a single write. `affectedKeys()` selects the relevant league operation family before its existing validator runs, and Power Play week updates select redraw before the week starts or correction once the week has started. Each selected validator retains its original `hasOnly(...)`, role, audit and atomic-link checks, so mixed-operation payloads remain denied. Account deletion create/reopen also share one requested-state validator; ownership, allowed fields and the seven-day trusted-deletion contract remain unchanged.

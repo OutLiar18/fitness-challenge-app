@@ -26,7 +26,6 @@ Every new v2 season must explicitly confirm and freeze:
 - Fruit photographed-serving threshold and bonus;
 - Fruit daily scored-serving cap;
 - leaderboard timezone and publication time;
-- category reviewer assignments.
 
 The current defaults are:
 
@@ -61,7 +60,7 @@ Valid proof must show:
 - distance;
 - duration.
 
-Average pace is calculated by the app from distance and duration. It is not separately entered by the reviewer.
+Average pace is calculated by the app from distance and duration. It is not separately entered by the Platform Administrator.
 
 Scoring behaviour:
 
@@ -123,18 +122,22 @@ Player-visible statuses include:
 
 A late submission may be accepted only by a Platform Administrator and only with a required audit reason.
 
-## Reviewer permissions
+## Evidence decision permissions
 
-- Platform Administrators may review all evidence categories and accept late proof.
-- Season managers may assign multiple reviewers to a category.
-- One reviewer may be assigned to several categories.
-- Assigned reviewers may read and decide only their assigned categories.
-- A Season Administrator does not automatically gain proof-decision authority.
-- Season managers may manage reviewer assignments and publish standings when otherwise authorised.
+- Platform Administrators are the only browser role allowed to accept, reject or reverse evidence decisions.
+- Only Platform Administrators may accept late proof, with the required factual reason.
+- League/Season Administrators retain read-only evidence visibility needed for season operations and may publish standings when otherwise authorised.
+- League/Season Administrator authority does not grant proof-decision authority.
+
+## Trusted administrative transaction boundary
+
+Platform Administrator evidence decisions and factual corrections are privileged operational writes. The app continues to calculate and write the same decision, contribution, notification and correction records, but Firestore Rules do not independently recompute every duplicated display/scoring field for an already-authorised Platform Administrator. Rules still require the authenticated Platform Administrator, bind evidence decisions to the stored claim, preserve allowed status transitions, require correction audit linkage and forward-only correction history, and keep the resulting records immutable.
+
+This boundary reduces Rules evaluator and compiled-size pressure without weakening player or League Administrator permissions.
 
 ## Decision model
 
-A reviewer may:
+A Platform Administrator may:
 
 - accept proof;
 - reject proof with a reason;
@@ -199,7 +202,7 @@ The app must never imply that WhatsApp media is stored, encrypted, retained or d
 
 ## v0.19 operational visibility
 
-Authorised v2 season operators receive a derived command centre that summarises evidence workload, reviewer coverage, immutable decision history and leaderboard snapshot history. The command centre does not change evidence status or points by itself. Category reviewers see only their assigned evidence categories, and downloaded operations reports contain no WhatsApp media.
+Authorised v2 season operators receive a derived command centre that summarises evidence workload, immutable decision history and leaderboard snapshot history. The command centre does not change evidence status or points by itself. Only Platform Administrators may make evidence decisions; League Administrators retain read-only evidence visibility for operations. Downloaded operations reports contain no WhatsApp media.
 
 ## Corrected evidence-linked entries
 
@@ -209,4 +212,8 @@ A required Running or Steps proof claim can be marked `superseded` only through 
 
 <!-- RELEASE_STATUS: DEPLOYED -->
 
-Before a trusted publication, evidence claims, decisions and released contribution links are checked alongside correction records. Broken proof relationships block publication. Accepted evidence remains represented by immutable contributions; the trusted command does not rereview WhatsApp media or alter reviewer decisions.
+Before a trusted publication, evidence claims, decisions and released contribution links are checked alongside correction records. Broken proof relationships block publication. Accepted evidence remains represented by immutable contributions; the trusted command does not rereview WhatsApp media or alter evidence decisions.
+
+## Trusted derived-record boundary — Checkpoint 8I
+
+Evidence/correction contributions, evidence notifications and published leaderboard snapshots are derived records produced by already-authorised workflows. Firestore Rules keep the hard security relationships — authorised actor, claim/correction identity, immutable records, recipient ownership, House scope and atomic publication pointer — while avoiding duplicate reconstruction of the same source facts. Player-originated activity contributions and proof claims remain strictly validated against their source entry, membership and season contract.

@@ -26,7 +26,7 @@ Store factual activity, trusted decisions and immutable competitive snapshots. D
 ## Evidence entities
 
 - **Evidence claim** — source user, season, category, date, verification code, deadline, pending/bonus points, House snapshot and current status.
-- **Evidence reviewer assignment** — one document per season/user with one or more assigned categories.
+- **Legacy evidence reviewer assignment** — retired historical document; no longer used for authorization or new client writes.
 - **Evidence decision** — immutable accept, reject, late-accept or reversal record with actor, timestamp, quantity, reason and point delta.
 - **Leaderboard snapshot** — immutable publication revision containing player/House standings and honours.
 
@@ -44,7 +44,7 @@ Water and Fruit use one daily claim per category. Running and Steps use one clai
 
 ## v0.19 derived season operations model
 
-The Season Command Centre is a read model only. It combines existing league, House, membership, election, evidence, reviewer, contribution and snapshot documents in memory. No `seasonCommandCentres` collection exists. Downloaded reports serialize the currently visible records locally and are not persisted.
+The Season Command Centre is a read model only. It combines existing league, House, membership, election, evidence, contribution and snapshot documents in memory. No `seasonCommandCentres` collection exists. Downloaded reports serialize the currently visible records locally and are not persisted.
 
 ## v0.20.0 correction records
 

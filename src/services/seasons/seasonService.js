@@ -27,6 +27,11 @@ import { calculateEntryPoints } from "../points";
 import { validateEntry } from "../validation";
 import { PLAYER_NOTIFICATION_TYPES } from "../notifications/notificationModel";
 import {
+  createHouseAssignmentHistoryId,
+  getRosterRestWindow,
+  supportsHouseMovementV1,
+} from "./houseMovementModel";
+import {
   calculateLeadershipResult,
   createElectionId,
   createPocketRedemptionData,
@@ -223,6 +228,27 @@ export async function activateChaos({ league, houses, memberships, actorId }) {
       houseAssignmentMethod: "chaos",
       updatedAt: serverTimestamp(),
     });
+    if (supportsHouseMovementV1(league)) {
+      const sourceId = `${league.id}_chaos`;
+      const historyId = createHouseAssignmentHistoryId(sourceId, assignment.userId);
+      batch.set(doc(db, "leagueHouseAssignmentHistory", historyId), {
+        leagueId: league.id,
+        userId: assignment.userId,
+        displayName: assignment.displayName || "Champion",
+        weekKey: "",
+        fromHouseId: "",
+        fromHouseName: "Unassigned",
+        toHouseId: assignment.houseId,
+        toHouseName: assignment.houseName,
+        method: "chaos",
+        sourceId,
+        overrideApplied: false,
+        overrideReason: "",
+        createdAt: serverTimestamp(),
+        createdBy: actorId,
+        lastAuditId: auditReference.id,
+      });
+    }
     setNotification(batch, {
       userId: assignment.userId,
       type: PLAYER_NOTIFICATION_TYPES.CHAOS_ASSIGNMENT,
@@ -407,7 +433,16 @@ export async function setAdditionalViceCaptain({ house, actorId, userId }) {
   });
 }
 
-export async function swapHousePlayers({ league, firstHouse, secondHouse, firstPlayer, secondPlayer, actorId }) {
+export async function swapHousePlayers({
+  league,
+  firstHouse,
+  secondHouse,
+  firstPlayer,
+  secondPlayer,
+  actorId,
+  allowRestOverride = false,
+  overrideReason = "",
+}) {
   if (!league?.id || !firstHouse?.id || !secondHouse?.id || !firstPlayer?.id || !secondPlayer?.id || !actorId) {
     throw new Error("Choose two Houses and one eligible player from each House.");
   }
@@ -424,6 +459,12 @@ export async function swapHousePlayers({ league, firstHouse, secondHouse, firstP
   }
   const weekKey = getSeasonWeekKey(new Date());
   const swapId = createRosterSwapId(league.id, [firstHouse.id, secondHouse.id], weekKey);
+  const movementV1 = supportsHouseMovementV1(league);
+  const restWindow = movementV1 ? getRosterRestWindow(weekKey) : null;
+  const cleanedOverrideReason = String(overrideReason ?? "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .slice(0, 500);
 
   await runTransaction(db, async (transaction) => {
     const swapReference = doc(db, "leagueRosterSwaps", swapId);
@@ -445,14 +486,62 @@ export async function swapHousePlayers({ league, firstHouse, secondHouse, firstP
     if (firstSnapshot.data().currentHouseId !== firstHouse.id || secondSnapshot.data().currentHouseId !== secondHouse.id) {
       throw new Error("The House roster changed before this swap could be completed.");
     }
+    const firstLive = { id: firstSnapshot.id, ...firstSnapshot.data() };
+    const secondLive = { id: secondSnapshot.id, ...secondSnapshot.data() };
+    const overriddenPlayerIds = [];
+    if (movementV1) {
+      const movedThisWeek = [firstLive, secondLive].find(
+        (membership) => membership.lastRosterWeekKey === weekKey,
+      );
+      if (movedThisWeek) {
+        throw new Error("A player who already moved this week cannot move again, even through an administrator correction.");
+      }
+
+      for (const membership of [firstLive, secondLive]) {
+        const resting = Boolean(
+          membership.rosterLockThroughWeekKey
+            && weekKey <= membership.rosterLockThroughWeekKey,
+        );
+        if (resting) overriddenPlayerIds.push(membership.userId);
+      }
+
+      if (overriddenPlayerIds.length > 0) {
+        if (!allowRestOverride) {
+          const restingMembership = overriddenPlayerIds.includes(firstLive.userId) ? firstLive : secondLive;
+          const eligibleWeek = restingMembership.rosterEligibleWeekKey;
+          throw new Error(eligibleWeek
+            ? `This player is resting after a House move and is eligible again in the week beginning ${eligibleWeek}.`
+            : "This player is still inside the one-week post-move rest period.");
+        }
+        if (cleanedOverrideReason.length < 12) {
+          throw new Error("A Platform Administrator correction requires a factual reason of at least 12 characters.");
+        }
+      }
+    }
+    const overrideApplied = overriddenPlayerIds.length > 0;
+    const firstHistoryId = movementV1
+      ? createHouseAssignmentHistoryId(swapId, firstLive.userId)
+      : "";
+    const secondHistoryId = movementV1
+      ? createHouseAssignmentHistoryId(swapId, secondLive.userId)
+      : "";
 
     const auditReference = setAudit(transaction, {
       actorId,
-      action: "house.roster-swapped",
+      action: overrideApplied ? "house.roster-rest-overridden" : "house.roster-swapped",
       entityType: "league",
       entityId: league.id,
-      summary: `Swapped players between ${firstHouse.name} and ${secondHouse.name}`,
-      details: { firstPlayerId: firstPlayer.userId, secondPlayerId: secondPlayer.userId, weekKey },
+      summary: overrideApplied
+        ? `Corrected a post-move rest restriction between ${firstHouse.name} and ${secondHouse.name}`
+        : `Swapped players between ${firstHouse.name} and ${secondHouse.name}`,
+      details: {
+        firstPlayerId: firstLive.userId,
+        secondPlayerId: secondLive.userId,
+        weekKey,
+        overrideApplied,
+        overrideReason: overrideApplied ? cleanedOverrideReason : "",
+        overriddenPlayerIds,
+      },
     });
     transaction.set(firstLockReference, {
       leagueId: league.id,
@@ -470,54 +559,114 @@ export async function swapHousePlayers({ league, firstHouse, secondHouse, firstP
       createdAt: serverTimestamp(),
       createdBy: actorId,
     });
-    transaction.set(swapReference, {
+    const swapData = {
       leagueId: league.id,
       weekKey,
       firstHouseId: firstHouse.id,
       firstHouseName: firstHouse.name,
       secondHouseId: secondHouse.id,
       secondHouseName: secondHouse.name,
-      firstPlayerId: firstPlayer.userId,
-      secondPlayerId: secondPlayer.userId,
+      firstPlayerId: firstLive.userId,
+      secondPlayerId: secondLive.userId,
       actorId,
       createdAt: serverTimestamp(),
       lastAuditId: auditReference.id,
-    });
-    transaction.update(firstMembershipReference, {
-      currentHouseId: secondHouse.id,
-      currentHouseName: secondHouse.name,
-      currentHouseEmblemId: secondHouse.emblemId,
-      currentHouseAccentId: secondHouse.accentId,
+    };
+    if (movementV1) {
+      Object.assign(swapData, {
+        rulesVersion: league.rulesVersion,
+        lockThroughWeekKey: restWindow.lockThroughWeekKey,
+        eligibleWeekKey: restWindow.eligibleWeekKey,
+        overrideApplied,
+        overrideReason: overrideApplied ? cleanedOverrideReason : "",
+        overriddenPlayerIds,
+      });
+    }
+    transaction.set(swapReference, swapData);
+
+    const sharedMembershipUpdate = {
       houseAssignedAt: serverTimestamp(),
       houseAssignmentMethod: "weekly-swap",
       lastRosterSwapId: swapId,
       lastRosterWeekKey: weekKey,
       updatedAt: serverTimestamp(),
+    };
+    if (movementV1) {
+      Object.assign(sharedMembershipUpdate, {
+        rosterLockThroughWeekKey: restWindow.lockThroughWeekKey,
+        rosterEligibleWeekKey: restWindow.eligibleWeekKey,
+      });
+    }
+
+    transaction.update(firstMembershipReference, {
+      currentHouseId: secondHouse.id,
+      currentHouseName: secondHouse.name,
+      currentHouseEmblemId: secondHouse.emblemId,
+      currentHouseAccentId: secondHouse.accentId,
+      ...sharedMembershipUpdate,
     });
     transaction.update(secondMembershipReference, {
       currentHouseId: firstHouse.id,
       currentHouseName: firstHouse.name,
       currentHouseEmblemId: firstHouse.emblemId,
       currentHouseAccentId: firstHouse.accentId,
-      houseAssignedAt: serverTimestamp(),
-      houseAssignmentMethod: "weekly-swap",
-      lastRosterSwapId: swapId,
-      lastRosterWeekKey: weekKey,
-      updatedAt: serverTimestamp(),
+      ...sharedMembershipUpdate,
     });
+
+    if (movementV1) {
+      transaction.set(doc(db, "leagueHouseAssignmentHistory", firstHistoryId), {
+        leagueId: league.id,
+        userId: firstLive.userId,
+        displayName: firstLive.displayName || "Champion",
+        weekKey,
+        fromHouseId: firstHouse.id,
+        fromHouseName: firstHouse.name,
+        toHouseId: secondHouse.id,
+        toHouseName: secondHouse.name,
+        method: "weekly-swap",
+        sourceId: swapId,
+        overrideApplied: overriddenPlayerIds.includes(firstLive.userId),
+        overrideReason: overriddenPlayerIds.includes(firstLive.userId) ? cleanedOverrideReason : "",
+        createdAt: serverTimestamp(),
+        createdBy: actorId,
+        lastAuditId: auditReference.id,
+      });
+      transaction.set(doc(db, "leagueHouseAssignmentHistory", secondHistoryId), {
+        leagueId: league.id,
+        userId: secondLive.userId,
+        displayName: secondLive.displayName || "Champion",
+        weekKey,
+        fromHouseId: secondHouse.id,
+        fromHouseName: secondHouse.name,
+        toHouseId: firstHouse.id,
+        toHouseName: firstHouse.name,
+        method: "weekly-swap",
+        sourceId: swapId,
+        overrideApplied: overriddenPlayerIds.includes(secondLive.userId),
+        overrideReason: overriddenPlayerIds.includes(secondLive.userId) ? cleanedOverrideReason : "",
+        createdAt: serverTimestamp(),
+        createdBy: actorId,
+        lastAuditId: auditReference.id,
+      });
+    }
+
     setNotification(transaction, {
-      userId: firstPlayer.userId,
+      userId: firstLive.userId,
       type: PLAYER_NOTIFICATION_TYPES.ROSTER_SWAP,
-      title: "Your House has changed",
+      title: overriddenPlayerIds.includes(firstLive.userId)
+        ? "Your House assignment was corrected"
+        : "Your House has changed",
       message: `You are now part of ${secondHouse.name}. Points already earned for ${firstHouse.name} remain with that House.`,
       leagueId: league.id,
       houseId: secondHouse.id,
       actionPath: `/houses?league=${league.id}`,
     });
     setNotification(transaction, {
-      userId: secondPlayer.userId,
+      userId: secondLive.userId,
       type: PLAYER_NOTIFICATION_TYPES.ROSTER_SWAP,
-      title: "Your House has changed",
+      title: overriddenPlayerIds.includes(secondLive.userId)
+        ? "Your House assignment was corrected"
+        : "Your House has changed",
       message: `You are now part of ${firstHouse.name}. Points already earned for ${secondHouse.name} remain with that House.`,
       leagueId: league.id,
       houseId: firstHouse.id,

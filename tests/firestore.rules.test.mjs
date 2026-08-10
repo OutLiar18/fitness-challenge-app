@@ -361,6 +361,110 @@ test("resolving an error report requires a Platform Administrator and an audit e
   await assertSucceeds(batch.commit());
 });
 
+test("trusted announcement writes remain audit-bound", async () => {
+  const firestore = adminContext().firestore();
+  const batch = writeBatch(firestore);
+  const announcementId = "announcement-audited";
+  const auditId = "announcement-create-audit";
+
+  batch.set(doc(firestore, "auditEvents", auditId), {
+    actorId: "admin-one",
+    action: "announcement.created",
+    entityType: "announcement",
+    entityId: announcementId,
+    summary: "Created an audited announcement",
+    details: {},
+    createdAt: serverTimestamp(),
+  });
+  batch.set(doc(firestore, "announcements", announcementId), {
+    title: "Audited release",
+    summary: "A trusted administrator created this announcement.",
+    body: "This announcement remains bound to its immutable audit event.",
+    type: "release",
+    icon: "",
+    status: "published",
+    featured: false,
+    version: "0.24.0",
+    createdAt: serverTimestamp(),
+    createdBy: "admin-one",
+    updatedAt: serverTimestamp(),
+    updatedBy: "admin-one",
+    publishedAt: serverTimestamp(),
+    lastAuditId: auditId,
+  });
+  await assertSucceeds(batch.commit());
+
+  await assertFails(
+    setDoc(doc(firestore, "announcements", "announcement-detached"), {
+      title: "Detached announcement",
+      summary: "This trusted write is missing its required audit record.",
+      body: "Platform Administrator authority does not remove the audit requirement.",
+      type: "release",
+      icon: "",
+      status: "published",
+      featured: false,
+      version: "0.24.0",
+      createdAt: serverTimestamp(),
+      createdBy: "admin-one",
+      updatedAt: serverTimestamp(),
+      updatedBy: "admin-one",
+      publishedAt: serverTimestamp(),
+      lastAuditId: "missing-announcement-audit",
+    }),
+  );
+});
+
+test("trusted library publication remains audit-bound", async () => {
+  const firestore = adminContext().firestore();
+  await assertFails(
+    setDoc(doc(firestore, "libraryReleases", "release-detached"), {
+      version: "0.24.1",
+      notes: "A detached release must not be accepted.",
+      status: "published",
+      itemIds: ["skill_example"],
+      itemCount: 1,
+      createdAt: serverTimestamp(),
+      createdBy: "admin-one",
+      publishedAt: serverTimestamp(),
+      lastAuditId: "missing-library-release-audit",
+    }),
+  );
+});
+
+test("trusted error resolution remains audit-bound", async () => {
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), "clientErrorReports", "report-detached-resolution"), {
+      name: "Error",
+      message: "This report is used to test detached resolution.",
+      stack: "",
+      source: "rules-test",
+      route: "/dashboard",
+      releaseVersion: "0.24.0",
+      context: { summary: "{}" },
+      userAgent: "Rules test",
+      occurredAt: Timestamp.now(),
+      fingerprint: "rules-test|Error|detached-resolution",
+      userId: "player-one",
+      status: "open",
+      reportedAt: Timestamp.now(),
+      resolvedAt: null,
+      resolvedBy: "",
+      resolutionNote: "",
+      lastAuditId: "",
+    });
+  });
+
+  await assertFails(
+    updateDoc(doc(adminContext().firestore(), "clientErrorReports", "report-detached-resolution"), {
+      status: "resolved",
+      resolvedAt: serverTimestamp(),
+      resolvedBy: "admin-one",
+      resolutionNote: "This should fail without a matching audit record.",
+      lastAuditId: "missing-error-resolution-audit",
+    }),
+  );
+});
+
 test("published library releases are immutable after creation", async () => {
   await testEnvironment.withSecurityRulesDisabled(async (context) => {
     await setDoc(doc(context.firestore(), "libraryReleases", "release_0.10.0"), {
@@ -500,6 +604,13 @@ function currentSeasonRulesetV3() {
   };
 }
 
+function currentSeasonRulesetV4() {
+  return {
+    ...currentSeasonRulesetV3(),
+    version: "season-houses-v4",
+  };
+}
+
 function initialPowerPlayState() {
   return {
     usedPowerPlayIds: [],
@@ -627,9 +738,9 @@ function houseData({
   };
 }
 
-function auditData({ action, entityId = "season-one", summary = "Season operation" }) {
+function auditData({ action, entityId = "season-one", summary = "Season operation", actorId = "admin-one" }) {
   return {
-    actorId: "admin-one",
+    actorId,
     action,
     entityType: "league",
     entityId,
@@ -756,6 +867,77 @@ test("season drafts require an authorised operator, invite and matching audit ev
   await assertSucceeds(commitDraft(adminContext().firestore(), "admin-one", "season-admin"));
 });
 
+test("v4 draft creation stays below Rules evaluation when the version itself freezes House Movement", async () => {
+  async function commitV4Draft({ leagueId, dailyActivityCap = 20 }) {
+    const firestore = adminContext().firestore();
+    const inviteCode = leagueId === "season-v4-valid" ? "V4VALIDA" : "V4INVALD";
+    const dates = seasonDates();
+    const batch = writeBatch(firestore);
+    const auditId = `${leagueId}-audit`;
+    const ruleset = {
+      ...currentSeasonRulesetV4(),
+      dailyActivityCap,
+    };
+
+    batch.set(doc(firestore, "auditEvents", auditId), {
+      actorId: "admin-one",
+      action: "league.created",
+      entityType: "league",
+      entityId: leagueId,
+      summary: "Created a v4 House movement season",
+      details: {},
+      createdAt: serverTimestamp(),
+    });
+    batch.set(doc(firestore, "leagues", leagueId), {
+      name: "Legacy House Season V4",
+      normalizedName: "legacy house season v4",
+      description: "A maximum-shape draft proving the lean v4 version contract stays evaluable.",
+      theme: "Warrior Houses",
+      type: "Community",
+      mode: "season",
+      status: "draft",
+      ...dates,
+      pocketEnabled: true,
+      houseCount: 8,
+      chaosStatus: "not-started",
+      chaosActivatedAt: null,
+      chaosActivatedBy: "",
+      rulesVersion: "season-houses-v4",
+      ruleset,
+      powerPlayState: initialPowerPlayState(),
+      administratorIds: ["admin-one"],
+      participantCount: 0,
+      participantLimit: 160,
+      publishedLeaderboardSnapshotId: "",
+      publishedLeaderboardAt: null,
+      publishedLeaderboardBy: "",
+      publishedLeaderboardRevision: 0,
+      inviteCode,
+      createdAt: serverTimestamp(),
+      createdBy: "admin-one",
+      updatedAt: serverTimestamp(),
+      updatedBy: "admin-one",
+      activatedAt: null,
+      completedAt: null,
+      archivedAt: null,
+      lastAuditId: auditId,
+    });
+    batch.set(doc(firestore, "leagueInvites", inviteCode), {
+      leagueId,
+      leagueName: "Legacy House Season V4",
+      status: "closed",
+      createdAt: serverTimestamp(),
+      createdBy: "admin-one",
+      updatedAt: serverTimestamp(),
+      updatedBy: "admin-one",
+    });
+    return batch.commit();
+  }
+
+  await assertSucceeds(commitV4Draft({ leagueId: "season-v4-valid" }));
+  await assertFails(commitV4Draft({ leagueId: "season-v4-invalid", dailyActivityCap: 21 }));
+});
+
 test("Houses can be created only inside an administrator-managed draft season", async () => {
   await testEnvironment.withSecurityRulesDisabled(async (context) => {
     await setDoc(doc(context.firestore(), "leagues", "season-one"), seasonData());
@@ -824,6 +1006,59 @@ test("registration joins are atomic, unassigned and capped", async () => {
   await assertFails(forgedBatch.commit());
 });
 
+test("v4 registration persists empty post-move rest state and rejects pre-seeded locks", async () => {
+  const leagueId = "season-v4-rest-state";
+  const inviteCode = "V4RESTAA";
+
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", leagueId), seasonDataV4({ status: "registration" }));
+    await setDoc(doc(firestore, "leagueInvites", inviteCode), {
+      leagueId,
+      leagueName: "Legacy House Season V4",
+      status: "active",
+      createdAt: Timestamp.now(),
+      createdBy: "admin-one",
+      updatedAt: Timestamp.now(),
+      updatedBy: "admin-one",
+    });
+  });
+
+  const firestore = playerContext().firestore();
+  const batch = writeBatch(firestore);
+  batch.set(doc(firestore, "leagueMemberships", `${leagueId}_player-one`), {
+    ...membershipData({ leagueId, inviteCode }),
+    rosterLockThroughWeekKey: "",
+    rosterEligibleWeekKey: "",
+    joinedAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+  batch.update(doc(firestore, "leagues", leagueId), {
+    participantCount: 1,
+    participantLimit: 160,
+    updatedAt: serverTimestamp(),
+    updatedBy: "player-one",
+  });
+  await assertSucceeds(batch.commit());
+
+  const forged = playerContext("player-two").firestore();
+  const forgedBatch = writeBatch(forged);
+  forgedBatch.set(doc(forged, "leagueMemberships", `${leagueId}_player-two`), {
+    ...membershipData({ leagueId, userId: "player-two", inviteCode }),
+    rosterLockThroughWeekKey: "2026-08-10",
+    rosterEligibleWeekKey: "2026-08-17",
+    joinedAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+  forgedBatch.update(doc(forged, "leagues", leagueId), {
+    participantCount: 2,
+    participantLimit: 160,
+    updatedAt: serverTimestamp(),
+    updatedBy: "player-two",
+  });
+  await assertFails(forgedBatch.commit());
+});
+
 test("C.H.A.O.S. assigns registered players and creates private notifications atomically", async () => {
   const firstHouse = houseData();
   const secondHouse = houseData({ id: "house-lion", name: "House Lion", emblemId: "lion", accentId: "sunstone" });
@@ -874,6 +1109,110 @@ test("C.H.A.O.S. assigns registered players and creates private notifications at
   await assertSucceeds(batch.commit());
   await assertSucceeds(getDoc(doc(playerContext().firestore(), "playerNotifications", "chaos-0")));
   await assertFails(getDoc(doc(playerContext("player-two").firestore(), "playerNotifications", "chaos-0")));
+});
+
+test("v4 C.H.A.O.S. supports eight Houses and sixteen players in the real atomic batch", async () => {
+  const leagueId = "chaos-v4-scale";
+  const houses = Array.from({ length: 8 }, (_, index) => houseData({
+    leagueId,
+    id: `house-scale-${index + 1}`,
+    name: `House Scale ${index + 1}`,
+    emblemId: `emblem-${index + 1}`,
+    accentId: `accent-${index + 1}`,
+  }));
+  const playerIds = Array.from(
+    { length: 16 },
+    (_, index) => `scale-player-${String(index + 1).padStart(2, "0")}`,
+  );
+  const league = seasonDataV4({ status: "registration", participantCount: playerIds.length });
+  league.houseCount = houses.length;
+
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", leagueId), league);
+    for (const house of houses) {
+      await setDoc(doc(firestore, "leagueHouses", house.id), house.data);
+    }
+    for (const userId of playerIds) {
+      await setDoc(doc(firestore, "users", userId), createProfile(userId));
+      await setDoc(
+        doc(firestore, "leagueMemberships", `${leagueId}_${userId}`),
+        membershipData({ leagueId, userId }),
+      );
+    }
+  });
+
+  const firestore = adminContext().firestore();
+  const batch = writeBatch(firestore);
+  const auditId = "chaos-v4-scale-audit";
+  batch.set(
+    doc(firestore, "auditEvents", auditId),
+    auditData({
+      action: "league.chaos-activated",
+      entityId: leagueId,
+      summary: "Activated v4 C.H.A.O.S. across eight Houses",
+    }),
+  );
+  batch.update(doc(firestore, "leagues", leagueId), {
+    chaosStatus: "activated",
+    chaosActivatedAt: serverTimestamp(),
+    chaosActivatedBy: "admin-one",
+    updatedAt: serverTimestamp(),
+    updatedBy: "admin-one",
+    lastAuditId: auditId,
+  });
+
+  playerIds.forEach((userId, index) => {
+    const house = houses[index % houses.length];
+    batch.update(doc(firestore, "leagueMemberships", `${leagueId}_${userId}`), {
+      currentHouseId: house.id,
+      currentHouseName: house.data.name,
+      currentHouseEmblemId: house.data.emblemId,
+      currentHouseAccentId: house.data.accentId,
+      houseAssignedAt: serverTimestamp(),
+      houseAssignmentMethod: "chaos",
+      updatedAt: serverTimestamp(),
+    });
+    const sourceId = `${leagueId}_chaos`;
+    batch.set(doc(firestore, "leagueHouseAssignmentHistory", `${sourceId}_${userId}`), {
+      leagueId,
+      userId,
+      displayName: userId.replace("-", " "),
+      weekKey: "",
+      fromHouseId: "",
+      fromHouseName: "Unassigned",
+      toHouseId: house.id,
+      toHouseName: house.data.name,
+      method: "chaos",
+      sourceId,
+      createdAt: serverTimestamp(),
+      createdBy: "admin-one",
+      lastAuditId: auditId,
+    });
+    batch.set(
+      doc(firestore, "playerNotifications", `chaos-v4-scale-${index + 1}`),
+      notificationData({
+        userId,
+        type: "chaos-assignment",
+        leagueId,
+        houseId: house.id,
+      }),
+    );
+  });
+
+  await assertSucceeds(batch.commit());
+
+  const firstHistoryId = `${leagueId}_chaos_${playerIds[0]}`;
+  await assertSucceeds(getDoc(doc(playerContext(playerIds[0]).firestore(), "leagueHouseAssignmentHistory", firstHistoryId)));
+  await assertFails(getDoc(doc(playerContext("player-three").firestore(), "leagueHouseAssignmentHistory", firstHistoryId)));
+  await assertFails(getDocs(query(
+    collection(playerContext("player-three").firestore(), "leagueHouseAssignmentHistory"),
+    where("leagueId", "==", leagueId),
+  )));
+  await assertFails(updateDoc(doc(firestore, "leagueHouseAssignmentHistory", firstHistoryId), {
+    toHouseName: "Rewritten House",
+  }));
+  await assertFails(deleteDoc(doc(firestore, "leagueHouseAssignmentHistory", firstHistoryId)));
 });
 
 test("leadership ballots can open only during an active season", async () => {
@@ -1155,6 +1494,879 @@ test("weekly roster swaps move future membership but cannot rewrite contribution
   batch.set(doc(firestore, "playerNotifications", "swap-two"), notificationData({ userId: "player-two", type: "roster-swap", houseId: firstHouse.id }));
   await assertSucceeds(batch.commit());
   await assertFails(updateDoc(doc(firestore, "leagueContributions", "historic-contribution"), { houseId: secondHouse.id }));
+});
+
+
+async function seedV4RestLockSwapSeason(leagueId, {
+  firstLockThroughWeekKey = "",
+  firstEligibleWeekKey = "",
+  secondLockThroughWeekKey = "",
+  secondEligibleWeekKey = "",
+  firstLastRosterWeekKey = "",
+  secondLastRosterWeekKey = "",
+} = {}) {
+  const firstHouse = houseData({
+    leagueId,
+    id: `${leagueId}-house-a`,
+    name: "House A",
+    captainId: "player-three",
+  });
+  const secondHouse = houseData({
+    leagueId,
+    id: `${leagueId}-house-b`,
+    name: "House B",
+    emblemId: "eagle",
+    accentId: "sapphire",
+    captainId: "player-four",
+  });
+
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", leagueId), seasonDataV4({
+      status: "active",
+      participantCount: 4,
+      chaosStatus: "activated",
+      active: true,
+    }));
+    await setDoc(doc(firestore, "leagueHouses", firstHouse.id), firstHouse.data);
+    await setDoc(doc(firestore, "leagueHouses", secondHouse.id), secondHouse.data);
+    await setDoc(doc(firestore, "leagueMemberships", `${leagueId}_player-one`), {
+      ...membershipData({ leagueId, status: "active", house: firstHouse }),
+      rosterLockThroughWeekKey: firstLockThroughWeekKey,
+      rosterEligibleWeekKey: firstEligibleWeekKey,
+      lastRosterWeekKey: firstLastRosterWeekKey,
+    });
+    await setDoc(doc(firestore, "leagueMemberships", `${leagueId}_player-two`), {
+      ...membershipData({ leagueId, userId: "player-two", status: "active", house: secondHouse }),
+      rosterLockThroughWeekKey: secondLockThroughWeekKey,
+      rosterEligibleWeekKey: secondEligibleWeekKey,
+      lastRosterWeekKey: secondLastRosterWeekKey,
+    });
+    await setDoc(doc(firestore, "leagueMemberships", `${leagueId}_player-three`), {
+      ...membershipData({ leagueId, userId: "player-three", status: "active", house: firstHouse }),
+      rosterLockThroughWeekKey: "",
+      rosterEligibleWeekKey: "",
+    });
+    await setDoc(doc(firestore, "leagueMemberships", `${leagueId}_player-four`), {
+      ...membershipData({ leagueId, userId: "player-four", status: "active", house: secondHouse }),
+      rosterLockThroughWeekKey: "",
+      rosterEligibleWeekKey: "",
+    });
+  });
+
+  return { firstHouse, secondHouse };
+}
+
+function v4RestLockSwapBatch({
+  firestore,
+  leagueId,
+  firstHouse,
+  secondHouse,
+  weekKey = "2026-08-03",
+  lockThroughWeekKey = "2026-08-10",
+  eligibleWeekKey = "2026-08-17",
+  firstMembershipEligibleWeekKey = null,
+  includeHistory = true,
+  actorId = "admin-one",
+  overrideApplied = false,
+  overrideReason = "",
+  overriddenPlayerIds = [],
+}) {
+  const firstEligibleWeekKey = firstMembershipEligibleWeekKey ?? eligibleWeekKey;
+  const swapId = `${leagueId}_${firstHouse.id}_${secondHouse.id}_${weekKey}`;
+  const auditId = `${swapId}-audit`;
+  const batch = writeBatch(firestore);
+
+  batch.set(doc(firestore, "auditEvents", auditId), auditData({
+    action: overrideApplied ? "house.roster-rest-overridden" : "house.roster-swapped",
+    entityId: leagueId,
+    summary: overrideApplied ? "Corrected a v4 House movement rest restriction" : "Completed a v4 House roster swap with a post-move rest window",
+    actorId,
+  }));
+  for (const house of [firstHouse, secondHouse]) {
+    batch.set(doc(firestore, "leagueRosterLocks", `${leagueId}_${house.id}_${weekKey}`), {
+      leagueId,
+      houseId: house.id,
+      weekKey,
+      swapId,
+      createdAt: serverTimestamp(),
+      createdBy: actorId,
+    });
+  }
+  batch.set(doc(firestore, "leagueRosterSwaps", swapId), {
+    leagueId,
+    weekKey,
+    firstHouseId: firstHouse.id,
+    firstHouseName: firstHouse.data.name,
+    secondHouseId: secondHouse.id,
+    secondHouseName: secondHouse.data.name,
+    firstPlayerId: "player-one",
+    secondPlayerId: "player-two",
+    actorId,
+    createdAt: serverTimestamp(),
+    lastAuditId: auditId,
+    rulesVersion: "season-houses-v4",
+    lockThroughWeekKey,
+    eligibleWeekKey,
+    overrideApplied,
+    overrideReason,
+    overriddenPlayerIds,
+  });
+  batch.update(doc(firestore, "leagueMemberships", `${leagueId}_player-one`), {
+    currentHouseId: secondHouse.id,
+    currentHouseName: secondHouse.data.name,
+    currentHouseEmblemId: secondHouse.data.emblemId,
+    currentHouseAccentId: secondHouse.data.accentId,
+    houseAssignedAt: serverTimestamp(),
+    houseAssignmentMethod: "weekly-swap",
+    lastRosterSwapId: swapId,
+    lastRosterWeekKey: weekKey,
+    rosterLockThroughWeekKey: lockThroughWeekKey,
+    rosterEligibleWeekKey: firstEligibleWeekKey,
+    updatedAt: serverTimestamp(),
+  });
+  batch.update(doc(firestore, "leagueMemberships", `${leagueId}_player-two`), {
+    currentHouseId: firstHouse.id,
+    currentHouseName: firstHouse.data.name,
+    currentHouseEmblemId: firstHouse.data.emblemId,
+    currentHouseAccentId: firstHouse.data.accentId,
+    houseAssignedAt: serverTimestamp(),
+    houseAssignmentMethod: "weekly-swap",
+    lastRosterSwapId: swapId,
+    lastRosterWeekKey: weekKey,
+    rosterLockThroughWeekKey: lockThroughWeekKey,
+    rosterEligibleWeekKey: eligibleWeekKey,
+    updatedAt: serverTimestamp(),
+  });
+  if (includeHistory) {
+    batch.set(doc(firestore, "leagueHouseAssignmentHistory", `${swapId}_player-one`), {
+      leagueId,
+      userId: "player-one",
+      displayName: "player one",
+      weekKey,
+      fromHouseId: firstHouse.id,
+      fromHouseName: firstHouse.data.name,
+      toHouseId: secondHouse.id,
+      toHouseName: secondHouse.data.name,
+      method: "weekly-swap",
+      sourceId: swapId,
+      overrideApplied: overriddenPlayerIds.includes("player-one"),
+      overrideReason: overriddenPlayerIds.includes("player-one") ? overrideReason : "",
+      createdAt: serverTimestamp(),
+      createdBy: actorId,
+      lastAuditId: auditId,
+    });
+    batch.set(doc(firestore, "leagueHouseAssignmentHistory", `${swapId}_player-two`), {
+      leagueId,
+      userId: "player-two",
+      displayName: "player two",
+      weekKey,
+      fromHouseId: secondHouse.id,
+      fromHouseName: secondHouse.data.name,
+      toHouseId: firstHouse.id,
+      toHouseName: firstHouse.data.name,
+      method: "weekly-swap",
+      sourceId: swapId,
+      overrideApplied: overriddenPlayerIds.includes("player-two"),
+      overrideReason: overriddenPlayerIds.includes("player-two") ? overrideReason : "",
+      createdAt: serverTimestamp(),
+      createdBy: actorId,
+      lastAuditId: auditId,
+    });
+  }
+  batch.set(doc(firestore, "playerNotifications", `${leagueId}-swap-one`), notificationData({
+    userId: "player-one",
+    type: "roster-swap",
+    leagueId,
+    houseId: secondHouse.id,
+  }));
+  batch.set(doc(firestore, "playerNotifications", `${leagueId}-swap-two`), notificationData({
+    userId: "player-two",
+    type: "roster-swap",
+    leagueId,
+    houseId: firstHouse.id,
+  }));
+
+  return batch;
+}
+
+test("v4 roster swaps persist the one-week rest window and reject membership values that disagree with the swap", async () => {
+  const goodLeagueId = "season-v4-rest-good";
+  const good = await seedV4RestLockSwapSeason(goodLeagueId);
+  const firestore = adminContext().firestore();
+  await assertSucceeds(v4RestLockSwapBatch({
+    firestore,
+    leagueId: goodLeagueId,
+    ...good,
+  }).commit());
+
+  const firstAfter = await getDoc(doc(firestore, "leagueMemberships", `${goodLeagueId}_player-one`));
+  assert.equal(firstAfter.data().rosterLockThroughWeekKey, "2026-08-10");
+  assert.equal(firstAfter.data().rosterEligibleWeekKey, "2026-08-17");
+
+  const badLeagueId = "season-v4-rest-bad";
+  const bad = await seedV4RestLockSwapSeason(badLeagueId);
+  await assertFails(v4RestLockSwapBatch({
+    firestore,
+    leagueId: badLeagueId,
+    ...bad,
+    firstMembershipEligibleWeekKey: "2026-08-24",
+  }).commit());
+});
+
+test("v4 roster swaps require readable immutable assignment history for both players", async () => {
+  const leagueId = "season-v4-history";
+  const seeded = await seedV4RestLockSwapSeason(leagueId);
+  const firestore = adminContext().firestore();
+  const weekKey = "2026-08-03";
+  const swapId = `${leagueId}_${seeded.firstHouse.id}_${seeded.secondHouse.id}_${weekKey}`;
+  const firstHistoryId = `${swapId}_player-one`;
+  const secondHistoryId = `${swapId}_player-two`;
+
+  await assertSucceeds(v4RestLockSwapBatch({
+    firestore,
+    leagueId,
+    ...seeded,
+    weekKey,
+  }).commit());
+
+  const firstHistory = await getDoc(doc(playerContext("player-one").firestore(), "leagueHouseAssignmentHistory", firstHistoryId));
+  const secondHistory = await getDoc(doc(playerContext("player-two").firestore(), "leagueHouseAssignmentHistory", secondHistoryId));
+  const memberHistoryQuery = await assertSucceeds(getDocs(query(
+    collection(playerContext("player-one").firestore(), "leagueHouseAssignmentHistory"),
+    where("leagueId", "==", leagueId),
+  )));
+  assert.equal(memberHistoryQuery.size, 2);
+  assert.equal(firstHistory.data().fromHouseId, seeded.firstHouse.id);
+  assert.equal(firstHistory.data().toHouseId, seeded.secondHouse.id);
+  assert.equal(secondHistory.data().fromHouseId, seeded.secondHouse.id);
+  assert.equal(secondHistory.data().toHouseId, seeded.firstHouse.id);
+  await assertFails(updateDoc(doc(firestore, "leagueHouseAssignmentHistory", firstHistoryId), {
+    toHouseName: "Rewritten House",
+  }));
+  await assertFails(deleteDoc(doc(firestore, "leagueHouseAssignmentHistory", secondHistoryId)));
+
+  const missingLeagueId = "season-v4-history-required";
+  const missingSeed = await seedV4RestLockSwapSeason(missingLeagueId);
+  await assertFails(v4RestLockSwapBatch({
+    firestore,
+    leagueId: missingLeagueId,
+    ...missingSeed,
+    includeHistory: false,
+  }).commit());
+});
+
+test("v4 roster swaps enforce the persisted rest week and reopen eligibility afterward", async () => {
+  const firestore = adminContext().firestore();
+
+  const firstBlockedLeagueId = "season-v4-rest-first-blocked";
+  const firstBlocked = await seedV4RestLockSwapSeason(firstBlockedLeagueId, {
+    firstLockThroughWeekKey: "2026-08-10",
+    firstEligibleWeekKey: "2026-08-17",
+  });
+  await assertFails(v4RestLockSwapBatch({
+    firestore,
+    leagueId: firstBlockedLeagueId,
+    ...firstBlocked,
+    weekKey: "2026-08-10",
+    lockThroughWeekKey: "2026-08-17",
+    eligibleWeekKey: "2026-08-24",
+  }).commit());
+
+  const secondBlockedLeagueId = "season-v4-rest-second-blocked";
+  const secondBlocked = await seedV4RestLockSwapSeason(secondBlockedLeagueId, {
+    secondLockThroughWeekKey: "2026-08-10",
+    secondEligibleWeekKey: "2026-08-17",
+  });
+  await assertFails(v4RestLockSwapBatch({
+    firestore,
+    leagueId: secondBlockedLeagueId,
+    ...secondBlocked,
+    weekKey: "2026-08-10",
+    lockThroughWeekKey: "2026-08-17",
+    eligibleWeekKey: "2026-08-24",
+  }).commit());
+
+  const eligibleLeagueId = "season-v4-rest-reopened";
+  const eligible = await seedV4RestLockSwapSeason(eligibleLeagueId, {
+    firstLockThroughWeekKey: "2026-08-10",
+    firstEligibleWeekKey: "2026-08-17",
+    secondLockThroughWeekKey: "2026-08-10",
+    secondEligibleWeekKey: "2026-08-17",
+  });
+  await assertSucceeds(v4RestLockSwapBatch({
+    firestore,
+    leagueId: eligibleLeagueId,
+    ...eligible,
+    weekKey: "2026-08-17",
+    lockThroughWeekKey: "2026-08-24",
+    eligibleWeekKey: "2026-08-31",
+  }).commit());
+
+  const firstAfter = await getDoc(doc(firestore, "leagueMemberships", `${eligibleLeagueId}_player-one`));
+  const secondAfter = await getDoc(doc(firestore, "leagueMemberships", `${eligibleLeagueId}_player-two`));
+  assert.equal(firstAfter.data().rosterLockThroughWeekKey, "2026-08-24");
+  assert.equal(firstAfter.data().rosterEligibleWeekKey, "2026-08-31");
+  assert.equal(secondAfter.data().rosterLockThroughWeekKey, "2026-08-24");
+  assert.equal(secondAfter.data().rosterEligibleWeekKey, "2026-08-31");
+});
+
+test("only a Platform Administrator can override an active post-move rest with a factual reason", async () => {
+  const firestore = adminContext().firestore();
+  const reason = "Correcting a documented administrator assignment error.";
+
+  const allowedLeagueId = "season-v4-rest-override";
+  const allowed = await seedV4RestLockSwapSeason(allowedLeagueId, {
+    firstLockThroughWeekKey: "2026-08-10",
+    firstEligibleWeekKey: "2026-08-17",
+  });
+  await assertSucceeds(v4RestLockSwapBatch({
+    firestore,
+    leagueId: allowedLeagueId,
+    ...allowed,
+    weekKey: "2026-08-10",
+    lockThroughWeekKey: "2026-08-17",
+    eligibleWeekKey: "2026-08-24",
+    overrideApplied: true,
+    overrideReason: reason,
+    overriddenPlayerIds: ["player-one"],
+  }).commit());
+
+  const swapId = `${allowedLeagueId}_${allowed.firstHouse.id}_${allowed.secondHouse.id}_2026-08-10`;
+  const swap = await getDoc(doc(firestore, "leagueRosterSwaps", swapId));
+  const firstHistory = await getDoc(doc(firestore, "leagueHouseAssignmentHistory", `${swapId}_player-one`));
+  const secondHistory = await getDoc(doc(firestore, "leagueHouseAssignmentHistory", `${swapId}_player-two`));
+  assert.equal(swap.data().overrideApplied, true);
+  assert.deepEqual(swap.data().overriddenPlayerIds, ["player-one"]);
+  assert.equal(firstHistory.data().overrideApplied, true);
+  assert.equal(firstHistory.data().overrideReason, reason);
+  assert.equal(secondHistory.data().overrideApplied, false);
+  assert.equal(secondHistory.data().overrideReason, "");
+
+  const shortReasonLeagueId = "season-v4-rest-override-short";
+  const shortReason = await seedV4RestLockSwapSeason(shortReasonLeagueId, {
+    firstLockThroughWeekKey: "2026-08-10",
+    firstEligibleWeekKey: "2026-08-17",
+  });
+  await assertFails(v4RestLockSwapBatch({
+    firestore,
+    leagueId: shortReasonLeagueId,
+    ...shortReason,
+    weekKey: "2026-08-10",
+    lockThroughWeekKey: "2026-08-17",
+    eligibleWeekKey: "2026-08-24",
+    overrideApplied: true,
+    overrideReason: "Too short",
+    overriddenPlayerIds: ["player-one"],
+  }).commit());
+
+  const houseLeaderLeagueId = "season-v4-rest-override-house-leader";
+  const houseLeaderSeed = await seedV4RestLockSwapSeason(houseLeaderLeagueId, {
+    firstLockThroughWeekKey: "2026-08-10",
+    firstEligibleWeekKey: "2026-08-17",
+  });
+  await assertFails(v4RestLockSwapBatch({
+    firestore: playerContext("player-three").firestore(),
+    leagueId: houseLeaderLeagueId,
+    ...houseLeaderSeed,
+    weekKey: "2026-08-10",
+    lockThroughWeekKey: "2026-08-17",
+    eligibleWeekKey: "2026-08-24",
+    actorId: "player-three",
+    overrideApplied: true,
+    overrideReason: reason,
+    overriddenPlayerIds: ["player-one"],
+  }).commit());
+
+  const seasonAdminLeagueId = "season-v4-rest-override-season-admin";
+  const seasonAdminSeed = await seedV4RestLockSwapSeason(seasonAdminLeagueId, {
+    firstLockThroughWeekKey: "2026-08-10",
+    firstEligibleWeekKey: "2026-08-17",
+  });
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const raw = context.firestore();
+    const leagueRef = doc(raw, "leagues", seasonAdminLeagueId);
+    const current = (await getDoc(leagueRef)).data();
+    await setDoc(leagueRef, { ...current, administratorIds: ["player-three"] });
+  });
+  await assertFails(v4RestLockSwapBatch({
+    firestore: playerContext("player-three").firestore(),
+    leagueId: seasonAdminLeagueId,
+    ...seasonAdminSeed,
+    weekKey: "2026-08-10",
+    lockThroughWeekKey: "2026-08-17",
+    eligibleWeekKey: "2026-08-24",
+    actorId: "player-three",
+    overrideApplied: true,
+    overrideReason: reason,
+    overriddenPlayerIds: ["player-one"],
+  }).commit());
+});
+
+test("Platform Administrator rest override cannot bypass same-week movement, House locks or leadership protection", async () => {
+  const firestore = adminContext().firestore();
+  const reason = "Correcting a documented administrator assignment error.";
+
+  const sameWeekLeagueId = "season-v4-override-same-week";
+  const sameWeek = await seedV4RestLockSwapSeason(sameWeekLeagueId, {
+    firstLockThroughWeekKey: "2026-08-17",
+    firstEligibleWeekKey: "2026-08-24",
+    firstLastRosterWeekKey: "2026-08-10",
+  });
+  await assertFails(v4RestLockSwapBatch({
+    firestore,
+    leagueId: sameWeekLeagueId,
+    ...sameWeek,
+    weekKey: "2026-08-10",
+    lockThroughWeekKey: "2026-08-17",
+    eligibleWeekKey: "2026-08-24",
+    overrideApplied: true,
+    overrideReason: reason,
+    overriddenPlayerIds: ["player-one"],
+  }).commit());
+
+  const lockedLeagueId = "season-v4-override-house-locked";
+  const locked = await seedV4RestLockSwapSeason(lockedLeagueId, {
+    firstLockThroughWeekKey: "2026-08-10",
+    firstEligibleWeekKey: "2026-08-17",
+  });
+  const weekKey = "2026-08-10";
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), "leagueRosterLocks", `${lockedLeagueId}_${locked.firstHouse.id}_${weekKey}`), {
+      leagueId: lockedLeagueId,
+      houseId: locked.firstHouse.id,
+      weekKey,
+      swapId: "previous-swap",
+      createdAt: Timestamp.now(),
+      createdBy: "admin-one",
+    });
+  });
+  await assertFails(v4RestLockSwapBatch({
+    firestore,
+    leagueId: lockedLeagueId,
+    ...locked,
+    weekKey,
+    lockThroughWeekKey: "2026-08-17",
+    eligibleWeekKey: "2026-08-24",
+    overrideApplied: true,
+    overrideReason: reason,
+    overriddenPlayerIds: ["player-one"],
+  }).commit());
+
+  const leaderLeagueId = "season-v4-override-leader";
+  const leader = await seedV4RestLockSwapSeason(leaderLeagueId, {
+    firstLockThroughWeekKey: "2026-08-10",
+    firstEligibleWeekKey: "2026-08-17",
+  });
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const raw = context.firestore();
+    const houseRef = doc(raw, "leagueHouses", leader.firstHouse.id);
+    const current = (await getDoc(houseRef)).data();
+    await setDoc(houseRef, { ...current, captainId: "player-one" });
+  });
+  await assertFails(v4RestLockSwapBatch({
+    firestore,
+    leagueId: leaderLeagueId,
+    ...leader,
+    weekKey: "2026-08-10",
+    lockThroughWeekKey: "2026-08-17",
+    eligibleWeekKey: "2026-08-24",
+    overrideApplied: true,
+    overrideReason: reason,
+    overriddenPlayerIds: ["player-one"],
+  }).commit());
+});
+
+test("season composition responses stay private to the owner and authorised administrators", async () => {
+  const leagueId = "season-v4-composition-private";
+  await seedV4RestLockSwapSeason(leagueId);
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const raw = context.firestore();
+    const leagueRef = doc(raw, "leagues", leagueId);
+    const current = (await getDoc(leagueRef)).data();
+    await setDoc(leagueRef, { ...current, administratorIds: ["player-three"] });
+  });
+
+  const profileId = `${leagueId}_player-one`;
+  const owner = playerContext("player-one").firestore();
+  await assertSucceeds(setDoc(doc(owner, "leagueCompositionProfiles", profileId), {
+    leagueId,
+    userId: "player-one",
+    value: "woman",
+    profileVersion: "season-composition-v1",
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  }));
+
+  await assertSucceeds(getDoc(doc(owner, "leagueCompositionProfiles", profileId)));
+  await assertFails(getDoc(doc(playerContext("player-two").firestore(), "leagueCompositionProfiles", profileId)));
+  await assertFails(getDoc(doc(playerContext("player-four").firestore(), "leagueCompositionProfiles", profileId)));
+  await assertSucceeds(getDoc(doc(adminContext().firestore(), "leagueCompositionProfiles", profileId)));
+  await assertSucceeds(getDoc(doc(playerContext("player-three").firestore(), "leagueCompositionProfiles", profileId)));
+  const scopedAdminQuery = await assertSucceeds(getDocs(query(
+    collection(playerContext("player-three").firestore(), "leagueCompositionProfiles"),
+    where("leagueId", "==", leagueId),
+  )));
+  assert.equal(scopedAdminQuery.size, 1);
+  await assertFails(getDocs(query(
+    collection(playerContext("player-two").firestore(), "leagueCompositionProfiles"),
+    where("leagueId", "==", leagueId),
+  )));
+
+  await assertSucceeds(updateDoc(doc(owner, "leagueCompositionProfiles", profileId), {
+    value: "prefer-not-to-say",
+    updatedAt: serverTimestamp(),
+  }));
+  await assertFails(updateDoc(doc(adminContext().firestore(), "leagueCompositionProfiles", profileId), {
+    value: "man",
+    updatedAt: serverTimestamp(),
+  }));
+  await assertSucceeds(deleteDoc(doc(owner, "leagueCompositionProfiles", profileId)));
+});
+
+test("composition responses cannot be forged outside the v4 season membership contract", async () => {
+  const leagueId = "season-v4-composition-guard";
+  await seedV4RestLockSwapSeason(leagueId);
+  const owner = playerContext("player-one").firestore();
+
+  await assertFails(setDoc(doc(owner, "leagueCompositionProfiles", `${leagueId}_player-two`), {
+    leagueId,
+    userId: "player-two",
+    value: "man",
+    profileVersion: "season-composition-v1",
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  }));
+  await assertFails(setDoc(doc(owner, "leagueCompositionProfiles", `${leagueId}_player-one`), {
+    leagueId,
+    userId: "player-one",
+    value: "unsupported",
+    profileVersion: "season-composition-v1",
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  }));
+
+  const unregistered = playerContext("player-four").firestore();
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await deleteDoc(doc(context.firestore(), "leagueMemberships", `${leagueId}_player-four`));
+  });
+  await assertFails(setDoc(doc(unregistered, "leagueCompositionProfiles", `${leagueId}_player-four`), {
+    leagueId,
+    userId: "player-four",
+    value: "non-binary-or-another",
+    profileVersion: "season-composition-v1",
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  }));
+
+  const v3LeagueId = "season-v3-composition-blocked";
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const raw = context.firestore();
+    await setDoc(doc(raw, "leagues", v3LeagueId), seasonDataV3({ status: "active", participantCount: 1, chaosStatus: "activated", active: true }));
+    await setDoc(doc(raw, "leagueMemberships", `${v3LeagueId}_player-one`), membershipData({ leagueId: v3LeagueId, status: "active" }));
+  });
+  await assertFails(setDoc(doc(owner, "leagueCompositionProfiles", `${v3LeagueId}_player-one`), {
+    leagueId: v3LeagueId,
+    userId: "player-one",
+    value: "woman",
+    profileVersion: "season-composition-v1",
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  }));
+});
+
+
+test("weekly House balance publishes suppressed member summaries while exact counts stay administrator-only", async () => {
+  const leagueId = "season-v4-balance-private";
+  const { firstHouse, secondHouse } = await seedV4RestLockSwapSeason(leagueId);
+  const firestore = adminContext().firestore();
+  const resultId = `${leagueId}_2026-08-03`;
+  const auditId = `${resultId}-audit`;
+  const batch = writeBatch(firestore);
+
+  batch.set(doc(firestore, "auditEvents", auditId), auditData({
+    action: "house.balance-calculated",
+    entityId: leagueId,
+    summary: "Calculated privacy-safe weekly House balance",
+  }));
+  batch.set(doc(firestore, "leagueHouseBalancePrivateWeeks", resultId), {
+    leagueId,
+    weekKey: "2026-08-03",
+    rulesVersion: "season-houses-v4",
+    calculationVersion: "house-balance-v1",
+    profileVersion: "season-composition-v1",
+    scoringEnabled: false,
+    minimumDisclosureCount: 3,
+    houseCount: 2,
+    activeMemberCount: 4,
+    responseCount: 4,
+    disclosedCount: 4,
+    undisclosedCount: 0,
+    preferNotToSayCount: 0,
+    rosterSizeDifference: 0,
+    averageDeviationPercentagePoints: null,
+    maximumDeviationPercentagePoints: null,
+    balanceStatus: "insufficient-data",
+    seasonCompositionCounts: { woman: 2, man: 2, "non-binary-or-another": 0 },
+    seasonCompositionDistribution: { woman: 50, man: 50, "non-binary-or-another": 0 },
+    publicResultId: resultId,
+    createdAt: serverTimestamp(),
+    createdBy: "admin-one",
+    lastAuditId: auditId,
+  });
+  batch.set(doc(firestore, "leagueHouseBalanceWeeks", resultId), {
+    leagueId,
+    weekKey: "2026-08-03",
+    rulesVersion: "season-houses-v4",
+    calculationVersion: "house-balance-v1",
+    scoringEnabled: false,
+    minimumDisclosureCount: 3,
+    houseCount: 2,
+    rosterSizeDifference: 0,
+    averageDeviationPercentagePoints: null,
+    maximumDeviationPercentagePoints: null,
+    balanceStatus: "insufficient-data",
+    seasonDistributionVisible: true,
+    seasonCompositionDistribution: { woman: 50, man: 50, "non-binary-or-another": 0 },
+    privateResultId: resultId,
+    createdAt: serverTimestamp(),
+  });
+
+  [firstHouse, secondHouse].forEach((house, index) => {
+    const rowId = `${resultId}_${house.id}`;
+    const counts = index === 0
+      ? { woman: 2, man: 0, "non-binary-or-another": 0 }
+      : { woman: 0, man: 2, "non-binary-or-another": 0 };
+    const distribution = index === 0
+      ? { woman: 100, man: 0, "non-binary-or-another": 0 }
+      : { woman: 0, man: 100, "non-binary-or-another": 0 };
+    batch.set(doc(firestore, "leagueHouseBalancePrivateHouseWeeks", rowId), {
+      leagueId,
+      weekKey: "2026-08-03",
+      resultId,
+      houseId: house.id,
+      houseName: house.data.name,
+      houseEmblemId: house.data.emblemId,
+      rosterSize: 2,
+      responseCount: 2,
+      disclosedCount: 2,
+      undisclosedCount: 0,
+      preferNotToSayCount: 0,
+      compositionCounts: counts,
+      compositionDistribution: distribution,
+      deviationPercentagePoints: 50,
+      createdAt: serverTimestamp(),
+      createdBy: "admin-one",
+      lastAuditId: auditId,
+    });
+    batch.set(doc(firestore, "leagueHouseBalanceHouseWeeks", rowId), {
+      leagueId,
+      weekKey: "2026-08-03",
+      resultId,
+      houseId: house.id,
+      houseName: house.data.name,
+      houseEmblemId: house.data.emblemId,
+      rosterSize: 2,
+      compositionVisible: false,
+      compositionDistribution: {},
+      deviationPercentagePoints: null,
+      createdAt: serverTimestamp(),
+    });
+  });
+
+  await assertSucceeds(batch.commit());
+  const member = playerContext("player-one").firestore();
+  await assertSucceeds(getDoc(doc(member, "leagueHouseBalanceWeeks", resultId)));
+  await assertSucceeds(getDoc(doc(member, "leagueHouseBalanceHouseWeeks", `${resultId}_${firstHouse.id}`)));
+  await assertFails(getDoc(doc(member, "leagueHouseBalancePrivateWeeks", resultId)));
+  await assertFails(getDoc(doc(member, "leagueHouseBalancePrivateHouseWeeks", `${resultId}_${firstHouse.id}`)));
+  await assertSucceeds(getDoc(doc(firestore, "leagueHouseBalancePrivateWeeks", resultId)));
+  await assertFails(updateDoc(doc(firestore, "leagueHouseBalanceWeeks", resultId), { balanceStatus: "balanced" }));
+
+  const leakResultId = `${leagueId}_2026-08-10`;
+  const leakAuditId = `${leakResultId}-audit`;
+  const leakRowId = `${leakResultId}_${firstHouse.id}`;
+  const leakBatch = writeBatch(firestore);
+  leakBatch.set(doc(firestore, "auditEvents", leakAuditId), auditData({
+    action: "house.balance-calculated",
+    entityId: leagueId,
+    summary: "Attempted unsafe weekly House balance disclosure",
+  }));
+  leakBatch.set(doc(firestore, "leagueHouseBalancePrivateWeeks", leakResultId), {
+    leagueId,
+    weekKey: "2026-08-10",
+    rulesVersion: "season-houses-v4",
+    calculationVersion: "house-balance-v1",
+    profileVersion: "season-composition-v1",
+    scoringEnabled: false,
+    minimumDisclosureCount: 3,
+    houseCount: 2,
+    activeMemberCount: 4,
+    responseCount: 4,
+    disclosedCount: 4,
+    undisclosedCount: 0,
+    preferNotToSayCount: 0,
+    rosterSizeDifference: 0,
+    averageDeviationPercentagePoints: null,
+    maximumDeviationPercentagePoints: null,
+    balanceStatus: "insufficient-data",
+    seasonCompositionCounts: { woman: 2, man: 2, "non-binary-or-another": 0 },
+    seasonCompositionDistribution: { woman: 50, man: 50, "non-binary-or-another": 0 },
+    publicResultId: leakResultId,
+    createdAt: serverTimestamp(),
+    createdBy: "admin-one",
+    lastAuditId: leakAuditId,
+  });
+  leakBatch.set(doc(firestore, "leagueHouseBalancePrivateHouseWeeks", leakRowId), {
+    leagueId,
+    weekKey: "2026-08-10",
+    resultId: leakResultId,
+    houseId: firstHouse.id,
+    houseName: firstHouse.data.name,
+    houseEmblemId: firstHouse.data.emblemId,
+    rosterSize: 2,
+    responseCount: 2,
+    disclosedCount: 2,
+    undisclosedCount: 0,
+    preferNotToSayCount: 0,
+    compositionCounts: { woman: 2, man: 0, "non-binary-or-another": 0 },
+    compositionDistribution: { woman: 100, man: 0, "non-binary-or-another": 0 },
+    deviationPercentagePoints: 50,
+    createdAt: serverTimestamp(),
+    createdBy: "admin-one",
+    lastAuditId: leakAuditId,
+  });
+  leakBatch.set(doc(firestore, "leagueHouseBalanceHouseWeeks", leakRowId), {
+    leagueId,
+    weekKey: "2026-08-10",
+    resultId: leakResultId,
+    houseId: firstHouse.id,
+    houseName: firstHouse.data.name,
+    houseEmblemId: firstHouse.data.emblemId,
+    rosterSize: 2,
+    compositionVisible: true,
+    compositionDistribution: { woman: 100, man: 0, "non-binary-or-another": 0 },
+    deviationPercentagePoints: 50,
+    createdAt: serverTimestamp(),
+  });
+  await assertFails(leakBatch.commit());
+});
+
+test("v4 weekly House balance supports eight Houses in the real immutable snapshot batch", async () => {
+  const leagueId = "season-v4-balance-scale";
+  const houses = Array.from({ length: 8 }, (_, index) => houseData({
+    leagueId,
+    id: `balance-house-${index + 1}`,
+    name: `Balance House ${index + 1}`,
+    emblemId: `balance-emblem-${index + 1}`,
+    accentId: `balance-accent-${index + 1}`,
+  }));
+  const league = seasonDataV4({ status: "active", participantCount: 24, active: true });
+  league.houseCount = 8;
+
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", leagueId), league);
+    await setDoc(doc(firestore, "leagueMemberships", `${leagueId}_player-one`), {
+      ...membershipData({ leagueId, status: "active", house: houses[0] }),
+      rosterLockThroughWeekKey: "",
+      rosterEligibleWeekKey: "",
+    });
+    for (const house of houses) await setDoc(doc(firestore, "leagueHouses", house.id), house.data);
+  });
+
+  const firestore = adminContext().firestore();
+  const resultId = `${leagueId}_2026-08-03`;
+  const auditId = `${resultId}-audit`;
+  const batch = writeBatch(firestore);
+  batch.set(doc(firestore, "auditEvents", auditId), auditData({
+    action: "house.balance-calculated",
+    entityId: leagueId,
+    summary: "Calculated eight-House weekly balance snapshot",
+  }));
+  batch.set(doc(firestore, "leagueHouseBalancePrivateWeeks", resultId), {
+    leagueId,
+    weekKey: "2026-08-03",
+    rulesVersion: "season-houses-v4",
+    calculationVersion: "house-balance-v1",
+    profileVersion: "season-composition-v1",
+    scoringEnabled: false,
+    minimumDisclosureCount: 3,
+    houseCount: 8,
+    activeMemberCount: 24,
+    responseCount: 24,
+    disclosedCount: 24,
+    undisclosedCount: 0,
+    preferNotToSayCount: 0,
+    rosterSizeDifference: 0,
+    averageDeviationPercentagePoints: 0,
+    maximumDeviationPercentagePoints: 0,
+    balanceStatus: "balanced",
+    seasonCompositionCounts: { woman: 16, man: 8, "non-binary-or-another": 0 },
+    seasonCompositionDistribution: { woman: 66.7, man: 33.3, "non-binary-or-another": 0 },
+    publicResultId: resultId,
+    createdAt: serverTimestamp(),
+    createdBy: "admin-one",
+    lastAuditId: auditId,
+  });
+  batch.set(doc(firestore, "leagueHouseBalanceWeeks", resultId), {
+    leagueId,
+    weekKey: "2026-08-03",
+    rulesVersion: "season-houses-v4",
+    calculationVersion: "house-balance-v1",
+    scoringEnabled: false,
+    minimumDisclosureCount: 3,
+    houseCount: 8,
+    rosterSizeDifference: 0,
+    averageDeviationPercentagePoints: 0,
+    maximumDeviationPercentagePoints: 0,
+    balanceStatus: "balanced",
+    seasonDistributionVisible: true,
+    seasonCompositionDistribution: { woman: 66.7, man: 33.3, "non-binary-or-another": 0 },
+    privateResultId: resultId,
+    createdAt: serverTimestamp(),
+  });
+
+  houses.forEach((house) => {
+    const rowId = `${resultId}_${house.id}`;
+    batch.set(doc(firestore, "leagueHouseBalancePrivateHouseWeeks", rowId), {
+      leagueId,
+      weekKey: "2026-08-03",
+      resultId,
+      houseId: house.id,
+      houseName: house.data.name,
+      houseEmblemId: house.data.emblemId,
+      rosterSize: 3,
+      responseCount: 3,
+      disclosedCount: 3,
+      undisclosedCount: 0,
+      preferNotToSayCount: 0,
+      compositionCounts: { woman: 2, man: 1, "non-binary-or-another": 0 },
+      compositionDistribution: { woman: 66.7, man: 33.3, "non-binary-or-another": 0 },
+      deviationPercentagePoints: 0,
+      createdAt: serverTimestamp(),
+      createdBy: "admin-one",
+      lastAuditId: auditId,
+    });
+    batch.set(doc(firestore, "leagueHouseBalanceHouseWeeks", rowId), {
+      leagueId,
+      weekKey: "2026-08-03",
+      resultId,
+      houseId: house.id,
+      houseName: house.data.name,
+      houseEmblemId: house.data.emblemId,
+      rosterSize: 3,
+      compositionVisible: true,
+      compositionDistribution: { woman: 66.7, man: 33.3, "non-binary-or-another": 0 },
+      deviationPercentagePoints: 0,
+      createdAt: serverTimestamp(),
+    });
+  });
+
+  await assertSucceeds(batch.commit());
+  await assertSucceeds(getDoc(doc(playerContext("player-one").firestore(), "leagueHouseBalanceWeeks", resultId)));
+  await assertSucceeds(getDoc(doc(playerContext("player-one").firestore(), "leagueHouseBalanceHouseWeeks", `${resultId}_${houses[7].id}`)));
+  await assertFails(getDoc(doc(playerContext("player-one").firestore(), "leagueHouseBalancePrivateWeeks", resultId)));
 });
 
 test("Pocket activities are private, zero-point reserves during the official window", async () => {
@@ -1695,6 +2907,46 @@ test("Platform Administrators acknowledge deletion requests with an audit record
   );
 });
 
+test("trusted deletion acknowledgement remains audit-bound", async () => {
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), "accountDeletionRequests", "player-two"), {
+      userId: "player-two",
+      email: "player-two@example.com",
+      displayName: "Second Player",
+      status: "requested",
+      reasonCode: "privacy",
+      acknowledgementVersion: 2,
+      requestedAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
+      cancelledAt: null,
+      acknowledgedAt: null,
+      acknowledgedBy: "",
+      lastAuditId: "",
+      deletionPolicyVersion: "trusted-deletion-v1",
+      waitingPeriodDays: 7,
+      processingAt: null,
+      processingBy: "",
+      completedAt: null,
+      completedBy: "",
+      executionId: "",
+      anonymizedPlayerId: "",
+      anonymizedDisplayName: "",
+      failureAt: null,
+      failureMessage: "",
+    });
+  });
+
+  await assertFails(
+    updateDoc(doc(adminContext().firestore(), "accountDeletionRequests", "player-two"), {
+      status: "acknowledged",
+      acknowledgedAt: serverTimestamp(),
+      acknowledgedBy: "admin-one",
+      updatedAt: serverTimestamp(),
+      lastAuditId: "missing-account-deletion-audit",
+    }),
+  );
+});
+
 test("trusted deletion execution records are Platform Administrator-only and client-immutable", async () => {
   await testEnvironment.withSecurityRulesDisabled(async (context) => {
     const firestore = context.firestore();
@@ -1779,6 +3031,14 @@ function seasonDataV3(options = {}) {
   };
 }
 
+function seasonDataV4(options = {}) {
+  return {
+    ...seasonDataV3(options),
+    rulesVersion: "season-houses-v4",
+    ruleset: currentSeasonRulesetV4(),
+  };
+}
+
 function runningEntryData() {
   return {
     distance: 5,
@@ -1853,7 +3113,6 @@ function evidenceClaimData({
 
 async function seedActiveEvidenceSeason({
   claim,
-  reviewerCategories = [],
   includeSecondMember = true,
 } = {}) {
   const leagueId = claim?.leagueId ?? "season-v2";
@@ -1876,21 +3135,6 @@ async function seedActiveEvidenceSeason({
         doc(firestore, "leagueMemberships", `${leagueId}_player-two`),
         membershipData({ leagueId, userId: "player-two", status: "active", house }),
       );
-    }
-    if (reviewerCategories.length > 0) {
-      await setDoc(doc(firestore, "leagueEvidenceReviewers", `${leagueId}_player-two`), {
-        leagueId,
-        userId: "player-two",
-        displayName: "player two",
-        avatarId: "legacy-trophy",
-        categories: reviewerCategories,
-        status: "active",
-        createdAt: Timestamp.now(),
-        createdBy: "admin-one",
-        updatedAt: Timestamp.now(),
-        updatedBy: "admin-one",
-        lastAuditId: "seed-audit",
-      });
     }
     if (claim) {
       await setDoc(doc(firestore, "seasonEvidenceClaims", claim.id), claim.data);
@@ -2082,91 +3326,117 @@ test("v2 Steps cannot enter competitive standings before proof is verified", asy
   await assertFails(batch.commit());
 });
 
-test("season administrators assign multiple proof categories without rewriting reviewer history", async () => {
+test("retired evidence reviewer assignments cannot be changed by clients", async () => {
   const leagueId = "season-v2";
   await seedActiveEvidenceSeason();
-  const firestore = adminContext().firestore();
   const assignmentId = `${leagueId}_player-two`;
-  const createBatch = writeBatch(firestore);
-  createBatch.set(doc(firestore, "auditEvents", "reviewer-create-audit"), auditData({
-    action: "evidence.reviewer.assigned",
-    entityId: leagueId,
-    summary: "Assigned evidence reviewer",
-  }));
-  createBatch.set(doc(firestore, "leagueEvidenceReviewers", assignmentId), {
+  const assignment = {
     leagueId,
     userId: "player-two",
     displayName: "player two",
     avatarId: "legacy-trophy",
-    categories: ["running", "steps"],
+    categories: ["running"],
     status: "active",
     createdAt: serverTimestamp(),
     createdBy: "admin-one",
     updatedAt: serverTimestamp(),
     updatedBy: "admin-one",
-    lastAuditId: "reviewer-create-audit",
-  });
-  await assertSucceeds(createBatch.commit());
+    lastAuditId: "legacy-reviewer-audit",
+  };
 
-  const created = await getDoc(doc(firestore, "leagueEvidenceReviewers", assignmentId));
-  const updateBatch = writeBatch(firestore);
-  updateBatch.set(doc(firestore, "auditEvents", "reviewer-update-audit"), auditData({
-    action: "evidence.reviewer.assigned",
-    entityId: leagueId,
-    summary: "Updated evidence reviewer",
-  }));
-  updateBatch.update(doc(firestore, "leagueEvidenceReviewers", assignmentId), {
-    categories: ["running", "steps", "water", "fruit"],
-    status: "active",
-    updatedAt: serverTimestamp(),
-    updatedBy: "admin-one",
-    lastAuditId: "reviewer-update-audit",
-  });
-  await assertSucceeds(updateBatch.commit());
-  const updated = await getDoc(doc(firestore, "leagueEvidenceReviewers", assignmentId));
-  assert.deepEqual(updated.data().createdAt, created.data().createdAt);
-  assert.equal(updated.data().createdBy, "admin-one");
+  await assertFails(setDoc(
+    doc(adminContext().firestore(), "leagueEvidenceReviewers", assignmentId),
+    assignment,
+  ));
+  await assertFails(setDoc(
+    doc(playerContext("player-two").firestore(), "leagueEvidenceReviewers", assignmentId),
+    assignment,
+  ));
 });
 
-test("assigned category reviewers release proof-dependent points atomically", async () => {
+test("evidence deadline notifications remain bound to the claim owner", async () => {
   const leagueId = "season-v2";
   const house = houseData({ leagueId });
-  const base = evidenceClaimData({ leagueId, house });
-  const claim = { id: `${leagueId}_run-entry`, data: base };
-  await seedActiveEvidenceSeason({ claim, reviewerCategories: ["running"] });
+  const claim = {
+    id: `${leagueId}_deadline-owner`,
+    data: evidenceClaimData({
+      leagueId,
+      entryId: "deadline-owner",
+      challengeDate: Timestamp.now(),
+      deadlineAt: Timestamp.fromMillis(Date.now() - 60 * 60 * 1000),
+      house,
+    }),
+  };
+  await seedActiveEvidenceSeason({ claim });
 
-  await assertSucceeds(commitEvidenceVerification({
-    firestore: playerContext("player-two").firestore(),
-    actorId: "player-two",
-    claim,
-    decisionId: "decision-reviewer",
-    contributionId: `${leagueId}_${claim.id}_decision-reviewer`,
+  await assertFails(setDoc(doc(
+    playerContext("player-two").firestore(),
+    "playerNotifications",
+    `evidence-deadline_${claim.id}`,
+  ), {
+    userId: "player-one",
+    type: "evidence-deadline-missed",
+    title: "Proof deadline missed",
+    message: "Your proof deadline has passed.",
+    leagueId,
+    houseId: house.id,
+    evidenceClaimId: claim.id,
+    actionPath: "/activity?tab=journal",
+    createdAt: serverTimestamp(),
+    readAt: null,
+    readBy: "",
   }));
-  await assertSucceeds(getDoc(doc(
-    playerContext().firestore(),
-    "seasonEvidenceClaims",
-    claim.id,
-  )));
 });
 
-test("unassigned reviewers cannot decide another evidence category", async () => {
+
+test("only Platform Administrators release proof-dependent points atomically", async () => {
   const leagueId = "season-v2";
   const house = houseData({ leagueId });
   const claim = {
     id: `${leagueId}_run-entry`,
     data: evidenceClaimData({ leagueId, house }),
   };
-  await seedActiveEvidenceSeason({ claim, reviewerCategories: ["steps"] });
+  await seedActiveEvidenceSeason({ claim });
+
   await assertFails(commitEvidenceVerification({
     firestore: playerContext("player-two").firestore(),
     actorId: "player-two",
     claim,
-    decisionId: "decision-forbidden",
-    contributionId: `${leagueId}_${claim.id}_decision-forbidden`,
+    decisionId: "decision-player-forbidden",
+    contributionId: `${leagueId}_${claim.id}_decision-player-forbidden`,
+  }));
+  await assertSucceeds(commitEvidenceVerification({
+    firestore: adminContext().firestore(),
+    actorId: "admin-one",
+    claim,
+    decisionId: "decision-platform-admin",
+    contributionId: `${leagueId}_${claim.id}_decision-platform-admin`,
   }));
 });
 
-test("unassigned season administrators cannot bypass category reviewer assignments", async () => {
+test("trusted Platform Administrator evidence writes remain bound to the stored claim identity", async () => {
+  const leagueId = "season-v2";
+  const house = houseData({ leagueId });
+  const claim = {
+    id: `${leagueId}_run-entry`,
+    data: evidenceClaimData({ leagueId, house }),
+  };
+  await seedActiveEvidenceSeason({ claim });
+  const forgedClaim = {
+    ...claim,
+    data: { ...claim.data, userId: "player-two" },
+  };
+
+  await assertFails(commitEvidenceVerification({
+    firestore: adminContext().firestore(),
+    actorId: "admin-one",
+    claim: forgedClaim,
+    decisionId: "decision-forged-claim-identity",
+    contributionId: `${leagueId}_${claim.id}_decision-forged-claim-identity`,
+  }));
+});
+
+test("League Administrators cannot make evidence decisions", async () => {
   const leagueId = "season-v2";
   const house = houseData({ leagueId });
   const claim = {
@@ -2184,50 +3454,62 @@ test("unassigned season administrators cannot bypass category reviewer assignmen
     firestore: playerContext("player-three").firestore(),
     actorId: "player-three",
     claim,
-    decisionId: "decision-unassigned-season-admin",
-    contributionId: `${leagueId}_${claim.id}_decision-unassigned-season-admin`,
+    decisionId: "decision-league-admin-forbidden",
+    contributionId: `${leagueId}_${claim.id}_decision-league-admin-forbidden`,
   }));
 });
 
-test("category reviewers can read only the evidence categories assigned to them", async () => {
+test("League Administrators retain read-only evidence operations access", async () => {
   const leagueId = "season-v2";
   const house = houseData({ leagueId });
-  const runningClaim = {
+  const claim = {
     id: `${leagueId}_run-entry`,
     data: evidenceClaimData({ leagueId, house }),
   };
-  const stepsClaim = {
-    id: `${leagueId}_steps-entry`,
-    data: evidenceClaimData({
-      leagueId,
-      entryId: "steps-entry",
-      category: "steps",
-      house,
-      pendingPoints: 12,
-    }),
-  };
-  await seedActiveEvidenceSeason({
-    claim: runningClaim,
-    reviewerCategories: ["running"],
-  });
+  await seedActiveEvidenceSeason({ claim });
   await testEnvironment.withSecurityRulesDisabled(async (context) => {
-    await setDoc(
-      doc(context.firestore(), "seasonEvidenceClaims", stepsClaim.id),
-      stepsClaim.data,
-    );
+    await updateDoc(doc(context.firestore(), "leagues", leagueId), {
+      administratorIds: ["admin-one", "player-three"],
+    });
   });
 
-  const reviewerFirestore = playerContext("player-two").firestore();
   await assertSucceeds(getDoc(doc(
-    reviewerFirestore,
+    playerContext("player-three").firestore(),
     "seasonEvidenceClaims",
-    runningClaim.id,
+    claim.id,
   )));
   await assertFails(getDoc(doc(
-    reviewerFirestore,
+    playerContext("player-two").firestore(),
     "seasonEvidenceClaims",
-    stepsClaim.id,
+    claim.id,
   )));
+});
+
+test("League Administrators cannot use the late-proof exception", async () => {
+  const leagueId = "season-v2";
+  const house = houseData({ leagueId });
+  const deadlineAt = Timestamp.fromMillis(Date.now() - 60 * 60 * 1000);
+  const claim = {
+    id: `${leagueId}_run-entry`,
+    data: evidenceClaimData({ leagueId, house, deadlineAt }),
+  };
+  await seedActiveEvidenceSeason({ claim });
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await updateDoc(doc(context.firestore(), "leagues", leagueId), {
+      administratorIds: ["admin-one", "player-three"],
+    });
+  });
+
+  await assertFails(commitEvidenceVerification({
+    firestore: playerContext("player-three").firestore(),
+    actorId: "player-three",
+    claim,
+    decisionId: "late-league-admin-forbidden",
+    contributionId: `${leagueId}_${claim.id}_late-league-admin-forbidden`,
+    submittedAt: Timestamp.now(),
+    late: true,
+    reason: "Delayed WhatsApp delivery",
+  }));
 });
 
 test("late proof requires a Platform Administrator and an audit reason", async () => {
@@ -2238,15 +3520,15 @@ test("late proof requires a Platform Administrator and an audit reason", async (
     id: `${leagueId}_run-entry`,
     data: evidenceClaimData({ leagueId, house, deadlineAt }),
   };
-  await seedActiveEvidenceSeason({ claim, reviewerCategories: ["running"] });
+  await seedActiveEvidenceSeason({ claim });
   const lateSubmission = Timestamp.now();
 
   await assertFails(commitEvidenceVerification({
     firestore: playerContext("player-two").firestore(),
     actorId: "player-two",
     claim,
-    decisionId: "late-reviewer",
-    contributionId: `${leagueId}_${claim.id}_late-reviewer`,
+    decisionId: "late-non-admin",
+    contributionId: `${leagueId}_${claim.id}_late-non-admin`,
     submittedAt: lateSubmission,
     late: true,
     reason: "Delayed WhatsApp delivery",
@@ -2348,6 +3630,36 @@ test("v2 players read published snapshots but not another player's live contribu
   ), { publicationType: "automatic-fallback" }));
 });
 
+test("leaderboard snapshots still require the atomic league publication pointer", async () => {
+  const leagueId = "season-v2";
+  const house = await seedActiveEvidenceSeason();
+  const firestore = adminContext().firestore();
+  const snapshotId = "detached-snapshot";
+  const auditId = "detached-snapshot-audit";
+  const batch = writeBatch(firestore);
+  batch.set(doc(firestore, "auditEvents", auditId), auditData({
+    action: "leaderboard.snapshot.published",
+    entityId: leagueId,
+    summary: "Attempted detached leaderboard snapshot",
+  }));
+  batch.set(doc(firestore, "leagueLeaderboardSnapshots", snapshotId), {
+    leagueId,
+    rulesVersion: "season-houses-v2",
+    publicationType: "manual",
+    replacesSnapshotId: "",
+    publicationDateKey: "2026-08-04",
+    players: [{ userId: "player-one", displayName: "player one", totalPoints: 10, rank: 1 }],
+    houses: [{ houseId: house.id, houseName: house.data.name, totalPoints: 10, rank: 1 }],
+    honours: { individual: [], houseChampions: [], houseOfChampions: null },
+    publishedAt: serverTimestamp(),
+    publishedBy: "admin-one",
+    lastAuditId: auditId,
+  });
+
+  await assertFails(batch.commit());
+});
+
+
 
 function ordinaryEntryData({
   userId = "player-one",
@@ -2391,6 +3703,7 @@ function commitOrdinaryCorrection({
   replacementEntryId = "correction-replacement",
   correctionId = "correction-one",
   auditId = "correction-audit",
+  auditEntityId = correctionId,
   challengeDate,
 } = {}) {
   const batch = writeBatch(firestore);
@@ -2400,7 +3713,7 @@ function commitOrdinaryCorrection({
     actorId,
     action: "entry.correction.completed",
     entityType: "entryCorrection",
-    entityId: correctionId,
+    entityId: auditEntityId,
     summary: "Created an audited factual entry replacement",
     details: { sourceEntryId, replacementEntryId },
     createdAt: serverTimestamp(),
@@ -2472,6 +3785,132 @@ test("Platform Administrators create an immutable audited factual replacement", 
   assert.equal(replacement.data().source, "correction");
   assert.equal(head.data().currentEntryId, "correction-replacement");
 });
+
+test("trusted Platform Administrator corrections still require a matching immutable audit", async () => {
+  const challengeDate = await seedOrdinaryCorrectionSource();
+  await assertFails(commitOrdinaryCorrection({
+    firestore: adminContext().firestore(),
+    challengeDate,
+    auditEntityId: "different-correction",
+  }));
+});
+
+test("trusted correction contributions remain bound to the correction identity", async () => {
+  const challengeDate = Timestamp.now();
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), "entryCorrections", "bound-correction"), {
+      rootEntryId: "bound-source",
+      sourceEntryId: "bound-source",
+      replacementEntryId: "bound-replacement",
+      userId: "player-one",
+      category: "water",
+      challengeDate,
+      sequence: 1,
+      reason: "Corrected an inaccurate water quantity.",
+      actorId: "admin-one",
+      sourcePoints: 2,
+      replacementPoints: 3,
+      pointDelta: 1,
+      affectedLeagueIds: ["season-v2"],
+      sourceContributionIds: ["source-contribution"],
+      reversalContributionIds: ["bound-reversal"],
+      replacementContributionIds: [],
+      sourceClaimIds: [],
+      replacementClaimIds: [],
+      dailyClaimIds: [],
+      status: "completed",
+      lastAuditId: "seed-audit",
+      createdAt: Timestamp.now(),
+    });
+  });
+
+  await assertFails(setDoc(doc(
+    adminContext().firestore(),
+    "leagueContributions",
+    "bound-reversal",
+  ), {
+    leagueId: "season-v2",
+    entryId: "bound-source",
+    userId: "player-two",
+    displayName: "player two",
+    avatarId: "legacy-trophy",
+    houseId: "house-springbok",
+    houseName: "House Springbok",
+    houseEmblemId: "springbok",
+    teamId: "house-springbok",
+    teamName: "House Springbok",
+    category: "water",
+    scoreCategory: "water",
+    pointGroup: "activity",
+    challengeDate,
+    activityPoints: -2,
+    rulesVersion: "season-houses-v2",
+    source: "correction-reversal",
+    sourceRedemptionId: "",
+    evidenceClaimId: "",
+    evidenceDecisionId: "",
+    correctionId: "bound-correction",
+    correctionRole: "reversal",
+    replacesContributionIds: ["source-contribution"],
+    createdAt: serverTimestamp(),
+  }));
+});
+
+test("daily evidence claims append corrected entries through the trusted correction link", async () => {
+  const leagueId = "season-v2";
+  const claimId = `${leagueId}_player-one_2026-08-04_water`;
+  const challengeDate = Timestamp.fromDate(new Date("2026-08-04T10:00:00Z"));
+  const house = houseData({ leagueId });
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "seasonEvidenceClaims", claimId), evidenceClaimData({
+      leagueId,
+      entryId: "daily-source",
+      category: "water",
+      claimType: "daily-bonus",
+      challengeDate,
+      house,
+      pendingPoints: 0,
+      bonusPointsAvailable: 2,
+    }));
+    await setDoc(doc(firestore, "entryCorrections", "daily-correction"), {
+      rootEntryId: "daily-source",
+      sourceEntryId: "daily-source",
+      replacementEntryId: "daily-replacement",
+      userId: "player-one",
+      category: "water",
+      challengeDate,
+      sequence: 1,
+      reason: "Corrected the recorded daily water quantity.",
+      actorId: "admin-one",
+      sourcePoints: 2,
+      replacementPoints: 3,
+      pointDelta: 1,
+      affectedLeagueIds: [leagueId],
+      sourceContributionIds: [],
+      reversalContributionIds: [],
+      replacementContributionIds: [],
+      sourceClaimIds: [],
+      replacementClaimIds: [],
+      dailyClaimIds: [claimId],
+      status: "completed",
+      lastAuditId: "seed-audit",
+      createdAt: Timestamp.now(),
+    });
+  });
+
+  await assertSucceeds(updateDoc(doc(
+    adminContext().firestore(),
+    "seasonEvidenceClaims",
+    claimId,
+  ), {
+    entryIds: ["daily-source", "daily-replacement"],
+    correctionIds: ["daily-correction"],
+    updatedAt: serverTimestamp(),
+  }));
+});
+
+
 
 test("ordinary players cannot create correction records or replacement entries", async () => {
   const challengeDate = await seedOrdinaryCorrectionSource();
@@ -2875,6 +4314,190 @@ test("season administrators can save a controlled themed Power Play pool in draf
   );
 });
 
+test("v4 draft Power Play pool maintenance stays below Rules evaluation", async () => {
+  const league = seasonDataV4();
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), "leagues", "power-season-v4"), league);
+  });
+
+  const firestore = adminContext().firestore();
+  const batch = writeBatch(firestore);
+  const auditId = "power-pool-v4-audit";
+  const ruleset = currentSeasonRulesetV4();
+  ruleset.powerPlayPolicy.powerPlays[0] = {
+    ...ruleset.powerPlayPolicy.powerPlays[0],
+    name: "Forge the Flood",
+    normalizedName: "forge the flood",
+  };
+  ruleset.powerPlayPolicy.powerPlayDefinitions["base-water"] = {
+    ...ruleset.powerPlayPolicy.powerPlayDefinitions["base-water"],
+    name: "Forge the Flood",
+  };
+  batch.set(doc(firestore, "auditEvents", auditId), {
+    actorId: "admin-one",
+    action: "power-play.pool-updated",
+    entityType: "league",
+    entityId: "power-season-v4",
+    summary: "Updated the v4 themed Power Play pool",
+    details: {},
+    createdAt: serverTimestamp(),
+  });
+  batch.update(doc(firestore, "leagues", "power-season-v4"), {
+    ruleset,
+    updatedAt: serverTimestamp(),
+    updatedBy: "admin-one",
+    lastAuditId: auditId,
+  });
+  await assertSucceeds(batch.commit());
+
+  await assertFails(
+    updateDoc(doc(adminContext().firestore(), "leagues", "power-season-v4"), {
+      ruleset: { ...ruleset, version: "season-houses-v3" },
+      updatedAt: serverTimestamp(),
+      updatedBy: "admin-one",
+      lastAuditId: auditId,
+    }),
+  );
+});
+
+
+test("existing v3 draft-to-registration remains valid under the shared readiness check", async () => {
+  const league = seasonDataV3({ inviteCode: "REGV3AAA" });
+  league.houseCount = 8;
+
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", "registration-season-v3"), league);
+    await setDoc(doc(firestore, "leagueInvites", "REGV3AAA"), {
+      leagueId: "registration-season-v3",
+      leagueName: league.name,
+      status: "closed",
+      createdAt: Timestamp.now(),
+      createdBy: "admin-one",
+      updatedAt: Timestamp.now(),
+      updatedBy: "admin-one",
+    });
+  });
+
+  const firestore = adminContext().firestore();
+  const auditId = "registration-v3-audit";
+  const batch = writeBatch(firestore);
+  batch.set(doc(firestore, "auditEvents", auditId), {
+    actorId: "admin-one",
+    action: "league.registration",
+    entityType: "league",
+    entityId: "registration-season-v3",
+    summary: "Changed the v3 season from draft to registration",
+    details: { previousStatus: "draft", nextStatus: "registration" },
+    createdAt: serverTimestamp(),
+  });
+  batch.update(doc(firestore, "leagues", "registration-season-v3"), {
+    status: "registration",
+    updatedAt: serverTimestamp(),
+    updatedBy: "admin-one",
+    activatedAt: null,
+    completedAt: null,
+    archivedAt: null,
+    lastAuditId: auditId,
+  });
+  batch.update(doc(firestore, "leagueInvites", "REGV3AAA"), {
+    status: "active",
+    updatedAt: serverTimestamp(),
+    updatedBy: "admin-one",
+  });
+
+  await assertSucceeds(batch.commit());
+});
+
+test("v4 draft-to-registration stays below Rules evaluation", async () => {
+  const league = seasonDataV4({ inviteCode: "REGV4AAA" });
+  league.houseCount = 8;
+
+  const invalidLeague = seasonDataV4({ inviteCode: "BADV4AAA" });
+  invalidLeague.houseCount = 8;
+  invalidLeague.ruleset = currentSeasonRulesetV4();
+  invalidLeague.ruleset.powerPlayPolicy.noRepeatWithinSeason = false;
+
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", "registration-season-v4"), league);
+    await setDoc(doc(firestore, "leagueInvites", "REGV4AAA"), {
+      leagueId: "registration-season-v4",
+      leagueName: league.name,
+      status: "closed",
+      createdAt: Timestamp.now(),
+      createdBy: "admin-one",
+      updatedAt: Timestamp.now(),
+      updatedBy: "admin-one",
+    });
+    await setDoc(doc(firestore, "leagues", "registration-season-v4-invalid"), invalidLeague);
+    await setDoc(doc(firestore, "leagueInvites", "BADV4AAA"), {
+      leagueId: "registration-season-v4-invalid",
+      leagueName: invalidLeague.name,
+      status: "closed",
+      createdAt: Timestamp.now(),
+      createdBy: "admin-one",
+      updatedAt: Timestamp.now(),
+      updatedBy: "admin-one",
+    });
+  });
+
+  const firestore = adminContext().firestore();
+  const auditId = "registration-v4-audit";
+  const batch = writeBatch(firestore);
+  batch.set(doc(firestore, "auditEvents", auditId), {
+    actorId: "admin-one",
+    action: "league.registration",
+    entityType: "league",
+    entityId: "registration-season-v4",
+    summary: "Changed the v4 season from draft to registration",
+    details: { previousStatus: "draft", nextStatus: "registration" },
+    createdAt: serverTimestamp(),
+  });
+  batch.update(doc(firestore, "leagues", "registration-season-v4"), {
+    status: "registration",
+    updatedAt: serverTimestamp(),
+    updatedBy: "admin-one",
+    activatedAt: null,
+    completedAt: null,
+    archivedAt: null,
+    lastAuditId: auditId,
+  });
+  batch.update(doc(firestore, "leagueInvites", "REGV4AAA"), {
+    status: "active",
+    updatedAt: serverTimestamp(),
+    updatedBy: "admin-one",
+  });
+  await assertSucceeds(batch.commit());
+
+  const invalidAuditId = "registration-v4-invalid-audit";
+  const invalidBatch = writeBatch(firestore);
+  invalidBatch.set(doc(firestore, "auditEvents", invalidAuditId), {
+    actorId: "admin-one",
+    action: "league.registration",
+    entityType: "league",
+    entityId: "registration-season-v4-invalid",
+    summary: "Attempted registration with an invalid v4 Power Play policy",
+    details: { previousStatus: "draft", nextStatus: "registration" },
+    createdAt: serverTimestamp(),
+  });
+  invalidBatch.update(doc(firestore, "leagues", "registration-season-v4-invalid"), {
+    status: "registration",
+    updatedAt: serverTimestamp(),
+    updatedBy: "admin-one",
+    activatedAt: null,
+    completedAt: null,
+    archivedAt: null,
+    lastAuditId: invalidAuditId,
+  });
+  invalidBatch.update(doc(firestore, "leagueInvites", "BADV4AAA"), {
+    status: "active",
+    updatedAt: serverTimestamp(),
+    updatedBy: "admin-one",
+  });
+  await assertFails(invalidBatch.commit());
+});
+
 test("weekly Power Play selection is atomic and cannot reuse a selected play", async () => {
   const league = seasonDataV3({ status: "active", participantCount: 2, chaosStatus: "activated", active: true });
   await testEnvironment.withSecurityRulesDisabled(async (context) => {
@@ -3005,6 +4628,119 @@ test("weekly Power Play selection is atomic and cannot reuse a selected play", a
   await assertFails(tampered.commit());
 });
 
+test("v4 first weekly Power Play selection stays below Rules evaluation", async () => {
+  const league = seasonDataV4({ status: "active", participantCount: 2, chaosStatus: "activated", active: true });
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", "power-season-v4"), league);
+  });
+
+  const firestore = adminContext().firestore();
+  const auditId = "power-v4-select-audit";
+  const batch = writeBatch(firestore);
+  batch.set(doc(firestore, "auditEvents", auditId), {
+    actorId: "admin-one",
+    action: "power-play.week-selected",
+    entityType: "league",
+    entityId: "power-season-v4",
+    summary: "Selected the first v4 weekly Power Play",
+    details: {},
+    createdAt: serverTimestamp(),
+  });
+  batch.set(
+    doc(firestore, "leaguePowerPlayWeeks", "power-season-v4_week-01"),
+    powerPlayAssignmentData({
+      leagueId: "power-season-v4",
+      startDate: league.startDate,
+      endDate: Timestamp.fromMillis(league.startDate.toMillis() + 6 * 24 * 60 * 60 * 1000),
+      powerPlayName: "Mythic water 1",
+      auditId,
+    }),
+  );
+  batch.update(doc(firestore, "leagues", "power-season-v4"), {
+    powerPlayState: {
+      usedPowerPlayIds: ["base-water"],
+      selectionCount: 1,
+      lastWeekKey: "week-01",
+      lastPowerPlayId: "base-water",
+      lastSelectionAt: serverTimestamp(),
+      lastSelectionBy: "admin-one",
+    },
+    updatedAt: serverTimestamp(),
+    updatedBy: "admin-one",
+    lastAuditId: auditId,
+  });
+  await assertSucceeds(batch.commit());
+});
+
+test("v4 pre-week Power Play redraw stays below Rules evaluation", async () => {
+  const league = seasonDataV4({ status: "registration", participantCount: 2 });
+  league.powerPlayState = {
+    usedPowerPlayIds: ["base-water"],
+    selectionCount: 1,
+    lastWeekKey: "week-01",
+    lastPowerPlayId: "base-water",
+    lastSelectionAt: Timestamp.now(),
+    lastSelectionBy: "admin-one",
+  };
+  const assignment = {
+    ...powerPlayAssignmentData({
+      leagueId: "power-redraw-v4",
+      startDate: league.startDate,
+      endDate: Timestamp.fromMillis(league.startDate.toMillis() + 6 * 24 * 60 * 60 * 1000),
+      powerPlayName: "Mythic water 1",
+      auditId: "power-v4-select-audit",
+    }),
+    selectedAt: Timestamp.now(),
+  };
+
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", "power-redraw-v4"), league);
+    await setDoc(doc(firestore, "leaguePowerPlayWeeks", "power-redraw-v4_week-01"), assignment);
+  });
+
+  const firestore = adminContext().firestore();
+  const auditId = "power-v4-redraw-audit";
+  const batch = writeBatch(firestore);
+  batch.set(doc(firestore, "auditEvents", auditId), {
+    actorId: "admin-one",
+    action: "power-play.week-redrawn",
+    entityType: "league",
+    entityId: "power-redraw-v4",
+    summary: "Redrew the v4 Power Play before its week started",
+    details: {},
+    createdAt: serverTimestamp(),
+  });
+  batch.update(doc(firestore, "leaguePowerPlayWeeks", "power-redraw-v4_week-01"), {
+    powerPlayId: "base-fruit",
+    powerPlayName: "Mythic fruit 2",
+    multiplier: 2,
+    categories: ["fruit"],
+    selectionSequence: 2,
+    previousPowerPlayIds: ["base-water"],
+    redrawCount: 1,
+    lastSelectionReason: "Administrator redraw before the official week began.",
+    selectedAt: serverTimestamp(),
+    selectedBy: "admin-one",
+    lastAuditId: auditId,
+  });
+  batch.update(doc(firestore, "leagues", "power-redraw-v4"), {
+    powerPlayState: {
+      usedPowerPlayIds: ["base-water", "base-fruit"],
+      selectionCount: 2,
+      lastWeekKey: "week-01",
+      lastPowerPlayId: "base-fruit",
+      lastSelectionAt: serverTimestamp(),
+      lastSelectionBy: "admin-one",
+    },
+    updatedAt: serverTimestamp(),
+    updatedBy: "admin-one",
+    lastAuditId: auditId,
+  });
+  await assertSucceeds(batch.commit());
+});
+
 test("players see only Power Plays whose official week has started", async () => {
   const league = seasonDataV3({ status: "active", participantCount: 1, chaosStatus: "activated", active: true });
   await testEnvironment.withSecurityRulesDisabled(async (context) => {
@@ -3118,4 +4854,72 @@ test("only a Platform Administrator can correct a locked Power Play assignment",
       { powerPlayName: "Player rewrite" },
     ),
   );
+});
+
+test("v4 locked Platform Administrator Power Play correction stays below Rules evaluation", async () => {
+  const leagueId = "power-correction-v4";
+  const league = seasonDataV4({ status: "active", participantCount: 1, chaosStatus: "activated", active: true });
+  league.powerPlayState = {
+    usedPowerPlayIds: ["base-water"],
+    selectionCount: 1,
+    lastWeekKey: "week-01",
+    lastPowerPlayId: "base-water",
+    lastSelectionAt: Timestamp.now(),
+    lastSelectionBy: "admin-one",
+  };
+  const assignment = {
+    ...powerPlayAssignmentData({
+      leagueId,
+      startDate: league.startDate,
+      endDate: Timestamp.fromMillis(league.startDate.toMillis() + 6 * 24 * 60 * 60 * 1000),
+      auditId: "power-v4-select-audit",
+    }),
+    selectedAt: Timestamp.now(),
+  };
+
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", leagueId), league);
+    await setDoc(doc(firestore, "leaguePowerPlayWeeks", `${leagueId}_week-01`), assignment);
+  });
+
+  const firestore = adminContext().firestore();
+  const auditId = "power-v4-correction-audit";
+  const batch = writeBatch(firestore);
+  batch.set(doc(firestore, "auditEvents", auditId), {
+    actorId: "admin-one",
+    action: "power-play.assignment-corrected",
+    entityType: "league",
+    entityId: leagueId,
+    summary: "Corrected a locked v4 Power Play",
+    details: {},
+    createdAt: serverTimestamp(),
+  });
+  batch.update(doc(firestore, "leaguePowerPlayWeeks", `${leagueId}_week-01`), {
+    powerPlayId: "base-fruit",
+    powerPlayName: "Mythic fruit 2",
+    multiplier: 2,
+    categories: ["fruit"],
+    selectionSequence: 2,
+    previousPowerPlayIds: ["base-water"],
+    correctedAt: serverTimestamp(),
+    correctedBy: "admin-one",
+    correctionReason: "The original category was recorded incorrectly.",
+    correctionCount: 1,
+    lastAuditId: auditId,
+  });
+  batch.update(doc(firestore, "leagues", leagueId), {
+    powerPlayState: {
+      usedPowerPlayIds: ["base-water", "base-fruit"],
+      selectionCount: 2,
+      lastWeekKey: "week-01",
+      lastPowerPlayId: "base-fruit",
+      lastSelectionAt: serverTimestamp(),
+      lastSelectionBy: "admin-one",
+    },
+    updatedAt: serverTimestamp(),
+    updatedBy: "admin-one",
+    lastAuditId: auditId,
+  });
+  await assertSucceeds(batch.commit());
 });

@@ -16,24 +16,13 @@ A Player cannot self-verify proof, see another player's private claim, read live
 
 These are season-scoped responsibilities. They may perform the current House actions allowed by season rules. Leadership does not automatically grant evidence-review authority.
 
-## Assigned evidence reviewer
-
-An assigned reviewer:
-
-- is configured per season and category;
-- may cover several categories;
-- may share a category with other reviewers;
-- may read and decide only assigned category queues;
-- may not accept late proof unless also a Platform Administrator;
-- must use audited accept, reject and reversal actions.
-
 ## Season Administrator
 
-A Season Administrator manages assigned seasons, lifecycle actions, Houses, reviewer assignments and authorised snapshot publication. Season administration alone does not grant proof-decision authority; the person must also be assigned to the category or be a Platform Administrator.
+A Season Administrator manages assigned seasons, lifecycle actions, Houses and authorised snapshot publication. Season administration does not grant proof-decision authority.
 
 ## Platform Administrator
 
-A Platform Administrator may manage trusted roles, publish announcements and libraries, operate all seasons, review every evidence category, accept late proof with a reason, publish/correct snapshots, acknowledge deletion requests and read immutable audit history.
+A Platform Administrator may manage trusted roles, publish announcements and libraries, operate all seasons, review every evidence category, accept or reject proof, reverse evidence decisions, accept late proof with a reason, publish/correct snapshots, acknowledge deletion requests and read immutable audit history.
 
 ## Trusted server operator
 
@@ -46,6 +35,5 @@ Privileged changes affecting authority, evidence, published standings, competiti
 ## Entry correction authority
 
 - **Player:** may read correction history for their own entries; cannot create, update or delete corrections.
-- **Category reviewer:** evidence authority remains limited to assigned categories and does not grant entry-correction authority.
 - **Season Administrator:** does not gain factual correction authority merely by managing a season.
 - **Platform Administrator:** may create audited factual replacements and targeted integrity reports across the platform.

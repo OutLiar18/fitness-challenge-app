@@ -1,5 +1,40 @@
 # Champions Legacy Challenge — Changelog
 
+## [0.24.0] — 9 August 2026 — Verified production deployment
+
+<!-- RELEASE_STATUS: DEPLOYED -->
+
+### Added
+
+- `season-houses-v4` House Movement contract for newly created seasons.
+- One-week post-move roster rest with initial C.H.A.O.S. assignment exempt.
+- Immutable House-assignment history for opening assignment and weekly movement.
+- Platform Administrator-only rest override with a factual immutable audit reason.
+- Optional private `season-composition-v1` member responses.
+- `house-balance-v1` immutable weekly public/private balance snapshots with three-response privacy suppression and no scoring effect.
+
+### Security and reliability
+
+- Kept same-week repeat movement, House weekly locks and captain/vice-captain protection non-bypassable.
+- Kept individual composition responses private to the owner and authorised administrators.
+- Restricted evidence decisions to Platform Administrators.
+- Simplified trusted administrator, derived-record and Platform-operation Rules boundaries.
+- Added evaluator-aware routing so legitimate write shapes reach only their relevant expensive validator.
+- Froze the final Firestore Rules candidate at 3,501 lines / 160,395 bytes and SHA-256 `2ab1e569f4699e0018f3c5b7e5225a9fb42d65b835215fc9b8917ab21c701573`.
+
+### Verification and production
+
+- 131 domain tests passed.
+- 79 Firestore Rules tests passed with zero 1,000-expression evaluator-limit messages in the complete final suite.
+- Rules-only production activation succeeded and read-only remote verification matched the active Ruleset source byte-for-byte.
+- Active Ruleset: `projects/fitnesschallengeapp-9e87f/rulesets/45a2ef28-df8b-4751-bbd2-dfed2c45a109`.
+- Hosting-only activation released 66 files; live index and 17 referenced assets matched the verified local build byte-for-byte.
+- SPA fallback, configured Hosting headers, read-only navigation smoke and reversible profile-write smoke all passed.
+
+### Release source
+
+- Exact deployed commit: `b5e7c083c0ba7730f21b8a92b30530f3ebb8374c`.
+- Release remains pre-v1.0.
 ## [0.23.5] — 7 August 2026 — Stability candidate
 
 <!-- RELEASE_STATUS: DEPLOYED -->
@@ -63,7 +98,7 @@
 
 ## 0.21.0 — Trusted Standings and Season Reconciliation
 
-Date: 5 August 2026  
+Date: 5 August 2026
 Status: Verified production deployment
 
 ### Added
@@ -113,7 +148,7 @@ Status: Verified and deployed; release commit pending
 ## v0.19.0 — Season Command Centre
 
 <!-- RELEASE_STATUS: DEPLOYED -->
-Date: 4 August 2026  
+Date: 4 August 2026
 Status: Verified, deployed and committed
 
 ### Added
@@ -141,7 +176,7 @@ Status: Verified, deployed and committed
 ## v0.18.0 — External Evidence and Published Standings
 
 <!-- RELEASE_STATUS: DEPLOYED -->
-Date: 4 August 2026  
+Date: 4 August 2026
 Status: Verified, deployed and committed
 
 ### Added
@@ -171,7 +206,7 @@ Status: Verified, deployed and committed
 
 ## v0.17.0 — Player Readiness and Account Control
 
-Date: 4 August 2026  
+Date: 4 August 2026
 Status: Verified and deployed to production; pre-v1.0
 
 - Added guided onboarding with legacy-profile compatibility and replay.
@@ -183,7 +218,7 @@ Status: Verified and deployed to production; pre-v1.0
 
 ## v0.16.0 — Progressive Disclosure and Page Breathing Room
 
-Date: 3 August 2026  
+Date: 3 August 2026
 Status: Verified and deployed to production; pre-v1.0
 
 - Added reusable accessible route workspaces with desktop tabs and mobile native selectors.

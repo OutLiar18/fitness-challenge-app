@@ -668,6 +668,16 @@ export const RULEBOOK_SECTIONS = Object.freeze([
         "A Captain or Vice-Captain must first be replaced in House leadership before that player can move to another House.",
       ),
       seasonRule(
+        "season-composition-privacy",
+        null,
+        "Season composition responses are optional, self-declared and private. They belong only to that season, may be removed by the player, never change points, and are hidden from House leaders and ordinary players at individual level.",
+      ),
+      seasonRule(
+        "weekly-house-balance",
+        null,
+        "Once per active season week, an authorised administrator may preserve a privacy-safe House balance snapshot. House composition is compared with the season-wide disclosed distribution only when at least three disclosed responses protect each House. The result is informational only and can never add, remove, reduce or multiply earned points.",
+      ),
+      seasonRule(
         "pocket-window",
         "16-17",
         "The Pocket Week Window opens seven days before the official season begins and closes at the end of the day immediately before the season start date.",

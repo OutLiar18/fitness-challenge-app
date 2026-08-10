@@ -32,7 +32,7 @@ Current production: v0.20.0
 
 - `seasonEvidenceClaims/{claimId}`
 - `seasonEvidenceDecisions/{decisionId}`
-- `leagueEvidenceReviewers/{leagueId_userId}`
+- `leagueEvidenceReviewers/{leagueId_userId}` — retired legacy records; no longer used for client authorization or new writes.
 - `leagueLeaderboardSnapshots/{leagueId_dateKey_revision}`
 
 Collections appear only after their first document is created.
@@ -60,7 +60,7 @@ Rules deny all use of permanent-Team collections.
 - Invitation collections support direct known-code reads, not enumeration.
 - Membership and participant counts change atomically.
 - Claim creation is linked to the newly created source entry through `evidenceClaimIds`.
-- Reviewer assignment changes require an audit record and preserve original creation metadata.
+- New reviewer assignments are disabled; historical assignment documents remain server-managed legacy data.
 - Evidence decisions, claim status, contribution release/reversal, notification and audit records are atomic.
 - Player leaderboard snapshots are immutable and player-readable only after publication.
 - Players cannot read another player's live contribution stream in v2.
@@ -68,7 +68,7 @@ Rules deny all use of permanent-Team collections.
 
 ## v0.19 command-centre reads
 
-The command centre reads existing collections only: `leagues`, `leagueHouses`, `leagueMemberships`, `leadershipElections`, `seasonEvidenceClaims`, `seasonEvidenceDecisions`, `leagueEvidenceReviewers`, `leagueContributions` and `leagueLeaderboardSnapshots`. Security Rules are unchanged from v0.18.0. Queries remain role-scoped and no command-centre collection is introduced.
+The command centre reads existing collections only: `leagues`, `leagueHouses`, `leagueMemberships`, `leadershipElections`, `seasonEvidenceClaims`, `seasonEvidenceDecisions`, `leagueContributions` and `leagueLeaderboardSnapshots`. Security Rules are unchanged from v0.18.0. Queries remain role-scoped and no command-centre collection is introduced.
 
 ## v0.20.0 additions
 
@@ -116,3 +116,43 @@ Append-only used-ID summary and selection sequence. A replaced ID remains presen
 ### Frozen policy
 
 `ruleset.powerPlayPolicy.powerPlayDefinitions` is a map keyed by Power Play ID. Weekly assignment name, multiplier and categories must exactly match the frozen definition.
+
+## v0.24 development — immutable House assignment history
+
+### `leagueHouseAssignmentHistory/{sourceId}_{userId}`
+
+Append-only v4 season records for opening C.H.A.O.S. assignments and weekly House roster swaps. Each record preserves the player identity used at the time, previous House, new House, assignment method, source operation, actor, audit link and creation time.
+
+Client access:
+
+- read/query: season members, authorised season administrators and Platform Administrators;
+- create: only as part of a Rules-validated v4 C.H.A.O.S. or weekly roster-swap operation;
+- update/delete: denied to every client role.
+
+The live `leagueMemberships` document remains the efficient current-House record. Assignment history is the permanent timeline and does not rewrite historical `leagueContributions`. Trusted account deletion anonymises player identity in these shared records while preserving the House movement facts.
+
+
+
+### v0.24 House movement administrator corrections
+
+A Platform Administrator may bypass only the one-week post-move rest restriction for a factual correction. The immutable `leagueRosterSwaps` document stores `overrideApplied`, `overrideReason`, and `overriddenPlayerIds`. The affected player's `leagueHouseAssignmentHistory` record repeats the correction flag and reason, while the audit event records the same context. Same-week repeat movement, House weekly locks, and current House leadership are never bypassed by this path.
+
+
+## leagueCompositionProfiles
+
+Private, season-scoped optional composition responses introduced by v0.24 Checkpoint 6. Document ID is deterministic: `{leagueId}_{userId}`.
+
+Fields:
+- `leagueId`
+- `userId`
+- `value` (`woman`, `man`, `non-binary-or-another`, `prefer-not-to-say`)
+- `profileVersion` = `season-composition-v1`
+- `createdAt`
+- `updatedAt`
+
+Privacy boundary:
+- the player may get/create/update/delete only their own response;
+- Platform Administrators and authorised season administrators may read exact responses for operational balancing;
+- House leaders and ordinary season members cannot read another player's response;
+- trusted account deletion deletes this private record;
+- `leagueHouseBalanceWeeks` stores immutable member-safe weekly metadata; `leagueHouseBalanceHouseWeeks` stores one member-safe House row per week; exact counts live only in administrator-readable `leagueHouseBalancePrivateWeeks` and `leagueHouseBalancePrivateHouseWeeks`. Public rows contain no player identifiers or exact response/disclosure counts.
