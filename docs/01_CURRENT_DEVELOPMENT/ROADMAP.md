@@ -64,11 +64,24 @@ v0.25.0 is the verified production baseline. Firestore Rules and Hosting were ac
 Five Fires and Buddy Bonuses are intentionally removed from the pre-v1.0 roadmap. Unspecified late-season twists are not blockers for v1.0 and will only be implemented if explicitly designed and approved later.
 
 ## v0.26.0 — Security and operational hardening
-- administrator permission review;
-- public/private read audit;
-- Rules complexity/simplification review;
-- dependency and Rules-warning review without breaking automatic fixes;
-- trusted-tool recovery, backup and operational checks.
+### 26A — Security baseline
+- administrator permission and role-source inventory;
+- public/private Firestore read inventory;
+- Rules size/complexity baseline;
+- App Check/client-attestation readiness review before any enforcement;
+- dependency advisory/outdated-package capture without automatic fixes;
+- trusted account-deletion/recovery and partial-failure review;
+- Hosting security-header and deployment-safeguard inventory;
+- full application and Firestore Rules regression gate;
+- no Firebase deployment.
+
+### Later v0.26 remediation
+- tighten administrator permission boundaries where the baseline proves it is useful;
+- improve public/private read boundaries where needed;
+- simplify Rules without weakening validation or audit binding;
+- resolve dependency/security warnings conservatively;
+- add safe client-attestation protection only with localhost/CI/debug handling and monitored rollout;
+- strengthen trusted-tool recovery, backup and account-deletion operations.
 
 ## v0.27.0 — Full application UX, accessibility and performance review
 - every page and workflow;

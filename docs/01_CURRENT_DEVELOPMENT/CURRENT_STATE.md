@@ -1,10 +1,10 @@
 # Champions Legacy Challenge — Current State
 
-<!-- RELEASE_STATUS: VERIFIED_PRODUCTION -->
-Source version: 0.25.0 release finalised
+<!-- RELEASE_STATUS: DEVELOPMENT -->
+Source version: 0.26.0 development
 Production version: 0.25.0
 Last updated: 10 August 2026
-Status: Verified pre-v1.0 production release
+Status: Active pre-v1.0 security and operational hardening
 
 ## Production baseline
 
@@ -68,8 +68,23 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - 16 referenced live assets matched the frozen build and 10/10 critical SPA routes passed;
 - logged-in manual production smoke passed on 10 August 2026 with no unnecessary competition test data created.
 
+### v0.26.0 — security and operational hardening
+
+#### Checkpoint 26A — security baseline
+- create `development/v0.26.0` from finalised v0.25 `main`;
+- preserve v0.25.0 as the production baseline;
+- inventory administrator authority and role sources without changing them;
+- inventory public/private Firestore reads and retain the deny-all fallback;
+- record Rules size/complexity signals before simplification;
+- check whether App Check/client attestation is integrated, but do not enable enforcement yet;
+- capture dependency advisories and outdated-package information without automatic fixes;
+- review trusted account-deletion/recovery safeguards and partial-failure exposure;
+- inventory Hosting security headers and deployment protections;
+- run the existing application + Firestore Rules gates;
+- perform no Firebase deployment.
+
 ### Next action
-Begin v0.26.0 security and operational hardening from the verified v0.25.0 production baseline.
+Review the 26A findings and select the first isolated remediation checkpoint.
 
 ## Responsive development boundary
 

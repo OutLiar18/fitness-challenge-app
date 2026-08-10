@@ -1,12 +1,12 @@
 # Champions Legacy Challenge — Next Session
 
-<!-- RELEASE_STATUS: VERIFIED_PRODUCTION -->
-Current source: v0.25.0 release finalised
+<!-- RELEASE_STATUS: DEVELOPMENT -->
+Current source: v0.26.0 development
 Current production: v0.25.0
 
 ## First action
 
-Start v0.26.0 security and operational hardening from the verified v0.25.0 production baseline. Create the next development branch from updated `main`; do not modify or retag the frozen v0.25.0 release source.
+Complete Checkpoint 26A security-baseline capture, review its dependency/runtime findings, then choose the first isolated v0.26 remediation. Do not modify or retag the frozen v0.25.0 production release.
 
 ## v0.25.0 order
 
@@ -53,3 +53,7 @@ The developer is currently reviewing desktop. Dedicated mobile/tablet visual rev
 - automated Hosting smoke: live index and 16 referenced assets matched; 10/10 critical SPA routes passed;
 - logged-in manual smoke: passed on 10 August 2026;
 - known non-blocking build warning: Firebase vendor chunk about 575.67 kB, deferred to v0.27.0.
+
+## v0.26.0 security workflow
+
+26A is discovery-only: no Rules policy changes, no App Check enforcement, no dependency auto-fix and no Firebase deployment. Later remediation checkpoints must keep Firestore Rules/security-sensitive changes isolated and emulator-tested.
