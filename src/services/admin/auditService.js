@@ -20,9 +20,12 @@ export function addAuditWrite(
     entityId,
     summary,
     details = {},
+    auditId = "",
   },
 ) {
-  const auditReference = doc(collection(db, "auditEvents"));
+  const auditReference = auditId
+    ? doc(db, "auditEvents", auditId)
+    : doc(collection(db, "auditEvents"));
 
   batch.set(auditReference, {
     actorId,

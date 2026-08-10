@@ -37,9 +37,13 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 
 25B changes Firestore Rules only to permit and validate the optional player-owned `mbtiType` field. It does not change scoring, league permissions, evidence authority, House history or production Firebase state.
 
-### Next — 25C safe deletion/recovery
-
-Define hard-delete versus archive/anonymise boundaries for users, draft Houses and draft seasons before implementing any destructive behaviour.
+### Checkpoint 25C — safe deletion/recovery — complete
+- only Platform Administrators receive browser hard-delete controls;
+- an empty House may be deleted only inside an unused zero-participant draft season;
+- an unused draft season deletion atomically removes its draft Houses and invitation record and creates an immutable audit event;
+- League Administrators cannot hard-delete Houses or seasons;
+- registration, active, completed and archived seasons remain protected historical structures;
+- player Authentication deletion stays in the trusted Admin SDK workflow and preserves/anonymises competition facts where required.
 
 ### Later v0.25 work
 

@@ -39,6 +39,7 @@ import {
 import {
   activateChaos,
   createLeagueHouse,
+  deleteDraftLeagueHouse,
   finalizeLeadershipElection,
   openLeadershipElection,
   setAdditionalViceCaptain,
@@ -969,6 +970,24 @@ export default function Houses() {
     }
   }
 
+  async function handleDeleteHouse(house) {
+    if (working || !isPlatformAdmin || league?.status !== "draft" || !house?.id) return;
+    if (!window.confirm(`Permanently delete the unused draft House "${house.name}"?`)) return;
+
+    setWorking(true);
+    try {
+      await deleteDraftLeagueHouse({ league, house, actorId: user.uid });
+      showToast("Unused draft House permanently deleted.", "success");
+      setSelectedHouseId("");
+      if (editingHouseId === house.id) setEditingHouseId("");
+    } catch (error) {
+      console.error(error);
+      showToast(error.message || "The draft House could not be deleted.", "error");
+    } finally {
+      setWorking(false);
+    }
+  }
+
   async function handleChaos() {
     const confirmed = window.confirm(
       "Activate C.H.A.O.S.? Every registered player will be assigned fairly and notified. This cannot be repeated for the season.",
@@ -1172,6 +1191,16 @@ export default function Houses() {
                       onClick={() => editHouse(selectedHouse.id)}
                     >
                       Edit identity
+                    </button>
+                  )}
+                  {isPlatformAdmin && league.status === "draft" && (
+                    <button
+                      className="button button--danger"
+                      type="button"
+                      disabled={working}
+                      onClick={() => handleDeleteHouse(selectedHouse)}
+                    >
+                      {working ? "Workingâ€¦" : "Delete draft House"}
                     </button>
                   )}
                 </div>

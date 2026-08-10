@@ -4941,3 +4941,213 @@ test("v4 locked Platform Administrator Power Play correction stays below Rules e
   });
   await assertSucceeds(batch.commit());
 });
+test("Platform Administrators may hard-delete an unused draft House only with its immutable audit", async () => {
+  const leagueId = "draft-house-delete-season";
+  const house = houseData({ leagueId, id: "draft-house-delete-one" });
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", leagueId), seasonData({ inviteCode: "DRAFTD01" }));
+    await setDoc(doc(firestore, "leagueHouses", house.id), house.data);
+  });
+
+  const noAudit = adminContext().firestore();
+  await assertFails(deleteDoc(doc(noAudit, "leagueHouses", house.id)));
+
+  const firestore = adminContext().firestore();
+  const batch = writeBatch(firestore);
+  batch.set(doc(firestore, "auditEvents", `draft-house-delete_${house.id}`), {
+    actorId: "admin-one",
+    action: "house.draft-deleted",
+    entityType: "league",
+    entityId: leagueId,
+    summary: "Permanently deleted unused draft House",
+    details: { houseId: house.id, houseName: house.data.name },
+    createdAt: serverTimestamp(),
+  });
+  batch.delete(doc(firestore, "leagueHouses", house.id));
+  await assertSucceeds(batch.commit());
+});
+
+test("League Administrators cannot hard-delete draft Houses", async () => {
+  const leagueId = "league-admin-delete-denied";
+  const house = houseData({ leagueId, id: "league-admin-delete-house" });
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", leagueId), seasonData({
+      actorId: "player-two",
+      inviteCode: "DRAFTD02",
+    }));
+    await setDoc(doc(firestore, "leagueHouses", house.id), {
+      ...house.data,
+      createdBy: "player-two",
+      updatedBy: "player-two",
+    });
+  });
+
+  const firestore = playerContext("player-two").firestore();
+  const batch = writeBatch(firestore);
+  batch.set(doc(firestore, "auditEvents", `draft-house-delete_${house.id}`), {
+    actorId: "player-two",
+    action: "house.draft-deleted",
+    entityType: "league",
+    entityId: leagueId,
+    summary: "Attempted draft House deletion",
+    details: { houseId: house.id },
+    createdAt: serverTimestamp(),
+  });
+  batch.delete(doc(firestore, "leagueHouses", house.id));
+  await assertFails(batch.commit());
+});
+
+test("Platform Administrators may atomically delete an unused draft season, Houses and invite", async () => {
+  const leagueId = "draft-season-delete-one";
+  const inviteCode = "DRAFTD03";
+  const firstHouse = houseData({ leagueId, id: "draft-season-house-a" });
+  const secondHouse = houseData({ leagueId, id: "draft-season-house-b", name: "House Lion" });
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", leagueId), seasonData({ inviteCode }));
+    await setDoc(doc(firestore, "leagueInvites", inviteCode), {
+      leagueId,
+      leagueName: "Legacy House Season",
+      status: "closed",
+      createdAt: Timestamp.now(),
+      createdBy: "admin-one",
+      updatedAt: Timestamp.now(),
+      updatedBy: "admin-one",
+    });
+    await setDoc(doc(firestore, "leagueHouses", firstHouse.id), firstHouse.data);
+    await setDoc(doc(firestore, "leagueHouses", secondHouse.id), secondHouse.data);
+  });
+
+  const firestore = adminContext().firestore();
+  const batch = writeBatch(firestore);
+  batch.set(doc(firestore, "auditEvents", `draft-season-delete_${leagueId}`), {
+    actorId: "admin-one",
+    action: "league.draft-deleted",
+    entityType: "league",
+    entityId: leagueId,
+    summary: "Permanently deleted unused draft season",
+    details: { inviteCode, houseCount: 2 },
+    createdAt: serverTimestamp(),
+  });
+  batch.delete(doc(firestore, "leagueHouses", firstHouse.id));
+  batch.delete(doc(firestore, "leagueHouses", secondHouse.id));
+  batch.delete(doc(firestore, "leagueInvites", inviteCode));
+  batch.delete(doc(firestore, "leagues", leagueId));
+  await assertSucceeds(batch.commit());
+});
+
+test("draft season deletion requires invitation cleanup in the same atomic batch", async () => {
+  const leagueId = "draft-season-delete-incomplete";
+  const inviteCode = "DRAFTD04";
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", leagueId), seasonData({ inviteCode }));
+    await setDoc(doc(firestore, "leagueInvites", inviteCode), {
+      leagueId,
+      leagueName: "Legacy House Season",
+      status: "closed",
+      createdAt: Timestamp.now(),
+      createdBy: "admin-one",
+      updatedAt: Timestamp.now(),
+      updatedBy: "admin-one",
+    });
+  });
+
+  const firestore = adminContext().firestore();
+  const batch = writeBatch(firestore);
+  batch.set(doc(firestore, "auditEvents", `draft-season-delete_${leagueId}`), {
+    actorId: "admin-one",
+    action: "league.draft-deleted",
+    entityType: "league",
+    entityId: leagueId,
+    summary: "Incomplete draft deletion",
+    details: { inviteCode, houseCount: 0 },
+    createdAt: serverTimestamp(),
+  });
+  batch.delete(doc(firestore, "leagues", leagueId));
+  await assertFails(batch.commit());
+});
+
+test("maximum eight-House draft season deletion remains below Rules access-call limits", async () => {
+  const leagueId = "draft-season-delete-eight";
+  const inviteCode = "DRAFTD08";
+  const houses = Array.from({ length: 8 }, (_, index) => houseData({
+    leagueId,
+    id: `draft-eight-house-${index + 1}`,
+    name: `House ${index + 1}`,
+  }));
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", leagueId), {
+      ...seasonData({ inviteCode }),
+      houseCount: 8,
+    });
+    await setDoc(doc(firestore, "leagueInvites", inviteCode), {
+      leagueId,
+      leagueName: "Eight House Draft",
+      status: "closed",
+      createdAt: Timestamp.now(),
+      createdBy: "admin-one",
+      updatedAt: Timestamp.now(),
+      updatedBy: "admin-one",
+    });
+    for (const house of houses) {
+      await setDoc(doc(firestore, "leagueHouses", house.id), house.data);
+    }
+  });
+
+  const firestore = adminContext().firestore();
+  const batch = writeBatch(firestore);
+  batch.set(doc(firestore, "auditEvents", `draft-season-delete_${leagueId}`), {
+    actorId: "admin-one",
+    action: "league.draft-deleted",
+    entityType: "league",
+    entityId: leagueId,
+    summary: "Permanently deleted maximum-size unused draft season",
+    details: { inviteCode, houseCount: 8 },
+    createdAt: serverTimestamp(),
+  });
+  houses.forEach((house) => batch.delete(doc(firestore, "leagueHouses", house.id)));
+  batch.delete(doc(firestore, "leagueInvites", inviteCode));
+  batch.delete(doc(firestore, "leagues", leagueId));
+  await assertSucceeds(batch.commit());
+});
+
+test("registration and historical seasons cannot be hard-deleted", async () => {
+  const leagueId = "registration-delete-denied";
+  const inviteCode = "DRAFTD05";
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const firestore = context.firestore();
+    await setDoc(doc(firestore, "leagues", leagueId), seasonData({
+      status: "registration",
+      inviteCode,
+      participantCount: 0,
+    }));
+    await setDoc(doc(firestore, "leagueInvites", inviteCode), {
+      leagueId,
+      leagueName: "Legacy House Season",
+      status: "closed",
+      createdAt: Timestamp.now(),
+      createdBy: "admin-one",
+      updatedAt: Timestamp.now(),
+      updatedBy: "admin-one",
+    });
+  });
+
+  const firestore = adminContext().firestore();
+  const batch = writeBatch(firestore);
+  batch.set(doc(firestore, "auditEvents", `draft-season-delete_${leagueId}`), {
+    actorId: "admin-one",
+    action: "league.draft-deleted",
+    entityType: "league",
+    entityId: leagueId,
+    summary: "Attempted historical deletion",
+    details: { inviteCode, houseCount: 0 },
+    createdAt: serverTimestamp(),
+  });
+  batch.delete(doc(firestore, "leagueInvites", inviteCode));
+  batch.delete(doc(firestore, "leagues", leagueId));
+  await assertFails(batch.commit());
+});

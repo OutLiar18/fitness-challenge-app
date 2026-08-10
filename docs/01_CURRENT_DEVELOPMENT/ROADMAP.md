@@ -29,12 +29,13 @@ v0.24.0 remains the verified production baseline. Its Firestore Rules and Hostin
 - provide strengths, possible challenges, Challenge/thriving suggestions and interpersonal tendencies as guidance rather than deterministic psychological claims;
 - retain legacy avatar data only as backward-compatible fallback for players who have not selected a Legacy Profile yet.
 
-### 25C — Safe Platform Administrator deletion/recovery behaviour — NEXT
-- define hard-delete versus archive/anonymise boundaries before implementation;
-- permit true deletion only where historical/relational integrity remains safe;
-- handle Authentication-user deletion through trusted administrator tooling rather than exposing destructive credentials to the browser;
-- preserve immutable competition history where erasing it would corrupt season facts;
-- test destructive paths separately and aggressively.
+### 25C — Safe Platform Administrator deletion/recovery behaviour — COMPLETE
+- Platform Administrators may permanently delete an empty House only while its season is still an unused zero-participant draft;
+- Platform Administrators may permanently delete an unused zero-participant draft season together with its draft Houses and closed invitation record in one atomic batch;
+- every direct draft House deletion and every draft season deletion is paired with a deterministic immutable audit event;
+- League Administrators cannot use the hard-delete path;
+- once registration opens, Houses and seasons remain historical competition structures and cannot be hard-deleted through the app;
+- Authentication-user deletion remains in the existing trusted Admin SDK workflow, with shared competition facts anonymised/preserved instead of being corrupted.
 
 ### 25D — League Season bonus points
 - Platform Administrators may directly award a player bonus points with a mandatory reason;

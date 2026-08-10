@@ -25,6 +25,12 @@ import {
   validateLeagueInput,
   validatePowerPlayReadinessForRegistration,
 } from "./leagueModel";
+import {
+  DRAFT_DELETION_ACTIONS,
+  canHardDeleteDraftHouse,
+  canHardDeleteDraftSeason,
+  draftSeasonDeletionAuditId,
+} from "../seasons/draftDeletionModel";
 
 function mapSnapshot(snapshot) {
   return snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
@@ -189,6 +195,53 @@ export async function createLeague({ actorId, input }) {
   });
   await batch.commit();
   return leagueReference.id;
+}
+
+export async function deleteDraftLeague({ league, actorId }) {
+  if (!actorId || !canHardDeleteDraftSeason(league)) {
+    throw new Error("Only an unused draft season can be permanently deleted.");
+  }
+
+  const leagueReference = doc(db, "leagues", league.id);
+  const [liveLeagueSnapshot, housesSnapshot, membershipsSnapshot] = await Promise.all([
+    getDoc(leagueReference),
+    getDocs(query(collection(db, "leagueHouses"), where("leagueId", "==", league.id))),
+    getDocs(query(collection(db, "leagueMemberships"), where("leagueId", "==", league.id))),
+  ]);
+
+  if (!liveLeagueSnapshot.exists()) throw new Error("This draft season no longer exists.");
+  const liveLeague = { id: liveLeagueSnapshot.id, ...liveLeagueSnapshot.data() };
+  if (!canHardDeleteDraftSeason(liveLeague) || membershipsSnapshot.size > 0) {
+    throw new Error("This season has registration or historical data and must be preserved.");
+  }
+  const unsafeHouse = housesSnapshot.docs
+    .map((houseDocument) => ({ id: houseDocument.id, ...houseDocument.data() }))
+    .find((house) => !canHardDeleteDraftHouse({ league: liveLeague, house, memberCount: 0 }));
+  if (unsafeHouse) {
+    throw new Error(`House ${unsafeHouse.name || unsafeHouse.id} has leadership or historical state and must be preserved.`);
+  }
+
+  const batch = writeBatch(db);
+  const auditId = draftSeasonDeletionAuditId(liveLeague.id);
+  addAuditWrite(batch, {
+    actorId,
+    auditId,
+    action: DRAFT_DELETION_ACTIONS.SEASON,
+    entityType: "league",
+    entityId: liveLeague.id,
+    summary: `Permanently deleted unused draft season: ${liveLeague.name}`,
+    details: {
+      inviteCode: liveLeague.inviteCode || "",
+      houseCount: housesSnapshot.size,
+    },
+  });
+
+  housesSnapshot.docs.forEach((houseDocument) => batch.delete(houseDocument.ref));
+  if (liveLeague.inviteCode) {
+    batch.delete(doc(db, "leagueInvites", liveLeague.inviteCode));
+  }
+  batch.delete(leagueReference);
+  await batch.commit();
 }
 
 export async function transitionLeague({ league, nextStatus, actorId }) {

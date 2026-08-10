@@ -29,6 +29,7 @@ import {
 } from "../services/leagues/leagueModel";
 import {
   createLeague,
+  deleteDraftLeague,
   joinLeague,
   leaveLeagueRegistration,
   subscribeToLeagueContributions,
@@ -602,6 +603,7 @@ function LeagueDetail({
   isPlatformAdmin,
   userId,
   notify,
+  onDeleted,
   requestedTab = "",
 }) {
   const [memberState, setMemberState] = useState({ leagueId: "", items: [] });
@@ -755,6 +757,27 @@ function LeagueDetail({
     }
   }
 
+  async function handleDeleteDraft() {
+    if (workingAction || !isPlatformAdmin || league.status !== "draft") return;
+    const confirmation = window.prompt(
+      `Permanently delete the unused draft season "${league.name}" and its draft Houses? Type DELETE to continue.`,
+      "",
+    );
+    if (confirmation !== "DELETE") return;
+
+    setWorkingAction("delete-draft");
+    try {
+      await deleteDraftLeague({ league, actorId: userId });
+      notify("Unused draft season permanently deleted. Historical seasons remain protected.", "success");
+      onDeleted?.();
+    } catch (error) {
+      console.error(error);
+      notify(error.message || "The draft season could not be deleted.", "error");
+    } finally {
+      setWorkingAction("");
+    }
+  }
+
   async function handleWithdraw() {
     if (workingAction || !window.confirm("Withdraw this season registration?"))
       return;
@@ -829,6 +852,18 @@ function LeagueDetail({
               {workingAction === "transition"
                 ? "Updating season…"
                 : `Move to ${getLeagueStatusLabel(nextStatus)}`}
+            </button>
+          )}
+          {isPlatformAdmin && league.status === "draft" && (
+            <button
+              className="button button--danger"
+              type="button"
+              disabled={Boolean(workingAction)}
+              onClick={handleDeleteDraft}
+            >
+              {workingAction === "delete-draft"
+                ? "Deleting draftâ€¦"
+                : "Delete unused draft"}
             </button>
           )}
           {membership?.status === "registered" && (
@@ -1211,6 +1246,7 @@ export default function Seasons() {
             isPlatformAdmin={isPlatformAdmin}
             userId={user?.uid}
             notify={showToast}
+            onDeleted={() => setSearchParams({}, { replace: true })}
             requestedTab={searchParams.get("tab") || ""}
           />
         )}

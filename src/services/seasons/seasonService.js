@@ -32,6 +32,11 @@ import {
   supportsHouseMovementV1,
 } from "./houseMovementModel";
 import {
+  DRAFT_DELETION_ACTIONS,
+  canHardDeleteDraftHouse,
+  draftHouseDeletionAuditId,
+} from "./draftDeletionModel";
+import {
   calculateLeadershipResult,
   createElectionId,
   createPocketRedemptionData,
@@ -172,6 +177,47 @@ export async function createLeagueHouse({ leagueId, actorId, input }) {
   });
   await batch.commit();
   return reference.id;
+}
+
+export async function deleteDraftLeagueHouse({ league, house, actorId }) {
+  if (!actorId || !canHardDeleteDraftHouse({ league, house, memberCount: 0 })) {
+    throw new Error("Only an empty House in an unused draft season can be permanently deleted.");
+  }
+
+  const [liveLeagueSnapshot, liveHouseSnapshot, membershipsSnapshot] = await Promise.all([
+    getDoc(doc(db, "leagues", league.id)),
+    getDoc(doc(db, "leagueHouses", house.id)),
+    getDocs(query(collection(db, "leagueMemberships"), where("leagueId", "==", league.id))),
+  ]);
+  if (!liveLeagueSnapshot.exists() || !liveHouseSnapshot.exists()) {
+    throw new Error("This draft House no longer exists.");
+  }
+
+  const liveLeague = { id: liveLeagueSnapshot.id, ...liveLeagueSnapshot.data() };
+  const liveHouse = { id: liveHouseSnapshot.id, ...liveHouseSnapshot.data() };
+  const assignedMembers = membershipsSnapshot.docs.filter(
+    (membershipDocument) => membershipDocument.data().currentHouseId === liveHouse.id,
+  );
+  if (membershipsSnapshot.size > 0 || !canHardDeleteDraftHouse({
+    league: liveLeague,
+    house: liveHouse,
+    memberCount: assignedMembers.length,
+  })) {
+    throw new Error("This House now has season history and must be preserved.");
+  }
+
+  const batch = writeBatch(db);
+  addAuditWrite(batch, {
+    actorId,
+    auditId: draftHouseDeletionAuditId(liveHouse.id),
+    action: DRAFT_DELETION_ACTIONS.HOUSE,
+    entityType: "league",
+    entityId: liveLeague.id,
+    summary: `Permanently deleted unused draft House: ${liveHouse.name}`,
+    details: { houseId: liveHouse.id, houseName: liveHouse.name },
+  });
+  batch.delete(doc(db, "leagueHouses", liveHouse.id));
+  await batch.commit();
 }
 
 export async function updateLeagueHouse({ house, actorId, input }) {

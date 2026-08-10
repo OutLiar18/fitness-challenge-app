@@ -6,13 +6,13 @@ Current production: v0.24.0
 
 ## First action
 
-Begin 25C by defining safe Platform Administrator deletion/recovery boundaries before changing destructive permissions. Do not modify production.
+Begin 25D: implement League Season bonus points as an isolated, audit-bound Rules checkpoint. Do not modify production.
 
 ## v0.25.0 order
 
 1. 25A existing-app correctness foundations — complete.
 2. 25B MBTI-based player profiles — complete.
-3. Define and implement 25C safe deletion/recovery behaviour.
+3. 25C safe deletion/recovery behaviour — complete.
 4. Implement 25D League Season bonus points and its isolated Firestore Rules/tests.
 
 ## 25B completed product direction
@@ -26,9 +26,9 @@ Begin 25C by defining safe Platform Administrator deletion/recovery boundaries b
 - strengths, possible challenges, helpful Challenge approaches and interpersonal tendencies are explicitly framed as reflective guidance rather than deterministic psychological claims;
 - legacy avatar data remains readable only for backward compatibility and is no longer the primary profile-selection experience.
 
-## 25C safety boundary
+## 25C completed safety boundary
 
-Before implementation, decide exactly which user, House and season states can be hard-deleted without damaging Authentication, memberships, contribution history, standings, honours or audit records. Historical competition facts must remain trustworthy.
+Platform Administrators may hard-delete only empty Houses and zero-participant seasons that are still drafts. Draft season deletion removes its draft Houses and closed invitation record atomically and preserves a deterministic audit event. League Administrators cannot hard-delete. Once registration opens, the season and Houses are historical structures and remain protected. User Authentication deletion stays in the trusted Admin SDK workflow.
 
 ## Responsive boundary
 

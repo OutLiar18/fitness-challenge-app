@@ -148,6 +148,82 @@ service cloud.firestore {
         && request.resource.data.createdAt == request.time;
     }
 
+    function validDraftDeletionAuditAfter(auditId, action, leagueId, houseId) {
+      let audit = getAfter(
+        /databases/$(database)/documents/auditEvents/$(auditId)
+      ).data;
+      return audit.actorId == request.auth.uid
+        && audit.action == action
+        && audit.entityType == "league"
+        && audit.entityId == leagueId
+        && audit.createdAt == request.time
+        && audit.details is map
+        && audit.details.get("houseId", "") == houseId;
+    }
+
+    function validDraftSeasonDelete(leagueId) {
+      let auditId = "draft-season-delete_" + leagueId;
+      return isPlatformAdmin()
+        && resource.data.mode == "season"
+        && resource.data.status == "draft"
+        && resource.data.get("participantCount", 0) == 0
+        && resource.data.get("chaosStatus", "not-started") == "not-started"
+        && resource.data.get("activatedAt", null) == null
+        && resource.data.get("completedAt", null) == null
+        && resource.data.get("archivedAt", null) == null
+        && exists(
+          /databases/$(database)/documents/leagueInvites/$(resource.data.inviteCode)
+        )
+        && !existsAfter(
+          /databases/$(database)/documents/leagueInvites/$(resource.data.inviteCode)
+        )
+        && validDraftDeletionAuditAfter(
+          auditId,
+          "league.draft-deleted",
+          leagueId,
+          ""
+        );
+    }
+
+    function validDraftInviteDelete(code) {
+      let leaguePath =
+        /databases/$(database)/documents/leagues/$(resource.data.leagueId);
+      return isPlatformAdmin()
+        && resource.data.status == "closed"
+        && exists(leaguePath)
+        && get(leaguePath).data.inviteCode == code
+        && !existsAfter(leaguePath);
+    }
+
+    function validDraftHouseDelete(houseId) {
+      let leaguePath =
+        /databases/$(database)/documents/leagues/$(resource.data.leagueId);
+      let auditId = "draft-house-delete_" + houseId;
+      return isPlatformAdmin()
+        && exists(leaguePath)
+        && resource.data.get("captainId", "") == ""
+        && resource.data.get("viceCaptainIds", []).size() == 0
+        && resource.data.get("lastElectionId", "") == ""
+        && (
+          !existsAfter(leaguePath)
+          || (
+            getAfter(leaguePath).data.mode == "season"
+            && getAfter(leaguePath).data.status == "draft"
+            && getAfter(leaguePath).data.get("participantCount", 0) == 0
+            && getAfter(leaguePath).data.get("chaosStatus", "not-started") == "not-started"
+            && getAfter(leaguePath).data.get("activatedAt", null) == null
+            && getAfter(leaguePath).data.get("completedAt", null) == null
+            && getAfter(leaguePath).data.get("archivedAt", null) == null
+            && validDraftDeletionAuditAfter(
+              auditId,
+              "house.draft-deleted",
+              resource.data.leagueId,
+              houseId
+            )
+          )
+        );
+    }
+
     function validUserProfile(userId) {
       return request.resource.data.keys().hasOnly([
           "uid",
@@ -3175,7 +3251,7 @@ service cloud.firestore {
         );
       allow create: if isLeagueOperator() && validLeagueCreate(leagueId);
       allow update: if signedIn() && validLeagueUpdate(leagueId);
-      allow delete: if false;
+      allow delete: if signedIn() && validDraftSeasonDelete(leagueId);
     }
 
     match /leagueInvites/{code} {
@@ -3184,7 +3260,7 @@ service cloud.firestore {
       allow create: if isLeagueOperator() && validLeagueInviteCreate(code);
       allow update: if isLeagueAdministrator(resource.data.leagueId)
         && validLeagueInviteUpdate();
-      allow delete: if false;
+      allow delete: if signedIn() && validDraftInviteDelete(code);
     }
 
     match /leagueMemberships/{membershipId} {
@@ -3223,7 +3299,7 @@ service cloud.firestore {
           validHouseIdentityUpdate()
           || validHouseLeadershipUpdate(houseId)
         );
-      allow delete: if false;
+      allow delete: if signedIn() && validDraftHouseDelete(houseId);
     }
 
     match /leadershipElections/{electionId} {
