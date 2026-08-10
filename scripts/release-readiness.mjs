@@ -1,38 +1,18 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { execFileSync } from "node:child_process";
 
-const EXPECTED_VERSION = "0.24.0";
+const EXPECTED_VERSION = "0.25.0";
 const EXPECTED_PROJECT = "fitnesschallengeapp-9e87f";
 const EXPECTED_HOSTING_TARGET = "app";
 const EXPECTED_HOSTING_SITE = "champions-legacy-challenge";
-const EXPECTED_RULES_TEST_COUNT = 79;
+const EXPECTED_RULES_TEST_COUNT = 94;
+const EXPECTED_APP_TEST_COUNT = 148;
+const RELEASE_SOURCE_BASELINE = "0f5b715e4888d12ddc53ede334a9cfe13c5e2048";
+
 const projectRoot = process.cwd();
 const failures = [];
-
-const expectedHashes = {
-  "firestore.rules": "2ab1e569f4699e0018f3c5b7e5225a9fb42d65b835215fc9b8917ab21c701573",
-  "tests/firestore.rules.test.mjs": "96e349f9fd0896da712799d6de7799de8dd21b508641dbffdedc3a9dda13f37b",
-  "tests/evidence-system.test.mjs": "390a3f7daaee5eed7c6c82d8efc2321548125e41f727d0e174ba5a7fb075a4d6",
-  "tests/season-operations.test.mjs": "7ac8a1f87b6ca618cbc5abcc56a1c7559b4a23b94fde74c41b4d25160e78dea4",
-  "src/services/evidence/evidenceModel.js": "2a544b847bc89f847bdc211053a2b03033a6ba2b18ce9fe196feb8bda282b6f5",
-  "src/services/evidence/evidenceService.js": "4f05e036f0e0d94e988019a3b306ab148d4d3cf0ec01ed038895be77c0d591b7",
-  "src/pages/Seasons.jsx": "75ca30f4a38295764eac88a6531e1aae788bb2232e9e67177d0aecbc3d432fc7",
-  "src/components/seasons/EvidenceWorkspace.jsx": "40c0d724e84e70f65271a785ce35b08682e518855902640d1cb5f3a706f80bca",
-  "src/components/seasons/EvidenceWorkspace.css": "649806ae200978e5b44143d1458e5a217f36a100b26c6c04fd389e1eb989dad2",
-  "src/components/seasons/SeasonCommandCentre.jsx": "83568341bd9c7098c76f8feaf00d0513e893f56fbf71cd49b123ef27907a4398",
-  "src/services/seasons/seasonOperationsModel.js": "2a7db34ccdafa736d6c493e1b1d16d4f886519c433ed39f531c0659f202fdab1",
-  "src/services/seasons/seasonOperationsService.js": "dd81e604ce4422af55f30217538739d106ce8b8216c0e5d21c7eccea2b0d633d",
-  "src/services/seasons/houseMovementModel.js": "f9ff731859be0accdc91b2d1918217e0b3e48a8c866710840b1652df122d0be9",
-  "src/services/seasons/houseMovementService.js": "493252a0208c0431f55d1a0c35b2326dc39f6481fb968f9a67ba32b324420b75",
-  "src/pages/Houses.jsx": "42d495800ad65f59723ab44cf56a7a82f1c5b253a4cddc0d6c37e84badaf8ec9",
-  "src/pages/Houses.css": "60dc4f3e4020fd9208a918c17412233258d2eb4376ff6888e5785392989db1dd",
-  "src/constants/powerPlays.js": "fc61eb249ccf989ecc37b4b5e6a4b54561f388485d7260fd5b3b1c72b93fb4fe",
-  "src/services/seasons/powerPlayModel.js": "52e5f35758c77f4d8884c3d4dfacc938d211caf00a3ab6fffd2bf088f12d177d",
-  "src/services/seasons/powerPlayService.js": "29545b2ef81683d9dd250e644b81941fba6b24d2f50683bdbc2f26ec2c34aed8",
-  "scripts/trusted-season-reconcile.mjs": "5c87cfed3d0b3ebdd21efec8f8629b03965cc51ddd975f97c60c17b71de98a10",
-  "scripts/trusted-account-delete.mjs": "f944ca1ecd1ceaf3daa05f0cd44387bc15844e4cec8a5555cc9dddcdd298f83d",
-};
 
 function readJson(relativePath) {
   const fullPath = path.join(projectRoot, relativePath);
@@ -48,37 +28,77 @@ function readJson(relativePath) {
   }
 }
 
-function sha256(relativePath) {
-  const fullPath = path.join(projectRoot, relativePath);
-  if (!fs.existsSync(fullPath)) {
-    failures.push(`Required frozen file is missing: ${relativePath}`);
-    return "";
-  }
-  return crypto.createHash("sha256").update(fs.readFileSync(fullPath)).digest("hex");
-}
-
-function requireTestCount(relativePath, expectedCount) {
-  const fullPath = path.join(projectRoot, relativePath);
-  if (!fs.existsSync(fullPath)) {
-    failures.push(`Required test file is missing: ${relativePath}`);
-    return;
-  }
-  const text = fs.readFileSync(fullPath, "utf8");
-  const count = (text.match(/^\s*test\(/gm) ?? []).length;
-  if (count !== expectedCount) {
-    failures.push(`${relativePath} must contain exactly ${expectedCount} Rules tests; found ${count}.`);
-  }
-}
-
-function requireText(relativePath, markers) {
+function readText(relativePath) {
   const fullPath = path.join(projectRoot, relativePath);
   if (!fs.existsSync(fullPath)) {
     failures.push(`Required file is missing: ${relativePath}`);
+    return "";
+  }
+  return fs.readFileSync(fullPath, "utf8");
+}
+
+function canonicalSha256(relativePath) {
+  const text = readText(relativePath).replace(/\r\n/g, "\n");
+  return crypto.createHash("sha256").update(text, "utf8").digest("hex");
+}
+
+function requireText(relativePath, markers) {
+  const text = readText(relativePath);
+  for (const marker of markers) {
+    if (!text.includes(marker)) {
+      failures.push(`${relativePath} is missing required marker: ${marker}`);
+    }
+  }
+}
+
+function countTests(relativePath) {
+  const text = readText(relativePath);
+  return (text.match(/^\s*test\(/gm) ?? []).length;
+}
+
+function git(args) {
+  try {
+    return execFileSync("git", args, {
+      cwd: projectRoot,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+    }).trim();
+  } catch (error) {
+    const message = String(error.stderr || error.message || error).trim();
+    failures.push(`git ${args.join(" ")} failed${message ? `: ${message}` : "."}`);
+    return "";
+  }
+}
+
+function verifyFrozenSourceBoundary() {
+  const head = git(["rev-parse", "HEAD"]);
+  if (!head) return;
+
+  try {
+    execFileSync("git", ["merge-base", "--is-ancestor", RELEASE_SOURCE_BASELINE, "HEAD"], {
+      cwd: projectRoot,
+      stdio: "ignore",
+    });
+  } catch {
+    failures.push(`HEAD ${head} does not descend from the frozen v0.25 source baseline ${RELEASE_SOURCE_BASELINE}.`);
     return;
   }
-  const text = fs.readFileSync(fullPath, "utf8");
-  for (const marker of markers) {
-    if (!text.includes(marker)) failures.push(`${relativePath} is missing required marker: ${marker}`);
+
+  const changed = git(["diff", "--name-only", RELEASE_SOURCE_BASELINE, "--"])
+    .split(/\r?\n/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  const allowed = changed.filter((relativePath) =>
+    relativePath === "scripts/release-readiness.mjs"
+    || relativePath.startsWith("docs/")
+  );
+  const unexpected = changed.filter((relativePath) => !allowed.includes(relativePath));
+
+  if (unexpected.length > 0) {
+    failures.push(
+      `Release source changed after the frozen 25D baseline: ${unexpected.join(", ")}.`,
+    );
   }
 }
 
@@ -88,16 +108,47 @@ const firebaseConfig = readJson("firebase.json");
 const firebaseAliases = readJson(".firebaserc");
 
 if (packageData) {
-  if (packageData.version !== EXPECTED_VERSION) failures.push(`Expected package version ${EXPECTED_VERSION}, found ${packageData.version}.`);
-  if (packageData.scripts?.["check:release"] !== "npm run check && npm run test:rules && node scripts/release-readiness.mjs") {
-    failures.push("check:release must run check, Rules tests, then the v0.24 release verifier.");
+  if (packageData.version !== EXPECTED_VERSION) {
+    failures.push(`Expected package version ${EXPECTED_VERSION}, found ${packageData.version}.`);
   }
+  if (
+    packageData.scripts?.["check:release"]
+    !== "npm run check && npm run test:rules && node scripts/release-readiness.mjs"
+  ) {
+    failures.push("check:release must run the application gate, Rules emulator gate, then the v0.25 verifier.");
+  }
+
   const blockedScript = "node scripts/block-development-deploy.mjs";
   for (const name of ["deploy:rules", "deploy:hosting", "deploy:production"]) {
-    if (packageData.scripts?.[name] !== blockedScript) failures.push(`${name} must remain blocked until the isolated production deployment stage.`);
+    if (packageData.scripts?.[name] !== blockedScript) {
+      failures.push(`${name} must remain blocked during the development-branch release-readiness stage.`);
+    }
   }
-  if (!packageData.scripts?.test?.includes("tests/house-movement-domain.test.mjs")) failures.push("House Movement domain tests must remain part of npm test.");
-  if (!packageData.scripts?.test?.includes("tests/power-plays.test.mjs")) failures.push("Power Play domain tests must remain part of npm test.");
+
+  const requiredAppTests = [
+    "tests/house-movement-domain.test.mjs",
+    "tests/power-plays.test.mjs",
+    "tests/v025-ui-foundations.test.mjs",
+    "tests/mbti-profiles.test.mjs",
+    "tests/draft-deletion.test.mjs",
+    "tests/season-bonus.test.mjs",
+  ];
+  for (const testFile of requiredAppTests) {
+    if (!packageData.scripts?.test?.includes(testFile)) {
+      failures.push(`${testFile} must remain part of npm test.`);
+    }
+  }
+
+  const testFiles = [
+    ...new Set(
+      [...String(packageData.scripts?.test ?? "").matchAll(/tests\/[A-Za-z0-9_.-]+\.test\.mjs/g)]
+        .map((match) => match[0]),
+    ),
+  ];
+  const appTestCount = testFiles.reduce((total, relativePath) => total + countTests(relativePath), 0);
+  if (appTestCount !== EXPECTED_APP_TEST_COUNT) {
+    failures.push(`Expected ${EXPECTED_APP_TEST_COUNT} application tests across npm test; found ${appTestCount}.`);
+  }
 }
 
 if (lockData) {
@@ -107,77 +158,109 @@ if (lockData) {
 }
 
 if (firebaseConfig) {
-  if (firebaseConfig.firestore?.rules !== "firestore.rules") failures.push("firebase.json must point Firestore to firestore.rules.");
-  if (firebaseConfig.hosting?.target !== EXPECTED_HOSTING_TARGET) failures.push(`Firebase Hosting must target ${EXPECTED_HOSTING_TARGET}.`);
-  if (firebaseConfig.hosting?.public !== "dist") failures.push("Firebase Hosting public folder must remain dist.");
+  if (firebaseConfig.firestore?.rules !== "firestore.rules") {
+    failures.push("firebase.json must point Firestore to firestore.rules.");
+  }
+  if (firebaseConfig.hosting?.target !== EXPECTED_HOSTING_TARGET) {
+    failures.push(`Firebase Hosting must target ${EXPECTED_HOSTING_TARGET}.`);
+  }
+  if (firebaseConfig.hosting?.public !== "dist") {
+    failures.push("Firebase Hosting public folder must remain dist.");
+  }
 }
 
 if (firebaseAliases) {
   const defaultProject = firebaseAliases.projects?.default;
-  const hostingSites = firebaseAliases.targets?.[defaultProject]?.hosting?.[EXPECTED_HOSTING_TARGET] ?? [];
-  if (defaultProject !== EXPECTED_PROJECT) failures.push(`Default Firebase project must be ${EXPECTED_PROJECT}.`);
-  if (!hostingSites.includes(EXPECTED_HOSTING_SITE)) failures.push(`Hosting target ${EXPECTED_HOSTING_TARGET} must map to ${EXPECTED_HOSTING_SITE}.`);
+  const hostingSites =
+    firebaseAliases.targets?.[defaultProject]?.hosting?.[EXPECTED_HOSTING_TARGET] ?? [];
+  if (defaultProject !== EXPECTED_PROJECT) {
+    failures.push(`Default Firebase project must be ${EXPECTED_PROJECT}.`);
+  }
+  if (!hostingSites.includes(EXPECTED_HOSTING_SITE)) {
+    failures.push(`Hosting target ${EXPECTED_HOSTING_TARGET} must map to ${EXPECTED_HOSTING_SITE}.`);
+  }
 }
 
-for (const [relativePath, expectedHash] of Object.entries(expectedHashes)) {
-  const actualHash = sha256(relativePath);
-  if (actualHash && actualHash !== expectedHash) failures.push(`${relativePath} no longer matches the frozen Checkpoint 7 / 8B release baseline.`);
+const rulesTestCount = countTests("tests/firestore.rules.test.mjs");
+if (rulesTestCount !== EXPECTED_RULES_TEST_COUNT) {
+  failures.push(`Expected ${EXPECTED_RULES_TEST_COUNT} Firestore Rules tests; found ${rulesTestCount}.`);
 }
 
-requireTestCount("tests/firestore.rules.test.mjs", EXPECTED_RULES_TEST_COUNT);
-requireText("src/constants/leagues.js", ['LEAGUE_RULESET_VERSION = "season-houses-v4"']);
-requireText("src/constants/seasons.js", ['HOUSE_BALANCE_CALCULATION_VERSION = "house-balance-v1"']);
-requireText("src/services/seasons/houseMovementModel.js", ["scoringEnabled: false", "buildHouseBalanceCalculation"]);
-requireText("src/services/seasons/houseMovementService.js", ["leagueCompositionProfiles", "leagueHouseBalanceWeeks", "leagueHouseBalancePrivateWeeks"]);
-requireText("src/pages/Houses.jsx", ["CompositionBalancePanel", "Weekly balance is informational only."]);
 requireText("firestore.rules", [
-  "leagueCompositionProfiles",
-  "leagueHouseBalanceWeeks",
-  "leagueHouseBalancePrivateWeeks",
-  "leagueHouseAssignmentHistory",
-  "Retired in v0.24 Checkpoint 8G",
+  "function validMbtiType(mbtiType)",
+  "function validDraftSeasonDelete(leagueId)",
+  "function validDraftHouseDelete(houseId)",
+  "function validSeasonBonusRequestCreate(requestId)",
+  "function validSeasonBonusAwardCreate(awardId)",
+  "match /seasonBonusRequests/{requestId}",
+  "match /seasonBonusAwards/{awardId}",
 ]);
-requireText("docs/03_ARCHITECTURE/decisions/ADR-027-trusted-platform-admin-transactions.md", [
-  "Trusted Platform Administrator Transaction Boundary",
-  "Player-originated evidence claim creation remains strictly validated",
+
+requireText("src/constants/mbtiProfiles.js", [
+  "export const MBTI_TYPES = Object.freeze([",
+  "export const MBTI_PROFILES = Object.freeze(",
 ]);
-requireText("docs/03_ARCHITECTURE/decisions/ADR-028-trusted-derived-record-boundary.md", [
-  "Trusted Derived-Record Boundary",
-  "No ordinary player gains a new write path",
+
+requireText("src/services/seasons/draftDeletionModel.js", [
+  'HOUSE: "house.draft-deleted"',
+  'SEASON: "league.draft-deleted"',
+  "canHardDeleteDraftSeason",
+  "canHardDeleteDraftHouse",
 ]);
-requireText("docs/03_ARCHITECTURE/decisions/ADR-029-trusted-platform-operations.md", [
-  "Trusted Platform Operations Boundary",
-  "Player-originated suggestion creation, client-error report creation",
+
+requireText("src/services/seasons/seasonBonusModel.js", [
+  "SEASON_BONUS_POINT_LIMIT = 10000",
+  'PLATFORM_DIRECT: "platform-direct"',
+  'LEAGUE_ADMIN_REQUEST: "league-admin-request"',
+  'PLATFORM_CORRECTION: "platform-correction"',
 ]);
-requireText("docs/03_ARCHITECTURE/decisions/ADR-030-evaluator-aware-write-routing.md", [
-  "Evaluator-Aware Write Routing",
-  "maximum of 1000 expressions",
+
+requireText("src/services/seasons/seasonBonusService.js", [
+  "subscribeToPendingSeasonBonusRequests",
+  "awardSeasonBonusDirect",
+  "reviewSeasonBonusRequest",
+  "correctSeasonBonusAward",
+  'source: "season-bonus"',
 ]);
-requireText("docs/03_ARCHITECTURE/decisions/ADR-031-v024-final-rules-freeze.md", [
-  "v0.24 Final Rules Freeze",
-  "Freeze the Checkpoint 8K Firestore Rules byte-for-byte",
+
+requireText("src/services/seasons/trustedSeasonModel.js", [
+  'TRUSTED_SEASON_MODEL_VERSION = "trusted-season-v3"',
+  "seasonBonusPoints",
+  "bonusAwardId",
 ]);
-requireText("firestore.rules", [
-  "function validLeagueUpdate(leagueId)",
-  "validRequestedDeletionState",
-  "request.time < resource.data.startDate",
+
+requireText("docs/01_CURRENT_DEVELOPMENT/ROADMAP.md", [
+  "25A — Existing-app correctness foundations — COMPLETE",
+  "25B — MBTI-based player profiles — COMPLETE",
+  "25C — Safe Platform Administrator deletion/recovery behaviour — COMPLETE",
+  "25D — League Season bonus points — COMPLETE",
+  "25R — v0.25 release-readiness freeze — COMPLETE",
 ]);
-requireText("src/services/evidence/evidenceService.js", [
-  "Only Platform Administrators can review evidence.",
+
+requireText("scripts/block-development-deploy.mjs", [
+  "Production deployment is intentionally blocked",
 ]);
-requireText("src/components/seasons/EvidenceWorkspace.jsx", [
-  "Only Platform Administrators can make evidence decisions.",
-  "Decision authority",
-]);
-requireText("scripts/block-development-deploy.mjs", ["Production deployment is intentionally blocked"]);
+
+verifyFrozenSourceBoundary();
+
+const rulesHash = canonicalSha256("firestore.rules");
 
 if (failures.length > 0) {
-  console.error("v0.24.0 release-readiness verification failed:");
+  console.error("v0.25.0 release-readiness verification failed:");
   for (const failure of failures) console.error(`- ${failure}`);
   process.exitCode = 1;
 } else {
-  console.log("Release-readiness structure verified for v0.24.0.");
-  console.log("Final 8-series freeze: 131 domain tests, 79 Firestore Rules tests, evaluator-clean Checkpoint 8K Rules hash pinned, Platform-Administrator-only evidence decisions, trusted derived-record, Platform-operations and evaluator-routing boundaries, v4 House Movement, composition privacy, and house-balance-v1 hashes pinned.");
-  console.log("Firebase production mapping verified: fitnesschallengeapp-9e87f -> Hosting target app -> champions-legacy-challenge.");
-  console.log("Production deploy scripts remain intentionally blocked. No deployment is performed by check:release.");
+  console.log("Release-readiness structure verified for v0.25.0.");
+  console.log(`Frozen application source baseline: ${RELEASE_SOURCE_BASELINE}.`);
+  console.log(`Canonical Firestore Rules SHA-256: ${rulesHash}.`);
+  console.log(
+    "Verified release surface: 148 application tests, 94 Firestore Rules tests, "
+    + "25A correctness foundations, 25B MBTI Legacy Profiles, 25C safe draft deletion, "
+    + "25D audited League Season bonus ledger, trusted-season-v3 reconciliation, "
+    + "and blocked development-branch production deploy scripts.",
+  );
+  console.log(
+    "Firebase production mapping verified: fitnesschallengeapp-9e87f -> Hosting target app -> champions-legacy-challenge.",
+  );
+  console.log("No deployment is performed by check:release.");
 }

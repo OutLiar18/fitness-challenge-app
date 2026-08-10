@@ -53,8 +53,14 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - League Season bonus points bypass ordinary activity caps, participation bonuses and Power Play multipliers and do not create category champion titles;
 - corrections are separate positive/negative adjustments that preserve the original award's House attribution.
 
+### Checkpoint 25R — release-readiness freeze — complete
+- the completed 25A–25D application source is frozen at commit `0f5b715e4888d12ddc53ede334a9cfe13c5e2048`;
+- the v0.25 release verifier now requires 148 application tests and 94 Firestore Rules tests;
+- all application/Rules source outside release documentation and the verifier must remain identical to the frozen 25D baseline;
+- production deploy scripts remain blocked and 25R performs no Firebase activation.
+
 ### Next v0.25 action
-Run consolidated v0.25 application/Rules/release-readiness verification before any production activation.
+Prepare the dedicated reviewed v0.25.0 production activation sequence from the verified 25R freeze.
 
 ## Responsive development boundary
 

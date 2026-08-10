@@ -45,6 +45,13 @@ v0.24.0 remains the verified production baseline. Its Firestore Rules and Hostin
 - later roster movement cannot relocate historical bonus points;
 - corrections are separate positive/negative ledger adjustments and remain attached to the original award's House rather than the player's current House.
 
+### 25R — v0.25 release-readiness freeze — COMPLETE
+- freeze the completed 25A–25D application source at commit `0f5b715e4888d12ddc53ede334a9cfe13c5e2048`;
+- refresh the release-readiness verifier from the retired v0.24 assumptions to v0.25.0;
+- require the consolidated 148-test application gate and 94-test Firestore Rules emulator gate;
+- keep development-branch production deploy scripts blocked;
+- perform no Firebase production deployment during release-readiness verification.
+
 Five Fires and Buddy Bonuses are intentionally removed from the pre-v1.0 roadmap. Unspecified late-season twists are not blockers for v1.0 and will only be implemented if explicitly designed and approved later.
 
 ## v0.26.0 — Security and operational hardening

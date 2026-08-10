@@ -6,7 +6,7 @@ Current production: v0.24.0
 
 ## First action
 
-Run consolidated v0.25.0 verification and release-readiness checks. Do not modify production automatically.
+Prepare the dedicated reviewed v0.25.0 production activation sequence from the verified 25R freeze. Do not modify production automatically.
 
 ## v0.25.0 order
 
@@ -14,6 +14,7 @@ Run consolidated v0.25.0 verification and release-readiness checks. Do not modif
 2. 25B MBTI-based player profiles — complete.
 3. 25C safe deletion/recovery behaviour — complete.
 4. 25D League Season bonus points — complete.
+5. 25R consolidated release-readiness freeze — complete.
 
 ## 25B completed product direction
 
