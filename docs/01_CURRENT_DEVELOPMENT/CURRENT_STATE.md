@@ -1,14 +1,14 @@
 # Champions Legacy Challenge — Current State
 
-<!-- RELEASE_STATUS: DEVELOPMENT -->
-Source version: 0.25.0 development
-Production version: 0.24.0
+<!-- RELEASE_STATUS: VERIFIED_PRODUCTION -->
+Source version: 0.25.0 release finalised
+Production version: 0.25.0
 Last updated: 10 August 2026
-Status: Active pre-v1.0 development
+Status: Verified pre-v1.0 production release
 
 ## Production baseline
 
-v0.24.0 remains live and verified on Firebase Hosting with the byte-verified v0.24.0 Firestore Rules active in production. Production release evidence remains in `docs/07_HISTORY/V0240_PRODUCTION_RELEASE.md`.
+v0.25.0 is live and verified on Firebase Hosting with independently verified v0.25.0 Firestore Rules active in production. Production release evidence is recorded in `docs/07_HISTORY/V0250_PRODUCTION_RELEASE.md`.
 
 ## v0.25.0 development scope
 
@@ -59,8 +59,17 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - all application/Rules source outside release documentation and the verifier must remain identical to the frozen 25D baseline;
 - production deploy scripts remain blocked and 25R performs no Firebase activation.
 
-### Next v0.25 action
-Prepare the dedicated reviewed v0.25.0 production activation sequence from the verified 25R freeze.
+### Production activation — complete
+- exact deployed application source: `1e11f5ff8ca5af7e9d758f62b9d377e1c6ddd94d`;
+- active Cloud Firestore Ruleset: `projects/fitnesschallengeapp-9e87f/rulesets/9e476b71-9b9b-4b05-bedd-5bc3b1932d2d`;
+- canonical local and active Rules SHA-256: `17217b471feb4f7e2db3df72b9456cc64e1451eb2c529228490b6ef8e47f376e`;
+- Firebase Hosting target `app` released 66 files to `champions-legacy-challenge`;
+- live `index.html` SHA-256 `e40e19fbf102ab066a4394604d8c108f437d85032e8aafbb8be5d0f75c06571a` matched the frozen build;
+- 16 referenced live assets matched the frozen build and 10/10 critical SPA routes passed;
+- logged-in manual production smoke passed on 10 August 2026 with no unnecessary competition test data created.
+
+### Next action
+Begin v0.26.0 security and operational hardening from the verified v0.25.0 production baseline.
 
 ## Responsive development boundary
 
@@ -68,4 +77,4 @@ Current manual observations are desktop-first. Dedicated mobile/tablet visual ac
 
 ## Production boundary
 
-No v0.25 checkpoint may change production unless it reaches a dedicated reviewed release-activation stage. Development-repository production deployment scripts remain blocked.
+v0.25.0 production activation is complete and verified. Development-repository production deployment scripts remain blocked; every later production change still requires its own dedicated reviewed release stage.

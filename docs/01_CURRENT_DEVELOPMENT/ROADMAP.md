@@ -1,13 +1,13 @@
 # Champions Legacy Challenge — Roadmap
 
-<!-- RELEASE_STATUS: DEVELOPMENT -->
+<!-- RELEASE_STATUS: VERIFIED_PRODUCTION -->
 Last updated: 10 August 2026
 
-## Current production — v0.24.0
+## Current production — v0.25.0
 
-v0.24.0 remains the verified production baseline. Its Firestore Rules and Hosting release were activated and independently verified on 9 August 2026. Production must not be changed by ordinary development checkpoints.
+v0.25.0 is the verified production baseline. Firestore Rules and Hosting were activated independently on 10 August 2026 and verified against the frozen release source. Production release evidence is recorded in `docs/07_HISTORY/V0250_PRODUCTION_RELEASE.md`.
 
-## Current development — v0.25.0
+## v0.25.0 — COMPLETE
 
 ### 25A — Existing-app correctness foundations — COMPLETE
 - snap route/navigation changes to the top of the page;
@@ -51,6 +51,15 @@ v0.24.0 remains the verified production baseline. Its Firestore Rules and Hostin
 - require the consolidated 148-test application gate and 94-test Firestore Rules emulator gate;
 - keep development-branch production deploy scripts blocked;
 - perform no Firebase production deployment during release-readiness verification.
+
+### Production activation — COMPLETE
+- deployed application source commit: `1e11f5ff8ca5af7e9d758f62b9d377e1c6ddd94d`;
+- final gate: 148/148 application tests and 94/94 Firestore Rules tests;
+- active Firestore Rules source independently matched SHA-256 `17217b471feb4f7e2db3df72b9456cc64e1451eb2c529228490b6ef8e47f376e`;
+- Hosting target `app` released 66 files to `champions-legacy-challenge`;
+- live build integrity and 10/10 critical SPA routes passed;
+- logged-in manual production smoke passed;
+- release tag `v0.25.0` points to the exact deployed source commit, while the later finalisation commit is documentation-only.
 
 Five Fires and Buddy Bonuses are intentionally removed from the pre-v1.0 roadmap. Unspecified late-season twists are not blockers for v1.0 and will only be implemented if explicitly designed and approved later.
 
