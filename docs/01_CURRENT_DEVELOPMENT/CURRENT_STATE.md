@@ -4,7 +4,7 @@
 Source version: 0.27.0 development
 Production version: 0.26.0
 Last updated: 11 August 2026
-Status: v0.27 personal progress/communication experience complete after 27D
+Status: v0.27 Houses/Seasons competition workspace experience complete after 27E
 
 ## Production baseline
 
@@ -210,8 +210,21 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - add persistent 27D regression coverage;
 - keep Firestore Rules byte-for-byte unchanged and perform no Firebase deployment.
 
+#### Checkpoint 27E — Houses / Seasons competition workspaces — COMPLETE
+- persist selected House and House workspace state in the URL;
+- persist Seasons Browse/Join/Create workspace and season-detail workspace in the URL;
+- remove duplicate local season-detail tab state so URL presentation state is authoritative;
+- extract House card/roster and season standings presentation from the oversized route modules;
+- introduce a shared CompetitionWorkspaceSummary with role/context metrics and direct task shortcuts;
+- replace remaining Houses/Seasons browser confirm/prompt flows with the accessible ConfirmDialog;
+- retain typed `DELETE` confirmation for permanent unused draft-season deletion;
+- strengthen competition metadata readability, 46px action targets and mobile action stacking;
+- preserve C.H.A.O.S., leadership, movement/rest, assignment history, balance, Power Plays, evidence, bonuses, lifecycle, standings, honours and every Firestore Rules/service contract;
+- add persistent 27E regression coverage;
+- keep Firestore Rules byte-for-byte unchanged and perform no Firebase deployment.
+
 ### Next action
-Checkpoint 27E: restructure Houses and Seasons presentation into clearer task-focused workspaces while preserving every competition service, House assignment/history, leadership, movement/rest, Power Play, bonus and Firestore Rules contract.
+Checkpoint 27F: polish Platform Admin, Rulebook, Points Guide, Help, Pocket Week and future-feature states. Standardise dense lists/forms/dialogs, long-form reading layouts and remaining destructive-action presentation without changing administration or scoring semantics.
 
 ## Responsive development boundary
 

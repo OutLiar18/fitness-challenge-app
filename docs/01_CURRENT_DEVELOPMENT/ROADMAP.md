@@ -187,12 +187,15 @@ Five Fires and Buddy Bonuses are intentionally removed from the pre-v1.0 roadmap
 - improve responsive readability/touch treatment across all five surfaces;
 - preserve all statistics/profile/messaging/coaching/Rules semantics and perform no Firebase deployment.
 
-### 27E — Competition workspaces
-- Houses;
-- Seasons;
-- decompose oversized route presentation into task-focused components/workspaces;
-- improve captain/vice-captain/player/admin scanning and responsive behaviour;
-- preserve all competition/data/Rules semantics.
+### 27E — Competition workspaces — COMPLETE
+- URL-back House selection, House task workspace, Seasons Browse/Join/Create workspace and season-detail workspace;
+- remove duplicate local season-detail tab state;
+- extract House card/roster and season standings presentation from oversized route modules;
+- add shared player/leader/administrator competition-context summaries with direct task shortcuts;
+- replace remaining Houses/Seasons browser confirm/prompt flows with accessible in-app confirmation while preserving typed DELETE for permanent unused draft-season deletion;
+- improve competition metadata readability, touch targets and mobile action stacking;
+- preserve C.H.A.O.S., leadership, movement/rest, assignment history, balance, Power Plays, evidence, bonuses, lifecycle, standings, honours and all service/Rules semantics;
+- add persistent 27E regression coverage and perform no Firebase deployment.
 
 ### 27F — Administration, reference and support
 - Platform Admin;

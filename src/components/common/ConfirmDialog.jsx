@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./ConfirmDialog.css";
 
 const FOCUSABLE_SELECTOR = [
@@ -17,6 +17,9 @@ export default function ConfirmDialog({
   confirmLabel = "Confirm",
   cancelLabel = "Cancel",
   loading = false,
+  loadingLabel = "Deleting…",
+  confirmationPhrase = "",
+  confirmationPrompt = "",
   onConfirm,
   onCancel,
 }) {
@@ -25,9 +28,15 @@ export default function ConfirmDialog({
   const previousFocusRef = useRef(null);
   const cancelHandlerRef = useRef(onCancel);
   const loadingRef = useRef(loading);
+  const [phrase, setPhrase] = useState("");
+  const phraseRequired = Boolean(confirmationPhrase);
+  const phraseMatches = !phraseRequired || phrase.trim() === confirmationPhrase;
 
   useEffect(() => {
-    cancelHandlerRef.current = onCancel;
+    cancelHandlerRef.current = () => {
+      setPhrase("");
+      onCancel?.();
+    };
   }, [onCancel]);
 
   useEffect(() => {
@@ -89,9 +98,21 @@ export default function ConfirmDialog({
 
   if (!open) return null;
 
+  function handleCancel() {
+    if (loading) return;
+    setPhrase("");
+    onCancel?.();
+  }
+
+  function handleConfirm() {
+    if (loading || !phraseMatches) return;
+    setPhrase("");
+    onConfirm?.();
+  }
+
   function handleBackdropMouseDown(event) {
-    if (event.target === event.currentTarget && !loading) {
-      onCancel?.();
+    if (event.target === event.currentTarget) {
+      handleCancel();
     }
   }
 
@@ -115,23 +136,37 @@ export default function ConfirmDialog({
           <h2 id="confirm-dialog-title">{title}</h2>
           <p id="confirm-dialog-description">{description}</p>
         </div>
+        {phraseRequired && (
+          <label className="confirm-dialog__phrase" htmlFor="confirm-dialog-phrase">
+            <span>
+              {confirmationPrompt || `Type ${confirmationPhrase} to continue.`}
+            </span>
+            <input
+              id="confirm-dialog-phrase"
+              autoComplete="off"
+              value={phrase}
+              disabled={loading}
+              onChange={(event) => setPhrase(event.target.value)}
+            />
+          </label>
+        )}
         <div className="confirm-dialog__actions">
           <button
             className="button button--secondary"
             type="button"
             ref={cancelRef}
             disabled={loading}
-            onClick={onCancel}
+            onClick={handleCancel}
           >
             {cancelLabel}
           </button>
           <button
             className="button button--danger"
             type="button"
-            disabled={loading}
-            onClick={onConfirm}
+            disabled={loading || !phraseMatches}
+            onClick={handleConfirm}
           >
-            {loading ? "Deleting…" : confirmLabel}
+            {loading ? loadingLabel : confirmLabel}
           </button>
         </div>
       </section>

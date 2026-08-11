@@ -6,7 +6,7 @@ Current production: v0.26.0
 
 ## First action
 
-Continue from completed 27D on development/v0.27.0. Implement 27E across Houses and Seasons. Treat this as presentation decomposition rather than competition redesign: create clearer task-focused workspaces/components, improve captain/vice-captain/player/admin scanning and responsive behavior, and preserve all House assignment/history, leadership, movement/rest, Power Play, bonus, lifecycle, service and Firestore Rules semantics.
+Continue from completed 27E on development/v0.27.0. Implement 27F across Platform Admin, Rulebook, Points Guide, Help, Pocket Week and future-feature states. Reuse the shared design, WorkspaceTabs and ConfirmDialog patterns; standardise dense lists/forms/dialogs and long-form reading layouts without changing administrator authority, scoring, Pocket semantics or Firestore Rules.
 
 ## v0.25.0 order
 
@@ -109,3 +109,7 @@ Production activation completed successfully from `c057fca0598fe4a07ff101ea13808
 ## Checkpoint 27D personal experience
 
 27D completes the Progress, Analytics, Profile, Inbox and Legacy Coach UX pass. Personal workspace state is URL-backed, Analytics data visuals use semantic list structures rather than flattening visible values behind a single image role, Progress/Analytics have useful recovery states, Profile errors receive focus, Inbox reuses shared keyboard-accessible WorkspaceTabs, and Coach saving/empty states are explicit. All underlying statistics, profile, messaging, coaching and Rules behavior remains unchanged. See `V027_PERSONAL_EXPERIENCE.md`.
+
+## Checkpoint 27E competition workspaces
+
+27E completes the Houses and Seasons UX pass. House/season workspaces are deep-linkable through URL presentation state, House roster/card and standings presentation are extracted from the oversized routes, both competition pages expose concise role/context summaries, and remaining browser confirm/prompt flows are replaced with the accessible ConfirmDialog while preserving typed DELETE for unused draft-season deletion. Competition services, calculations, movement/rest, evidence, Power Plays, bonus, history and Rules semantics remain unchanged. See `V027_COMPETITION_WORKSPACES.md`.

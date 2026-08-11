@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
+import ConfirmDialog from "../components/common/ConfirmDialog";
 import Toast from "../components/common/Toast/Toast";
+import CompetitionWorkspaceSummary from "../components/seasons/CompetitionWorkspaceSummary";
 import EvidenceWorkspace from "../components/seasons/EvidenceWorkspace";
 import PowerPlayWorkspace from "../components/seasons/PowerPlayWorkspace";
 import SeasonCommandCentre from "../components/seasons/SeasonCommandCentre";
+import SeasonStandingsTable from "../components/seasons/SeasonStandingsTable";
 import WorkspaceTabs, {
   WorkspacePanel,
 } from "../components/common/WorkspaceTabs";
@@ -551,50 +554,6 @@ function JoinLeagueForm({ userId, profile, notify }) {
   );
 }
 
-function StandingsTable({ rows, kind }) {
-  if (rows.length === 0)
-    return (
-      <div className="empty-state">
-        No scoring activity has reached this table yet.
-      </div>
-    );
-  const houseTable = kind === "house";
-  return (
-    <div
-      className="standings-table"
-      role="list"
-      aria-label={`${kind} standings`}
-    >
-      {rows.map((row) => (
-        <article
-          className="standings-row"
-          role="listitem"
-          key={houseTable ? row.houseId || row.houseName : row.userId}
-        >
-          <strong className="standings-rank">{row.rank}</strong>
-          {houseTable ? (
-            <span className="standings-house-emblem" aria-hidden="true">
-              {getHouseEmblem(row.houseEmblemId).symbol}
-            </span>
-          ) : (
-            <LegacyAvatar avatarId={row.avatarId} size="small" decorative />
-          )}
-          <div className="standings-identity">
-            <strong>{houseTable ? row.houseName : row.displayName}</strong>
-            <span>
-              {houseTable
-                ? `${row.memberCount} contributing ${pluralize(row.memberCount, "player", "players")} · ${row.activeDays} combined active days`
-                : `${row.activeDays} active ${pluralize(row.activeDays, "day", "days")} · ${row.houseName}`}
-            </span>
-          </div>
-          <strong className="standings-score">
-            {formatPoints(row.totalPoints)}
-          </strong>
-        </article>
-      ))}
-    </div>
-  );
-}
 
 function LeagueDetail({
   league,
@@ -604,6 +563,7 @@ function LeagueDetail({
   userId,
   notify,
   onDeleted,
+  onTabChange,
   requestedTab = "",
 }) {
   const [memberState, setMemberState] = useState({ leagueId: "", items: [] });
@@ -614,7 +574,7 @@ function LeagueDetail({
   const [publishedSnapshot, setPublishedSnapshot] = useState(null);
   const [powerPlayAssignments, setPowerPlayAssignments] = useState([]);
   const [workingAction, setWorkingAction] = useState("");
-  const [activeTab, setActiveTab] = useState(() => requestedTab || "overview");
+  const [pendingAction, setPendingAction] = useState("");
   const isManager =
     canManage && canManageLeague(league, userId, isPlatformAdmin);
   const isHouseSeason =
@@ -635,8 +595,9 @@ function LeagueDetail({
     if (tab.id === "evidence") return canOperateEvidence;
     return true;
   });
-  const resolvedDetailTab =
-    resolveWorkspaceTab(detailTabs, activeTab)?.id ?? "overview";
+    const resolvedDetailTab =
+    resolveWorkspaceTab(detailTabs, requestedTab)?.id ?? "overview";
+  const setActiveTab = (tabId) => onTabChange?.(tabId);
 
   useEffect(() => {
     if (!powerPlayEnabled) return undefined;
@@ -731,14 +692,7 @@ function LeagueDetail({
     : null;
 
   async function handleTransition() {
-    if (
-      workingAction ||
-      !nextStatus ||
-      !window.confirm(
-        `Change this season to ${getLeagueStatusLabel(nextStatus)}?`,
-      )
-    )
-      return;
+    if (workingAction || !nextStatus) return;
     setWorkingAction("transition");
     try {
       await transitionLeague({ league, nextStatus, actorId: userId });
@@ -746,6 +700,7 @@ function LeagueDetail({
         `Season changed to ${getLeagueStatusLabel(nextStatus)}.`,
         "success",
       );
+      setPendingAction("");
     } catch (error) {
       console.error(error);
       notify(
@@ -757,18 +712,13 @@ function LeagueDetail({
     }
   }
 
-  async function handleDeleteDraft() {
+    async function handleDeleteDraft() {
     if (workingAction || !isPlatformAdmin || league.status !== "draft") return;
-    const confirmation = window.prompt(
-      `Permanently delete the unused draft season "${league.name}" and its draft Houses? Type DELETE to continue.`,
-      "",
-    );
-    if (confirmation !== "DELETE") return;
-
     setWorkingAction("delete-draft");
     try {
       await deleteDraftLeague({ league, actorId: userId });
       notify("Unused draft season permanently deleted. Historical seasons remain protected.", "success");
+      setPendingAction("");
       onDeleted?.();
     } catch (error) {
       console.error(error);
@@ -779,12 +729,12 @@ function LeagueDetail({
   }
 
   async function handleWithdraw() {
-    if (workingAction || !window.confirm("Withdraw this season registration?"))
-      return;
+    if (workingAction) return;
     setWorkingAction("withdraw");
     try {
       await leaveLeagueRegistration({ leagueId: league.id, userId });
       notify("Season registration withdrawn.", "success");
+      setPendingAction("");
     } catch (error) {
       console.error(error);
       notify(error.message || "Registration could not be withdrawn.", "error");
@@ -847,7 +797,7 @@ function LeagueDetail({
               className="button button--primary"
               type="button"
               disabled={Boolean(workingAction)}
-              onClick={handleTransition}
+              onClick={() => setPendingAction("transition")}
             >
               {workingAction === "transition"
                 ? "Updating season…"
@@ -859,7 +809,7 @@ function LeagueDetail({
               className="button button--danger"
               type="button"
               disabled={Boolean(workingAction)}
-              onClick={handleDeleteDraft}
+              onClick={() => setPendingAction("delete-draft")}
             >
               {workingAction === "delete-draft"
                 ? "Deleting draftâ€¦"
@@ -871,7 +821,7 @@ function LeagueDetail({
               className="button button--danger"
               type="button"
               disabled={Boolean(workingAction)}
-              onClick={handleWithdraw}
+              onClick={() => setPendingAction("withdraw")}
             >
               {workingAction === "withdraw"
                 ? "Withdrawing…"
@@ -879,8 +829,41 @@ function LeagueDetail({
             </button>
           )}
         </div>
-      </section>
-
+            </section>
+      <CompetitionWorkspaceSummary
+        eyebrow="Your season context"
+        title={membership
+          ? `${getMembershipStatusLabel(membership.status)} in ${league.name}`
+          : `Viewing ${league.name}`}
+        description={isManager
+          ? "Competition administration is separated into focused workspaces. Use the shortcuts below for the next operational task without mixing setup, standings and evidence."
+          : "The season keeps individual and House competition together while preserving the House that owned each historical contribution."}
+        metrics={[
+          { label: "Season phase", value: getLeagueStatusLabel(league.status) },
+          { label: "Membership", value: membership ? getMembershipStatusLabel(membership.status) : "Not joined" },
+          { label: "Houses", value: String(league.houseCount || 0) },
+          { label: "Power Plays", value: powerPlayEnabled ? "Active" : "Off" },
+        ]}
+      >
+        <button className="button button--secondary" type="button" onClick={() => setActiveTab("overview")}>
+          Season overview
+        </button>
+        {canViewStandings && (
+          <button className="button button--secondary" type="button" onClick={() => setActiveTab("standings")}>
+            Open standings
+          </button>
+        )}
+        {powerPlayEnabled && (
+          <button className="button button--secondary" type="button" onClick={() => setActiveTab("power-plays")}>
+            Power Plays
+          </button>
+        )}
+        {canViewCommandCentre && (
+          <button className="button button--primary" type="button" onClick={() => setActiveTab("operations")}>
+            Command centre
+          </button>
+        )}
+      </CompetitionWorkspaceSummary>
       <WorkspaceTabs
         idPrefix={`season-${league.id}`}
         label={`${league.name} sections`}
@@ -1027,7 +1010,7 @@ function LeagueDetail({
                   stays frozen.
                 </div>
               ) : (
-                <StandingsTable rows={standings.players} kind="player" />
+                <SeasonStandingsTable rows={standings.players} kind="player" />
               )}
             </section>
             <section className="league-standings card">
@@ -1046,7 +1029,7 @@ function LeagueDetail({
                   House standings will appear after the first daily publication.
                 </div>
               ) : (
-                <StandingsTable rows={standings.houses} kind="house" />
+                <SeasonStandingsTable rows={standings.houses} kind="house" />
               )}
             </section>
           </>
@@ -1141,6 +1124,38 @@ function LeagueDetail({
           />
         </WorkspacePanel>
       )}
+      <ConfirmDialog
+        open={Boolean(pendingAction)}
+        title={pendingAction === "transition"
+          ? `Move season to ${getLeagueStatusLabel(nextStatus)}?`
+          : pendingAction === "delete-draft"
+            ? `Permanently delete ${league.name}?`
+            : "Withdraw this season registration?"}
+        description={pendingAction === "transition"
+          ? "Season lifecycle only moves forward. Confirm this audited stage transition when the current stage is complete."
+          : pendingAction === "delete-draft"
+            ? "This permanently deletes only the unused draft season and its draft Houses. Registration, active and historical seasons remain protected."
+            : "Your registration will be withdrawn before the season starts. This does not delete the season or any other player."}
+        confirmLabel={pendingAction === "transition"
+          ? `Move to ${getLeagueStatusLabel(nextStatus)}`
+          : pendingAction === "delete-draft"
+            ? "Delete unused draft"
+            : "Withdraw registration"}
+        loading={Boolean(workingAction)}
+        loadingLabel={pendingAction === "transition"
+          ? "Updating season…"
+          : pendingAction === "delete-draft"
+            ? "Deleting draft…"
+            : "Withdrawing…"}
+        confirmationPhrase={pendingAction === "delete-draft" ? "DELETE" : ""}
+        confirmationPrompt={pendingAction === "delete-draft" ? "Type DELETE to permanently remove this unused draft season." : ""}
+        onConfirm={() => {
+          if (pendingAction === "transition") handleTransition();
+          else if (pendingAction === "delete-draft") handleDeleteDraft();
+          else if (pendingAction === "withdraw") handleWithdraw();
+        }}
+        onCancel={() => !workingAction && setPendingAction("")}
+      />
     </div>
   );
 }
@@ -1150,8 +1165,8 @@ export default function Seasons() {
   const { leagues, memberships, loading, error, canManageLeagues } =
     useLeagues();
   const { toast, showToast, dismissToast } = useToast();
-  const [activePageTab, setActivePageTab] = useState("browse");
   const [searchParams, setSearchParams] = useSearchParams();
+  const requestedPageTab = searchParams.get("workspace") || "browse";
   const requestedId = searchParams.get("league") || "";
   const fallbackId = memberships[0]?.leagueId || leagues[0]?.id || "";
   const selectedId = leagues.some((league) => league.id === requestedId)
@@ -1165,7 +1180,36 @@ export default function Seasons() {
   const pageTabs = SEASONS_PAGE_TABS.filter((tab) =>
     tab.id !== "create" || canManageLeagues,
   );
-  const resolvedPageTab = resolveWorkspaceTab(pageTabs, activePageTab)?.id ?? "browse";
+    const resolvedPageTab = resolveWorkspaceTab(pageTabs, requestedPageTab)?.id ?? "browse";
+
+  function setActivePageTab(tabId) {
+    const next = new URLSearchParams(searchParams);
+    if (tabId === "browse") next.delete("workspace");
+    else next.set("workspace", tabId);
+    setSearchParams(next, { replace: true });
+  }
+
+  function selectLeague(leagueId) {
+    const next = new URLSearchParams(searchParams);
+    next.set("league", leagueId);
+    next.delete("workspace");
+    next.delete("tab");
+    setSearchParams(next, { replace: true });
+  }
+
+  function setDetailTab(tabId) {
+    const next = new URLSearchParams(searchParams);
+    if (tabId === "overview") next.delete("tab");
+    else next.set("tab", tabId);
+    setSearchParams(next, { replace: true });
+  }
+
+  function clearSelectedLeague() {
+    const next = new URLSearchParams(searchParams);
+    next.delete("league");
+    next.delete("tab");
+    setSearchParams(next, { replace: true });
+  }
 
   return (
     <div className="league-page page-stack">
@@ -1219,9 +1263,7 @@ export default function Seasons() {
                         ? "league-browser__item league-browser__item--active"
                         : "league-browser__item"
                     }
-                    onClick={() =>
-                      setSearchParams({ league: league.id }, { replace: true })
-                    }
+                    onClick={() => selectLeague(league.id)}
                   >
                     <span>{league.theme || league.type}</span>
                     <strong>{league.name}</strong>
@@ -1246,7 +1288,8 @@ export default function Seasons() {
             isPlatformAdmin={isPlatformAdmin}
             userId={user?.uid}
             notify={showToast}
-            onDeleted={() => setSearchParams({}, { replace: true })}
+            onDeleted={clearSelectedLeague}
+            onTabChange={setDetailTab}
             requestedTab={searchParams.get("tab") || ""}
           />
         )}

@@ -451,3 +451,58 @@
     flex-direction: column;
   }
 }
+
+/* v0.27 27E — House task-focused workspace */
+.season-selector select {
+  min-height: 46px;
+}
+
+.season-banner__status span,
+.season-house-card__copy small,
+.season-house-card__leadership,
+.house-member span,
+.assignment-history small,
+.house-management-metrics span {
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+
+.season-house-card {
+  min-height: 112px;
+  border-width: 1px;
+  background: var(--surface-raised);
+}
+
+.season-house-card--selected {
+  box-shadow: inset 4px 0 0 var(--house-accent), var(--shadow-md);
+}
+
+.house-overview-actions .button,
+.roster-swap .button,
+.leadership-panel .button,
+.chaos-console .button {
+  min-height: 46px;
+}
+
+@media (max-width: 620px) {
+  .season-selector {
+    align-items: stretch;
+  }
+
+  .season-selector label,
+  .season-selector select {
+    width: 100%;
+  }
+
+  .house-overview-actions,
+  .roster-swap__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .house-overview-actions .button,
+  .roster-swap .button,
+  .leadership-panel .button,
+  .chaos-console .button {
+    width: 100%;
+  }
+}

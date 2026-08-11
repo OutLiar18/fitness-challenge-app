@@ -181,3 +181,56 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* v0.27 27E — season task-focused workspace */
+.league-browser__item,
+.league-hero__actions .button,
+.league-detail .button {
+  min-height: 46px;
+}
+
+.league-status,
+.league-membership-chip,
+.league-date-line,
+.season-system small,
+.standings-identity span,
+.season-honours__grid small,
+.season-honours__houses small {
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+
+.league-browser__item {
+  border-width: 1px;
+  background: var(--surface-raised);
+}
+
+.league-browser__item--active {
+  box-shadow: inset 3px 0 0 var(--primary), var(--shadow-sm);
+}
+
+.standings-row {
+  min-height: 66px;
+  background: var(--surface-raised);
+}
+
+@media (max-width: 620px) {
+  .league-hero__actions {
+    display: grid;
+    width: 100%;
+  }
+
+  .league-hero__actions .button,
+  .league-detail .button {
+    width: 100%;
+  }
+
+  .standings-row {
+    grid-template-columns: auto auto minmax(0, 1fr);
+  }
+
+  .standings-score {
+    grid-column: 3;
+    justify-self: start;
+  }
+}

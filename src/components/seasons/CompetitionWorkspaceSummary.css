@@ -1,0 +1,102 @@
+.competition-summary {
+  display: grid;
+  grid-template-columns: minmax(240px, 1.1fr) minmax(320px, 1fr);
+  align-items: center;
+  gap: 18px 24px;
+  padding: 20px 22px;
+  border-color: color-mix(in srgb, var(--primary) 18%, var(--border));
+  background:
+    linear-gradient(135deg, var(--surface-raised), var(--surface-soft));
+}
+
+.competition-summary__copy {
+  min-width: 0;
+}
+
+.competition-summary__copy h2,
+.competition-summary__copy > p:last-child {
+  margin: 0;
+}
+
+.competition-summary__copy h2 {
+  margin-top: 3px;
+  font-size: clamp(1.08rem, 2vw, 1.35rem);
+}
+
+.competition-summary__copy > p:last-child {
+  margin-top: 7px;
+  max-width: 660px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.competition-summary__metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.competition-summary__metrics div {
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+}
+
+.competition-summary__metrics dt {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.competition-summary__metrics dd {
+  margin: 3px 0 0;
+  overflow: hidden;
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 850;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.competition-summary__actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  padding-top: 2px;
+}
+
+@media (max-width: 760px) {
+  .competition-summary {
+    grid-template-columns: 1fr;
+    padding: 18px 16px;
+  }
+
+  .competition-summary__metrics {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .competition-summary__actions .button {
+    flex: 1 1 150px;
+  }
+}
+
+@media (max-width: 420px) {
+  .competition-summary__metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .competition-summary__actions {
+    display: grid;
+  }
+
+  .competition-summary__actions .button {
+    width: 100%;
+  }
+}

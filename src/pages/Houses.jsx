@@ -1,10 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
+import ConfirmDialog from "../components/common/ConfirmDialog";
 import Toast from "../components/common/Toast/Toast";
 import WorkspaceTabs, { WorkspacePanel } from "../components/common/WorkspaceTabs";
 import PageHeader from "../components/layout/PageHeader";
-import LegacyAvatar from "../components/profile/LegacyAvatar";
+import CompetitionWorkspaceSummary from "../components/seasons/CompetitionWorkspaceSummary";
+import {
+  HouseCard,
+  HouseRoster,
+} from "../components/seasons/HouseRosterWorkspace";
 import {
   HOUSE_ACCENTS,
   HOUSE_COMPOSITION_OPTIONS,
@@ -54,7 +59,6 @@ import {
 } from "../services/leagues/leagueService";
 import { canManageLeague } from "../services/leagues/leagueModel";
 import { resolveWorkspaceTab } from "../services/ui/workspaceModel";
-import { pluralize } from "../utils/displayFormatters";
 import "./Houses.css";
 
 const EMPTY_HOUSE = Object.freeze({
@@ -144,69 +148,7 @@ function HouseIdentityForm({ initial = EMPTY_HOUSE, submitLabel, busy, onSubmit 
   );
 }
 
-function HouseCard({ house, members, selected, onSelect }) {
-  const emblem = getHouseEmblem(house.emblemId);
-  const accent = getHouseAccent(house.accentId);
-  const captain = members.find((member) => member.userId === house.captainId);
-  const viceCaptains = (house.viceCaptainIds ?? [])
-    .map((id) => members.find((member) => member.userId === id))
-    .filter(Boolean);
 
-  return (
-    <button
-      type="button"
-      className={selected ? "season-house-card season-house-card--selected" : "season-house-card"}
-      style={{ "--house-accent": accent.value }}
-      aria-pressed={selected}
-      onClick={onSelect}
-    >
-      <span className="season-house-card__emblem" aria-hidden="true">{emblem.symbol}</span>
-      <span className="season-house-card__copy">
-        <strong>{house.name}</strong>
-        <em>“{house.motto}”</em>
-        <small>{members.length} {pluralize(members.length, "member", "members")}</small>
-      </span>
-      <span className="season-house-card__leadership">
-        {captain ? `Captain: ${captain.displayName}` : "Captain pending"}
-        {viceCaptains.length > 0 && ` · ${viceCaptains.length} vice ${pluralize(viceCaptains.length, "captain", "captains")}`}
-      </span>
-    </button>
-  );
-}
-
-function HouseRoster({ house, members }) {
-  const leadership = new Set([house.captainId, ...(house.viceCaptainIds ?? [])]);
-  const sorted = [...members].sort((first, second) => {
-    const firstRank = first.userId === house.captainId ? 0 : leadership.has(first.userId) ? 1 : 2;
-    const secondRank = second.userId === house.captainId ? 0 : leadership.has(second.userId) ? 1 : 2;
-    return firstRank - secondRank || first.displayName.localeCompare(second.displayName);
-  });
-
-  return (
-    <section className="house-roster card">
-      <div className="community-section-heading">
-        <div><p className="section-kicker">Current roster</p><h2>{house.name}</h2></div>
-        <span>{members.length} {pluralize(members.length, "player", "players")}</span>
-      </div>
-      <div className="house-roster__list">
-        {sorted.map((member) => {
-          const label = member.userId === house.captainId
-            ? "House captain"
-            : house.viceCaptainIds?.includes(member.userId)
-              ? "Vice-captain"
-              : "House member";
-          return (
-            <article className="house-member" key={member.userId}>
-              <LegacyAvatar avatarId={member.avatarId} size="small" decorative />
-              <div><strong>{member.displayName}</strong><span>{label}</span></div>
-              {leadership.has(member.userId) && <span className="house-member__crest" aria-label={label}>{member.userId === house.captainId ? "👑" : "⭐"}</span>}
-            </article>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
 
 function LeadershipPanel({ league, house, members, membership, elections, manager, actorId, notify }) {
   const weekKey = getSeasonWeekKey(new Date());
@@ -316,6 +258,7 @@ function RosterSwapPanel({ league, houses, members, actorId, manager, platformAd
   const [secondPlayerId, setSecondPlayerId] = useState("");
   const [overrideReason, setOverrideReason] = useState("");
   const [busy, setBusy] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const sourceHouse =
     availableSourceHouses.find((item) => item.id === sourceHouseId) ||
     availableSourceHouses[0] ||
@@ -362,7 +305,6 @@ function RosterSwapPanel({ league, houses, members, actorId, manager, platformAd
   async function handleSwap() {
     const firstPlayer = sourceMembers.find((item) => item.userId === firstPlayerId);
     const secondPlayer = targetMembers.find((item) => item.userId === secondPlayerId);
-    if (!window.confirm("Complete this week’s House roster swap? Earlier contributions will remain with each player’s previous House.")) return;
     setBusy(true);
     try {
       await swapHousePlayers({
@@ -379,6 +321,7 @@ function RosterSwapPanel({ league, houses, members, actorId, manager, platformAd
       setFirstPlayerId("");
       setSecondPlayerId("");
       setOverrideReason("");
+      setConfirming(false);
     } catch (error) {
       console.error(error);
       notify(error.message || "The House roster could not be changed.", "error");
@@ -416,7 +359,17 @@ function RosterSwapPanel({ league, houses, members, actorId, manager, platformAd
           </label>
         </div>
       )}
-      <button className="button button--danger" type="button" disabled={busy || invalidSameWeek || (overrideRequired && (!platformAdmin || overrideReason.trim().length < 12)) || !sourceHouse || !targetHouse || !sourceMembers.some((item) => item.userId === firstPlayerId) || !targetMembers.some((item) => item.userId === secondPlayerId)} onClick={handleSwap}>{busy ? "Changing Houses…" : overrideRequired ? "Complete audited correction" : "Complete roster swap"}</button>
+      <button className="button button--danger" type="button" disabled={busy || invalidSameWeek || (overrideRequired && (!platformAdmin || overrideReason.trim().length < 12)) || !sourceHouse || !targetHouse || !sourceMembers.some((item) => item.userId === firstPlayerId) || !targetMembers.some((item) => item.userId === secondPlayerId)} onClick={() => setConfirming(true)}>{busy ? "Changing Houses…" : overrideRequired ? "Complete audited correction" : "Complete roster swap"}</button>
+      <ConfirmDialog
+        open={confirming}
+        title={overrideRequired ? "Complete audited House correction?" : "Complete this week’s House swap?"}
+        description="Future House contributions will follow the new roster. Earlier contributions remain permanently attributed to the House represented when they were earned."
+        confirmLabel={overrideRequired ? "Complete correction" : "Complete roster swap"}
+        loading={busy}
+        loadingLabel="Changing Houses…"
+        onConfirm={handleSwap}
+        onCancel={() => !busy && setConfirming(false)}
+      />
     </section>
   );
 }
@@ -742,10 +695,11 @@ export default function Houses() {
   const [balanceHouseState, setBalanceHouseState] = useState({ leagueId: "", items: [] });
   const [privateBalanceState, setPrivateBalanceState] = useState({ leagueId: "", items: [] });
   const [privateBalanceHouseState, setPrivateBalanceHouseState] = useState({ leagueId: "", items: [] });
-  const [selectedHouseId, setSelectedHouseId] = useState("");
+  const requestedHouseId = searchParams.get("house") || "";
+  const requestedTab = searchParams.get("tab") || "overview";
   const [working, setWorking] = useState(false);
   const [editingHouseId, setEditingHouseId] = useState("");
-  const [activeTab, setActiveTab] = useState("overview");
+  const [pendingAction, setPendingAction] = useState(null);
 
   useEffect(() => {
     const leagueId = league?.id;
@@ -789,7 +743,7 @@ export default function Houses() {
   const membership = myMemberships.find((item) => item.leagueId === league?.id) || null;
   const membershipUserId = membership?.userId || "";
   const currentHouse = houses.find((item) => item.id === membership?.currentHouseId) || null;
-  const selectedHouse = houses.find((item) => item.id === selectedHouseId)
+  const selectedHouse = houses.find((item) => item.id === requestedHouseId)
     || currentHouse
     || houses[0]
     || null;
@@ -938,9 +892,21 @@ export default function Houses() {
         }]
       : []),
   ];
-  const resolvedActiveTab = resolveWorkspaceTab(tabs, activeTab)?.id ?? "overview";
+    const resolvedActiveTab = resolveWorkspaceTab(tabs, requestedTab)?.id ?? "overview";
 
+  function setActiveTab(tabId) {
+    const next = new URLSearchParams(searchParams);
+    if (tabId === "overview") next.delete("tab");
+    else next.set("tab", tabId);
+    setSearchParams(next, { replace: true });
+  }
 
+  function selectHouse(houseId) {
+    const next = new URLSearchParams(searchParams);
+    if (houseId) next.set("house", houseId);
+    else next.delete("house");
+    setSearchParams(next, { replace: true });
+  }
 
   async function handleCreateHouse(input) {
     setWorking(true);
@@ -970,15 +936,14 @@ export default function Houses() {
     }
   }
 
-  async function handleDeleteHouse(house) {
+    async function handleDeleteHouse(house) {
     if (working || !isPlatformAdmin || league?.status !== "draft" || !house?.id) return;
-    if (!window.confirm(`Permanently delete the unused draft House "${house.name}"?`)) return;
-
     setWorking(true);
     try {
       await deleteDraftLeagueHouse({ league, house, actorId: user.uid });
       showToast("Unused draft House permanently deleted.", "success");
-      setSelectedHouseId("");
+      selectHouse("");
+      setPendingAction(null);
       if (editingHouseId === house.id) setEditingHouseId("");
     } catch (error) {
       console.error(error);
@@ -988,12 +953,7 @@ export default function Houses() {
     }
   }
 
-  async function handleChaos() {
-    const confirmed = window.confirm(
-      "Activate C.H.A.O.S.? Every registered player will be assigned fairly and notified. This cannot be repeated for the season.",
-    );
-    if (!confirmed) return;
-
+    async function handleChaos() {
     setWorking(true);
     try {
       await activateChaos({ league, houses, memberships: members, actorId: user.uid });
@@ -1002,6 +962,7 @@ export default function Houses() {
         "success",
         6000,
       );
+      setPendingAction(null);
     } catch (error) {
       console.error(error);
       showToast(error.message || "C.H.A.O.S. could not be activated.", "error");
@@ -1012,12 +973,11 @@ export default function Houses() {
 
   function selectSeason(nextLeagueId) {
     setSearchParams({ league: nextLeagueId }, { replace: true });
-    setSelectedHouseId("");
     setEditingHouseId("");
-    setActiveTab("overview");
   }
 
   function editHouse(houseId) {
+    selectHouse(houseId);
     setEditingHouseId(houseId);
     setActiveTab("manage");
   }
@@ -1075,8 +1035,36 @@ export default function Houses() {
                   : "Awaiting C.H.A.O.S."}
               </span>
             </div>
-          </section>
-
+                    </section>
+          <CompetitionWorkspaceSummary
+            eyebrow="Your House context"
+            title={currentHouse ? `You represent ${currentHouse.name}` : membership ? "Opening House assignment pending" : "Explore the season Houses"}
+            description={manager
+              ? "Player-facing House identity stays separate from setup, balance and roster operations. Use the task buttons below to jump directly to the work that needs attention."
+              : "Choose a House to inspect its roster and leadership. Your own House remains your competition home until an authorised weekly roster move changes future representation."}
+            metrics={[
+              { label: "Season phase", value: league.status },
+              { label: "Your House", value: currentHouse?.name || (membership ? "Pending" : "Not joined") },
+              { label: "Selected House", value: selectedHouse?.name || "None" },
+              { label: "Your access", value: manager ? "Season administrator" : currentHouse && isHouseLeader(currentHouse, user?.uid) ? "House leader" : membership ? "Player" : "Observer" },
+            ]}
+          >
+            {selectedHouse && (
+              <button className="button button--secondary" type="button" onClick={() => setActiveTab("roster")}>
+                View selected roster
+              </button>
+            )}
+            {canUseRosterTurn && (
+              <button className="button button--secondary" type="button" onClick={() => setActiveTab("roster-turn")}>
+                Open roster turn
+              </button>
+            )}
+            {preSeasonManagement && (
+              <button className="button button--primary" type="button" onClick={() => setActiveTab("manage")}>
+                Open season setup
+              </button>
+            )}
+          </CompetitionWorkspaceSummary>
           <WorkspaceTabs
             tabs={tabs}
             activeId={resolvedActiveTab}
@@ -1128,7 +1116,7 @@ export default function Houses() {
                       house={house}
                       members={houseMembers}
                       selected={selectedHouse?.id === house.id}
-                      onSelect={() => setSelectedHouseId(house.id)}
+                      onSelect={() => selectHouse(house.id)}
                     />
                   );
                 })}
@@ -1198,7 +1186,7 @@ export default function Houses() {
                       className="button button--danger"
                       type="button"
                       disabled={working}
-                      onClick={() => handleDeleteHouse(selectedHouse)}
+                      onClick={() => setPendingAction({ type: "delete-house", house: selectedHouse })}
                     >
                       {working ? "Workingâ€¦" : "Delete draft House"}
                     </button>
@@ -1402,7 +1390,7 @@ export default function Houses() {
                     className="button button--danger"
                     type="button"
                     disabled={working || !chaosReadiness.eligible}
-                    onClick={handleChaos}
+                    onClick={() => setPendingAction({ type: "chaos" })}
                   >
                     {working ? "Destiny is calculating…" : "Activate C.H.A.O.S."}
                   </button>
@@ -1416,6 +1404,22 @@ export default function Houses() {
         </>
       )}
 
+      <ConfirmDialog
+        open={Boolean(pendingAction)}
+        title={pendingAction?.type === "chaos"
+          ? "Activate C.H.A.O.S. for this season?"
+          : `Permanently delete ${pendingAction?.house?.name || "this draft House"}?`}
+        description={pendingAction?.type === "chaos"
+          ? "Every registered player will receive the one-time balanced opening assignment. The assignment is preserved in season history and C.H.A.O.S. cannot be repeated."
+          : "Only an unused draft House can be deleted. Once registration opens, House history is protected."}
+        confirmLabel={pendingAction?.type === "chaos" ? "Activate C.H.A.O.S." : "Delete draft House"}
+        loading={working}
+        loadingLabel={pendingAction?.type === "chaos" ? "Assigning Houses…" : "Deleting House…"}
+        onConfirm={() => pendingAction?.type === "chaos"
+          ? handleChaos()
+          : handleDeleteHouse(pendingAction?.house)}
+        onCancel={() => !working && setPendingAction(null)}
+      />
       <Toast message={toast?.message} type={toast?.type} onDismiss={dismissToast} />
     </div>
   );
