@@ -134,8 +134,19 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - Firestore Rules remain unchanged;
 - no Firebase deployment.
 
+#### Checkpoint 26G — Firestore backup/restore operator safeguards
+- normal recovery is new-database-only; `(default)` is forbidden as a restore destination;
+- backup metadata must prove project/database provenance, READY state and a non-expired recovery point;
+- destination database IDs must use the `recovery-` prefix;
+- private recovery plans bind backup identity, operator/reason, application commit and Rules hash with SHA-256;
+- the planner renders a restore-command preview but cannot execute external commands;
+- source-database deletion and in-place restore are excluded from normal tooling;
+- backup schedule creation/change is excluded from this checkpoint;
+- Firestore Rules remain unchanged;
+- no restore, backup configuration change or Firebase deployment.
+
 ### Next action
-Design and test project-level Firestore backup/restore operator safeguards separately from account deletion, including backup provenance, restore target protection and destructive restore confirmation.
+Perform a read-only production disaster-recovery inventory: current Firestore database location/edition, PITR status, backup schedules/available backups, billing readiness and operator IAM capabilities. Do not create schedules or restore data during discovery.
 
 ## Responsive development boundary
 

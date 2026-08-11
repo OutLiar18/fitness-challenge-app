@@ -117,6 +117,15 @@ Five Fires and Buddy Bonuses are intentionally removed from the pre-v1.0 roadmap
 - preserve Auth disable/revocation before Firestore mutation and Auth deletion after Firestore completion;
 - run no production account deletion and perform no Firebase deployment.
 
+### 26G — Firestore backup/restore operator safeguards — COMPLETE
+- validate backup provenance against the Champions Legacy production project/default database;
+- require READY/unexpired backup metadata before a recovery plan can be created;
+- require restore to a clearly named new `recovery-*` database and forbid `(default)`;
+- bind private recovery plans to operator/reason, application commit and Rules SHA-256;
+- render restore commands as preview only, with no external-command execution;
+- exclude source-database deletion/in-place restore and backup-schedule creation from normal tooling;
+- run no restore, production data mutation or Firebase deployment.
+
 ### Later v0.26 remediation
 - tighten remaining administrator permission boundaries where the baseline proves it is useful;
 - improve public/private read boundaries where needed;

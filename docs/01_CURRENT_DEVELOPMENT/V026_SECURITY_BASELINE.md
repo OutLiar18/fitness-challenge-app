@@ -140,3 +140,13 @@ The previous trusted processor reused an existing `executionId` for `processing`
 The processor persists phase and batch progress. Retries require the original recovery plan and validate it against the trusted request/execution record. Deletes are replay-safe, documents already anonymised by the same execution are skipped, and missing/conflicting anonymisation targets stop processing instead of allowing an incomplete completion receipt.
 
 The private recovery plan is an operator-resume artifact, not a user-facing rollback mechanism and not a substitute for project-level Firestore backups. No trusted deletion was executed during 26F. Firestore Rules remain at canonical SHA-256 `4740edd168e495a70ac8a6252bb57c3986d30995b5372198c357adaa859f6b84`.
+
+## 26G resolution — project-level Firestore recovery is new-database-only by default
+
+26G adds a planning-only recovery model rather than a production restore command. Backup metadata must identify the Champions Legacy project and default database, report a READY state, include a database UID and represent an unexpired snapshot. The destination must be a different, clearly named `recovery-*` database in the same project; `(default)` is rejected.
+
+The private recovery plan records the source backup identity, snapshot/expiry, destination, operator/reason, current application commit and Firestore Rules hash, then receives a canonical SHA-256. The planner may display the documented `gcloud firestore databases restore` command as a preview but contains no external-command execution capability.
+
+Normal Champions Legacy tooling intentionally excludes the documented in-place restore path because that procedure requires deleting the existing source database. 26G also does not create or modify a scheduled backup. A separate read-only production inventory must establish current backup/PITR/billing/IAM state before any schedule activation is considered.
+
+See `V026_FIRESTORE_BACKUP_RESTORE.md`. Firestore Rules remain at canonical SHA-256 `4740edd168e495a70ac8a6252bb57c3986d30995b5372198c357adaa859f6b84`.

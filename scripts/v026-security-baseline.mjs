@@ -20,6 +20,7 @@ const playerDataProvider = load("src/context/PlayerDataProvider.jsx");
 const adminAuthorityModel = load("src/services/admin/adminAuthorityModel.js");
 const accountDelete = load("scripts/trusted-account-delete.mjs");
 const accountDeleteRecovery = load("scripts/trusted-account-deletion-recovery.mjs");
+const firestoreRecoveryPlanner = load("scripts/trusted-firestore-recovery-plan.mjs");
 
 if (pkg.version !== "0.26.0") {
   throw new Error(`Expected package version 0.26.0, found ${pkg.version}.`);
@@ -122,4 +123,29 @@ requireText(
   "trusted deletion fail-closed missing-plan guard",
 );
 console.log("Trusted deletion recovery: frozen plan + phase/batch resume guard present");
-console.log("Static v0.26 security guard PASSED (26A baseline + 26B/26C/26F recovery contracts)");
+requireText(
+  firestoreRecoveryPlanner,
+  'RESTORE_TO_NEW_DATABASE_ONLY',
+  "Firestore recovery new-database acknowledgement",
+);
+requireText(
+  firestoreRecoveryPlanner,
+  'sourceDatabaseDeletionForbidden: true',
+  "Firestore recovery source-delete prohibition",
+);
+requireText(
+  firestoreRecoveryPlanner,
+  'commandExecutionSupportedByPlanner: false',
+  "Firestore recovery planning-only boundary",
+);
+if (firestoreRecoveryPlanner.includes("child_process")) {
+  throw new Error("Firestore recovery planner must not execute external commands.");
+}
+if (firestoreRecoveryPlanner.includes("firestore databases delete")) {
+  throw new Error("Normal Firestore recovery planner must not contain a database-delete command.");
+}
+if (firestoreRecoveryPlanner.includes("backups schedules create")) {
+  throw new Error("26G must not create production backup schedules.");
+}
+console.log("Firestore recovery       : new-database-only SHA-bound planner present");
+console.log("Static v0.26 security guard PASSED (26A baseline + 26B/26C/26F/26G recovery contracts)");
