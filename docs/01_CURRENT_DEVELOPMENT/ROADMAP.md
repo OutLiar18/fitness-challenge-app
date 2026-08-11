@@ -108,6 +108,15 @@ Five Fires and Buddy Bonuses are intentionally removed from the pre-v1.0 roadmap
 - require App Check enforcement and CSP activation to remain separate production changes;
 - no Firebase deployment.
 
+### 26F — Trusted account-deletion interruption recovery — COMPLETE
+- freeze a private recovery plan before a trusted deletion enters processing;
+- bind the recovery-plan SHA-256 and operation count into the trusted execution record;
+- persist execution phase and Firestore batch progress;
+- replay the frozen path/mode plan idempotently on processing/failed recovery;
+- fail closed if the recovery plan is missing, mismatched, incomplete or conflicts with another execution;
+- preserve Auth disable/revocation before Firestore mutation and Auth deletion after Firestore completion;
+- run no production account deletion and perform no Firebase deployment.
+
 ### Later v0.26 remediation
 - tighten remaining administrator permission boundaries where the baseline proves it is useful;
 - improve public/private read boundaries where needed;

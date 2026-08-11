@@ -8,6 +8,12 @@ import {
   replaceDeletedPlayerIdentity,
 } from "../src/services/account/trustedDeletionModel.js";
 import { createFormerPlayerIdentity } from "../src/services/account/accountModel.js";
+import {
+  createTrustedDeletionRecoveryPlan,
+  getTrustedDeletionRecoveryDisposition,
+  getTrustedDeletionRecoveryPlanHash,
+  validateTrustedDeletionRecoveryPlan,
+} from "../scripts/trusted-account-deletion-recovery.mjs";
 
 test("trusted deletion blocks the cancellation window and the final Platform Administrator", () => {
   const audit = buildTrustedAccountDeletionAudit({
@@ -91,4 +97,135 @@ test("shared records replace identity without removing competition facts", () =>
   assert.equal(transformed.details.contact, "");
   assert.equal(ACCOUNT_DELETION_ANONYMISED_COLLECTIONS.includes("leagueHouseAssignmentHistory"), true);
   assert.equal(ACCOUNT_DELETION_PRIVATE_COLLECTIONS.includes("leagueCompositionProfiles"), true);
+});
+
+
+test("trusted deletion recovery plans freeze and sort the exact document path set", () => {
+  const plan = createTrustedDeletionRecoveryPlan({
+    modelVersion: "trusted-account-deletion-v1",
+    executionId: "execution-one",
+    requestId: "player-one",
+    subjectUserId: "player-one",
+    fingerprint: "abc123",
+    actorId: "admin-one",
+    source: { userId: "player-one", email: "player@example.com", displayName: "Player One" },
+    identity: { userId: "former-one", displayName: "Former Player TEST" },
+    counts: { "delete:challengeEntries": 1 },
+    leagueParticipantDecrements: { "league-one": 1 },
+    operations: [
+      { type: "anonymise", path: "leagues/league-one", collectionName: "leagues", id: "league-one" },
+      { type: "delete", path: "challengeEntries/entry-one", collectionName: "challengeEntries", id: "entry-one" },
+    ],
+    createdAt: "2026-08-11T09:00:00.000Z",
+  });
+
+  assert.deepEqual(plan.operations.map((operation) => operation.path), [
+    "challengeEntries/entry-one",
+    "leagues/league-one",
+  ]);
+  assert.equal(plan.leagueParticipantDecrements["league-one"], 1);
+  assert.equal(getTrustedDeletionRecoveryPlanHash(plan).length, 64);
+});
+
+test("trusted deletion recovery validation rejects execution-plan drift", () => {
+  const plan = createTrustedDeletionRecoveryPlan({
+    modelVersion: "trusted-account-deletion-v1",
+    executionId: "execution-one",
+    requestId: "player-one",
+    subjectUserId: "player-one",
+    fingerprint: "abc123",
+    actorId: "admin-one",
+    operations: [
+      { type: "delete", path: "users/player-one", collectionName: "users", id: "player-one" },
+    ],
+    createdAt: "2026-08-11T09:00:00.000Z",
+  });
+  const sha256 = getTrustedDeletionRecoveryPlanHash(plan);
+
+  assert.equal(validateTrustedDeletionRecoveryPlan({
+    plan,
+    sha256,
+    request: {
+      id: "player-one",
+      userId: "player-one",
+      executionId: "execution-one",
+      status: "failed",
+    },
+    execution: {
+      status: "failed",
+      modelVersion: "trusted-account-deletion-v1",
+      fingerprint: "abc123",
+      recoveryPlanSha256: sha256,
+      recoveryPlanOperationCount: 1,
+    },
+  }), true);
+
+  assert.throws(() => validateTrustedDeletionRecoveryPlan({
+    plan,
+    sha256,
+    request: {
+      id: "player-one",
+      userId: "player-one",
+      executionId: "execution-one",
+      status: "failed",
+    },
+    execution: {
+      status: "failed",
+      modelVersion: "trusted-account-deletion-v1",
+      fingerprint: "different",
+      recoveryPlanSha256: sha256,
+      recoveryPlanOperationCount: 1,
+    },
+  }), /fingerprint/);
+});
+
+test("trusted deletion recovery distinguishes replay-safe and conflicting documents", () => {
+  const operation = {
+    type: "anonymise",
+    path: "leagueMemberships/member-one",
+    collectionName: "leagueMemberships",
+    id: "member-one",
+  };
+
+  assert.equal(getTrustedDeletionRecoveryDisposition({
+    operation,
+    exists: true,
+    data: {
+      accountDeletionAnonymised: true,
+      accountDeletionExecutionId: "execution-one",
+    },
+    executionId: "execution-one",
+  }), "already-anonymised");
+
+  assert.equal(getTrustedDeletionRecoveryDisposition({
+    operation,
+    exists: true,
+    data: {
+      accountDeletionAnonymised: true,
+      accountDeletionExecutionId: "execution-two",
+    },
+    executionId: "execution-one",
+  }), "conflicting-execution");
+
+  assert.equal(getTrustedDeletionRecoveryDisposition({
+    operation,
+    exists: false,
+    data: null,
+    executionId: "execution-one",
+  }), "missing-anonymised-record");
+});
+
+test("trusted deletion recovery refuses duplicate document paths", () => {
+  assert.throws(() => createTrustedDeletionRecoveryPlan({
+    modelVersion: "trusted-account-deletion-v1",
+    executionId: "execution-one",
+    requestId: "player-one",
+    subjectUserId: "player-one",
+    fingerprint: "abc123",
+    actorId: "admin-one",
+    operations: [
+      { type: "delete", path: "users/player-one", collectionName: "users", id: "player-one" },
+      { type: "anonymise", path: "users/player-one", collectionName: "users", id: "player-one" },
+    ],
+  }), /duplicate document paths/);
 });

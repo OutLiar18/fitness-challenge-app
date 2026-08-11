@@ -17,6 +17,13 @@ import {
   buildTrustedAccountDeletionAudit,
   replaceDeletedPlayerIdentity,
 } from "../src/services/account/trustedDeletionModel.js";
+import {
+  createTrustedDeletionRecoveryPlan,
+  getTrustedDeletionRecoveryDisposition,
+  loadTrustedDeletionRecoveryPlan,
+  validateTrustedDeletionRecoveryPlan,
+  writeTrustedDeletionRecoveryPlan,
+} from "./trusted-account-deletion-recovery.mjs";
 
 const DEFAULT_PROJECT_ID = "fitnesschallengeapp-9e87f";
 const DEFAULT_REPORT_DIRECTORY = path.join(
@@ -65,6 +72,7 @@ function parseArguments(argv) {
     actorId: "",
     credentialsPath: "",
     reportDirectory: process.env.CHAMPIONS_LEGACY_ACCOUNT_REPORT_DIR || DEFAULT_REPORT_DIRECTORY,
+    recoveryPlanPath: "",
     process: false,
     list: false,
     help: false,
@@ -80,13 +88,14 @@ function parseArguments(argv) {
     else if (value === "--project") options.projectId = argv[++index] || DEFAULT_PROJECT_ID;
     else if (value === "--credentials") options.credentialsPath = argv[++index] || "";
     else if (value === "--report-dir") options.reportDirectory = argv[++index] || DEFAULT_REPORT_DIRECTORY;
+    else if (value === "--recovery-plan") options.recoveryPlanPath = argv[++index] || "";
     else throw new Error(`Unknown argument: ${value}`);
   }
   return options;
 }
 
 function printHelp() {
-  console.log(`Champions Legacy Challenge trusted account deletion\n\nUsage:\n  npm run account:deletion:list\n  npm run account:deletion:audit\n  npm run account:deletion:process\n\nOptions:\n  --request <userId>  Select a request directly.\n  --actor <userId>    Platform Administrator recorded as operator.\n  --credentials <path> Use a private service-account JSON file.\n  --project <id>      Override the Firebase project ID.\n  --report-dir <path> Override the private local report directory.\n  --process           Run the irreversible trusted processor after confirmation.\n  --list              List deletion requests and stop.\n  --help              Show this guide.\n\nDry audit is the default. Processing is blocked until seven days after acknowledgement.`);
+  console.log(`Champions Legacy Challenge trusted account deletion\n\nUsage:\n  npm run account:deletion:list\n  npm run account:deletion:audit\n  npm run account:deletion:process\n\nOptions:\n  --request <userId>  Select a request directly.\n  --actor <userId>    Platform Administrator recorded as operator.\n  --credentials <path> Use a private service-account JSON file.\n  --project <id>      Override the Firebase project ID.\n  --report-dir <path> Override the private local report directory.\n  --recovery-plan <path> Use the original private recovery plan when resuming.\n  --process           Run the irreversible trusted processor after confirmation.\n  --list              List deletion requests and stop.\n  --help              Show this guide.\n\nDry audit is the default. Processing is blocked until seven days after acknowledgement.`);
 }
 
 function initializeTrustedApp(options) {
@@ -391,7 +400,7 @@ async function resolveActorId(db, options, prompt, targetUserId) {
   return selected.id;
 }
 
-function transformRecord(item, sources, executionId, now) {
+function transformRecord(item, sources, executionId, now, recoveryPlan = null) {
   const { source, identity } = sources;
   let next = replaceDeletedPlayerIdentity(item.data, source, identity);
   const metadata = {
@@ -452,9 +461,11 @@ function transformRecord(item, sources, executionId, now) {
   } else if (item.collectionName === "leagues") {
     const administratorIds = (item.data.administratorIds ?? [])
       .filter((id) => id !== source.userId);
-    const liveMembershipCount = (sources.recordsByCollection.leagueMemberships ?? [])
-      .filter((membership) => membership.data.leagueId === item.id)
-      .filter((membership) => ["registered", "active"].includes(membership.data.status)).length;
+    const liveMembershipCount = recoveryPlan
+      ? Number(recoveryPlan.leagueParticipantDecrements?.[item.id] ?? 0)
+      : (sources.recordsByCollection.leagueMemberships ?? [])
+        .filter((membership) => membership.data.leagueId === item.id)
+        .filter((membership) => ["registered", "active"].includes(membership.data.status)).length;
     next = {
       ...next,
       administratorIds,
@@ -467,63 +478,283 @@ function transformRecord(item, sources, executionId, now) {
   return next;
 }
 
-async function commitWrites(db, operations) {
-  for (let start = 0; start < operations.length; start += BATCH_LIMIT) {
-    const batch = db.batch();
-    operations.slice(start, start + BATCH_LIMIT).forEach((operation) => {
-      if (operation.type === "delete") batch.delete(operation.ref);
-      else batch.set(operation.ref, operation.data, { merge: false });
+function buildRecoveryPlanOperations(sources) {
+  const operations = [];
+  sources.records.forEach((item) => {
+    operations.push({
+      type: item.mode === "delete" ? "delete" : "anonymise",
+      path: item.ref.path,
+      collectionName: item.collectionName,
+      id: item.id,
     });
-    await batch.commit();
+  });
+  Object.values(sources.userSubcollections).flat().forEach((item) => {
+    operations.push({
+      type: "delete",
+      path: item.ref.path,
+      collectionName: item.collectionName,
+      id: item.id,
+    });
+  });
+  if (sources.profile) {
+    operations.push({
+      type: "delete",
+      path: `users/${sources.source.userId}`,
+      collectionName: "users",
+      id: sources.source.userId,
+    });
   }
+  return operations;
 }
 
-async function beginExecution({ db, request, audit, actorId }) {
-  const requestReference = db.collection("accountDeletionRequests").doc(request.id);
-  if (["processing", "failed"].includes(request.status) && request.executionId) {
-    return request.executionId;
+function buildLeagueParticipantDecrements(sources) {
+  const decrements = {};
+  (sources.recordsByCollection.leagueMemberships ?? [])
+    .filter((membership) => ["registered", "active"].includes(membership.data.status))
+    .forEach((membership) => {
+      const leagueId = membership.data.leagueId;
+      if (leagueId) decrements[leagueId] = (decrements[leagueId] ?? 0) + 1;
+    });
+  return decrements;
+}
+
+async function setExecutionProgress(db, executionId, values) {
+  await db.collection("accountDeletionExecutions").doc(executionId).set({
+    ...values,
+    updatedAt: FieldValue.serverTimestamp(),
+  }, { merge: true });
+}
+
+async function materializePlannedBatch({
+  db,
+  plannedOperations,
+  sources,
+  recoveryPlan,
+  executionId,
+  now,
+}) {
+  const snapshots = await Promise.all(
+    plannedOperations.map((operation) => db.doc(operation.path).get()),
+  );
+  const operations = [];
+
+  for (let index = 0; index < plannedOperations.length; index += 1) {
+    const planned = plannedOperations[index];
+    const snapshot = snapshots[index];
+    const data = snapshot.exists ? snapshot.data() : null;
+    const disposition = getTrustedDeletionRecoveryDisposition({
+      operation: planned,
+      exists: snapshot.exists,
+      data,
+      executionId,
+    });
+
+    if (disposition === "already-deleted" || disposition === "already-anonymised") {
+      continue;
+    }
+    if (disposition === "missing-anonymised-record") {
+      throw new Error(
+        `Recovery plan expected anonymisation target ${planned.path}, but the document is missing.`,
+      );
+    }
+    if (disposition === "conflicting-execution") {
+      throw new Error(
+        `Recovery plan found ${planned.path} already anonymised by a different execution.`,
+      );
+    }
+    if (disposition === "delete") {
+      operations.push({ type: "delete", ref: snapshot.ref });
+      continue;
+    }
+
+    const item = {
+      collectionName: planned.collectionName,
+      id: planned.id,
+      ref: snapshot.ref,
+      data,
+    };
+    operations.push({
+      type: "set",
+      ref: snapshot.ref,
+      data: transformRecord(item, sources, executionId, now, recoveryPlan),
+    });
   }
-  const executionReference = db.collection("accountDeletionExecutions").doc();
+  return operations;
+}
+
+async function commitRecoveryPlanWrites({
+  db,
+  recoveryPlan,
+  sources,
+  executionId,
+  now,
+}) {
+  const totalBatches = Math.ceil(recoveryPlan.operations.length / BATCH_LIMIT);
+  await setExecutionProgress(db, executionId, {
+    phase: "firestore-mutating",
+    totalBatches,
+  });
+
+  for (let start = 0; start < recoveryPlan.operations.length; start += BATCH_LIMIT) {
+    const plannedBatch = recoveryPlan.operations.slice(start, start + BATCH_LIMIT);
+    const operations = await materializePlannedBatch({
+      db,
+      plannedOperations: plannedBatch,
+      sources,
+      recoveryPlan,
+      executionId,
+      now,
+    });
+    if (operations.length > 0) {
+      const batch = db.batch();
+      operations.forEach((operation) => {
+        if (operation.type === "delete") batch.delete(operation.ref);
+        else batch.set(operation.ref, operation.data, { merge: false });
+      });
+      await batch.commit();
+    }
+    const completedBatches = Math.floor(start / BATCH_LIMIT) + 1;
+    await setExecutionProgress(db, executionId, {
+      phase: "firestore-mutating",
+      completedBatches,
+      totalBatches,
+    });
+  }
+
+  await setExecutionProgress(db, executionId, {
+    phase: "firestore-complete",
+    completedBatches: totalBatches,
+    totalBatches,
+  });
+}
+
+async function beginExecution({
+  db,
+  request,
+  audit,
+  actorId,
+  executionId,
+  recoveryPlan,
+  recoveryPlanSha256,
+}) {
+  const requestReference = db.collection("accountDeletionRequests").doc(request.id);
+  const executionReference = db.collection("accountDeletionExecutions").doc(executionId);
   const now = FieldValue.serverTimestamp();
   const batch = db.batch();
+
   batch.set(executionReference, {
     modelVersion: TRUSTED_ACCOUNT_DELETION_MODEL_VERSION,
     requestId: request.id,
     subjectUserId: request.userId || request.id,
     status: "processing",
+    phase: "prepared",
     fingerprint: audit.fingerprint,
     anonymizedPlayerId: audit.identity.userId,
     anonymizedDisplayName: audit.identity.displayName,
     actorId,
+    lastOperatorId: actorId,
+    resumeCount: 0,
     issueCounts: audit.issueCounts,
     plannedCounts: audit.counts,
+    recoveryPlanVersion: recoveryPlan.recoveryPlanVersion,
+    recoveryPlanSha256,
+    recoveryPlanOperationCount: recoveryPlan.operations.length,
+    totalBatches: Math.ceil(recoveryPlan.operations.length / BATCH_LIMIT),
+    completedBatches: 0,
     startedAt: now,
     updatedAt: now,
     completedAt: null,
     failureAt: null,
     failureMessage: "",
   });
+
   batch.update(requestReference, {
     status: "processing",
     processingAt: now,
     processingBy: actorId,
-    executionId: executionReference.id,
+    executionId,
     anonymizedPlayerId: audit.identity.userId,
     anonymizedDisplayName: audit.identity.displayName,
     failureAt: null,
     failureMessage: "",
     updatedAt: now,
   });
+
   await batch.commit();
-  return executionReference.id;
 }
 
-async function markFailure(db, requestId, executionId, error) {
+async function resumeExecution({
+  db,
+  request,
+  actorId,
+  reportDirectory,
+  recoveryPlanPath,
+}) {
+  if (!request.executionId) {
+    throw new Error(
+      "A processing/failed deletion has no execution ID. Refusing to create a replacement execution automatically.",
+    );
+  }
+
+  const executionSnapshot = await db
+    .collection("accountDeletionExecutions")
+    .doc(request.executionId)
+    .get();
+  if (!executionSnapshot.exists) {
+    throw new Error(
+      `Trusted deletion execution record not found: ${request.executionId}`,
+    );
+  }
+
+  const execution = { id: executionSnapshot.id, ...executionSnapshot.data() };
+  const loaded = loadTrustedDeletionRecoveryPlan({
+    executionId: request.executionId,
+    reportDirectory,
+    explicitPath: recoveryPlanPath,
+  });
+
+  validateTrustedDeletionRecoveryPlan({
+    plan: loaded.plan,
+    sha256: loaded.sha256,
+    execution,
+    request,
+  });
+
+  const now = FieldValue.serverTimestamp();
+  const batch = db.batch();
+  batch.set(executionSnapshot.ref, {
+    status: "processing",
+    lastOperatorId: actorId,
+    resumedAt: now,
+    resumeCount: FieldValue.increment(1),
+    failureAt: null,
+    failureMessage: "",
+    updatedAt: now,
+  }, { merge: true });
+  batch.set(db.collection("accountDeletionRequests").doc(request.id), {
+    status: "processing",
+    processingBy: actorId,
+    failureAt: null,
+    failureMessage: "",
+    updatedAt: now,
+  }, { merge: true });
+  await batch.commit();
+
+  return {
+    execution,
+    recoveryPlan: loaded.plan,
+    recoveryPlanSha256: loaded.sha256,
+    recoveryPlanPath: loaded.filepath,
+  };
+}
+
+async function markFailure(db, requestId, executionId, error, failurePhase = "unknown") {
   const now = FieldValue.serverTimestamp();
   const message = String(error?.message || error).slice(0, 1000);
   const batch = db.batch();
   batch.set(db.collection("accountDeletionExecutions").doc(executionId), {
     status: "failed",
+    failurePhase,
     failureAt: now,
     failureMessage: message,
     updatedAt: now,
@@ -537,44 +768,109 @@ async function markFailure(db, requestId, executionId, error) {
   await batch.commit();
 }
 
-async function processDeletion({ db, auth, request, sources, audit, actorId }) {
+async function processDeletion({
+  db,
+  auth,
+  request,
+  sources,
+  audit,
+  actorId,
+  reportDirectory,
+  recoveryPlanPath = "",
+}) {
   const originalUserId = request.userId || request.id;
-  const executionId = await beginExecution({ db, request, audit, actorId });
+  let executionId = "";
+  let recoveryPlan = null;
+  let recoveryPlanSha256 = "";
+  let resolvedRecoveryPlanPath = "";
+  let phase = "preparing";
+  const resuming = ["processing", "failed"].includes(request.status);
+
+  if (resuming) {
+    const resumed = await resumeExecution({
+      db,
+      request,
+      actorId,
+      reportDirectory,
+      recoveryPlanPath,
+    });
+    executionId = request.executionId;
+    recoveryPlan = resumed.recoveryPlan;
+    recoveryPlanSha256 = resumed.recoveryPlanSha256;
+    resolvedRecoveryPlanPath = resumed.recoveryPlanPath;
+    phase = resumed.execution.phase || "resuming";
+  } else {
+    executionId = db.collection("accountDeletionExecutions").doc().id;
+    recoveryPlan = createTrustedDeletionRecoveryPlan({
+      modelVersion: TRUSTED_ACCOUNT_DELETION_MODEL_VERSION,
+      executionId,
+      requestId: request.id,
+      subjectUserId: originalUserId,
+      fingerprint: audit.fingerprint,
+      actorId,
+      source: sources.source,
+      identity: sources.identity,
+      counts: audit.counts,
+      leagueParticipantDecrements: buildLeagueParticipantDecrements(sources),
+      operations: buildRecoveryPlanOperations(sources),
+    });
+
+    const writtenPlan = writeTrustedDeletionRecoveryPlan(
+      recoveryPlan,
+      reportDirectory,
+    );
+    recoveryPlanSha256 = writtenPlan.sha256;
+    resolvedRecoveryPlanPath = writtenPlan.filepath;
+
+    await beginExecution({
+      db,
+      request,
+      audit,
+      actorId,
+      executionId,
+      recoveryPlan,
+      recoveryPlanSha256,
+    });
+    phase = "prepared";
+  }
+
+  const frozenSources = {
+    ...sources,
+    source: recoveryPlan.source,
+    identity: recoveryPlan.identity,
+  };
   const now = FieldValue.serverTimestamp();
 
   try {
-    if (sources.authState.exists) {
+    phase = "auth-locking";
+    await setExecutionProgress(db, executionId, { phase });
+    const currentAuthState = await loadAuthState(auth, originalUserId);
+    if (currentAuthState.exists) {
       await auth.updateUser(originalUserId, { disabled: true });
       await auth.revokeRefreshTokens(originalUserId);
     }
+    phase = "auth-locked";
+    await setExecutionProgress(db, executionId, { phase });
 
-    const operations = [];
-    sources.records.forEach((item) => {
-      if (item.mode === "delete") {
-        operations.push({ type: "delete", ref: item.ref });
-      } else {
-        operations.push({
-          type: "set",
-          ref: item.ref,
-          data: transformRecord(item, sources, executionId, now),
-        });
-      }
+    await commitRecoveryPlanWrites({
+      db,
+      recoveryPlan,
+      sources: frozenSources,
+      executionId,
+      now,
     });
-    Object.values(sources.userSubcollections).flat().forEach((item) => {
-      operations.push({ type: "delete", ref: item.ref });
-    });
-    if (sources.profile) {
-      operations.push({ type: "delete", ref: db.collection("users").doc(originalUserId) });
-    }
-    await commitWrites(db, operations);
+    phase = "firestore-complete";
 
-    if (sources.authState.exists) {
+    const authAfterFirestore = await loadAuthState(auth, originalUserId);
+    if (authAfterFirestore.exists) {
       try {
         await auth.deleteUser(originalUserId);
       } catch (error) {
         if (error?.code !== "auth/user-not-found") throw error;
       }
     }
+    phase = "auth-deleted";
+    await setExecutionProgress(db, executionId, { phase });
 
     const receiptReference = db.collection("accountDeletionReceipts").doc(executionId);
     const auditReference = db.collection("auditEvents").doc();
@@ -582,47 +878,57 @@ async function processDeletion({ db, auth, request, sources, audit, actorId }) {
     const executionReference = db.collection("accountDeletionExecutions").doc(executionId);
     const completionTime = FieldValue.serverTimestamp();
     const batch = db.batch();
+
     batch.set(receiptReference, {
       modelVersion: TRUSTED_ACCOUNT_DELETION_MODEL_VERSION,
       executionId,
-      requestIdHash: audit.fingerprint,
-      anonymizedPlayerId: sources.identity.userId,
-      anonymizedDisplayName: sources.identity.displayName,
+      requestIdHash: recoveryPlan.fingerprint,
+      anonymizedPlayerId: recoveryPlan.identity.userId,
+      anonymizedDisplayName: recoveryPlan.identity.displayName,
       actorId,
-      fingerprint: audit.fingerprint,
-      operationCounts: audit.counts,
+      initialActorId: recoveryPlan.actorId,
+      fingerprint: recoveryPlan.fingerprint,
+      recoveryPlanSha256,
+      operationCounts: recoveryPlan.counts,
       completedAt: completionTime,
       auditId: auditReference.id,
     });
+
     batch.set(auditReference, {
       actorId,
       action: "account.deletion.completed",
       entityType: "accountDeletionReceipt",
       entityId: receiptReference.id,
-      summary: `Completed trusted account deletion for ${sources.identity.displayName}`,
+      summary: `Completed trusted account deletion for ${recoveryPlan.identity.displayName}`,
       details: {
-        anonymizedPlayerId: sources.identity.userId,
+        anonymizedPlayerId: recoveryPlan.identity.userId,
         executionId,
-        fingerprint: audit.fingerprint,
-        operationCounts: audit.counts,
+        fingerprint: recoveryPlan.fingerprint,
+        recoveryPlanSha256,
+        operationCounts: recoveryPlan.counts,
       },
       createdAt: completionTime,
     });
+
     batch.set(executionReference, {
       status: "completed",
+      phase: "completed",
       subjectUserId: "",
-      subjectUserIdHash: audit.fingerprint,
+      subjectUserIdHash: recoveryPlan.fingerprint,
       completedAt: completionTime,
       updatedAt: completionTime,
       failureAt: null,
       failureMessage: "",
+      failurePhase: "",
       receiptId: receiptReference.id,
       lastAuditId: auditReference.id,
+      lastOperatorId: actorId,
     }, { merge: true });
+
     batch.set(requestReference, {
-      userId: sources.identity.userId,
+      userId: recoveryPlan.identity.userId,
       email: "",
-      displayName: sources.identity.displayName,
+      displayName: recoveryPlan.identity.displayName,
       reasonCode: "prefer-not-to-say",
       status: "completed",
       completedAt: completionTime,
@@ -632,11 +938,21 @@ async function processDeletion({ db, auth, request, sources, audit, actorId }) {
       failureMessage: "",
       lastAuditId: auditReference.id,
     }, { merge: true });
+
     await batch.commit();
 
-    return { executionId, receiptId: receiptReference.id, operationCount: operations.length };
+    return {
+      executionId,
+      receiptId: receiptReference.id,
+      operationCount: recoveryPlan.operations.length,
+      recoveryPlanPath: resolvedRecoveryPlanPath,
+      recoveryPlanSha256,
+      resumed: resuming,
+    };
   } catch (error) {
-    await markFailure(db, request.id, executionId, error);
+    if (executionId) {
+      await markFailure(db, request.id, executionId, error, phase);
+    }
     throw error;
   }
 }
@@ -739,6 +1055,8 @@ async function main() {
       sources: liveSources,
       audit: liveAudit,
       actorId,
+      reportDirectory: options.reportDirectory,
+      recoveryPlanPath: options.recoveryPlanPath,
     });
     const completedPath = writeLocalReport({
       metadata: {
@@ -751,6 +1069,8 @@ async function main() {
       audit: liveAudit,
     }, "completed", options.reportDirectory);
     console.log(`\nTrusted account deletion completed. Receipt: ${result.receiptId}`);
+    console.log(`Recovery plan: ${result.recoveryPlanPath}`);
+    console.log(`Recovery plan SHA-256: ${result.recoveryPlanSha256}`);
     console.log(`Completion report: ${completedPath}`);
   } finally {
     prompt.close();

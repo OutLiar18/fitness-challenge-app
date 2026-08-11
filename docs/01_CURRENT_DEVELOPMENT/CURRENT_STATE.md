@@ -122,8 +122,20 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - App Check enforcement and CSP activation must remain separate production steps;
 - no Firebase deployment.
 
+#### Checkpoint 26F — trusted account-deletion interruption recovery
+- every new trusted deletion writes a private local recovery plan before Firebase mutation begins;
+- the recovery plan freezes the exact planned document path/mode set, original fingerprint, identities, counts and league participant decrements;
+- the execution record stores the recovery-plan version, SHA-256, operation count, phase and batch progress;
+- a processing/failed execution can resume only when the original recovery plan validates against the request and execution record;
+- already-deleted records and same-execution anonymised records are replay-safe;
+- missing anonymisation targets or records stamped by another execution fail closed;
+- Auth disable/token revocation remain before Firestore mutation and Auth deletion remains after Firestore completion;
+- no trusted deletion is executed by the checkpoint runner;
+- Firestore Rules remain unchanged;
+- no Firebase deployment.
+
 ### Next action
-Review trusted account-deletion recovery and backup/restore operator safeguards, including interruption/retry behavior, before selecting the next v0.26 remediation checkpoint.
+Design and test project-level Firestore backup/restore operator safeguards separately from account deletion, including backup provenance, restore target protection and destructive restore confirmation.
 
 ## Responsive development boundary
 

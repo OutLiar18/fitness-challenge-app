@@ -130,3 +130,13 @@ Localhost/CI handling must use Firebase's documented debug-provider workflow aft
 The Hosting header baseline remains unchanged and CSP remains intentionally absent. The future policy must be generated after App Check integration and tested against the production build's real Firebase Authentication, Cloud Firestore and reCAPTCHA Enterprise resource/network origins. App Check enforcement and CSP activation must not occur in the same production deployment.
 
 See `V026_APP_CHECK_CSP_READINESS.md` for the provider, cost/TTL, debug, CSP and rollout details. Firestore Rules remain at canonical SHA-256 `4740edd168e495a70ac8a6252bb57c3986d30995b5372198c357adaa859f6b84`.
+
+## 26F resolution — interrupted trusted account deletion now resumes from a frozen plan
+
+The previous trusted processor reused an existing `executionId` for `processing`/`failed` requests but rebuilt the deletion plan from live queries. Because earlier committed anonymisation batches can remove the original user ID from shared records, a retry could reconstruct a smaller plan than the one that originally began.
+
+26F removes that ambiguity. A new execution writes a private local recovery-plan file before the request is marked processing. The plan freezes the exact document paths/modes, original deletion fingerprint, source/anonymised identity, planned counts and per-league participant decrements. Its SHA-256, version and operation count are stored in the execution record.
+
+The processor persists phase and batch progress. Retries require the original recovery plan and validate it against the trusted request/execution record. Deletes are replay-safe, documents already anonymised by the same execution are skipped, and missing/conflicting anonymisation targets stop processing instead of allowing an incomplete completion receipt.
+
+The private recovery plan is an operator-resume artifact, not a user-facing rollback mechanism and not a substitute for project-level Firestore backups. No trusted deletion was executed during 26F. Firestore Rules remain at canonical SHA-256 `4740edd168e495a70ac8a6252bb57c3986d30995b5372198c357adaa859f6b84`.

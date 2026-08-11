@@ -6,7 +6,7 @@ Current production: v0.25.0
 
 ## First action
 
-Continue from completed Checkpoint 26E. Next review trusted account-deletion recovery plus backup/restore operator safeguards, especially interruption and retry cases. App Check remains unintegrated and CSP remains undeployed until separate implementation/monitoring checkpoints. Keep v0.25.0 production frozen and do not deploy v0.26 Rules or Hosting changes without a dedicated reviewed activation stage.
+Continue from completed Checkpoint 26F. Next design project-level Firestore backup/restore operator safeguards as a separate non-production checkpoint: backup provenance, target-project verification, restore dry-run/confirmation and recovery evidence. The trusted account-deletion processor now fails closed unless an interrupted execution has its original validated recovery plan. Keep v0.25.0 production frozen and do not deploy v0.26 Rules or Hosting changes without a dedicated reviewed activation stage.
 
 ## v0.25.0 order
 
@@ -73,3 +73,7 @@ Production dependencies remain at zero known npm vulnerabilities. The developmen
 ## Checkpoint 26E App Check/CSP readiness
 
 reCAPTCHA Enterprise is the preferred future App Check web provider. The rollout is intentionally staged: console registration, client integration with no enforcement, secure localhost/CI debug handling, monitoring, then separate enforcement. CSP must be derived after the App Check-enabled build exposes its real resource/origin needs and must be deployed separately from enforcement. See `V026_APP_CHECK_CSP_READINESS.md`.
+
+## Checkpoint 26F trusted account-deletion recovery
+
+Trusted deletion now freezes a private local recovery plan before processing begins and binds its SHA-256 into the execution record. Phase/batch progress is persisted, and retries replay the original document path set instead of silently rebuilding a smaller plan from already-anonymised data. A missing or mismatched recovery plan blocks further mutation. See `V026_ACCOUNT_DELETION_RECOVERY.md`.

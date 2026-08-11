@@ -19,6 +19,7 @@ const firebaseBootstrap = load("src/firebase.js");
 const playerDataProvider = load("src/context/PlayerDataProvider.jsx");
 const adminAuthorityModel = load("src/services/admin/adminAuthorityModel.js");
 const accountDelete = load("scripts/trusted-account-delete.mjs");
+const accountDeleteRecovery = load("scripts/trusted-account-deletion-recovery.mjs");
 
 if (pkg.version !== "0.26.0") {
   throw new Error(`Expected package version 0.26.0, found ${pkg.version}.`);
@@ -111,5 +112,14 @@ console.log("League Admin operations  : scoped by league administratorIds");
 console.log("Final deny-all fallback  : present");
 console.log("App Check integration    : absent (baseline finding)");
 console.log(`Explicit Hosting CSP     : ${hasCsp ? "present" : "absent (baseline finding)"}`);
-console.log("Trusted deletion recovery: failure state present; multi-phase review required");
-console.log("Static v0.26 security guard PASSED (26A baseline + 26B/26C authority contracts)");
+requireText(accountDelete, "recoveryPlanSha256", "trusted deletion frozen recovery-plan hash");
+requireText(accountDelete, 'phase: "prepared"', "trusted deletion prepared phase");
+requireText(accountDelete, 'phase: "firestore-mutating"', "trusted deletion Firestore progress phase");
+requireText(accountDelete, "--recovery-plan", "trusted deletion explicit recovery-plan option");
+requireText(
+  accountDeleteRecovery,
+  "Do not continue an interrupted deletion without the original recovery plan.",
+  "trusted deletion fail-closed missing-plan guard",
+);
+console.log("Trusted deletion recovery: frozen plan + phase/batch resume guard present");
+console.log("Static v0.26 security guard PASSED (26A baseline + 26B/26C/26F recovery contracts)");
