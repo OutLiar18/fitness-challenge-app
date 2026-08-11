@@ -82,6 +82,14 @@ Five Fires and Buddy Bonuses are intentionally removed from the pre-v1.0 roadmap
 - prove claim-only and stale-claim sessions cannot retain Platform Administrator access;
 - no Firebase deployment.
 
+### 26C — League Administrator scope guard — COMPLETE
+- retain the global `leagueAdmin` profile role as a bounded bootstrap capability for league + invite creation;
+- keep all existing-league operational authority scoped by the target league's `administratorIds`;
+- prove the global role alone cannot read another administrator's private draft;
+- prove the global role alone cannot self-assign into another league;
+- keep Firestore Rules byte-for-byte unchanged from 26B;
+- no Firebase deployment.
+
 ### Later v0.26 remediation
 - tighten remaining administrator permission boundaries where the baseline proves it is useful;
 - improve public/private read boundaries where needed;

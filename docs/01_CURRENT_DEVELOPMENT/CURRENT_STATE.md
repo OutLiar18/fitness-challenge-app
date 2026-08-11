@@ -92,8 +92,17 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - self-role changes remain denied;
 - existing v0.25 production remains unchanged until a later dedicated v0.26 release activation.
 
+#### Checkpoint 26C — League Administrator scope contract
+- global `leagueAdmin` profile status remains a bounded bootstrap capability for creating a new league and its matching invite;
+- the creator must become the new league's sole initial administrator;
+- existing-league operational authority remains scoped through that league's `administratorIds`;
+- a global League Administrator cannot read another administrator's private draft solely because of the global role;
+- a global League Administrator cannot self-assign into another league;
+- Firestore Rules are unchanged from 26B and the canonical 26B Rules hash remains frozen locally;
+- no Firebase deployment.
+
 ### Next action
-Review League Administrator scope and the seven development-only dependency advisories, then choose the next isolated v0.26 remediation.
+Classify and conservatively remediate the seven development-only npm advisories. Production dependencies remain at zero known vulnerabilities.
 
 ## Responsive development boundary
 

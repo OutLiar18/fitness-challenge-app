@@ -99,3 +99,16 @@ Security consequences:
 Canonical local Firestore Rules SHA-256 after 26B: `4740edd168e495a70ac8a6252bb57c3986d30995b5372198c357adaa859f6b84`.
 
 This is a local development Rules change only. Production v0.25.0 Rules remain unchanged until a dedicated v0.26 release activation.
+
+## 26C resolution — League Administrator scope is intentionally two-stage
+
+The global profile role `leagueAdmin` is retained because it has a bounded bootstrap purpose: an authorised League Administrator may create a new draft league and matching invite, and the create validator requires that actor to be the new league's sole initial administrator.
+
+After creation, operational authority is not granted by the global role. It is scoped to the target league through `leagues/{leagueId}.administratorIds` (with Platform Administrator override). 26C adds regression coverage proving that global League Administrator status alone cannot:
+- read another administrator's private draft league;
+- self-add the actor to another league's `administratorIds`.
+
+No Firestore Rules source changes are made in 26C. The canonical local Rules SHA-256 remains the 26B value:
+`4740edd168e495a70ac8a6252bb57c3986d30995b5372198c357adaa859f6b84`.
+
+The remaining dependency baseline is unchanged from 26A: production dependencies had zero known vulnerabilities, while the development/tooling tree reported six moderate and one high advisory pending conservative remediation.

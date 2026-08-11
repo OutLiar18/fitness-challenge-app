@@ -6,7 +6,7 @@ Current production: v0.25.0
 
 ## First action
 
-Continue from completed Checkpoint 26B. Review League Administrator scope and the seven development-only dependency advisories before choosing 26C. Keep v0.25.0 production frozen and do not deploy the local 26B Rules change without a dedicated reviewed v0.26 activation stage.
+Continue from completed Checkpoint 26C. The next isolated task is the seven development-only npm advisories: identify their exact dependency chains and apply only non-breaking, test-verified remediation. Production dependencies were clean at 26A. Keep v0.25.0 production frozen and do not deploy v0.26 Rules without a dedicated reviewed activation stage.
 
 ## v0.25.0 order
 
@@ -61,3 +61,7 @@ The developer is currently reviewing desktop. Dedicated mobile/tablet visual rev
 ## Checkpoint 26B authority contract
 
 Platform Administrator authority is canonical in the trusted Firestore profile role. A Firebase Auth custom claim named `admin` is no longer accepted by Firestore Rules or client navigation as an alternative authority source. This removes stale-claim privilege persistence after an audited role demotion.
+
+## Checkpoint 26C League Administrator scope
+
+The global `leagueAdmin` profile role is intentionally a bootstrap/operator role for creating a new league and invite. It does not imply cross-league authority. Existing-league permissions continue to resolve from the target league's `administratorIds`, and the Rules suite now proves that a global League Administrator cannot read a foreign private draft or self-assign into it.

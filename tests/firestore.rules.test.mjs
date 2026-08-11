@@ -32,6 +32,12 @@ function playerContext(userId = "player-one") {
   });
 }
 
+function leagueAdminContext(userId = "league-admin") {
+  return testEnvironment.authenticatedContext(userId, {
+    email: `${userId}@example.com`,
+  });
+}
+
 function adminContext(userId = "admin-one") {
   return testEnvironment.authenticatedContext(userId, {
     email: `${userId}@example.com`,
@@ -82,6 +88,7 @@ beforeEach(async () => {
     await setDoc(doc(firestore, "users", "player-two"), createProfile("player-two"));
     await setDoc(doc(firestore, "users", "player-three"), createProfile("player-three"));
     await setDoc(doc(firestore, "users", "player-four"), createProfile("player-four"));
+    await setDoc(doc(firestore, "users", "league-admin"), createProfile("league-admin", "leagueAdmin"));
     await setDoc(doc(firestore, "users", "admin-one"), createProfile("admin-one", "admin"));
   });
 });
@@ -951,6 +958,69 @@ test("season drafts require an authorised operator, invite and matching audit ev
 
   await assertFails(commitDraft(playerContext().firestore(), "player-one", "season-player"));
   await assertSucceeds(commitDraft(adminContext().firestore(), "admin-one", "season-admin"));
+  await assertSucceeds(
+    commitDraft(
+      leagueAdminContext().firestore(),
+      "league-admin",
+      "season-league-admin",
+    ),
+  );
+});
+
+test("global League Administrator role does not reveal another administrator's private draft", async () => {
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(
+      doc(context.firestore(), "leagues", "league-admin-scope-private"),
+      seasonData({
+        actorId: "admin-one",
+        inviteCode: "SCOPEDLA",
+      }),
+    );
+  });
+
+  await assertFails(
+    getDoc(doc(
+      leagueAdminContext().firestore(),
+      "leagues",
+      "league-admin-scope-private",
+    )),
+  );
+
+  await assertSucceeds(
+    getDoc(doc(
+      adminContext().firestore(),
+      "leagues",
+      "league-admin-scope-private",
+    )),
+  );
+});
+
+test("global League Administrator role cannot self-assign into another league", async () => {
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(
+      doc(context.firestore(), "leagues", "league-admin-scope-assignment"),
+      seasonData({
+        actorId: "admin-one",
+        inviteCode: "SCOPEASN",
+      }),
+    );
+  });
+
+  await assertFails(
+    updateDoc(
+      doc(
+        leagueAdminContext().firestore(),
+        "leagues",
+        "league-admin-scope-assignment",
+      ),
+      {
+        administratorIds: ["admin-one", "league-admin"],
+        updatedAt: serverTimestamp(),
+        updatedBy: "league-admin",
+        lastAuditId: "self-assignment-not-allowed",
+      },
+    ),
+  );
 });
 
 test("v4 draft creation stays below Rules evaluation when the version itself freezes House Movement", async () => {

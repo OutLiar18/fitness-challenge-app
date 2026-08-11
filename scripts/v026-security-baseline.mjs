@@ -30,6 +30,27 @@ if (rules.includes('request.auth.token.get("admin", false) == true')) {
 requireText(rules, '.data.role == "admin"', "canonical Platform Admin Firestore profile source");
 requireText(rules, "return hasPlatformAdminProfile();", "profile-only Platform Admin authority");
 requireText(rules, '.data.role == "leagueAdmin"', "League Admin profile source");
+const leagueAdminProfileRefs = rules.match(/hasLeagueAdminProfile()/g) ?? [];
+if (leagueAdminProfileRefs.length !== 2) {
+  throw new Error(
+    `Expected hasLeagueAdminProfile() only at its definition and isLeagueOperator() bootstrap use; found ${leagueAdminProfileRefs.length} references.`,
+  );
+}
+requireText(
+  rules,
+  'allow create: if isLeagueOperator() && validLeagueCreate(leagueId);',
+  "League Admin bootstrap league-create boundary",
+);
+requireText(
+  rules,
+  'allow create: if isLeagueOperator() && validLeagueInviteCreate(code);',
+  "League Admin bootstrap invite-create boundary",
+);
+requireText(
+  rules,
+  'request.auth.uid in get(/databases/$(database)/documents/leagues/$(leagueId)).data.administratorIds',
+  "scoped League Administrator authority",
+);
 if (playerDataProvider.includes("claims?.admin")) {
   throw new Error("Client Platform Administrator gating must not fall back to an Auth custom claim after 26B.");
 }
@@ -85,9 +106,10 @@ console.log(`Rules exists() occurrences: ${accessCalls.exists}`);
 console.log(`Rules getAfter()          : ${accessCalls.getAfter}`);
 console.log(`Rules existsAfter()       : ${accessCalls.existsAfter}`);
 console.log("Platform Admin source    : Firestore trusted role profile ONLY");
-console.log("League Admin profile     : present");
+console.log("League Admin global role : bootstrap create only");
+console.log("League Admin operations  : scoped by league administratorIds");
 console.log("Final deny-all fallback  : present");
 console.log("App Check integration    : absent (baseline finding)");
 console.log(`Explicit Hosting CSP     : ${hasCsp ? "present" : "absent (baseline finding)"}`);
 console.log("Trusted deletion recovery: failure state present; multi-phase review required");
-console.log("Static v0.26 security guard PASSED (26A baseline + 26B authority contract)");
+console.log("Static v0.26 security guard PASSED (26A baseline + 26B/26C authority contracts)");
