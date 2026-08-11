@@ -105,3 +105,45 @@
 .quick-action--primary .quick-action__arrow {
   color: #fff;
 }
+
+/* v0.27 27C — high-frequency dashboard actions */
+.quick-actions__header p {
+  font-size: 0.78rem;
+}
+
+.quick-action {
+  min-height: 68px;
+  background: var(--surface-raised);
+}
+
+.quick-action--primary {
+  color: var(--on-primary);
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--primary-control), var(--primary-control-hover));
+  box-shadow: 0 3px 0 var(--primary-depth), var(--shadow-md);
+}
+
+.quick-action small {
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.quick-action--primary small {
+  color: color-mix(in srgb, var(--on-primary) 82%, transparent);
+}
+
+.quick-action--primary .quick-action__icon,
+.quick-action--primary .quick-action__arrow {
+  color: var(--on-primary);
+}
+
+@media (max-width: 520px) {
+  .quick-actions {
+    padding: 18px 16px;
+  }
+
+  .quick-action {
+    min-height: 72px;
+    padding: 14px 12px;
+  }
+}

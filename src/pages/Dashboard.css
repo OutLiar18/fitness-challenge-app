@@ -25,3 +25,19 @@
 .dashboard-page .progression-card {
   margin-top: 0;
 }
+
+/* v0.27 27C — core-player dashboard hierarchy */
+.dashboard-page {
+  gap: 18px;
+}
+
+.dashboard-page > .daily-goals,
+.dashboard-page > .quick-actions {
+  scroll-margin-top: 24px;
+}
+
+@media (max-width: 760px) {
+  .dashboard-page {
+    gap: 14px;
+  }
+}

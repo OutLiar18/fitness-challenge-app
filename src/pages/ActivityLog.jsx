@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import CategoryGrid from "../components/categories/CategoryGrid";
+import ConfirmDialog from "../components/common/ConfirmDialog";
 import Toast from "../components/common/Toast/Toast";
 import WorkspaceTabs, {
   WorkspacePanel,
@@ -44,7 +45,12 @@ const ACTIVITY_TABS = Object.freeze([
   },
 ]);
 
-function ActivityLogWorkspace({ categoryId, onCategoryChange }) {
+function ActivityLogWorkspace({
+  categoryId,
+  onCategoryChange,
+  activeTab,
+  onTabChange,
+}) {
   const {
     user,
     entries,
@@ -61,9 +67,9 @@ function ActivityLogWorkspace({ categoryId, onCategoryChange }) {
     getInitialFormData(categoryId),
   );
   const [formErrors, setFormErrors] = useState([]);
-  const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState("log");
-
+    const [saving, setSaving] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState("");
+  const [deleting, setDeleting] = useState(false);
   const readOnly = !isEditableDate(selectedDate);
 
   const selectedEntries = useMemo(
@@ -150,21 +156,27 @@ function ActivityLogWorkspace({ categoryId, onCategoryChange }) {
     }
   }
 
-  async function handleDeleteEntry(entryId) {
-    if (readOnly || !entryId) {
+    function handleDeleteEntry(entryId) {
+    if (readOnly || !entryId || deleting) {
       return;
     }
 
-    const confirmed = window.confirm(
-      "Delete this entry? This action cannot be undone.",
-    );
+    setPendingDeleteId(entryId);
+  }
 
-    if (!confirmed) {
+  function handleCancelDelete() {
+    if (!deleting) setPendingDeleteId("");
+  }
+
+  async function handleConfirmDelete() {
+    if (!pendingDeleteId || deleting) {
       return;
     }
 
+    setDeleting(true);
     try {
-      await deleteEntry(entryId, user?.uid);
+      await deleteEntry(pendingDeleteId, user?.uid);
+      setPendingDeleteId("");
       showToast("Entry deleted successfully.");
     } catch (error) {
       console.error(error);
@@ -172,6 +184,8 @@ function ActivityLogWorkspace({ categoryId, onCategoryChange }) {
         error.message || "The entry could not be deleted.",
         "error",
       );
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -184,20 +198,27 @@ function ActivityLogWorkspace({ categoryId, onCategoryChange }) {
         icon="✍️"
       />
 
-      <div className="activity-page__hint card">
-        <span aria-hidden="true">🧠</span>
-        <p>
-          <strong>Accurate entries matter.</strong> Honest records keep your
-          statistics, coaching and long-term progress genuinely useful.
-        </p>
-      </div>
+      <ol className="activity-page__guide card" aria-label="Activity logging steps">
+        <li>
+          <strong>1</strong>
+          <span><b>Choose</b><small>Select the activity you completed.</small></span>
+        </li>
+        <li>
+          <strong>2</strong>
+          <span><b>Record</b><small>Enter the facts once and save.</small></span>
+        </li>
+        <li>
+          <strong>3</strong>
+          <span><b>Review</b><small>Use Journal for history and proof status.</small></span>
+        </li>
+      </ol>
 
       <WorkspaceTabs
         idPrefix="activity"
         label="Activity log sections"
         tabs={ACTIVITY_TABS}
         activeId={activeTab}
-        onChange={setActiveTab}
+        onChange={onTabChange}
       />
 
       <WorkspacePanel id="log" activeId={activeTab} idPrefix="activity">
@@ -231,9 +252,19 @@ function ActivityLogWorkspace({ categoryId, onCategoryChange }) {
           evidenceClaims={evidenceClaims}
           allEntries={entries}
           dateSummaries={journalDateSummaries}
+          onLogActivity={() => onTabChange("log")}
         />
       </WorkspacePanel>
 
+      <ConfirmDialog
+        open={Boolean(pendingDeleteId)}
+        title="Delete this entry?"
+        description="This removes the editable entry permanently. This action cannot be undone."
+        confirmLabel="Delete entry"
+        loading={deleting}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+      />
       <Toast
         message={toast?.message}
         type={toast?.type}
@@ -246,10 +277,21 @@ function ActivityLogWorkspace({ categoryId, onCategoryChange }) {
 export default function ActivityLog() {
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryId = getSafeCategoryId(searchParams.get("category"));
+  const activeTab = searchParams.get("tab") === "journal" ? "journal" : "log";
 
   function handleCategoryChange(nextCategoryId) {
     const nextSearchParams = new URLSearchParams(searchParams);
     nextSearchParams.set("category", getSafeCategoryId(nextCategoryId));
+    setSearchParams(nextSearchParams, { replace: true });
+  }
+
+  function handleTabChange(nextTabId) {
+    const nextSearchParams = new URLSearchParams(searchParams);
+    if (nextTabId === "journal") {
+      nextSearchParams.set("tab", "journal");
+    } else {
+      nextSearchParams.delete("tab");
+    }
     setSearchParams(nextSearchParams, { replace: true });
   }
 
@@ -258,6 +300,8 @@ export default function ActivityLog() {
       key={categoryId}
       categoryId={categoryId}
       onCategoryChange={handleCategoryChange}
+      activeTab={activeTab}
+      onTabChange={handleTabChange}
     />
   );
 }

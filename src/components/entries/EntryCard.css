@@ -424,3 +424,23 @@
 .entry-points--historical .entry-points__row strong {
   color: var(--text-muted);
 }
+
+/* v0.27 27C — journal entry readability */
+.entry-card__type {
+  font-size: 0.74rem;
+}
+
+.entry-points__label small,
+.entry-evidence__status {
+  font-size: 0.76rem;
+}
+
+.entry-evidence__claim small {
+  line-height: 1.45;
+}
+
+@media (max-width: 560px) {
+  .entry-card__actions .button {
+    width: 100%;
+  }
+}

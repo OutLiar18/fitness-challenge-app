@@ -166,12 +166,15 @@ Five Fires and Buddy Bonuses are intentionally removed from the pre-v1.0 roadmap
 - add persistent design-system regression coverage;
 - keep Firestore Rules unchanged and perform no Firebase deployment.
 
-### 27C — Core player loop
-- Dashboard;
-- Log Activity and category/forms;
-- Journal/date navigation;
-- feedback, evidence prompts and destructive-action UX;
-- dedicated desktop/tablet/mobile and keyboard pass.
+### 27C — Core player loop — COMPLETE
+- prioritize Dashboard actions/goals before lower-frequency insight;
+- add direct Dashboard → Journal navigation and URL-backed Log/Journal tab state;
+- improve category/form touch and readability behavior;
+- focus save-validation errors for keyboard/screen-reader recovery;
+- replace editable Activity Log browser confirmation with a reusable accessible alert dialog;
+- improve Journal empty state, date/history scanning and player-facing pagination copy;
+- preserve scoring, evidence, entry-service and Firestore Rules semantics;
+- add persistent 27C regression coverage and perform no Firebase deployment.
 
 ### 27D — Personal progress and communication
 - Progress;

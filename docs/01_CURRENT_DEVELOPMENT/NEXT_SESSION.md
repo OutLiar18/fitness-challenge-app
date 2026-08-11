@@ -6,7 +6,7 @@ Current production: v0.26.0
 
 ## First action
 
-Continue from completed 27B on development/v0.27.0. Implement 27C across the high-frequency Dashboard → Log Activity → Journal journey. Reuse the new v0.27 tokens/shell/PageHeader/WorkspaceTabs foundation; improve hierarchy, touch/keyboard flow, loading/save/error/evidence feedback and replace relevant native destructive confirms with a reusable accessible confirmation pattern. Preserve scoring, competition rules, Firestore permissions and v0.26.0 production.
+Continue from completed 27C on development/v0.27.0. Implement 27D across Progress, Analytics, Profile, Inbox and Legacy Coach. Reuse the 27B design system and 27C interaction patterns; simplify information hierarchy, strengthen chart/data accessibility and loading/empty/error states, and verify responsive scanning without changing statistics, progression, messaging, profile or coaching semantics.
 
 ## v0.25.0 order
 
@@ -101,3 +101,7 @@ Production activation completed successfully from `c057fca0598fe4a07ff101ea13808
 ## Checkpoint 27B design-system foundation
 
 27B is shared presentation work only. The application version is now 0.27.0. Blood red is the primary identity across accessible light/dark token sets; black/charcoal anchors the dark theme; gold remains restrained achievement emphasis. Shared cards/buttons/forms/PageHeader/WorkspaceTabs and the desktop/tablet/mobile shell are visually standardised. Primary shell microcopy is made materially more readable while existing navigation/focus/reduced-motion behaviour stays intact. Firestore Rules remain unchanged. See `V027_DESIGN_SYSTEM.md`.
+
+## Checkpoint 27C core player journey
+
+27C completes the Dashboard → Log Activity → Journal UX pass. Goals now appear before lower-frequency progression/insight content, Journal has a direct Dashboard route and URL-backed tab state, validation errors receive focus, editable entry deletion uses the new accessible ConfirmDialog instead of browser confirmation, and Journal empty/history states are more actionable and human-facing. Firestore Rules and all scoring/evidence/data semantics remain unchanged. See `V027_CORE_PLAYER_JOURNEY.md`.

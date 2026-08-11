@@ -135,3 +135,31 @@
     flex-basis: 84px;
   }
 }
+
+/* v0.27 27C — category selection touch/readability */
+.category-picker__eyebrow {
+  font-size: 0.78rem !important;
+}
+
+.category-tile {
+  border-width: 1px;
+  background: var(--surface-raised);
+}
+
+.category-tile__name {
+  font-size: 0.82rem;
+}
+
+.category-tile--active {
+  box-shadow: inset 3px 0 0 var(--primary), var(--shadow-sm);
+}
+
+@media (max-width: 760px) {
+  .category-grid {
+    overscroll-behavior-inline: contain;
+  }
+
+  .category-tile {
+    min-height: 76px;
+  }
+}

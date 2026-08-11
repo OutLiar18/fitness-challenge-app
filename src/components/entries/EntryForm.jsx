@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { getCategory } from "../../utils/categoryHelpers";
 import CardioForm from "../forms/CardioForm";
 import FruitForm from "../forms/FruitForm";
@@ -40,10 +41,19 @@ export default function EntryForm({
 }) {
   const category = getCategory(type);
   const FormComponent = FORM_COMPONENTS[type];
-  const heading = title || category?.name || "Activity";
+    const heading = title || category?.name || "Activity";
+  const errorSummaryRef = useRef(null);
+
+  useEffect(() => {
+    if (errors.length > 0) errorSummaryRef.current?.focus();
+  }, [errors]);
 
   return (
-    <section className={`entry-form card${readOnly ? " entry-form--locked" : ""}`} aria-labelledby="entry-form-title">
+    <section
+      className={`entry-form card${readOnly ? " entry-form--locked" : ""}`}
+      aria-labelledby="entry-form-title"
+      aria-busy={saving || undefined}
+    >
       <div className="entry-form__header">
         <span className="entry-form__emoji" aria-hidden="true">{category?.emoji ?? "🏆"}</span>
         <div>
@@ -65,7 +75,13 @@ export default function EntryForm({
       )}
 
       {errors.length > 0 && (
-        <div className="entry-form__errors" role="alert" aria-labelledby="entry-errors-title">
+        <div
+          className="entry-form__errors"
+          ref={errorSummaryRef}
+          role="alert"
+          tabIndex="-1"
+          aria-labelledby="entry-errors-title"
+        >
           <strong id="entry-errors-title">Please check the following:</strong>
           <ul>
             {errors.map((error) => <li key={error}>{error}</li>)}

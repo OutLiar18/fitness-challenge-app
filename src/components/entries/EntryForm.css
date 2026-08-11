@@ -169,3 +169,37 @@
     gap: 7px;
   }
 }
+
+/* v0.27 27C — fast accessible entry flow */
+.entry-form__header p {
+  font-size: 0.78rem;
+}
+
+.entry-form__description {
+  font-size: 0.94rem;
+  line-height: 1.55;
+}
+
+.entry-form__errors:focus {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.duration-picker__grid label {
+  font-size: 0.84rem;
+}
+
+.entry-form__body button:not(.selector__option):not(.selector__custom):not(.selector__control):not(.selector__tag-remove):not(.selector__clear) {
+  min-height: 44px;
+}
+
+.entry-form__submit {
+  min-height: 50px;
+  font-size: 0.96rem;
+}
+
+@media (max-width: 520px) {
+  .entry-form__submit {
+    min-height: 52px;
+  }
+}

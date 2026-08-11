@@ -4,7 +4,7 @@
 Source version: 0.27.0 development
 Production version: 0.26.0
 Last updated: 11 August 2026
-Status: v0.27 design-system/application-shell foundation complete after 27B
+Status: v0.27 core player journey complete after 27C
 
 ## Production baseline
 
@@ -184,8 +184,21 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - add persistent v0.27 design-system regression coverage;
 - keep Firestore Rules byte-for-byte unchanged and perform no Firebase deployment.
 
+#### Checkpoint 27C — Dashboard → Log Activity → Journal — COMPLETE
+- prioritize daily/weekly goals before lower-frequency progression/insight content on Dashboard;
+- expose a direct Dashboard → Journal quick action;
+- persist Log/Journal workspace state in the URL for direct links, refresh and browser navigation;
+- replace Activity Log browser `window.confirm` deletion with a reusable accessible alert dialog;
+- move focus to entry validation errors when save validation fails;
+- add a concise Choose → Record → Review guide without changing entry save/evidence behavior;
+- add a Today empty-state Journal CTA back to Log Activity;
+- replace implementation-oriented Journal pagination copy with player-facing guidance;
+- strengthen touch/readability treatment for category selection, entry form, Journal navigation/history and editable entry actions;
+- add persistent 27C core-journey regression coverage;
+- keep Firestore Rules byte-for-byte unchanged and perform no Firebase deployment.
+
 ### Next action
-Checkpoint 27C: polish the high-frequency Dashboard → Log Activity → Journal journey using the 27B shared foundation. Improve hierarchy, touch/keyboard flow, save/error/evidence feedback and destructive confirmations without changing scoring or Firestore semantics.
+Checkpoint 27D: polish Progress, Analytics, Profile, Inbox and Legacy Coach. Improve information hierarchy, charts/data accessibility, loading/empty/error states and responsive scanning while preserving all underlying statistics, profile, messaging and coach semantics.
 
 ## Responsive development boundary
 

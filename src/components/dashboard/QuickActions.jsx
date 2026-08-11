@@ -19,11 +19,11 @@ const ACTIONS = [
     to: "/progress",
   },
   {
-    id: "inbox",
+    id: "journal",
     icon: "◉",
-    title: "Open inbox",
-    description: "Read challenge updates and private season messages.",
-    to: "/inbox",
+    title: "Open journal",
+    description: "Review today’s entries and jump back to recorded days.",
+    to: "/log?tab=journal",
   },
 ];
 

@@ -49,6 +49,7 @@ export default function Journal({
   evidenceClaims = [],
   allEntries = [],
   dateSummaries = [],
+  onLogActivity,
 }) {
   const [historyPage, setHistoryPage] = useState(0);
   const viewingToday = isToday(selectedDate);
@@ -162,9 +163,18 @@ export default function Journal({
             <h3>No entries for this day</h3>
             <p>
               {viewingToday
-                ? "Choose a category above and record your first activity."
+                ? "Nothing has been recorded today yet."
                 : "There is nothing recorded on this date."}
             </p>
+            {viewingToday && !readOnly && onLogActivity && (
+              <button
+                className="button button--primary journal__empty-action"
+                type="button"
+                onClick={onLogActivity}
+              >
+                Log activity
+              </button>
+            )}
           </div>
         ) : (
           <div className="journal__entries">
@@ -196,8 +206,8 @@ export default function Journal({
             <p className="journal__eyebrow">Paginated history</p>
             <h3 id="journal-history-title">Recorded days</h3>
             <p>
-              Only {JOURNAL_HISTORY_PAGE_SIZE} recorded days are rendered at a time,
-              while goals and personal statistics still use your complete active history.
+              Choose a recorded day to review its entries. Your complete active history
+              still contributes to goals and personal statistics.
             </p>
           </div>
           <span>

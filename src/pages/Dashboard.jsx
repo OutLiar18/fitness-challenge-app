@@ -36,14 +36,7 @@ export default function Dashboard() {
     <div className="dashboard-page page-stack">
       <WelcomeCard profile={profile} user={user} playerSeed={user?.uid || user?.email} />
 
-      <QuickActions />
-
-      <ProgressionCard progression={progression} />
-
-      <div className="dashboard-insights">
-        <DailyProgress goals={goals} period={goalPeriod} />
-        <TopCategories categories={topCategories} />
-      </div>
+            <QuickActions />
 
       <DailyGoals
         goals={goals}
@@ -51,6 +44,13 @@ export default function Dashboard() {
         onPeriodChange={setGoalPeriod}
         onSelect={handleGoalSelect}
       />
+
+      <ProgressionCard progression={progression} />
+
+      <div className="dashboard-insights">
+        <DailyProgress goals={goals} period={goalPeriod} />
+        <TopCategories categories={topCategories} />
+      </div>
     </div>
   );
 }

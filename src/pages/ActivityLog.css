@@ -40,3 +40,69 @@
     padding: 12px 13px;
   }
 }
+
+/* v0.27 27C — activity workspace guide */
+.activity-page__guide {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.activity-page__guide li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 14px 16px;
+  list-style: none;
+}
+
+.activity-page__guide li + li {
+  border-left: 1px solid var(--border);
+}
+
+.activity-page__guide li > strong {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--on-primary);
+  background: var(--primary-control);
+  font-size: 0.82rem;
+}
+
+.activity-page__guide li > span {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.activity-page__guide b {
+  color: var(--text);
+  font-size: 0.86rem;
+}
+
+.activity-page__guide small {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+@media (max-width: 760px) {
+  .activity-page__guide {
+    grid-template-columns: 1fr;
+  }
+
+  .activity-page__guide li {
+    padding: 11px 13px;
+  }
+
+  .activity-page__guide li + li {
+    border-top: 1px solid var(--border);
+    border-left: 0;
+  }
+}

@@ -216,3 +216,50 @@
     text-align: center;
   }
 }
+
+/* v0.27 27C — journal review flow */
+.journal__date-field input,
+.journal__today-button {
+  min-height: 46px;
+}
+
+.journal__state {
+  min-height: 220px;
+}
+
+.journal__empty-action {
+  min-width: 150px;
+  margin-top: 4px;
+}
+
+.journal-history__day {
+  min-height: 70px;
+  background: var(--surface-raised);
+}
+
+.journal-history__day--selected {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  box-shadow: inset 3px 0 0 var(--primary);
+}
+
+.journal-history__day small {
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 700px) {
+  .journal__navigation .button--icon {
+    width: 48px;
+    min-width: 48px;
+  }
+
+  .journal__date-field input {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .journal-history__day {
+    min-height: 74px;
+  }
+}
