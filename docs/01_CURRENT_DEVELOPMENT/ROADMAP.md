@@ -1,11 +1,11 @@
 # Champions Legacy Challenge — Roadmap
 
 <!-- RELEASE_STATUS: VERIFIED_PRODUCTION -->
-Last updated: 10 August 2026
+Last updated: 11 August 2026
 
-## Current production — v0.25.0
+## Current production — v0.26.0
 
-v0.25.0 is the verified production baseline. Firestore Rules and Hosting were activated independently on 10 August 2026 and verified against the frozen release source. Production release evidence is recorded in `docs/07_HISTORY/V0250_PRODUCTION_RELEASE.md`.
+v0.26.0 is the verified production baseline. The exact deployed/tagged source is `c057fca0598fe4a07ff101ea13808f1da8918aa8`; Firestore Rules SHA-256 is `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e`.
 
 ## v0.25.0 — COMPLETE
 
@@ -147,13 +147,69 @@ Five Fires and Buddy Bonuses are intentionally removed from the pre-v1.0 roadmap
 
 
 ## v0.27.0 — Full application UX, accessibility and performance review
-- every page and workflow;
-- dedicated desktop, tablet and mobile acceptance review;
-- keyboard, screen-reader and focus management;
-- dark mode, visual consistency, loading/empty/error states and performance;
-- bundle/code-splitting review.
 
-Responsive behaviour remains a requirement for every earlier implementation even though detailed mobile visual review is deferred to this release.
+### 27A — Full application audit — COMPLETE
+- static route/page/component/CSS inventory;
+- existing accessibility and responsive foundations inventoried;
+- page/workspace complexity and repeated interaction patterns prioritized;
+- current build/bundle sizes captured;
+- detailed plan recorded in `V027_UX_AUDIT.md`;
+- no application behaviour or Firebase deployment changes.
+
+### 27B — Design system + application shell
+- implement approved black/dark-blood-red Champions Legacy visual direction;
+- accessible light/dark colour tokens and readable type scale;
+- shared button/card/form/tab/status/dialog patterns;
+- desktop sidebar, mobile header and bottom-navigation polish;
+- remove excessively small shell/status text;
+- responsive content-width/spacing foundation.
+
+### 27C — Core player loop
+- Dashboard;
+- Log Activity and category/forms;
+- Journal/date navigation;
+- feedback, evidence prompts and destructive-action UX;
+- dedicated desktop/tablet/mobile and keyboard pass.
+
+### 27D — Personal progress and communication
+- Progress;
+- Analytics;
+- Profile/Legacy Profile;
+- Inbox;
+- Legacy Coach;
+- information hierarchy, charts/data accessibility, loading/empty/error states.
+
+### 27E — Competition workspaces
+- Houses;
+- Seasons;
+- decompose oversized route presentation into task-focused components/workspaces;
+- improve captain/vice-captain/player/admin scanning and responsive behaviour;
+- preserve all competition/data/Rules semantics.
+
+### 27F — Administration, reference and support
+- Platform Admin;
+- Rulebook;
+- Points Guide;
+- Help;
+- Pocket Week and future-feature states;
+- consistent dense-list/form/dialog/long-form-reading patterns.
+
+### 27G — Performance + full acceptance
+- investigate/reduce the Firebase vendor bundle warning;
+- preserve route-level lazy loading;
+- full 320px/tablet/desktop acceptance;
+- keyboard/screen-reader/focus pass;
+- light/dark contrast and reduced-motion pass;
+- loading/empty/error-state completeness.
+
+### 27R — Release freeze
+- full application regression;
+- Rules regression only if Rules unexpectedly change;
+- production build;
+- responsive/accessibility acceptance;
+- controlled release activation.
+
+Responsive behaviour remains a requirement throughout v0.27.
 
 ## v0.28.0 — Complete league-season rehearsal
 - registration, C.H.A.O.S., Houses and leadership;

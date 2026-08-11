@@ -1,12 +1,12 @@
 # Champions Legacy Challenge — Next Session
 
 <!-- RELEASE_STATUS: RELEASED -->
-Current source: v0.26.0 production release
-Current production: v0.25.0
+Current source: v0.27.0 development
+Current production: v0.26.0
 
 ## First action
 
-Continue from released v0.26.0. Begin v0.27 UX/accessibility/performance. Focus on the application people actually use: full-page UX review, responsive desktop/tablet/mobile behaviour, keyboard/screen-reader/focus quality, visual consistency, loading/empty/error states and performance/bundle splitting. Keep v0.26.0 immutable except for an explicit hotfix.
+Continue from completed 27A on development/v0.27.0. Implement 27B design-system + application-shell foundations first. Lock reusable colour/type/spacing/status/dialog/navigation primitives before polishing individual pages. Preserve gameplay/security/data behaviour and keep v0.26.0 immutable except for an explicit hotfix.
 
 ## v0.25.0 order
 
@@ -93,3 +93,7 @@ Google Cloud CLI/IAM/PITR inventory, backup-schedule work and automated restore 
 ## v0.26.0 release closure
 
 Production activation completed successfully from `c057fca0598fe4a07ff101ea13808f1da8918aa8`. Rules SHA `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e` was released, Hosting target `app` was released, 10/10 SPA routes and 16 referenced assets matched the frozen build, and the repository stayed clean. Tag `v0.26.0` points to the exact deployed commit. v0.26 is closed; do not resume deferred App Check/CSP/Google Cloud DR work during v0.27 unless the project's real scale changes.
+
+## Checkpoint 27A UX audit
+
+27A is documentation/audit only. It records the full static route/page/CSS/bundle inventory in `V027_UX_AUDIT.md`. The implementation order is 27B shell/design system → 27C core player loop → 27D progress/communication → 27E Houses/Seasons → 27F Admin/reference → 27G performance/full responsive-accessibility acceptance → 27R release freeze. Enterprise App Check/CSP/Google Cloud DR work remains deferred.

@@ -1,14 +1,14 @@
 # Champions Legacy Challenge — Current State
 
 <!-- RELEASE_STATUS: RELEASED -->
-Source version: 0.26.0 production release
-Production version: 0.25.0
+Source version: 0.27.0 development
+Production version: 0.26.0
 Last updated: 11 August 2026
-Status: v0.26.0 released to production; development moves to v0.27
+Status: v0.27 UX/accessibility/performance phase active after 27A audit
 
 ## Production baseline
 
-v0.25.0 is live and verified on Firebase Hosting with independently verified v0.25.0 Firestore Rules active in production. Production release evidence is recorded in `docs/07_HISTORY/V0250_PRODUCTION_RELEASE.md`.
+v0.26.0 is live and verified on Firebase Hosting. The exact deployed/tagged source is `c057fca0598fe4a07ff101ea13808f1da8918aa8`; Firestore Rules SHA-256 is `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e`. The later documentation-finalisation commit is `fc3a93d1b2702ab8672ce89ec9966024564c9282`.
 
 ## v0.25.0 development scope
 
@@ -162,8 +162,19 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - working tree remained clean;
 - advanced App Check/CSP and Google Cloud disaster-recovery infrastructure remain deferred until scale requires them.
 
+### v0.27.0 — UX/accessibility/performance
+#### Checkpoint 27A — full application audit — COMPLETE
+- inventory route/page/component/CSS complexity without changing application behaviour;
+- preserve route-level lazy loading and existing accessibility foundations;
+- identify readability/design-system consistency as the first shared concern;
+- prioritize the Dashboard → Log Activity → Journal loop before lower-frequency screens;
+- identify Houses and Seasons as the largest presentation workspaces and plan task-focused decomposition;
+- keep the Firebase vendor chunk warning for a focused 27G performance pass;
+- record the complete prioritized plan in `V027_UX_AUDIT.md`;
+- perform no Firebase deployment.
+
 ### Next action
-Begin v0.27 UX/accessibility/performance from the finalised v0.26 repository state. Prioritise user-facing improvements, responsive behaviour, accessibility, visual consistency and the known Firebase vendor chunk performance warning. Do not reopen deferred enterprise infrastructure unless real scale/risk justifies it.
+Checkpoint 27B: establish the v0.27 design-system and application-shell foundation, including the approved dark blood-red/black Champions Legacy direction, accessible colour/type tokens, readable microcopy, consistent interaction primitives and responsive shell polish. Do not change gameplay, scoring, Firestore Rules or competition semantics.
 
 ## Responsive development boundary
 

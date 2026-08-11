@@ -1,9 +1,9 @@
 # Champions Legacy Challenge — Current Context
 
 <!-- RELEASE_STATUS: RELEASED -->
-Current source: v0.26.0 production release
-Current production: v0.25.0
-Last updated: 10 August 2026
+Current source: v0.27.0 development
+Current production: v0.26.0
+Last updated: 11 August 2026
 
 v0.25.0 remains the verified production baseline and is frozen. v0.26.0 development begins from finalised `main` commit `63f1d058fa732b5fba8622225cee29ab59defc0f`. No v0.26 development checkpoint may deploy to production without a dedicated reviewed activation stage.
 
@@ -42,3 +42,5 @@ v0.26 Checkpoint 26I applies the current-scale simplification decision. Champion
 v0.26 Checkpoint 26R freezes the completed 26I application/security source at `909fe8938237c70b69aab1d72a2fef9ee2780e37` and refreshes release verification for the practical v0.26 contract. Candidate Firestore Rules SHA-256 is `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e`; the Rules suite contains 98 tests. The full application/build + Rules release gate must pass before 26R is committed. Development production deploy scripts remain blocked and 26R performs no Firebase deployment.
 
 v0.26.0 production activation completed successfully on 11 August 2026 from exact release commit `c057fca0598fe4a07ff101ea13808f1da8918aa8`. Firestore Rules SHA-256 `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e` deployed successfully, Firebase Hosting target `app` released successfully to `champions-legacy-challenge`, and post-deploy verification matched 10/10 SPA routes plus all 16 assets referenced by the built index. The repository remained clean. Tag `v0.26.0` is pinned to the exact deployed release commit; this later documentation-finalisation commit is intentionally not the tag target. v0.26 is closed. Next development phase: v0.27 UX/accessibility/performance.
+
+v0.27 Checkpoint 27A begins the dedicated UX/accessibility/performance phase from finalised v0.26 commit `fc3a93d1b2702ab8672ce89ec9966024564c9282`. The audit is recorded in `V027_UX_AUDIT.md` and changes no application behaviour. Existing strengths include route-level lazy loading, reusable shell/navigation, skip-link/focus/reduced-motion foundations and shared workspace patterns. Priority risks are readability/visual-system consistency, the high-frequency Dashboard → Log Activity → Journal loop, very large Houses/Seasons presentation modules, dense administration/reference screens and the remaining Firebase vendor bundle warning. The next implementation checkpoint is 27B: design system + application shell foundation.
