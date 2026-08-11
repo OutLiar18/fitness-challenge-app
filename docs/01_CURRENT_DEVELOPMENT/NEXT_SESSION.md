@@ -6,7 +6,7 @@ Current production: v0.26.0
 
 ## First action
 
-Continue from completed 27A on development/v0.27.0. Implement 27B design-system + application-shell foundations first. Lock reusable colour/type/spacing/status/dialog/navigation primitives before polishing individual pages. Preserve gameplay/security/data behaviour and keep v0.26.0 immutable except for an explicit hotfix.
+Continue from completed 27B on development/v0.27.0. Implement 27C across the high-frequency Dashboard → Log Activity → Journal journey. Reuse the new v0.27 tokens/shell/PageHeader/WorkspaceTabs foundation; improve hierarchy, touch/keyboard flow, loading/save/error/evidence feedback and replace relevant native destructive confirms with a reusable accessible confirmation pattern. Preserve scoring, competition rules, Firestore permissions and v0.26.0 production.
 
 ## v0.25.0 order
 
@@ -97,3 +97,7 @@ Production activation completed successfully from `c057fca0598fe4a07ff101ea13808
 ## Checkpoint 27A UX audit
 
 27A is documentation/audit only. It records the full static route/page/CSS/bundle inventory in `V027_UX_AUDIT.md`. The implementation order is 27B shell/design system → 27C core player loop → 27D progress/communication → 27E Houses/Seasons → 27F Admin/reference → 27G performance/full responsive-accessibility acceptance → 27R release freeze. Enterprise App Check/CSP/Google Cloud DR work remains deferred.
+
+## Checkpoint 27B design-system foundation
+
+27B is shared presentation work only. The application version is now 0.27.0. Blood red is the primary identity across accessible light/dark token sets; black/charcoal anchors the dark theme; gold remains restrained achievement emphasis. Shared cards/buttons/forms/PageHeader/WorkspaceTabs and the desktop/tablet/mobile shell are visually standardised. Primary shell microcopy is made materially more readable while existing navigation/focus/reduced-motion behaviour stays intact. Firestore Rules remain unchanged. See `V027_DESIGN_SYSTEM.md`.

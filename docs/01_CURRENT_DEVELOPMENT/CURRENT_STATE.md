@@ -4,7 +4,7 @@
 Source version: 0.27.0 development
 Production version: 0.26.0
 Last updated: 11 August 2026
-Status: v0.27 UX/accessibility/performance phase active after 27A audit
+Status: v0.27 design-system/application-shell foundation complete after 27B
 
 ## Production baseline
 
@@ -173,8 +173,19 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - record the complete prioritized plan in `V027_UX_AUDIT.md`;
 - perform no Firebase deployment.
 
+#### Checkpoint 27B — design system + application shell — COMPLETE
+- advance the application package version to 0.27.0;
+- replace the former blue-led token set with the approved black/charcoal + dark-blood-red Champions Legacy identity in both system light and dark modes;
+- separate readable primary accents from primary control colours so dark-mode text and button contrast remain strong;
+- standardise shared cards, buttons, form focus/help states, PageHeader and WorkspaceTabs;
+- polish desktop sidebar, tablet rail, mobile header, bottom navigation and More surfaces without changing routing/role logic;
+- raise the smallest primary shell/nav microcopy identified by 27A;
+- preserve skip navigation, focus trapping/restoration, reduced-motion handling and route-level lazy loading;
+- add persistent v0.27 design-system regression coverage;
+- keep Firestore Rules byte-for-byte unchanged and perform no Firebase deployment.
+
 ### Next action
-Checkpoint 27B: establish the v0.27 design-system and application-shell foundation, including the approved dark blood-red/black Champions Legacy direction, accessible colour/type tokens, readable microcopy, consistent interaction primitives and responsive shell polish. Do not change gameplay, scoring, Firestore Rules or competition semantics.
+Checkpoint 27C: polish the high-frequency Dashboard → Log Activity → Journal journey using the 27B shared foundation. Improve hierarchy, touch/keyboard flow, save/error/evidence feedback and destructive confirmations without changing scoring or Firestore semantics.
 
 ## Responsive development boundary
 

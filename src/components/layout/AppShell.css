@@ -3,8 +3,8 @@
   min-height: 100svh;
   overflow-x: clip;
   background:
-    radial-gradient(circle at 96% 0%, var(--primary-soft), transparent 30rem),
-    var(--page-bg);
+    radial-gradient(circle at 94% -8%, var(--primary-glow), transparent 34rem),
+    linear-gradient(180deg, var(--page-bg), var(--page-bg-deep));
 }
 
 .app-sidebar {
@@ -35,9 +35,9 @@
 .app-mobile-header__brand {
   display: grid;
   place-items: center;
-  color: #fff;
-  background: linear-gradient(145deg, var(--primary-strong), var(--primary));
-  box-shadow: 0 4px 0 color-mix(in srgb, var(--primary-strong) 65%, #000);
+  color: var(--on-primary);
+  background: linear-gradient(145deg, var(--primary-control-hover), var(--primary-control));
+  box-shadow: 0 4px 0 var(--primary-depth), var(--shadow-sm);
 }
 
 .app-brand__mark {
@@ -77,7 +77,7 @@
 .app-brand__copy small {
   margin-top: 3px;
   color: var(--primary);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 900;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -118,8 +118,8 @@
 
 .app-shell-stat small {
   color: var(--text-subtle);
-  font-size: 0.55rem;
-  font-weight: 800;
+  font-size: 0.7rem;
+  font-weight: 850;
   text-transform: uppercase;
 }
 
@@ -167,13 +167,13 @@
 }
 
 .app-nav__link--purple {
-  --nav-tone: #8a58cc;
-  --nav-soft: color-mix(in srgb, #8a58cc 13%, transparent);
+  --nav-tone: var(--tone-purple);
+  --nav-soft: var(--tone-purple-soft);
 }
 
 .app-nav__link--cyan {
-  --nav-tone: #168aa4;
-  --nav-soft: color-mix(in srgb, #168aa4 13%, transparent);
+  --nav-tone: var(--tone-cyan);
+  --nav-soft: var(--tone-cyan-soft);
 }
 
 .app-nav__link--red {
@@ -234,7 +234,7 @@
   border-radius: 999px;
   color: var(--nav-tone);
   background: var(--surface);
-  font-size: 0.57rem;
+  font-size: 0.68rem;
   font-weight: 900;
   text-transform: uppercase;
 }
@@ -258,7 +258,7 @@
 .app-nav__group-label {
   margin: 0 10px 1px;
   color: var(--text-subtle);
-  font-size: 0.61rem;
+  font-size: 0.7rem;
   font-weight: 900;
   letter-spacing: 0.11em;
   text-transform: uppercase;
@@ -313,7 +313,7 @@
 .app-player__copy small {
   margin-top: 3px;
   color: var(--text-muted);
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   text-transform: capitalize;
 }
 
@@ -341,7 +341,7 @@
   position: fixed;
   z-index: 54;
   inset: 0;
-  background: rgba(9, 15, 27, 0.22);
+  background: var(--scrim);
   backdrop-filter: blur(2px);
 }
 
@@ -381,7 +381,7 @@
 .app-more-panel__header small {
   margin-top: 3px;
   color: var(--text-muted);
-  font-size: 0.72rem;
+  font-size: 0.78rem;
 }
 
 .app-more-panel__section {
@@ -393,7 +393,7 @@
 .app-more-panel__section > p {
   margin: 0 8px 2px;
   color: var(--text-subtle);
-  font-size: 0.64rem;
+  font-size: 0.7rem;
   font-weight: 900;
   letter-spacing: 0.11em;
   text-transform: uppercase;
@@ -562,7 +562,7 @@
 
   .app-mobile-header small {
     color: var(--text-muted);
-    font-size: 0.62rem;
+    font-size: 0.72rem;
     font-weight: 850;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -590,11 +590,11 @@
     border: 1px solid var(--border);
     border-radius: 999px;
     background: var(--surface-soft);
-    font-size: 0.72rem;
+    font-size: 0.75rem;
   }
 
   .app-mobile-header__stats strong {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
   }
 
   .app-content {
@@ -639,7 +639,7 @@
   }
 
   .app-mobile-nav__link--purple {
-    --mobile-tone: #8a58cc;
+    --mobile-tone: var(--tone-purple);
   }
 
   .app-mobile-nav__link > span {
@@ -650,7 +650,7 @@
   .app-mobile-nav__link small {
     max-width: 100%;
     overflow: hidden;
-    font-size: 0.59rem;
+    font-size: 0.68rem;
     font-weight: 850;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -705,11 +705,11 @@
 
 @media (max-width: 360px) {
   .app-mobile-nav__link small {
-    font-size: 0.54rem;
+    font-size: 0.66rem;
   }
 
   .app-mobile-header small {
-    font-size: 0.56rem;
+    font-size: 0.68rem;
   }
 }
 
@@ -748,7 +748,7 @@
   border-radius: 999px;
   color: #ffffff;
   background: var(--danger);
-  font-size: 0.62rem;
+  font-size: 0.68rem;
   font-weight: 900;
   line-height: 1;
 }
@@ -806,4 +806,71 @@
 @media (max-width: 620px) {
   .app-profile-prompt { align-items: stretch; flex-direction: column; }
   .app-profile-prompt .button { width: 100%; }
+}
+
+/* v0.27 27B — application shell visual polish */
+.app-sidebar {
+  border-right: 1px solid var(--border);
+  background:
+    linear-gradient(180deg, var(--surface-raised), var(--surface));
+  box-shadow: 10px 0 32px rgba(36, 14, 20, 0.035);
+}
+
+.app-brand {
+  border-radius: 16px;
+}
+
+.app-brand:focus-visible {
+  background: var(--primary-soft);
+}
+
+.app-sidebar__stats {
+  border-width: 1px;
+  background:
+    linear-gradient(145deg, var(--surface-soft), var(--surface-raised));
+}
+
+.app-nav__link {
+  min-height: 54px;
+}
+
+.app-nav__link--active {
+  box-shadow:
+    inset 3px 0 0 var(--nav-tone),
+    0 2px 0 color-mix(in srgb, var(--nav-tone) 24%, var(--border));
+}
+
+.app-more-panel {
+  border-width: 1px;
+  background:
+    linear-gradient(180deg, var(--surface-raised), var(--surface));
+}
+
+.app-content {
+  width: min(100%, calc(var(--content-width) + 84px));
+}
+
+.app-profile-prompt {
+  border-width: 1px;
+}
+
+@media (max-width: 760px) {
+  .app-mobile-header {
+    border-bottom-width: 1px;
+    background: color-mix(in srgb, var(--surface-raised) 94%, transparent);
+    box-shadow: 0 8px 24px rgba(36, 14, 20, 0.06);
+  }
+
+  .app-mobile-nav {
+    border-top-width: 1px;
+    background: color-mix(in srgb, var(--surface-raised) 96%, transparent);
+  }
+
+  .app-mobile-nav__link {
+    min-height: 58px;
+  }
+
+  .app-mobile-nav__link--active {
+    box-shadow: inset 0 2px 0 var(--mobile-tone);
+  }
 }

@@ -79,7 +79,7 @@
   margin-top: 3px;
   overflow: hidden;
   color: var(--text-subtle);
-  font-size: 0.69rem;
+  font-size: 0.75rem;
   font-weight: 650;
   line-height: 1.25;
   text-overflow: ellipsis;
@@ -95,7 +95,7 @@
   border-radius: 999px;
   color: var(--primary-strong);
   background: var(--surface);
-  font-size: 0.69rem;
+  font-size: 0.72rem;
   font-weight: 900;
 }
 
@@ -155,5 +155,52 @@
 
   .workspace-tab {
     transition: none;
+  }
+}
+
+/* v0.27 27B — workspace navigation visual foundation */
+.workspace-switcher {
+  border-color: var(--border);
+  background:
+    linear-gradient(180deg, var(--surface-raised), var(--surface));
+}
+
+.workspace-tab {
+  min-height: 68px;
+}
+
+.workspace-tab--active {
+  color: var(--primary);
+  border-color: color-mix(in srgb, var(--primary) 42%, var(--border));
+  background:
+    linear-gradient(145deg, var(--primary-soft), var(--surface-raised));
+  box-shadow:
+    inset 3px 0 0 var(--primary),
+    0 2px 0 color-mix(in srgb, var(--primary) 22%, var(--border));
+}
+
+.workspace-tab__icon {
+  border: 1px solid transparent;
+}
+
+.workspace-tab--active .workspace-tab__icon {
+  border-color: color-mix(in srgb, var(--primary) 20%, var(--border));
+  background: var(--surface-raised);
+}
+
+.workspace-tab__badge {
+  border: 1px solid color-mix(in srgb, var(--primary) 22%, var(--border));
+  color: var(--primary);
+  background: var(--surface-raised);
+}
+
+@media (max-width: 760px) {
+  .workspace-switcher {
+    border-radius: 16px;
+    background: var(--surface-raised);
+  }
+
+  .workspace-switcher__select p {
+    font-size: 0.86rem;
   }
 }

@@ -156,13 +156,15 @@ Five Fires and Buddy Bonuses are intentionally removed from the pre-v1.0 roadmap
 - detailed plan recorded in `V027_UX_AUDIT.md`;
 - no application behaviour or Firebase deployment changes.
 
-### 27B — Design system + application shell
-- implement approved black/dark-blood-red Champions Legacy visual direction;
-- accessible light/dark colour tokens and readable type scale;
-- shared button/card/form/tab/status/dialog patterns;
-- desktop sidebar, mobile header and bottom-navigation polish;
-- remove excessively small shell/status text;
-- responsive content-width/spacing foundation.
+### 27B — Design system + application shell — COMPLETE
+- implement approved black/charcoal + dark-blood-red Champions Legacy visual direction;
+- establish accessible light/dark tokens with separate readable accent and primary-control colours;
+- standardise shared button/card/form/focus/PageHeader/WorkspaceTabs patterns;
+- polish desktop sidebar, tablet rail, mobile header, More surface and bottom navigation without changing behaviour;
+- raise excessively small primary shell/status/navigation text;
+- establish responsive content-width/spacing foundation;
+- add persistent design-system regression coverage;
+- keep Firestore Rules unchanged and perform no Firebase deployment.
 
 ### 27C — Core player loop
 - Dashboard;

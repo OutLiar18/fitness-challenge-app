@@ -32,7 +32,7 @@
 .page-header__eyebrow {
   margin-bottom: 4px;
   color: var(--primary);
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 850;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -83,7 +83,7 @@
   }
 
   .page-header__description {
-    font-size: 0.86rem;
+    font-size: 0.92rem;
   }
 
   .page-header__actions {
@@ -94,4 +94,35 @@
   .page-header__actions > * {
     flex: 1;
   }
+}
+
+/* v0.27 27B — shared page-header identity */
+.page-header {
+  position: relative;
+  border-color: color-mix(in srgb, var(--primary) 18%, var(--border));
+  background:
+    linear-gradient(135deg, var(--surface-raised), var(--surface-soft));
+  box-shadow: var(--shadow-md);
+}
+
+.page-header::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  background: linear-gradient(180deg, var(--primary), var(--primary-control));
+  content: "";
+}
+
+.page-header__icon {
+  border-width: 1px;
+  border-color: color-mix(in srgb, var(--primary) 30%, var(--border));
+  background:
+    radial-gradient(circle at 30% 20%, var(--surface-raised), transparent 65%),
+    var(--primary-soft);
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--primary) 22%, var(--border));
+}
+
+.page-header__description {
+  line-height: 1.6;
 }
