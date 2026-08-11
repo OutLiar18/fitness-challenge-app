@@ -3,11 +3,13 @@ import { useMemo, useState } from "react";
 import { USER_ROLES, getRoleLabel } from "../../constants/admin";
 import { updateUserAdministration } from "../../services/admin/userAdminService";
 import { formatNumber } from "../../utils/displayFormatters";
+import ConfirmDialog from "../common/ConfirmDialog";
 import LegacyAvatar from "../profile/LegacyAvatar";
 
 function UserAccessRow({ player, actorId, notify, onUpdated }) {
   const [role, setRole] = useState(player.role || "user");
   const [saving, setSaving] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const isCurrentAdministrator = player.id === actorId;
   const changed = role !== (player.role || "user");
 
@@ -22,6 +24,7 @@ function UserAccessRow({ player, actorId, notify, onUpdated }) {
       });
       notify(`Trusted access was updated for ${player.displayName || player.email}.`);
       onUpdated?.(player.id, { role });
+      setConfirming(false);
     } catch (error) {
       notify(error.message || "The player account could not be updated.", "error");
     } finally {
@@ -70,11 +73,21 @@ function UserAccessRow({ player, actorId, notify, onUpdated }) {
           className="button button--primary"
           type="button"
           disabled={saving || !changed || isCurrentAdministrator}
-          onClick={save}
+          onClick={() => setConfirming(true)}
         >
           {saving ? "Saving…" : "Save access"}
         </button>
       </div>
+      <ConfirmDialog
+        open={confirming}
+        title={`Change trusted role for ${player.displayName || player.email || "this player"}?`}
+        description={`This changes audited platform access from ${getRoleLabel(player.role)} to ${getRoleLabel(role)}. Seasonal House membership is not affected.`}
+        confirmLabel="Save trusted role"
+        loading={saving}
+        loadingLabel="Saving access…"
+        onConfirm={save}
+        onCancel={() => !saving && setConfirming(false)}
+      />
     </article>
   );
 }

@@ -4,7 +4,7 @@
 Source version: 0.27.0 development
 Production version: 0.26.0
 Last updated: 11 August 2026
-Status: v0.27 Houses/Seasons competition workspace experience complete after 27E
+Status: v0.27 broad page UX polish complete after 27F; performance/acceptance remains
 
 ## Production baseline
 
@@ -223,8 +223,19 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - add persistent 27E regression coverage;
 - keep Firestore Rules byte-for-byte unchanged and perform no Firebase deployment.
 
+#### Checkpoint 27F — Admin / Rulebook / Points Guide / Help / Pocket / future states — COMPLETE
+- URL-back Platform Admin, Points Guide, Help and Pocket workspaces;
+- URL-back Rulebook search text and non-default status filtering;
+- add clear-filter recovery and current House terminology to Rulebook search;
+- confirm audited trusted-role changes through the shared accessible ConfirmDialog while preserving authority/service semantics;
+- focus Help restart/account-tool failures and expose account-tool busy state;
+- strengthen dense admin controls, Rulebook/Points long-form readability, Pocket controls and support/reference microcopy/touch targets;
+- make future-feature states explicitly Preview only with a Dashboard return path;
+- add persistent 27F regression coverage;
+- keep Firestore Rules byte-for-byte unchanged and perform no Firebase deployment.
+
 ### Next action
-Checkpoint 27F: polish Platform Admin, Rulebook, Points Guide, Help, Pocket Week and future-feature states. Standardise dense lists/forms/dialogs, long-form reading layouts and remaining destructive-action presentation without changing administration or scoring semantics.
+Checkpoint 27G: perform the dedicated performance and full responsive/accessibility acceptance pass. Address the Firebase vendor chunk where practical, then verify 320px mobile, representative tablet and desktop layouts, keyboard-only operation, landmarks/labels/focus, light/dark contrast, reduced motion and loading/empty/error completeness before the 27R release freeze.
 
 ## Responsive development boundary
 

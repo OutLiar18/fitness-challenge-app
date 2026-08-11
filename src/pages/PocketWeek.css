@@ -31,3 +31,34 @@
 .pocket-easter p { margin: 3px 0 0; color: var(--text-muted); }
 @media (max-width: 900px) { .pocket-workspace, .pocket-season { grid-template-columns: 1fr; } .pocket-principles { grid-template-columns: 1fr; } .pocket-card { grid-template-columns: auto minmax(0, 1fr); } .pocket-card__controls, .pocket-card__empty { grid-column: 1 / -1; } }
 @media (max-width: 620px) { .pocket-season, .pocket-wallet { padding: 18px; } .pocket-season__window { grid-template-columns: 1fr; } .pocket-phase { grid-column: 1; grid-row: auto; justify-self: start; } .pocket-card { padding: 14px; } .pocket-card__controls { grid-template-columns: 1fr; } .pocket-card__controls .button { grid-column: 1; } }
+
+/* v0.27 27F — Pocket Week workspace readability */
+.pocket-season select,
+.pocket-date input,
+.pocket-card__controls input,
+.pocket-card__controls .button {
+  min-height: 46px;
+}
+
+.pocket-phase,
+.pocket-card__copy p,
+.pocket-card__controls label {
+  font-size: 0.78rem;
+}
+
+.pocket-card {
+  background: linear-gradient(135deg, var(--surface-raised), var(--surface-soft));
+}
+
+.pocket-card__copy span,
+.pocket-wallet__notice,
+.pocket-principles p {
+  line-height: 1.5;
+}
+
+@media (max-width: 620px) {
+  .pocket-season select,
+  .pocket-card__controls .button {
+    width: 100%;
+  }
+}

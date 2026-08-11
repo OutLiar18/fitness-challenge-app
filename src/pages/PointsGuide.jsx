@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useMemo } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 
 import WorkspaceTabs, {
   WorkspacePanel,
@@ -148,13 +148,34 @@ function ActivityGuidePanel({ guide }) {
 }
 
 export default function PointsGuide() {
-  const [selectedGuideId, setSelectedGuideId] = useState("running");
-  const [activeTab, setActiveTab] = useState("activities");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedGuideId = searchParams.get("category") || "running";
+  const selectedGuideId = getActivityPointGuide(requestedGuideId)
+    ? requestedGuideId
+    : "running";
+  const requestedTab = searchParams.get("tab");
+  const activeTab = POINTS_GUIDE_TABS.some((tab) => tab.id === requestedTab)
+    ? requestedTab
+    : "activities";
   const selectedGuide = useMemo(
     () =>
       getActivityPointGuide(selectedGuideId) ?? ACTIVITY_POINT_GUIDES[0],
     [selectedGuideId],
   );
+
+  function setActiveTab(tabId) {
+    const next = new URLSearchParams(searchParams);
+    if (tabId === "activities") next.delete("tab");
+    else next.set("tab", tabId);
+    setSearchParams(next, { replace: true });
+  }
+
+  function setSelectedGuideId(guideId) {
+    const next = new URLSearchParams(searchParams);
+    if (guideId === "running") next.delete("category");
+    else next.set("category", guideId);
+    setSearchParams(next, { replace: true });
+  }
 
   return (
     <div className="points-guide-page page-stack">

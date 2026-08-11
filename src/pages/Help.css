@@ -234,3 +234,46 @@
   color: var(--success);
   background: var(--success-soft);
 }
+
+/* v0.27 27F — help/account readability and focused feedback */
+.help-page .section-kicker {
+  font-size: 0.78rem;
+}
+
+.status-pill {
+  font-size: 0.74rem;
+}
+
+.help-card p,
+.help-callout p,
+.account-tool p,
+.help-boundary-list p {
+  line-height: 1.65;
+}
+
+.account-tools[aria-busy="true"] {
+  cursor: progress;
+}
+
+.account-tools .inline-alert:focus,
+.help-page > .inline-alert:focus {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.account-tool select,
+.account-tool .button,
+.help-action-row .button {
+  min-height: 46px;
+}
+
+@media (max-width: 620px) {
+  .help-action-row {
+    display: grid;
+  }
+
+  .help-action-row .button,
+  .account-tool .button {
+    width: 100%;
+  }
+}

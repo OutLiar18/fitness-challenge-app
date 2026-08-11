@@ -592,3 +592,69 @@
     display: grid;
   }
 }
+
+/* v0.27 27F — reference reading and filter accessibility */
+.rulebook-page .section-kicker,
+.rulebook-section-heading > .section-kicker {
+  font-size: 0.78rem;
+}
+
+.rulebook-particular small,
+.rulebook-goals__table thead th,
+.rulebook-jump > p,
+.rule-section__eyebrow,
+.rule-status {
+  font-size: 0.74rem;
+}
+
+.rulebook-filter,
+.rulebook-jump a {
+  min-height: 46px;
+}
+
+.rulebook-search input {
+  min-height: 46px;
+}
+
+.rule-item__text,
+.rule-item__bullets,
+.rule-item__note {
+  max-width: 78ch;
+  line-height: 1.65;
+}
+
+.rulebook-page > .empty-state {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  padding: 24px;
+  text-align: left;
+}
+
+@media (max-width: 620px) {
+  .rulebook-tools {
+    grid-template-columns: 1fr;
+  }
+
+  .rulebook-filter-group {
+    align-items: stretch;
+  }
+
+  .rulebook-filter {
+    flex: 1 1 140px;
+  }
+
+  .rulebook-tool-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .rulebook-tool-actions > span {
+    margin-right: 0;
+  }
+
+  .rulebook-tool-actions .button,
+  .rulebook-page > .empty-state .button {
+    width: 100%;
+  }
+}

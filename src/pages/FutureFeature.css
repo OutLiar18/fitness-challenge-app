@@ -96,3 +96,40 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* v0.27 27F — future-state clarity */
+.future-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.future-status__label,
+.future-capabilities > p,
+.future-guardrail > div > p {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--primary);
+  font-size: 0.76rem;
+  font-weight: 850;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.future-status p,
+.future-note p,
+.future-capabilities li,
+.future-guardrail blockquote {
+  line-height: 1.6;
+}
+
+@media (max-width: 520px) {
+  .future-header-actions {
+    display: grid;
+    width: 100%;
+  }
+
+  .future-header-actions .button {
+    width: 100%;
+  }
+}

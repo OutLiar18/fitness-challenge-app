@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 import AccountDeletionRequests from "../components/admin/AccountDeletionRequests";
 import AdminOverview from "../components/admin/AdminOverview";
@@ -35,8 +35,19 @@ export default function Admin() {
   const { user, isPlatformAdmin } = usePlayerData();
   const isAdmin = isPlatformAdmin;
   const adminData = useAdminData(isAdmin);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedTab = searchParams.get("tab");
+  const activeTab = ADMIN_TABS.some((tab) => tab.id === requestedTab)
+    ? requestedTab
+    : "overview";
   const { toast, showToast, dismissToast } = useToast();
+
+  function setActiveTab(tabId) {
+    const next = new URLSearchParams(searchParams);
+    if (tabId === "overview") next.delete("tab");
+    else next.set("tab", tabId);
+    setSearchParams(next, { replace: true });
+  }
 
   function renderPanel() {
     switch (activeTab) {

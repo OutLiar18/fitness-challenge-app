@@ -20,15 +20,21 @@ export default function FutureFeature() {
         description={feature.summary}
         icon={feature.icon}
         actions={
-          <Link className="button button--primary" to="/log">
-            Keep building today
-          </Link>
+          <div className="future-header-actions">
+            <Link className="button button--secondary" to="/dashboard">
+              Return to dashboard
+            </Link>
+            <Link className="button button--primary" to="/log">
+              Keep building today
+            </Link>
+          </div>
         }
       />
 
       <section className="future-status card">
         <span aria-hidden="true">🚧</span>
         <div>
+          <span className="future-status__label">Preview only</span>
           <strong>{feature.status}</strong>
           <p>
             This preview exists so navigation and architecture can grow around the

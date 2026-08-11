@@ -197,13 +197,15 @@ Five Fires and Buddy Bonuses are intentionally removed from the pre-v1.0 roadmap
 - preserve C.H.A.O.S., leadership, movement/rest, assignment history, balance, Power Plays, evidence, bonuses, lifecycle, standings, honours and all service/Rules semantics;
 - add persistent 27E regression coverage and perform no Firebase deployment.
 
-### 27F — Administration, reference and support
-- Platform Admin;
-- Rulebook;
-- Points Guide;
-- Help;
-- Pocket Week and future-feature states;
-- consistent dense-list/form/dialog/long-form-reading patterns.
+### 27F — Administration, reference and support — COMPLETE
+- URL-back Platform Admin, Points Guide, Help and Pocket workspaces;
+- URL-back Rulebook search/status state and add clear-filter recovery/current House terminology;
+- require shared accessible confirmation before audited trusted-role changes;
+- focus Help failures and expose account-tool busy state;
+- improve dense Admin controls, reference reading measure, scoring reference responsiveness and Pocket control touch/readability;
+- explicitly label future-feature routes as previews and provide a Dashboard return path;
+- preserve admin authority, scoring models, Pocket/account semantics and Firestore Rules;
+- add persistent 27F regression coverage and perform no Firebase deployment.
 
 ### 27G — Performance + full acceptance
 - investigate/reduce the Firebase vendor bundle warning;

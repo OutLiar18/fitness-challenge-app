@@ -6,7 +6,7 @@ Current production: v0.26.0
 
 ## First action
 
-Continue from completed 27E on development/v0.27.0. Implement 27F across Platform Admin, Rulebook, Points Guide, Help, Pocket Week and future-feature states. Reuse the shared design, WorkspaceTabs and ConfirmDialog patterns; standardise dense lists/forms/dialogs and long-form reading layouts without changing administrator authority, scoring, Pocket semantics or Firestore Rules.
+Continue from completed 27F on development/v0.27.0. Implement 27G as the dedicated performance and full responsive/accessibility acceptance checkpoint. Investigate the Firebase vendor chunk without speculative rewrites, then run the 320px/mobile/tablet/desktop, keyboard, focus, landmarks/labels, light/dark contrast, reduced-motion and loading/empty/error acceptance gates before 27R.
 
 ## v0.25.0 order
 
@@ -113,3 +113,7 @@ Production activation completed successfully from `c057fca0598fe4a07ff101ea13808
 ## Checkpoint 27E competition workspaces
 
 27E completes the Houses and Seasons UX pass. House/season workspaces are deep-linkable through URL presentation state, House roster/card and standings presentation are extracted from the oversized routes, both competition pages expose concise role/context summaries, and remaining browser confirm/prompt flows are replaced with the accessible ConfirmDialog while preserving typed DELETE for unused draft-season deletion. Competition services, calculations, movement/rest, evidence, Power Plays, bonus, history and Rules semantics remain unchanged. See `V027_COMPETITION_WORKSPACES.md`.
+
+## Checkpoint 27F admin/reference/support
+
+27F completes broad page-level UX work before final acceptance. Admin/reference/support/Pocket workspaces are deep-linkable, Rulebook filtering is URL-backed and recoverable, trusted-role changes use the accessible confirmation pattern, Help failures receive focus, long-form references and dense admin/Pocket controls meet the shared readability/touch treatment, and future pages clearly remain previews. All authority, scoring, Pocket, account and Rules semantics remain unchanged. See `V027_ADMIN_REFERENCE_SUPPORT.md`.

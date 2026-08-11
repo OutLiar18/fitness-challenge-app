@@ -573,3 +573,51 @@
   grid-template-columns: minmax(0, 860px);
   justify-content: center;
 }
+
+/* v0.27 27F — scoring reference readability */
+.points-guide-page .section-kicker,
+.points-category-button strong,
+.difficulty-scale span,
+.points-bonus-list small,
+.points-formulas__grid span {
+  font-size: 0.76rem;
+}
+
+.points-category-button {
+  min-height: 64px;
+  border-width: 1px;
+}
+
+.score-ladder__row {
+  min-height: 48px;
+}
+
+.score-ladder__range,
+.points-section-heading > p:last-child,
+.points-detail__header > div > p:last-child,
+.points-detail__footnote,
+.points-league > p:last-child {
+  line-height: 1.6;
+}
+
+.points-formula-examples code,
+.points-league code,
+.points-formulas code {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+@media (max-width: 620px) {
+  .points-category-picker__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .score-ladder__row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .score-ladder__track {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}

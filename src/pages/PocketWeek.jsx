@@ -171,7 +171,6 @@ export default function PocketWeek() {
   const [activityDate, setActivityDate] = useState(() => formatDateInputValue(new Date()));
   const [errors, setErrors] = useState([]);
   const [saving, setSaving] = useState(false);
-  const [tabState, setTabState] = useState({ leagueId: "", activeId: "wallet" });
   const phase = league ? getSeasonPhase(league) : "draft";
   const canStore = Boolean(league && membership && phase === "pocket");
   const canRedeem = Boolean(league && membership?.status === "active" && phase === "active");
@@ -224,18 +223,23 @@ export default function PocketWeek() {
       description: "Storage, activation and integrity rules",
     },
   ];
-  const requestedTab = tabState.leagueId === selectedId
-    ? tabState.activeId
-    : canStore ? "store" : "wallet";
-  const activeTab = resolveWorkspaceTab(pocketTabs, requestedTab)?.id ?? "wallet";
+    const defaultTab = canStore ? "store" : "wallet";
+  const requestedTab = searchParams.get("tab") || defaultTab;
+  const activeTab = resolveWorkspaceTab(pocketTabs, requestedTab)?.id ?? defaultTab;
 
   function selectPocketTab(nextTab) {
-    setTabState({ leagueId: selectedId, activeId: nextTab });
+    const next = new URLSearchParams(searchParams);
+    if (nextTab === defaultTab) next.delete("tab");
+    else next.set("tab", nextTab);
+    setSearchParams(next, { replace: true });
   }
 
   function selectSeason(nextLeagueId) {
-    setSearchParams({ league: nextLeagueId }, { replace: true });
-    setTabState({ leagueId: nextLeagueId, activeId: "wallet" });
+    const next = new URLSearchParams(searchParams);
+    if (nextLeagueId) next.set("league", nextLeagueId);
+    else next.delete("league");
+    next.delete("tab");
+    setSearchParams(next, { replace: true });
   }
 
   function handleCategorySelect(nextCategory) {

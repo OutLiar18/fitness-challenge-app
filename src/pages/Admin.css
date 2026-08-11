@@ -985,3 +985,59 @@
   color: var(--success);
   background: var(--success-soft);
 }
+
+/* v0.27 27F — admin density and touch/readability */
+.admin-page .section-kicker {
+  font-size: 0.78rem;
+}
+
+.admin-filter-button,
+.admin-load-more,
+.admin-editor__actions .button,
+.user-access-row__action .button {
+  min-height: 46px;
+}
+
+.user-access-row select,
+.admin-list__header select,
+.admin-search input {
+  min-height: 46px;
+}
+
+.user-access-row__identity small,
+.user-access-row__scope small,
+.admin-checkbox small,
+.audit-item small,
+.error-report__details dt,
+.account-request-card dt {
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+
+.admin-panel {
+  min-width: 0;
+}
+
+@media (max-width: 680px) {
+  .admin-section-heading,
+  .admin-editor__heading,
+  .admin-list__header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-list__header select,
+  .admin-search,
+  .admin-search input {
+    width: 100%;
+  }
+
+  .user-access-row__action {
+    align-items: stretch;
+  }
+
+  .user-access-row__action .button,
+  .admin-load-more {
+    width: 100%;
+  }
+}

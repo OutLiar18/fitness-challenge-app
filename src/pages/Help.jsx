@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 
 import WorkspaceTabs, {
   WorkspacePanel,
@@ -262,9 +262,14 @@ function AccountTools({ profile, user }) {
   const [requestError, setRequestError] = useState("");
   const [reasonCode, setReasonCode] = useState("prefer-not-to-say");
   const [understood, setUnderstood] = useState(false);
-  const [exporting, setExporting] = useState(false);
+    const [exporting, setExporting] = useState(false);
   const [requestBusy, setRequestBusy] = useState(false);
   const [status, setStatus] = useState(null);
+  const statusRef = useRef(null);
+
+  useEffect(() => {
+    if (status?.type === "error") statusRef.current?.focus();
+  }, [status]);
 
   useEffect(
     () =>
@@ -371,7 +376,10 @@ function AccountTools({ profile, user }) {
   }
 
   return (
-    <div className="account-tools">
+    <div
+      className="account-tools"
+      aria-busy={exporting || requestBusy || undefined}
+    >
       <section className="account-tool card">
         <div className="account-tool__heading">
           <span aria-hidden="true">📦</span>
@@ -500,7 +508,9 @@ function AccountTools({ profile, user }) {
                 ? "success"
                 : "info"
           }`}
+          ref={statusRef}
           role={status.type === "error" ? "alert" : "status"}
+          tabIndex={status.type === "error" ? -1 : undefined}
         >
           {status.message}
         </div>
@@ -511,9 +521,25 @@ function AccountTools({ profile, user }) {
 
 export default function Help() {
   const { profile, user } = usePlayerData();
-  const [activeTab, setActiveTab] = useState("getting-started");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedTab = searchParams.get("tab");
+  const activeTab = HELP_TABS.some((tab) => tab.id === requestedTab)
+    ? requestedTab
+    : "getting-started";
   const [restarting, setRestarting] = useState(false);
   const [restartError, setRestartError] = useState("");
+  const restartErrorRef = useRef(null);
+
+  useEffect(() => {
+    if (restartError) restartErrorRef.current?.focus();
+  }, [restartError]);
+
+  function setActiveTab(tabId) {
+    const next = new URLSearchParams(searchParams);
+    if (tabId === "getting-started") next.delete("tab");
+    else next.set("tab", tabId);
+    setSearchParams(next, { replace: true });
+  }
 
   async function handleRestart() {
     setRestarting(true);
@@ -547,7 +573,12 @@ export default function Help() {
       />
 
       {restartError && (
-        <div className="inline-alert inline-alert--danger" role="alert">
+        <div
+          className="inline-alert inline-alert--danger"
+          ref={restartErrorRef}
+          role="alert"
+          tabIndex="-1"
+        >
           {restartError}
         </div>
       )}

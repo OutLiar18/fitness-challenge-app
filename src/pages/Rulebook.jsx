@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 import PageHeader from "../components/layout/PageHeader";
 import { GOAL_CONFIGURATIONS, GOAL_PERIODS } from "../constants/goals";
@@ -120,8 +120,12 @@ function RuleSection({ section, open, forceOpen, onToggle }) {
 }
 
 export default function Rulebook() {
-  const [query, setQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("current");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const query = searchParams.get("q") || "";
+  const requestedStatus = searchParams.get("status") || "current";
+  const statusFilter = STATUS_FILTERS.some((filter) => filter.id === requestedStatus)
+    ? requestedStatus
+    : "current";
   const [openSections, setOpenSections] = useState(
     () => new Set(["absolutes", "structure"]),
   );
@@ -140,6 +144,27 @@ export default function Rulebook() {
     0,
   );
   const forceOpen = Boolean(query.trim());
+
+  function setRuleQuery(value) {
+    const next = new URLSearchParams(searchParams);
+    if (value.trim()) next.set("q", value);
+    else next.delete("q");
+    setSearchParams(next, { replace: true });
+  }
+
+  function setRuleStatus(status) {
+    const next = new URLSearchParams(searchParams);
+    if (status === "current") next.delete("status");
+    else next.set("status", status);
+    setSearchParams(next, { replace: true });
+  }
+
+  function clearRuleFilters() {
+    const next = new URLSearchParams(searchParams);
+    next.delete("q");
+    next.delete("status");
+    setSearchParams(next, { replace: true });
+  }
 
   function handleToggle(sectionId, isOpen) {
     if (forceOpen) {
@@ -277,8 +302,8 @@ export default function Rulebook() {
           <input
             type="search"
             value={query}
-            placeholder="Try “running”, “fruit”, “team” or a 2025 rule number"
-            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Try “running”, “fruit”, “House” or a 2025 rule number"
+            onChange={(event) => setRuleQuery(event.target.value)}
           />
         </label>
 
@@ -291,7 +316,7 @@ export default function Rulebook() {
               }`}
               type="button"
               aria-pressed={statusFilter === filter.id}
-              onClick={() => setStatusFilter(filter.id)}
+              onClick={() => setRuleStatus(filter.id)}
             >
               {filter.label}
             </button>
@@ -353,6 +378,9 @@ export default function Rulebook() {
           <span aria-hidden="true">🔎</span>
           <h2>No rules match this search</h2>
           <p>Try a broader phrase or change the rule-status filter.</p>
+          <button className="button button--secondary" type="button" onClick={clearRuleFilters}>
+            Clear search and filters
+          </button>
         </section>
       )}
 
