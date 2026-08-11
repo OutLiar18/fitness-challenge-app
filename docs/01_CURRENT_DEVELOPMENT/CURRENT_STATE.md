@@ -1,10 +1,10 @@
 # Champions Legacy Challenge — Current State
 
-<!-- RELEASE_STATUS: DEVELOPMENT -->
-Source version: 0.26.0 development
+<!-- RELEASE_STATUS: CANDIDATE -->
+Source version: 0.26.0 release candidate
 Production version: 0.25.0
 Last updated: 11 August 2026
-Status: v0.26 development hardening complete after 26I; awaiting release gate/activation
+Status: v0.26 release candidate frozen after 26R; awaiting reviewed production activation
 
 ## Production baseline
 
@@ -145,8 +145,16 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - run the complete application and Firestore Rules regression gates;
 - perform no Firebase deployment.
 
+#### Checkpoint 26R — v0.26 release-readiness freeze
+- freeze application/security source at completed 26I commit `909fe8938237c70b69aab1d72a2fef9ee2780e37`;
+- pin Firestore Rules SHA-256 `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e`;
+- require the complete application/build gate and all 98 Firestore Rules tests;
+- allow only release documentation and the release verifier to differ from 26I before activation;
+- keep development deployment scripts blocked;
+- perform no Firebase deployment.
+
 ### Next action
-Run the final v0.26 release gate from the completed 26I source. If the gate is clean, perform one reviewed v0.26 production activation and then move development to v0.27 UX/accessibility/performance.
+Use one separately reviewed v0.26 production activation pinned to the exact 26R commit and candidate Rules SHA. Verify Rules and Hosting after activation, then begin v0.27 UX/accessibility/performance.
 
 ## Responsive development boundary
 

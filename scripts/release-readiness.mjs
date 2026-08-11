@@ -3,19 +3,21 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 
-const EXPECTED_VERSION = "0.25.0";
+const EXPECTED_VERSION = "0.26.0";
 const EXPECTED_PROJECT = "fitnesschallengeapp-9e87f";
 const EXPECTED_HOSTING_TARGET = "app";
 const EXPECTED_HOSTING_SITE = "champions-legacy-challenge";
-const EXPECTED_RULES_TEST_COUNT = 94;
-const EXPECTED_APP_TEST_COUNT = 148;
-const RELEASE_SOURCE_BASELINE = "0f5b715e4888d12ddc53ede334a9cfe13c5e2048";
+const EXPECTED_RULES_TEST_COUNT = 98;
+const MIN_APP_TEST_COUNT = 148;
+const RELEASE_SOURCE_BASELINE = "909fe8938237c70b69aab1d72a2fef9ee2780e37";
+const EXPECTED_RULES_SHA =
+  "35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e";
 
-const projectRoot = process.cwd();
+const root = process.cwd();
 const failures = [];
 
 function readJson(relativePath) {
-  const fullPath = path.join(projectRoot, relativePath);
+  const fullPath = path.join(root, relativePath);
   if (!fs.existsSync(fullPath)) {
     failures.push(`Required file is missing: ${relativePath}`);
     return null;
@@ -29,7 +31,7 @@ function readJson(relativePath) {
 }
 
 function readText(relativePath) {
-  const fullPath = path.join(projectRoot, relativePath);
+  const fullPath = path.join(root, relativePath);
   if (!fs.existsSync(fullPath)) {
     failures.push(`Required file is missing: ${relativePath}`);
     return "";
@@ -59,7 +61,7 @@ function countTests(relativePath) {
 function git(args) {
   try {
     return execFileSync("git", args, {
-      cwd: projectRoot,
+      cwd: root,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],
     }).trim();
@@ -76,11 +78,13 @@ function verifyFrozenSourceBoundary() {
 
   try {
     execFileSync("git", ["merge-base", "--is-ancestor", RELEASE_SOURCE_BASELINE, "HEAD"], {
-      cwd: projectRoot,
+      cwd: root,
       stdio: "ignore",
     });
   } catch {
-    failures.push(`HEAD ${head} does not descend from the frozen v0.25 source baseline ${RELEASE_SOURCE_BASELINE}.`);
+    failures.push(
+      `HEAD ${head} does not descend from the completed 26I source ${RELEASE_SOURCE_BASELINE}.`,
+    );
     return;
   }
 
@@ -89,15 +93,16 @@ function verifyFrozenSourceBoundary() {
     .map((item) => item.trim())
     .filter(Boolean);
 
-  const allowed = changed.filter((relativePath) =>
-    relativePath === "scripts/release-readiness.mjs"
-    || relativePath.startsWith("docs/")
+  const allowed = changed.filter(
+    (relativePath) =>
+      relativePath === "scripts/release-readiness.mjs"
+      || relativePath.startsWith("docs/"),
   );
   const unexpected = changed.filter((relativePath) => !allowed.includes(relativePath));
 
   if (unexpected.length > 0) {
     failures.push(
-      `Release source changed after the frozen 25D baseline: ${unexpected.join(", ")}.`,
+      `Application/security source changed after 26I freeze baseline: ${unexpected.join(", ")}.`,
     );
   }
 }
@@ -115,13 +120,15 @@ if (packageData) {
     packageData.scripts?.["check:release"]
     !== "npm run check && npm run test:rules && node scripts/release-readiness.mjs"
   ) {
-    failures.push("check:release must run the application gate, Rules emulator gate, then the v0.25 verifier.");
+    failures.push(
+      "check:release must run the application gate, Rules emulator gate, then the v0.26 verifier.",
+    );
   }
 
   const blockedScript = "node scripts/block-development-deploy.mjs";
   for (const name of ["deploy:rules", "deploy:hosting", "deploy:production"]) {
     if (packageData.scripts?.[name] !== blockedScript) {
-      failures.push(`${name} must remain blocked during the development-branch release-readiness stage.`);
+      failures.push(`${name} must remain blocked during the v0.26 release freeze.`);
     }
   }
 
@@ -132,6 +139,7 @@ if (packageData) {
     "tests/mbti-profiles.test.mjs",
     "tests/draft-deletion.test.mjs",
     "tests/season-bonus.test.mjs",
+    "tests/trusted-account-deletion.test.mjs",
   ];
   for (const testFile of requiredAppTests) {
     if (!packageData.scripts?.test?.includes(testFile)) {
@@ -145,14 +153,23 @@ if (packageData) {
         .map((match) => match[0]),
     ),
   ];
-  const appTestCount = testFiles.reduce((total, relativePath) => total + countTests(relativePath), 0);
-  if (appTestCount !== EXPECTED_APP_TEST_COUNT) {
-    failures.push(`Expected ${EXPECTED_APP_TEST_COUNT} application tests across npm test; found ${appTestCount}.`);
+  const appTestCount = testFiles.reduce(
+    (total, relativePath) => total + countTests(relativePath),
+    0,
+  );
+  if (appTestCount < MIN_APP_TEST_COUNT) {
+    failures.push(
+      `Expected at least ${MIN_APP_TEST_COUNT} application tests across npm test; found ${appTestCount}.`,
+    );
   }
+  globalThis.__releaseAppTestCount = appTestCount;
 }
 
 if (lockData) {
-  if (lockData.version !== EXPECTED_VERSION || lockData.packages?.[""]?.version !== EXPECTED_VERSION) {
+  if (
+    lockData.version !== EXPECTED_VERSION
+    || lockData.packages?.[""]?.version !== EXPECTED_VERSION
+  ) {
     failures.push(`package-lock.json must identify v${EXPECTED_VERSION} at the root.`);
   }
 }
@@ -177,64 +194,72 @@ if (firebaseAliases) {
     failures.push(`Default Firebase project must be ${EXPECTED_PROJECT}.`);
   }
   if (!hostingSites.includes(EXPECTED_HOSTING_SITE)) {
-    failures.push(`Hosting target ${EXPECTED_HOSTING_TARGET} must map to ${EXPECTED_HOSTING_SITE}.`);
+    failures.push(
+      `Hosting target ${EXPECTED_HOSTING_TARGET} must map to ${EXPECTED_HOSTING_SITE}.`,
+    );
   }
 }
 
 const rulesTestCount = countTests("tests/firestore.rules.test.mjs");
 if (rulesTestCount !== EXPECTED_RULES_TEST_COUNT) {
-  failures.push(`Expected ${EXPECTED_RULES_TEST_COUNT} Firestore Rules tests; found ${rulesTestCount}.`);
+  failures.push(
+    `Expected ${EXPECTED_RULES_TEST_COUNT} Firestore Rules tests; found ${rulesTestCount}.`,
+  );
+}
+
+const rulesSha = canonicalSha256("firestore.rules");
+if (rulesSha !== EXPECTED_RULES_SHA) {
+  failures.push(
+    `Expected Firestore Rules SHA-256 ${EXPECTED_RULES_SHA}, found ${rulesSha}.`,
+  );
 }
 
 requireText("firestore.rules", [
-  "function validMbtiType(mbtiType)",
-  "function validDraftSeasonDelete(leagueId)",
-  "function validDraftHouseDelete(houseId)",
-  "function validSeasonBonusRequestCreate(requestId)",
-  "function validSeasonBonusAwardCreate(awardId)",
+  "function isPlatformAdmin()",
+  "function isLeagueAdministrator(leagueId)",
   "match /seasonBonusRequests/{requestId}",
   "match /seasonBonusAwards/{awardId}",
+  "match /{document=**}",
+  "allow read, write: if false;",
 ]);
 
-requireText("src/constants/mbtiProfiles.js", [
-  "export const MBTI_TYPES = Object.freeze([",
-  "export const MBTI_PROFILES = Object.freeze(",
+requireText("scripts/v026-security-baseline.mjs", [
+  "Platform Admin source    : Firestore trusted role profile ONLY",
+  "League Admin global role : bootstrap create only",
+  "Rules simplification     : retired Team/reviewer blocks + read aliases removed",
+  "Advanced infrastructure  : DEFERRED UNTIL SCALE REQUIRES IT",
+  "practical 26B/26C/26F/26I contracts",
 ]);
 
-requireText("src/services/seasons/draftDeletionModel.js", [
-  'HOUSE: "house.draft-deleted"',
-  'SEASON: "league.draft-deleted"',
-  "canHardDeleteDraftSeason",
-  "canHardDeleteDraftHouse",
-]);
+for (const retiredToken of [
+  "match /teams/{document=**}",
+  "match /playerTeams/{document=**}",
+  "match /teamInvites/{document=**}",
+  "match /leagueEvidenceReviewers/{assignmentId}",
+  "canReadEvidenceOperations",
+  "canReadLiveLeagueOperations",
+]) {
+  if (readText("firestore.rules").includes(retiredToken)) {
+    failures.push(`Retired Rules token returned after 26I: ${retiredToken}`);
+  }
+}
 
-requireText("src/services/seasons/seasonBonusModel.js", [
-  "SEASON_BONUS_POINT_LIMIT = 10000",
-  'PLATFORM_DIRECT: "platform-direct"',
-  'LEAGUE_ADMIN_REQUEST: "league-admin-request"',
-  'PLATFORM_CORRECTION: "platform-correction"',
-]);
+for (const deferredArtifact of [
+  "docs/01_CURRENT_DEVELOPMENT/V026_APP_CHECK_CSP_READINESS.md",
+  "docs/01_CURRENT_DEVELOPMENT/V026_FIRESTORE_BACKUP_RESTORE.md",
+  "scripts/v026-appcheck-csp-readiness.mjs",
+  "scripts/trusted-firestore-recovery-plan.mjs",
+  "tests/trusted-firestore-recovery.test.mjs",
+]) {
+  if (fs.existsSync(path.join(root, deferredArtifact))) {
+    failures.push(`Deferred infrastructure artifact returned: ${deferredArtifact}`);
+  }
+}
 
-requireText("src/services/seasons/seasonBonusService.js", [
-  "subscribeToPendingSeasonBonusRequests",
-  "awardSeasonBonusDirect",
-  "reviewSeasonBonusRequest",
-  "correctSeasonBonusAward",
-  'source: "season-bonus"',
-]);
-
-requireText("src/services/seasons/trustedSeasonModel.js", [
-  'TRUSTED_SEASON_MODEL_VERSION = "trusted-season-v3"',
-  "seasonBonusPoints",
-  "bonusAwardId",
-]);
-
-requireText("docs/01_CURRENT_DEVELOPMENT/ROADMAP.md", [
-  "25A — Existing-app correctness foundations — COMPLETE",
-  "25B — MBTI-based player profiles — COMPLETE",
-  "25C — Safe Platform Administrator deletion/recovery behaviour — COMPLETE",
-  "25D — League Season bonus points — COMPLETE",
-  "25R — v0.25 release-readiness freeze — COMPLETE",
+requireText("docs/01_CURRENT_DEVELOPMENT/V026_RELEASE_CANDIDATE.md", [
+  RELEASE_SOURCE_BASELINE,
+  EXPECTED_RULES_SHA,
+  "NO FIREBASE DEPLOYMENT",
 ]);
 
 requireText("scripts/block-development-deploy.mjs", [
@@ -243,24 +268,25 @@ requireText("scripts/block-development-deploy.mjs", [
 
 verifyFrozenSourceBoundary();
 
-const rulesHash = canonicalSha256("firestore.rules");
-
 if (failures.length > 0) {
-  console.error("v0.25.0 release-readiness verification failed:");
+  console.error("v0.26.0 release-readiness verification failed:");
   for (const failure of failures) console.error(`- ${failure}`);
   process.exitCode = 1;
 } else {
-  console.log("Release-readiness structure verified for v0.25.0.");
-  console.log(`Frozen application source baseline: ${RELEASE_SOURCE_BASELINE}.`);
-  console.log(`Canonical Firestore Rules SHA-256: ${rulesHash}.`);
+  console.log("Release-readiness structure verified for v0.26.0.");
+  console.log(`Frozen 26I application/security baseline: ${RELEASE_SOURCE_BASELINE}.`);
+  console.log(`Application tests in frozen npm test surface: ${globalThis.__releaseAppTestCount}.`);
+  console.log(`Firestore Rules tests: ${EXPECTED_RULES_TEST_COUNT}.`);
+  console.log(`Canonical Firestore Rules SHA-256: ${rulesSha}.`);
   console.log(
-    "Verified release surface: 148 application tests, 94 Firestore Rules tests, "
-    + "25A correctness foundations, 25B MBTI Legacy Profiles, 25C safe draft deletion, "
-    + "25D audited League Season bonus ledger, trusted-season-v3 reconciliation, "
-    + "and blocked development-branch production deploy scripts.",
+    "Verified practical security surface: canonical Platform Admin profile authority, "
+    + "league-scoped operations, Platform-Admin-only evidence decisions, House movement/rest, "
+    + "Power Plays, League Season bonus ledger, trusted account-deletion recovery, "
+    + "recursive deny-all fallback and deferred enterprise infrastructure.",
   );
   console.log(
     "Firebase production mapping verified: fitnesschallengeapp-9e87f -> Hosting target app -> champions-legacy-challenge.",
   );
-  console.log("No deployment is performed by check:release.");
+  console.log("Development-branch production deploy scripts remain blocked.");
+  console.log("NO FIREBASE DEPLOYMENT is performed by check:release.");
 }

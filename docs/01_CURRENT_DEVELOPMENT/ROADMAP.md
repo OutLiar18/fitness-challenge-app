@@ -128,9 +128,17 @@ Five Fires and Buddy Bonuses are intentionally removed from the pre-v1.0 roadmap
 - remove active enterprise-readiness tooling that is not needed at current scale;
 - complete the full application + Rules regression gate with no Firebase deployment.
 
+### 26R — v0.26 release-readiness freeze — COMPLETE
+- freeze the completed 26I application/security source;
+- pin the simplified Firestore Rules SHA and 98-test Rules gate;
+- refresh the stale v0.25 release verifier for the practical v0.26 release surface;
+- permit only release documentation/verifier drift before activation;
+- keep development deployment scripts blocked;
+- perform no Firebase deployment.
+
 ### Remaining v0.26 work
-- run the final release gate;
 - perform one reviewed v0.26 production activation and verification;
+- finalise/tag the verified release;
 - then move directly to v0.27.
 
 ## v0.27.0 — Full application UX, accessibility and performance review

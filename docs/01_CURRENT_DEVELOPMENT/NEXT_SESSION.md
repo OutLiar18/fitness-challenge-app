@@ -1,12 +1,12 @@
 # Champions Legacy Challenge — Next Session
 
-<!-- RELEASE_STATUS: DEVELOPMENT -->
-Current source: v0.26.0 development
+<!-- RELEASE_STATUS: CANDIDATE -->
+Current source: v0.26.0 release candidate
 Current production: v0.25.0
 
 ## First action
 
-Continue from completed Checkpoint 26I. Run the final v0.26 release gate; if clean, use one reviewed v0.26 production activation and verify it, then begin v0.27 UX/accessibility/performance. Do not restart Google Cloud disaster-recovery/App Check/CSP work unless real scale or risk later justifies it.
+Continue from completed Checkpoint 26R. Do not change application, Rules or dependency source. Use the separately reviewed v0.26 production activation pinned to the exact 26R commit and Rules SHA, verify the live Rules/Hosting release, then begin v0.27 UX/accessibility/performance. Do not restart deferred enterprise infrastructure work unless scale/risk later justifies it.
 
 ## v0.25.0 order
 
@@ -85,3 +85,7 @@ Google Cloud CLI/IAM/PITR inventory, backup-schedule work and automated restore 
 ## Checkpoint 26I practical closeout
 
 26I keeps the protections that matter now and removes unnecessary active infrastructure. Firestore Rules retain every real gameplay/security contract while dropping redundant retired Team/reviewer blocks and read aliases. The final recursive deny-all remains authoritative for retired paths. The next step is the v0.26 release gate, not more infrastructure work.
+
+## Checkpoint 26R release freeze
+
+26R freezes the completed 26I source and practical security contract. The candidate Rules SHA is `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e`; all 98 Rules tests plus the complete application/build gate are release blockers. Only release docs/verifier may differ from the frozen 26I source before activation. No Firebase deployment occurs in 26R.
