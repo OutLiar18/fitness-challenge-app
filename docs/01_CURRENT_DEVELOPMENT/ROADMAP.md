@@ -207,13 +207,15 @@ Five Fires and Buddy Bonuses are intentionally removed from the pre-v1.0 roadmap
 - preserve admin authority, scoring models, Pocket/account semantics and Firestore Rules;
 - add persistent 27F regression coverage and perform no Firebase deployment.
 
-### 27G — Performance + full acceptance
-- investigate/reduce the Firebase vendor bundle warning;
-- preserve route-level lazy loading;
-- full 320px/tablet/desktop acceptance;
-- keyboard/screen-reader/focus pass;
-- light/dark contrast and reduced-motion pass;
-- loading/empty/error-state completeness.
+### 27G — Performance + full acceptance — AUTOMATED GATE COMPLETE / MANUAL PASS PENDING
+- partition the existing Firebase manual group using Rolldown's size-based splitting rather than a Firebase architecture rewrite;
+- preserve Firebase modular imports and route-level lazy loading;
+- persist build-budget, 320px, focus, reduced-motion, contrast, tab/dialog semantics and no-native-confirm checks in `npm run check`;
+- generate the automated production-build acceptance report;
+- manually complete the 320px/tablet/desktop authenticated visual acceptance;
+- manually complete keyboard/screen-reader/focus, light/dark, reduced-motion and loading/empty/error/destructive-state spot-checks;
+- fix any manual acceptance defects before 27R;
+- keep Firestore Rules unchanged and perform no Firebase deployment.
 
 ### 27R — Release freeze
 - full application regression;

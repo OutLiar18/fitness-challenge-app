@@ -6,7 +6,7 @@ Current production: v0.26.0
 
 ## First action
 
-Continue from completed 27F on development/v0.27.0. Implement 27G as the dedicated performance and full responsive/accessibility acceptance checkpoint. Investigate the Firebase vendor chunk without speculative rewrites, then run the 320px/mobile/tablet/desktop, keyboard, focus, landmarks/labels, light/dark contrast, reduced-motion and loading/empty/error acceptance gates before 27R.
+Continue from the completed 27G automated gate on development/v0.27.0. Perform the authenticated manual acceptance matrix in `V027_PERFORMANCE_ACCEPTANCE.md`: 320px mobile, representative tablet and desktop, keyboard-only navigation, screen-reader spot-checks, light/dark theme, reduced motion and loading/empty/error/destructive states. Fix any defects found before marking 27G complete; do not start 27R yet.
 
 ## v0.25.0 order
 
@@ -41,7 +41,7 @@ League Administrators may submit reasoned bonus requests only for active players
 
 ## Responsive boundary
 
-The developer is currently reviewing desktop. Dedicated mobile/tablet visual review is deferred to v0.27.0, but all new components must remain responsive and must not introduce desktop-only assumptions.
+27G is the dedicated mobile/tablet/desktop acceptance stage. Manual authenticated visual review is now required rather than deferred, and 27R remains blocked until it passes.
 
 ## Verified v0.25.0 production baseline
 
@@ -117,3 +117,7 @@ Production activation completed successfully from `c057fca0598fe4a07ff101ea13808
 ## Checkpoint 27F admin/reference/support
 
 27F completes broad page-level UX work before final acceptance. Admin/reference/support/Pocket workspaces are deep-linkable, Rulebook filtering is URL-backed and recoverable, trusted-role changes use the accessible confirmation pattern, Help failures receive focus, long-form references and dense admin/Pocket controls meet the shared readability/touch treatment, and future pages clearly remain previews. All authority, scoring, Pocket, account and Rules semantics remain unchanged. See `V027_ADMIN_REFERENCE_SUPPORT.md`.
+
+## Checkpoint 27G automated performance/acceptance gate
+
+27G keeps Firebase's modular SDK and route-level lazy loading, but stops forcing the entire Firebase SDK into one oversized manual chunk by adding a Rolldown max-size target. The normal application check now enforces bundle and accessibility/responsive foundations and generates an automated report. This is deliberately not labelled full visual acceptance: protected authenticated layouts, keyboard/screen-reader behavior and real light/dark/reduced-motion states still require the manual matrix in `V027_PERFORMANCE_ACCEPTANCE.md` before 27R.

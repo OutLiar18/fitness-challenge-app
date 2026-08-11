@@ -5,7 +5,7 @@ Current source: v0.27.0 development
 Current production: v0.26.0
 Last updated: 11 August 2026
 
-v0.25.0 remains the verified production baseline and is frozen. v0.26.0 development begins from finalised `main` commit `63f1d058fa732b5fba8622225cee29ab59defc0f`. No v0.26 development checkpoint may deploy to production without a dedicated reviewed activation stage.
+v0.26.0 is the verified production baseline and is frozen. v0.27.0 development continues on `development/v0.27.0`; no v0.27 checkpoint may deploy to production without a dedicated reviewed activation stage.
 
 v0.25.0 has four controlled work areas:
 1. 25A — basic existing-app correctness fixes — complete;
@@ -13,7 +13,7 @@ v0.25.0 has four controlled work areas:
 3. 25C — safe Platform Administrator draft deletion/recovery semantics — complete;
 4. 25D — League Season bonus points with Platform Administrator direct awards and Platform-reviewed League Administrator requests — complete.
 
-Five Fires and Buddy Bonuses have been removed from the roadmap. Broad visual polish is deferred to v0.27.0, but every implementation must remain responsive across desktop/tablet/mobile. Current acceptance observations are being made on desktop only.
+Five Fires and Buddy Bonuses remain removed from the roadmap. Broad v0.27 visual polish is complete through 27F; 27G is the dedicated multi-viewport, keyboard, screen-reader, theme, reduced-motion and state acceptance stage.
 
 25B introduces one optional player-profile field, `mbtiType`. All 16 profile definitions, quick-test questions/scoring, guidance and emblem-style artwork remain local frontend data. Firestore Rules only validate the permitted four-letter type values and the existing player-owned profile update boundary.
 
@@ -54,3 +54,5 @@ v0.27 Checkpoint 27D completes the personal Progress/Analytics/Profile/Inbox/Leg
 v0.27 Checkpoint 27E completes the Houses/Seasons competition-workspace UX pass. House selection and House task sections are URL-backed; Seasons now URL-backs both its Browse/Join/Create workspace and selected season-detail section. House card/roster presentation and standings presentation are extracted from the two oversized route modules. Both routes share a concise role/context summary with direct task shortcuts. Remaining browser confirm/prompt flows for roster swaps, C.H.A.O.S., draft House deletion, season transitions, registration withdrawal and unused draft-season deletion are replaced with the accessible ConfirmDialog; typed DELETE is preserved for permanent draft-season deletion. All competition services, calculations, lifecycle rules, history, movement/rest, Power Plays, evidence, bonus and Firestore Rules behavior remain unchanged. See `V027_COMPETITION_WORKSPACES.md`. Next: 27F Admin/reference/support.
 
 v0.27 Checkpoint 27F completes the Admin/reference/support polish pass. Platform Admin, Points Guide, Help and Pocket Week workspaces are URL-backed; Rulebook search/status filtering is URL-backed with a clear-filter recovery action and current House terminology. Trusted-role changes now require the shared accessible ConfirmDialog before the existing audited service runs. Help account/restart failures receive focus, Pocket controls and long-form reference/support layouts receive the v0.27 readability/touch floor, and future-feature pages state Preview only with a clear Dashboard return path. Administrator authority, Rulebook/Points models, Pocket semantics, account deletion, Firestore Rules and production remain unchanged. See `V027_ADMIN_REFERENCE_SUPPORT.md`. Next: 27G performance + full responsive/accessibility acceptance.
+
+v0.27 Checkpoint 27G introduces the persistent performance/automated acceptance gate. The existing Firebase modular SDK and route-level lazy loading are preserved; the manually grouped Firebase vendor bundle gains a 360 KiB Rolldown max-size target so the previous ~575.67 KiB monolith can partition without a Firebase architecture rewrite. `npm run check` now ends with a v0.27 acceptance verifier covering build chunk budgets, route laziness, 320px/focus/dark/reduced-motion foundations, key light/dark token contrast, WorkspaceTabs/ConfirmDialog semantics and absence of browser-native confirm/prompt flows. Automated checks do not claim to prove visual correctness: manual authenticated mobile/tablet/desktop, keyboard, screen-reader and state acceptance remains required before 27G closes. See `V027_PERFORMANCE_ACCEPTANCE.md` and `V027_ACCEPTANCE_AUTOMATED.md`.

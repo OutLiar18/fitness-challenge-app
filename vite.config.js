@@ -12,6 +12,10 @@ export default defineConfig({
               name: "firebase-vendor",
               test: /node_modules[\\/](?:@firebase|firebase)[\\/]/,
               priority: 30,
+              // Keep the existing Firebase grouping, but let Rolldown partition
+              // the oversized group instead of forcing every SDK module into
+              // one >500 KiB chunk.
+              maxSize: 360 * 1024,
             },
             {
               name: "react-vendor",

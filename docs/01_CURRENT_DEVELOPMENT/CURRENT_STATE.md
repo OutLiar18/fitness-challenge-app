@@ -4,7 +4,7 @@
 Source version: 0.27.0 development
 Production version: 0.26.0
 Last updated: 11 August 2026
-Status: v0.27 broad page UX polish complete after 27F; performance/acceptance remains
+Status: v0.27 27G automated performance/acceptance gate implemented; manual authenticated visual acceptance remains
 
 ## Production baseline
 
@@ -234,13 +234,25 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - add persistent 27F regression coverage;
 - keep Firestore Rules byte-for-byte unchanged and perform no Firebase deployment.
 
+#### Checkpoint 27G — automated performance + acceptance gate — COMPLETE
+- partition the existing Firebase vendor manual group with a 360 KiB Rolldown max-size target rather than rewriting Firebase architecture;
+- preserve Firebase modular imports and route-level React lazy loading;
+- add `accept:v027` to the normal application check after the production build;
+- fail the automated gate if any JavaScript chunk exceeds 500 KiB or the Firebase vendor group remains one monolithic chunk;
+- verify the 320px global width floor, focus-visible, dark-mode and reduced-motion foundations;
+- verify key light/dark text/control token pairs meet WCAG AA normal-text contrast;
+- verify shell, WorkspaceTabs and ConfirmDialog keyboard/modal foundations;
+- reject browser-native confirm/prompt flows in page/component JSX;
+- generate an automated acceptance report from the actual production build;
+- keep Firestore Rules byte-for-byte unchanged and perform no Firebase deployment.
+
 ### Next action
-Checkpoint 27G: perform the dedicated performance and full responsive/accessibility acceptance pass. Address the Firebase vendor chunk where practical, then verify 320px mobile, representative tablet and desktop layouts, keyboard-only operation, landmarks/labels/focus, light/dark contrast, reduced motion and loading/empty/error completeness before the 27R release freeze.
+Complete the manual authenticated 27G acceptance matrix in `V027_PERFORMANCE_ACCEPTANCE.md`: 320px mobile, representative tablet and desktop, keyboard-only navigation, screen-reader spot-checks, light/dark, reduced motion and loading/empty/error/destructive states. Fix any observed defects before 27R. Do not begin 27R until manual 27G acceptance passes.
 
 ## Responsive development boundary
 
-Current manual observations are desktop-first. Dedicated mobile/tablet visual acceptance is deferred to v0.27.0, but responsiveness remains a non-negotiable requirement for every earlier change.
+27G is the active dedicated mobile/tablet/desktop acceptance stage. Responsive acceptance is no longer deferred.
 
 ## Production boundary
 
-v0.25.0 production activation is complete and verified. Development-repository production deployment scripts remain blocked; every later production change still requires its own dedicated reviewed release stage.
+v0.26.0 production activation is complete and verified. Development-repository production deployment scripts remain blocked; v0.27 production still requires its own dedicated reviewed release stage.

@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import ConfirmDialog from "../common/ConfirmDialog";
 import EntryForm from "../entries/EntryForm";
 import {
   createEntryCorrection,
@@ -135,6 +136,7 @@ export default function EntryIntegrityWorkspace({ actorId, notify }) {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState([]);
+  const [confirmingCorrection, setConfirmingCorrection] = useState(false);
 
   const currentCategory = getCategory(bundle?.currentEntry?.category);
   const hasBlockingDiagnostics = bundle?.diagnostics.some(
@@ -169,13 +171,13 @@ export default function EntryIntegrityWorkspace({ actorId, notify }) {
     }
   }
 
+    function requestCorrection() {
+    if (!bundle?.currentEntry || saving) return;
+    setConfirmingCorrection(true);
+  }
+
   async function handleCorrection() {
     if (!bundle?.currentEntry || saving) return;
-    const confirmed = window.confirm(
-      "Create an immutable replacement entry and matching competition reversals? The earlier entry will remain preserved for audit.",
-    );
-    if (!confirmed) return;
-
     setSaving(true);
     setErrors([]);
     try {
@@ -189,11 +191,13 @@ export default function EntryIntegrityWorkspace({ actorId, notify }) {
       setLookup(nextBundle.currentEntry.id);
       setReplacementData(nextBundle.currentEntry.data ?? {});
       setReason("");
+      setConfirmingCorrection(false);
       notify?.("The audited factual correction was completed.", "success", 6500);
     } catch (error) {
       console.error(error);
       const message = error.message || "The correction could not be completed.";
       setErrors([message]);
+      setConfirmingCorrection(false);
       notify?.(message, "error", 6500);
     } finally {
       setSaving(false);
@@ -290,7 +294,7 @@ export default function EntryIntegrityWorkspace({ actorId, notify }) {
                   type={bundle.currentEntry.category}
                   formData={replacementData}
                   setFormData={setReplacementData}
-                  onSave={handleCorrection}
+                  onSave={requestCorrection}
                   saving={saving}
                   errors={errors}
                   eyebrow="Immutable replacement"
@@ -316,6 +320,16 @@ export default function EntryIntegrityWorkspace({ actorId, notify }) {
           </section>
         </>
       )}
+      <ConfirmDialog
+        open={confirmingCorrection}
+        title="Create this audited replacement?"
+        description="A new immutable factual entry and matching competition reversals will be created. The earlier entry remains preserved for audit."
+        confirmLabel="Create audited replacement"
+        loading={saving}
+        loadingLabel="Creating correction…"
+        onConfirm={handleCorrection}
+        onCancel={() => !saving && setConfirmingCorrection(false)}
+      />
     </div>
   );
 }

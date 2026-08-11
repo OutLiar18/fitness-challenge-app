@@ -12,6 +12,7 @@ import {
   getPublishableSuggestions,
   getSuggestionLibraryType,
 } from "../../services/admin/libraryPublishingModel";
+import ConfirmDialog from "../common/ConfirmDialog";
 import { formatNumber, pluralize } from "../../utils/displayFormatters";
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
@@ -43,6 +44,7 @@ export default function LibraryPublisher({
   const [version, setVersion] = useState(DEFAULT_LIBRARY_RELEASE_VERSION);
   const [notes, setNotes] = useState("");
   const [busy, setBusy] = useState(false);
+  const [archiveCandidate, setArchiveCandidate] = useState(null);
 
   const publishableSuggestions = useMemo(
     () => getPublishableSuggestions(suggestions),
@@ -110,20 +112,15 @@ export default function LibraryPublisher({
   }
 
   async function handleArchive(item) {
-    const confirmed = window.confirm(
-      `Archive ${item.name}? Players will no longer see it as a shared option, but historical entries will remain valid.`,
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
+    if (!item || busy) return;
     setBusy(true);
 
     try {
       await archivePublishedLibraryItem({ item, actorId });
+      setArchiveCandidate(null);
       notify(`${item.name} was archived from the shared library.`);
     } catch (error) {
+      setArchiveCandidate(null);
       notify(
         error.message || "The shared library item could not be archived.",
         "error",
@@ -286,7 +283,7 @@ export default function LibraryPublisher({
                     className="button button--secondary button--compact"
                     type="button"
                     disabled={busy}
-                    onClick={() => handleArchive(item)}
+                    onClick={() => setArchiveCandidate(item)}
                   >
                     Archive
                   </button>
@@ -327,6 +324,16 @@ export default function LibraryPublisher({
           </div>
         )}
       </section>
+      <ConfirmDialog
+        open={Boolean(archiveCandidate)}
+        title={archiveCandidate ? `Archive ${archiveCandidate.name}?` : "Archive shared library item?"}
+        description="Players will no longer see this as a shared option, while historical entries using it remain valid."
+        confirmLabel="Archive item"
+        loading={busy}
+        loadingLabel="Archiving…"
+        onConfirm={() => handleArchive(archiveCandidate)}
+        onCancel={() => !busy && setArchiveCandidate(null)}
+      />
     </div>
   );
 }

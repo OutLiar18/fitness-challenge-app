@@ -181,6 +181,8 @@ export default function PowerPlayWorkspace({
   const [draftPowerPlays, setDraftPowerPlays] = useState(() => clonePowerPlays(sourcePowerPlays));
   const [saving, setSaving] = useState(false);
   const [workingWeekKey, setWorkingWeekKey] = useState("");
+  const [redrawWeekKey, setRedrawWeekKey] = useState("");
+  const [redrawReason, setRedrawReason] = useState("");
   const [correctionWeekKey, setCorrectionWeekKey] = useState("");
   const [replacementPowerPlayId, setReplacementPowerPlayId] = useState("");
   const [correctionReason, setCorrectionReason] = useState("");
@@ -257,16 +259,13 @@ export default function PowerPlayWorkspace({
     setDraftPowerPlays((currentItems) => [...currentItems, item]);
   }
 
-  async function selectWeek(weekKey, redraw = false) {
+  async function selectWeek(weekKey, reason = "") {
     if (workingWeekKey) return;
-    let reason = "";
-    if (redraw) {
-      reason = window.prompt("Explain why this pre-week Power Play needs to be redrawn:") ?? "";
-      if (!reason) return;
-    }
     setWorkingWeekKey(weekKey);
     try {
       const result = await selectRandomPowerPlay({ league, weekKey, actorId, reason });
+      setRedrawWeekKey("");
+      setRedrawReason("");
       notify?.(`${result.powerPlay.name} was selected and cannot appear again this season.`, "success", 5200);
     } catch (error) {
       console.error(error);
@@ -388,13 +387,66 @@ export default function PowerPlayWorkspace({
                 powerPlay={assignment ? powerPlayById.get(assignment.powerPlayId) : null}
                 canManage={canManage && ["registration", "active"].includes(league.status)}
                 onSelect={() => selectWeek(week.weekKey)}
-                onRedraw={() => selectWeek(week.weekKey, true)}
+                onRedraw={() => {
+                  setRedrawWeekKey(week.weekKey);
+                  setRedrawReason("");
+                }}
               />
             );
           })}
         </div>
-      </section>
-
+            </section>
+      {redrawWeekKey && (
+        <form
+          className="power-play-correction card"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const reason = redrawReason.trim();
+            if (!reason || workingWeekKey) return;
+            selectWeek(redrawWeekKey, reason);
+          }}
+        >
+          <div>
+            <p className="section-kicker">Pre-week redraw</p>
+            <h2>Explain this Power Play redraw</h2>
+            <p>
+              The current assignment has not started yet. Record the factual reason before
+              selecting another unused Power Play.
+            </p>
+          </div>
+          <label className="form-field">
+            <span>Redraw reason</span>
+            <textarea
+              required
+              minLength={8}
+              maxLength={500}
+              value={redrawReason}
+              onChange={(event) => setRedrawReason(event.target.value)}
+              placeholder="Explain why this pre-week assignment must be redrawn."
+            />
+          </label>
+          <div className="power-play-week__actions">
+            <button
+              className="button button--secondary"
+              type="button"
+              disabled={Boolean(workingWeekKey)}
+              onClick={() => {
+                setRedrawWeekKey("");
+                setRedrawReason("");
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              className="button button--danger"
+              type="submit"
+              disabled={Boolean(workingWeekKey) || redrawReason.trim().length < 8}
+            >
+              {workingWeekKey ? "Redrawing…" : "Confirm redraw"}
+            </button>
+          </div>
+        </form>
+      )}
       {isPlatformAdmin && lockedAssignments.length > 0 && availableCorrectionPlays.length > 0 && (
         <form className="power-play-correction card" onSubmit={correctAssignment}>
           <div>
