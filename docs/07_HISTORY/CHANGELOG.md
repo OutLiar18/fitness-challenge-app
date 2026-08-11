@@ -798,3 +798,22 @@ Date: 1 August 2026
 
 - Thirty-three automated tests pass in the handover environment.
 - Local ESLint, production build and Firestore rules compilation remain required before tagging.
+
+## v0.26.0 — 11 August 2026
+
+Security and operational hardening release focused on practical current-scale protection.
+
+Highlights:
+- canonical Firestore-profile Platform Administrator authority;
+- league-scoped League Administrator permissions;
+- Platform Administrator-only evidence decisions;
+- hardened account-deletion interruption recovery;
+- League Season bonus request/approval/correction security;
+- draft House/season deletion safeguards;
+- Firestore Rules simplification removing redundant retired Team/reviewer structures;
+- advanced App Check/CSP and Google Cloud disaster-recovery tooling deferred until scale requires it;
+- 153 application tests in the frozen release surface;
+- 98/98 Firestore Rules tests;
+- production Firestore Rules SHA-256 `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e`;
+- exact deployed release commit `c057fca0598fe4a07ff101ea13808f1da8918aa8`;
+- successful Firestore Rules + Hosting activation and live build verification.

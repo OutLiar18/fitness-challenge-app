@@ -1,10 +1,10 @@
 # Champions Legacy Challenge — Current State
 
-<!-- RELEASE_STATUS: CANDIDATE -->
-Source version: 0.26.0 release candidate
+<!-- RELEASE_STATUS: RELEASED -->
+Source version: 0.26.0 production release
 Production version: 0.25.0
 Last updated: 11 August 2026
-Status: v0.26 release candidate frozen after 26R; awaiting reviewed production activation
+Status: v0.26.0 released to production; development moves to v0.27
 
 ## Production baseline
 
@@ -153,8 +153,17 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - keep development deployment scripts blocked;
 - perform no Firebase deployment.
 
+#### v0.26.0 production activation — COMPLETE
+- exact deployed/tagged commit: `c057fca0598fe4a07ff101ea13808f1da8918aa8`;
+- Firestore Rules SHA-256: `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e`;
+- Firestore Rules deployment: successful;
+- Hosting target `app` → site `champions-legacy-challenge`: successful;
+- live verification: 10/10 SPA routes and 16/16 referenced assets matched the exact local build;
+- working tree remained clean;
+- advanced App Check/CSP and Google Cloud disaster-recovery infrastructure remain deferred until scale requires them.
+
 ### Next action
-Use one separately reviewed v0.26 production activation pinned to the exact 26R commit and candidate Rules SHA. Verify Rules and Hosting after activation, then begin v0.27 UX/accessibility/performance.
+Begin v0.27 UX/accessibility/performance from the finalised v0.26 repository state. Prioritise user-facing improvements, responsive behaviour, accessibility, visual consistency and the known Firebase vendor chunk performance warning. Do not reopen deferred enterprise infrastructure unless real scale/risk justifies it.
 
 ## Responsive development boundary
 

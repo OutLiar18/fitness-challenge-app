@@ -1,12 +1,12 @@
 # Champions Legacy Challenge — Next Session
 
-<!-- RELEASE_STATUS: CANDIDATE -->
-Current source: v0.26.0 release candidate
+<!-- RELEASE_STATUS: RELEASED -->
+Current source: v0.26.0 production release
 Current production: v0.25.0
 
 ## First action
 
-Continue from completed Checkpoint 26R. Do not change application, Rules or dependency source. Use the separately reviewed v0.26 production activation pinned to the exact 26R commit and Rules SHA, verify the live Rules/Hosting release, then begin v0.27 UX/accessibility/performance. Do not restart deferred enterprise infrastructure work unless scale/risk later justifies it.
+Continue from released v0.26.0. Begin v0.27 UX/accessibility/performance. Focus on the application people actually use: full-page UX review, responsive desktop/tablet/mobile behaviour, keyboard/screen-reader/focus quality, visual consistency, loading/empty/error states and performance/bundle splitting. Keep v0.26.0 immutable except for an explicit hotfix.
 
 ## v0.25.0 order
 
@@ -89,3 +89,7 @@ Google Cloud CLI/IAM/PITR inventory, backup-schedule work and automated restore 
 ## Checkpoint 26R release freeze
 
 26R freezes the completed 26I source and practical security contract. The candidate Rules SHA is `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e`; all 98 Rules tests plus the complete application/build gate are release blockers. Only release docs/verifier may differ from the frozen 26I source before activation. No Firebase deployment occurs in 26R.
+
+## v0.26.0 release closure
+
+Production activation completed successfully from `c057fca0598fe4a07ff101ea13808f1da8918aa8`. Rules SHA `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e` was released, Hosting target `app` was released, 10/10 SPA routes and 16 referenced assets matched the frozen build, and the repository stayed clean. Tag `v0.26.0` points to the exact deployed commit. v0.26 is closed; do not resume deferred App Check/CSP/Google Cloud DR work during v0.27 unless the project's real scale changes.

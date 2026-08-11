@@ -1,7 +1,7 @@
 # Champions Legacy Challenge — Current Context
 
-<!-- RELEASE_STATUS: CANDIDATE -->
-Current source: v0.26.0 release candidate
+<!-- RELEASE_STATUS: RELEASED -->
+Current source: v0.26.0 production release
 Current production: v0.25.0
 Last updated: 10 August 2026
 
@@ -40,3 +40,5 @@ v0.26 Checkpoint 26G establishes project-level Firestore recovery safeguards wit
 v0.26 Checkpoint 26I applies the current-scale simplification decision. Champions Legacy Challenge is presently a challenge between friends, so enterprise-grade App Check/CSP rollout tooling and advanced Firestore backup/restore automation are deferred until real scale/risk justifies them. Active 26E/26G readiness/planner artifacts are removed from the working repository while Git history preserves the research. Firestore Rules remove only redundant retired Team/reviewer collection blocks and two read aliases; the recursive deny-all fallback continues to block those retired paths. Real gameplay/security contracts remain intact. 26I is the final development hardening checkpoint before the v0.26 release gate.
 
 v0.26 Checkpoint 26R freezes the completed 26I application/security source at `909fe8938237c70b69aab1d72a2fef9ee2780e37` and refreshes release verification for the practical v0.26 contract. Candidate Firestore Rules SHA-256 is `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e`; the Rules suite contains 98 tests. The full application/build + Rules release gate must pass before 26R is committed. Development production deploy scripts remain blocked and 26R performs no Firebase deployment.
+
+v0.26.0 production activation completed successfully on 11 August 2026 from exact release commit `c057fca0598fe4a07ff101ea13808f1da8918aa8`. Firestore Rules SHA-256 `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e` deployed successfully, Firebase Hosting target `app` released successfully to `champions-legacy-challenge`, and post-deploy verification matched 10/10 SPA routes plus all 16 assets referenced by the built index. The repository remained clean. Tag `v0.26.0` is pinned to the exact deployed release commit; this later documentation-finalisation commit is intentionally not the tag target. v0.26 is closed. Next development phase: v0.27 UX/accessibility/performance.

@@ -62,3 +62,22 @@ Development deployment scripts remain blocked.
 
 After 26R passes and is pushed, production activation must use a separate reviewed
 runner pinned to the exact 26R commit and candidate Rules SHA.
+
+## Production activation result
+
+Status: **RELEASED**
+
+Production activation completed successfully on 11 August 2026.
+
+- Exact deployed release commit: `c057fca0598fe4a07ff101ea13808f1da8918aa8`
+- Release tag: `v0.26.0` (points to the exact deployed commit)
+- Firestore Rules SHA-256: `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e`
+- Firestore Rules deployment: successful
+- Firebase Hosting target `app`: successful
+- Hosting site: `champions-legacy-challenge`
+- Live verification: 10/10 SPA routes
+- Referenced assets verified: 16/16
+- Working tree after activation: clean
+
+The release tag intentionally points to the deployed release commit rather than
+the later documentation-finalisation commit.

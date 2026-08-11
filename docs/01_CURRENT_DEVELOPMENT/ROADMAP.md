@@ -136,10 +136,15 @@ Five Fires and Buddy Bonuses are intentionally removed from the pre-v1.0 roadmap
 - keep development deployment scripts blocked;
 - perform no Firebase deployment.
 
-### Remaining v0.26 work
-- perform one reviewed v0.26 production activation and verification;
-- finalise/tag the verified release;
-- then move directly to v0.27.
+### v0.26.0 production release — COMPLETE
+- exact deployed source/tag: `c057fca0598fe4a07ff101ea13808f1da8918aa8`;
+- Firestore Rules SHA-256: `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e`;
+- Rules and Hosting activation completed successfully;
+- live Hosting verification passed for 10/10 SPA routes and all 16 referenced assets;
+- v0.26 enterprise-grade App Check/CSP and Google Cloud DR work remains deferred until scale requires it;
+- v0.26 is closed.
+
+
 
 ## v0.27.0 — Full application UX, accessibility and performance review
 - every page and workflow;
