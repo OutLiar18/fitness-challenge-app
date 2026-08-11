@@ -7,12 +7,27 @@
   gap: 28px;
   padding: clamp(28px, 5vw, 48px);
   overflow: hidden;
+  border: 1px solid rgba(255, 81, 72, 0.46);
   border-radius: var(--radius-xl);
   color: #fff;
   background:
-    radial-gradient(circle at 88% 20%, rgba(255, 255, 255, 0.18), transparent 13rem),
-    linear-gradient(135deg, #101d42 0%, #2447c6 64%, #4169e1 100%);
-  box-shadow: var(--shadow-lg);
+    radial-gradient(circle at 86% 16%, rgba(255, 81, 72, 0.24), transparent 14rem),
+    linear-gradient(112deg, #050505 0%, #050505 43%, #290102 62%, #7b0506 82%, #c20e0d 100%);
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(194, 14, 13, 0.1);
+}
+
+.welcome-card::before {
+  content: "";
+  position: absolute;
+  top: -22%;
+  bottom: -22%;
+  left: 61%;
+  width: 17%;
+  background: linear-gradient(180deg, rgba(255, 81, 72, 0), rgba(255, 81, 72, 0.42), rgba(255, 81, 72, 0));
+  opacity: 0.72;
+  transform: skewX(-13deg);
 }
 
 .welcome-card::after {
@@ -57,9 +72,10 @@
   max-width: 760px;
   margin-top: 24px;
   padding: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(255, 81, 72, 0.34);
   border-radius: 18px;
-  background: rgba(8, 19, 53, 0.34);
+  background: rgba(2, 2, 3, 0.58);
+  box-shadow: inset 4px 0 0 rgba(194, 14, 13, 0.82);
   backdrop-filter: blur(12px);
 }
 
@@ -95,24 +111,25 @@
   justify-content: center;
   gap: 8px;
   padding: 10px 15px;
-  border: 2px solid #f6cc75;
+  border: 1px solid #f6cc75;
   border-radius: 12px;
-  color: #16214a;
-  background: #f6cc75;
+  color: #ffffff;
+  background: #c20e0d;
   font: inherit;
   font-size: 0.78rem;
   font-weight: 900;
   cursor: pointer;
-  box-shadow: 0 3px 0 rgba(67, 42, 3, 0.4);
+  box-shadow: 0 3px 0 #650003;
 }
 
 .welcome-card__transmission-button:hover {
+  background: #d51217;
   transform: translateY(-1px);
 }
 
 .welcome-card__transmission-button:active {
   transform: translateY(1px);
-  box-shadow: 0 1px 0 rgba(67, 42, 3, 0.4);
+  box-shadow: 0 1px 0 #650003;
 }
 
 .welcome-card__transmission blockquote {
@@ -164,10 +181,10 @@
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.24);
   border-radius: 999px;
   color: #fff;
-  background: rgba(255, 255, 255, 0.11);
+  background: rgba(0, 0, 0, 0.42);
   font-size: 0.85rem;
   font-weight: 750;
   text-transform: capitalize;

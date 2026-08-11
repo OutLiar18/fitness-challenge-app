@@ -15,18 +15,31 @@ const workspaceTabsCss = fs.readFileSync(
   new URL("../src/components/common/WorkspaceTabs.css", import.meta.url),
   "utf8",
 );
+const welcomeCss = fs.readFileSync(
+  new URL("../src/components/dashboard/WelcomeCard.css", import.meta.url),
+  "utf8",
+);
 const packageJson = JSON.parse(
   fs.readFileSync(new URL("../package.json", import.meta.url), "utf8"),
 );
 
 test("v0.27 uses the Champions Legacy blood-red design tokens", () => {
   assert.equal(packageJson.version, "0.27.0");
-  assert.match(indexCss, /--primary:\s*#8f1d2c;/);
-  assert.match(indexCss, /--primary-control:\s*#8f1d2c;/);
-  assert.match(indexCss, /--primary:\s*#e35a6b;/);
-  assert.match(indexCss, /--primary-control:\s*#a92337;/);
+  assert.match(indexCss, /--primary:\s*#c20e0d;/);
+  assert.match(indexCss, /--primary-control:\s*#c20e0d;/);
+  assert.match(indexCss, /--primary:\s*#ff5148;/);
+  assert.match(indexCss, /--primary-control:\s*#c20e0d;/);
   assert.match(indexCss, /--tone-purple:/);
   assert.match(indexCss, /--tone-cyan:/);
+});
+
+test("Dashboard Welcome Card uses the crimson-black warrior identity instead of legacy blue", () => {
+  const lowerWelcomeCss = welcomeCss.toLowerCase();
+  assert.ok(lowerWelcomeCss.includes("#c20e0d"));
+  assert.ok(lowerWelcomeCss.includes("#050505"));
+  for (const retiredBlue of ["#101d42", "#2447c6", "#4169e1", "#16214a"]) {
+    assert.ok(!lowerWelcomeCss.includes(retiredBlue));
+  }
 });
 
 test("shared controls use readable focus and touch foundations", () => {

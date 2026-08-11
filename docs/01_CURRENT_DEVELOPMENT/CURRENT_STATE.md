@@ -4,7 +4,7 @@
 Source version: 0.27.0 development
 Production version: 0.26.0
 Last updated: 11 August 2026
-Status: v0.27 27G automated performance/acceptance gate implemented; manual authenticated visual acceptance remains
+Status: v0.27 27G manual-acceptance findings remediated; manual authenticated visual acceptance remains before 27R
 
 ## Production baseline
 
@@ -246,8 +246,16 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - generate an automated acceptance report from the actual production build;
 - keep Firestore Rules byte-for-byte unchanged and perform no Firebase deployment.
 
+#### 27G manual acceptance remediation — IMPLEMENTED / RECHECK REQUIRED
+- strengthen the shared light/dark palette from muted burgundy/pink-red to a higher-contrast saturated crimson + near-black Champions Legacy identity;
+- replace the Dashboard Welcome Card's remaining legacy blue gradient and blue transmission surface with the crimson-black warrior treatment;
+- preserve scroll position when only URL query-string workspace/tab state changes while retaining top reset for real pathname/page navigation;
+- add regression coverage for the Welcome Card palette and same-page URL-tab scrolling contract;
+- preserve scoring, competition, Firebase behavior and Firestore Rules;
+- rerun the authenticated manual matrix before 27R.
+
 ### Next action
-Complete the manual authenticated 27G acceptance matrix in `V027_PERFORMANCE_ACCEPTANCE.md`: 320px mobile, representative tablet and desktop, keyboard-only navigation, screen-reader spot-checks, light/dark, reduced motion and loading/empty/error/destructive states. Fix any observed defects before 27R. Do not begin 27R until manual 27G acceptance passes.
+Rerun the authenticated 27G acceptance matrix after the manual-findings remediation, with particular attention to the stronger crimson/black palette, Dashboard Welcome Card, and same-page URL-backed tabs preserving scroll position. If the matrix passes, proceed directly to 27R.
 
 ## Responsive development boundary
 

@@ -12,6 +12,7 @@ const entryForm = read("src/components/entries/EntryForm.jsx");
 const journal = read("src/components/journal/Journal.jsx");
 const confirmDialog = read("src/components/common/ConfirmDialog.jsx");
 const confirmCss = read("src/components/common/ConfirmDialog.css");
+const shell = read("src/components/layout/AppShell.jsx");
 
 test("Dashboard prioritises goals and exposes a direct Journal action", () => {
   assert.ok(dashboard.indexOf("<DailyGoals") < dashboard.indexOf("<ProgressionCard"));
@@ -24,6 +25,16 @@ test("Activity Log stores its workspace tab in the URL", () => {
   assert.match(activity, /nextSearchParams\.set\("tab", "journal"\)/);
   assert.match(activity, /nextSearchParams\.delete\("tab"\)/);
   assert.match(activity, /onChange=\{onTabChange\}/);
+});
+
+test("same-page URL workspace changes preserve scroll position while pathname navigation resets to top", () => {
+  assert.ok(shell.includes('}, [location.pathname]);'));
+  assert.ok(!shell.includes('[location.pathname, location.search]'));
+  const handlerStart = shell.indexOf("function handleNavigation()");
+  const handlerEnd = shell.indexOf("function toggleMoreMenu", handlerStart);
+  assert.ok(handlerStart >= 0 && handlerEnd > handlerStart);
+  const handler = shell.slice(handlerStart, handlerEnd);
+  assert.ok(!handler.includes("scrollTo"));
 });
 
 test("editable entry deletion uses an accessible app confirmation instead of window.confirm", () => {

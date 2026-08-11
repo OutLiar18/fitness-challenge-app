@@ -6,7 +6,7 @@ Current production: v0.26.0
 
 ## First action
 
-Continue from the completed 27G automated gate on development/v0.27.0. Perform the authenticated manual acceptance matrix in `V027_PERFORMANCE_ACCEPTANCE.md`: 320px mobile, representative tablet and desktop, keyboard-only navigation, screen-reader spot-checks, light/dark theme, reduced motion and loading/empty/error/destructive states. Fix any defects found before marking 27G complete; do not start 27R yet.
+Continue from the 27G manual-acceptance remediation on development/v0.27.0. Rerun the authenticated matrix in `V027_PERFORMANCE_ACCEPTANCE.md`, first confirming the stronger crimson/black visual identity, the converted Dashboard Welcome Card and preserved scroll position when switching URL-backed tabs on the same page. If the full matrix passes, 27G is closed and the next checkpoint is 27R.
 
 ## v0.25.0 order
 

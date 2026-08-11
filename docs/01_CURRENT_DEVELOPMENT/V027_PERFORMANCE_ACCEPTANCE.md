@@ -136,6 +136,21 @@ Screen-reader spot-check:
 - validation/error states;
 - destructive-action busy state.
 
+## Manual-acceptance findings and remediation
+
+The authenticated visual review identified three bounded 27G defects:
+- the shared red/black presentation felt too muted compared with the intended saturated crimson + near-black warrior identity;
+- the Dashboard Welcome Card still used the retired blue gradient/transmission treatment;
+- changing URL-backed tabs/workspaces on the same pathname reset the page to the top because the shell scroll effect also depended on `location.search`.
+
+The remediation:
+- strengthens the shared crimson/black tokens while retaining separate accessible text-accent and control colours;
+- converts the Welcome Card to a black → crimson hero treatment with restrained gold prestige accents;
+- resets scroll only on pathname changes and leaves query-string workspace/tab changes at the user's current scroll position;
+- adds regression tests for both visual-token/Welcome Card identity and same-page scroll preservation.
+
+No scoring, competition rules, evidence, authority, Firebase data behavior or Firestore Rules are changed. The authenticated manual matrix must be rerun once before 27R.
+
 ## Release boundary
 
 27G changes no scoring, competition, evidence, administrator authority, Firebase data

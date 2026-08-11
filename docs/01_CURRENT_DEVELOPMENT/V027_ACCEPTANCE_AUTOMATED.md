@@ -9,14 +9,14 @@ Automated status: **PASS**
 - Largest JavaScript chunk: firebase-vendor-DO48nMf7.js (231.40 KiB)
 - Firebase vendor chunks: 10 (231.40 KiB, 153.40 KiB, 84.04 KiB, 60.51 KiB, 17.48 KiB, 9.11 KiB, 4.16 KiB, 2.93 KiB, 0.15 KiB, 0.11 KiB)
 - Lazy-loaded page modules: 18
-- Light contrast --text on --surface-raised: 17.34:1
-- Light contrast --text-muted on --surface-raised: 6.33:1
-- Light contrast --primary on --surface-raised: 8.82:1
-- Light contrast --on-primary on --primary-control: 8.82:1
-- Dark contrast --text on --surface-raised: 15.76:1
-- Dark contrast --text-muted on --surface-raised: 9.38:1
-- Dark contrast --primary on --surface-raised: 5.06:1
-- Dark contrast --on-primary on --primary-control: 7.04:1
+- Light contrast --text on --surface-raised: 18.53:1
+- Light contrast --text-muted on --surface-raised: 6.87:1
+- Light contrast --primary on --surface-raised: 6.25:1
+- Light contrast --on-primary on --primary-control: 6.25:1
+- Dark contrast --text on --surface-raised: 16.59:1
+- Dark contrast --text-muted on --surface-raised: 10.59:1
+- Dark contrast --primary on --surface-raised: 5.66:1
+- Dark contrast --on-primary on --primary-control: 6.25:1
 - Browser-native confirm/prompt usages in pages/components: 0
 - CSS rem font declarations below 0.65rem: 4
 - CSS rem font declarations below 0.60rem: 0

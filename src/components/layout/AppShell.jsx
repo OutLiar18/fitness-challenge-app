@@ -188,7 +188,7 @@ export default function AppShell() {
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-  }, [location.pathname, location.search]);
+  }, [location.pathname]);
 
   useEffect(() => {
     if (!isPlatformAdmin) return undefined;
@@ -253,7 +253,6 @@ export default function AppShell() {
 
   function handleNavigation() {
     closeMoreMenu();
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }
 
   function toggleMoreMenu(trigger, mode) {
