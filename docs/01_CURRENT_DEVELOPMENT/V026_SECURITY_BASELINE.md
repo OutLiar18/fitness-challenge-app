@@ -121,15 +121,9 @@ Outcome: 1 of 7 development/tooling advisories were cleared; 6 lower-severity ad
 
 See `V026_DEPENDENCY_AUDIT.md` for exact advisory details and before/after counts. Firestore Rules remain at canonical SHA-256 `4740edd168e495a70ac8a6252bb57c3986d30995b5372198c357adaa859f6b84`.
 
-## 26E resolution — App Check and CSP are implementation-ready but intentionally inactive
+## 26E readiness research — superseded by the 26I current-scale decision
 
-26E selects reCAPTCHA Enterprise as the preferred future Firebase App Check provider for the web client and defines the rollout sequence required before enforcement. The current source still contains no App Check SDK integration, site-key environment variable or debug-token configuration.
-
-Localhost/CI handling must use Firebase's documented debug-provider workflow after integration, with debug tokens stored only in local/Firebase/CI secret facilities and never committed or shipped. The App Check-enabled client must be deployed with enforcement off first so legitimate request metrics can be monitored.
-
-The Hosting header baseline remains unchanged and CSP remains intentionally absent. The future policy must be generated after App Check integration and tested against the production build's real Firebase Authentication, Cloud Firestore and reCAPTCHA Enterprise resource/network origins. App Check enforcement and CSP activation must not occur in the same production deployment.
-
-See `V026_APP_CHECK_CSP_READINESS.md` for the provider, cost/TTL, debug, CSP and rollout details. Firestore Rules remain at canonical SHA-256 `4740edd168e495a70ac8a6252bb57c3986d30995b5372198c357adaa859f6b84`.
+26E documented a safe future App Check/CSP rollout, but 26I explicitly defers that work because Champions Legacy Challenge is currently a friends-scale challenge. The detailed readiness document and active readiness guard are removed from the working repository to reduce operational clutter. Git history preserves the research if scale or abuse risk later justifies revisiting it.
 
 ## 26F resolution — interrupted trusted account deletion now resumes from a frozen plan
 
@@ -141,12 +135,21 @@ The processor persists phase and batch progress. Retries require the original re
 
 The private recovery plan is an operator-resume artifact, not a user-facing rollback mechanism and not a substitute for project-level Firestore backups. No trusted deletion was executed during 26F. Firestore Rules remain at canonical SHA-256 `4740edd168e495a70ac8a6252bb57c3986d30995b5372198c357adaa859f6b84`.
 
-## 26G resolution — project-level Firestore recovery is new-database-only by default
+## 26G recovery research — superseded by the 26I current-scale decision
 
-26G adds a planning-only recovery model rather than a production restore command. Backup metadata must identify the Champions Legacy project and default database, report a READY state, include a database UID and represent an unexpired snapshot. The destination must be a different, clearly named `recovery-*` database in the same project; `(default)` is rejected.
+26G proved a safe new-database-only recovery-planning model, but advanced Google Cloud disaster-recovery automation is not proportionate to the app's current use. 26I removes the active planner, focused planner tests and long-form recovery document from the working repository. Git history remains the archive.
 
-The private recovery plan records the source backup identity, snapshot/expiry, destination, operator/reason, current application commit and Firestore Rules hash, then receives a canonical SHA-256. The planner may display the documented `gcloud firestore databases restore` command as a preview but contains no external-command execution capability.
+## 26I resolution — practical security closeout
 
-Normal Champions Legacy tooling intentionally excludes the documented in-place restore path because that procedure requires deleting the existing source database. 26G also does not create or modify a scheduled backup. A separate read-only production inventory must establish current backup/PITR/billing/IAM state before any schedule activation is considered.
+26I keeps security proportional to realistic current risk while preserving clean upgrade paths.
 
-See `V026_FIRESTORE_BACKUP_RESTORE.md`. Firestore Rules remain at canonical SHA-256 `4740edd168e495a70ac8a6252bb57c3986d30995b5372198c357adaa859f6b84`.
+Firestore Rules remove only semantically redundant or fully retired structures:
+- explicit deny blocks for `teams`, `playerTeams` and `teamInvites` are removed because the final recursive deny-all already rejects them;
+- the retired `leagueEvidenceReviewers` client match is removed entirely, so the recursive deny-all is now its only client policy;
+- `canReadEvidenceOperations` and `canReadLiveLeagueOperations` are removed because both were one-line aliases for the existing scoped `isLeagueAdministrator` helper.
+
+The resulting development Rules SHA-256 is `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e`. The static line metric falls from 3,903 to 3,875 lines.
+
+The following remain unchanged in intent: canonical Firestore-profile Platform Administrator authority, league-scoped administrator operations, Platform Administrator-only evidence decisions, House movement/rest, immutable history, Power Plays, League Season bonuses, account-deletion safety, existing Hosting headers and the final recursive deny-all fallback.
+
+Advanced App Check/CSP and project-level Google Cloud disaster-recovery automation are **deferred until scale requires them**, not release blockers for the current product.

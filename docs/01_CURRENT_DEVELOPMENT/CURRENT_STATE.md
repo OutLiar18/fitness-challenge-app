@@ -3,8 +3,8 @@
 <!-- RELEASE_STATUS: DEVELOPMENT -->
 Source version: 0.26.0 development
 Production version: 0.25.0
-Last updated: 10 August 2026
-Status: Active pre-v1.0 security and operational hardening
+Last updated: 11 August 2026
+Status: v0.26 development hardening complete after 26I; awaiting release gate/activation
 
 ## Production baseline
 
@@ -110,16 +110,11 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - Firestore Rules remain unchanged from 26B/26C;
 - no Firebase deployment.
 
-#### Checkpoint 26E — App Check and CSP readiness
-- reCAPTCHA Enterprise is the preferred future Firebase App Check provider for the web client;
-- App Check remains intentionally unintegrated during this checkpoint;
-- no site key or debug token is added to source control;
-- localhost/CI debug-token handling and secret-storage requirements are documented;
-- enforcement must follow an App Check-enabled monitoring deployment, not precede it;
-- existing Hosting security headers remain required;
-- CSP remains intentionally absent until the exact App Check-enabled browser origin set is proven;
-- a future CSP must cover only the Firebase/Auth/Firestore/reCAPTCHA origins actually required by the built app;
-- App Check enforcement and CSP activation must remain separate production steps;
+#### Deferred infrastructure — App Check/CSP
+- App Check enforcement and an explicit CSP are not required for the current friends-scale challenge;
+- the 26E research remains available in Git history if the app later becomes public at materially larger scale;
+- active App Check/CSP readiness tooling is removed in 26I;
+- existing low-cost Hosting security headers remain in place;
 - no Firebase deployment.
 
 #### Checkpoint 26F — trusted account-deletion interruption recovery
@@ -134,19 +129,24 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - Firestore Rules remain unchanged;
 - no Firebase deployment.
 
-#### Checkpoint 26G — Firestore backup/restore operator safeguards
-- normal recovery is new-database-only; `(default)` is forbidden as a restore destination;
-- backup metadata must prove project/database provenance, READY state and a non-expired recovery point;
-- destination database IDs must use the `recovery-` prefix;
-- private recovery plans bind backup identity, operator/reason, application commit and Rules hash with SHA-256;
-- the planner renders a restore-command preview but cannot execute external commands;
-- source-database deletion and in-place restore are excluded from normal tooling;
-- backup schedule creation/change is excluded from this checkpoint;
-- Firestore Rules remain unchanged;
+#### Deferred infrastructure — advanced Firestore disaster recovery
+- Google Cloud CLI/IAM/PITR/backup-schedule inventory and automated restore planning are deferred until scale or real operational need justifies them;
+- the 26G research remains recoverable from Git history;
+- active Firestore recovery planner/test tooling is removed in 26I;
+- account-deletion recovery remains because account deletion is a real app workflow;
 - no restore, backup configuration change or Firebase deployment.
 
+#### Checkpoint 26I — practical security + Rules simplification
+- remove redundant explicit deny blocks for retired permanent Teams; the recursive deny-all fallback continues to reject those paths;
+- fully retire the old evidence-reviewer collection from client Rules, also relying on recursive deny-all;
+- replace two one-line league-read aliases with the existing league-scoped administrator helper;
+- remove active App Check/CSP readiness and advanced Firestore recovery-planner artifacts from the working repo;
+- preserve Platform Admin authority, League Admin scoping, evidence decisions, Houses, movement/rest, Power Plays, bonus points and trusted account-deletion safety;
+- run the complete application and Firestore Rules regression gates;
+- perform no Firebase deployment.
+
 ### Next action
-Perform a read-only production disaster-recovery inventory: current Firestore database location/edition, PITR status, backup schedules/available backups, billing readiness and operator IAM capabilities. Do not create schedules or restore data during discovery.
+Run the final v0.26 release gate from the completed 26I source. If the gate is clean, perform one reviewed v0.26 production activation and then move development to v0.27 UX/accessibility/performance.
 
 ## Responsive development boundary
 

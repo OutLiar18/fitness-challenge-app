@@ -44,14 +44,6 @@ service cloud.firestore {
         );
     }
 
-    function canReadEvidenceOperations(leagueId) {
-      return isLeagueAdministrator(leagueId);
-    }
-
-    function canReadLiveLeagueOperations(leagueId) {
-      return isLeagueAdministrator(leagueId);
-    }
-
     function managesLeagueAfter(leagueId) {
       return signedIn()
         && existsAfter(/databases/$(database)/documents/leagues/$(leagueId))
@@ -3519,20 +3511,6 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
-    // Permanent global teams were retired in v0.14.0.
-    // Houses now exist only inside a specific season.
-    match /teams/{document=**} {
-      allow read, write: if false;
-    }
-
-    match /playerTeams/{document=**} {
-      allow read, write: if false;
-    }
-
-    match /teamInvites/{document=**} {
-      allow read, write: if false;
-    }
-
     match /leagues/{leagueId} {
       allow read: if isPlatformAdmin()
         || isLeagueAdministrator(leagueId)
@@ -3710,16 +3688,10 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
-    match /leagueEvidenceReviewers/{assignmentId} {
-      // Retired in v0.24 Checkpoint 8G. Historical documents remain server-managed only.
-      allow read: if isPlatformAdmin();
-      allow create, update, delete: if false;
-    }
-
     match /seasonEvidenceClaims/{claimId} {
       allow read: if isPlatformAdmin()
         || (signedIn() && resource.data.userId == request.auth.uid)
-        || canReadEvidenceOperations(resource.data.leagueId);
+        || isLeagueAdministrator(resource.data.leagueId);
       allow create: if signedIn() && (
         validEvidenceClaimCreate(claimId)
         || validCorrectionEvidenceClaimCreate(claimId)
@@ -3734,7 +3706,7 @@ service cloud.firestore {
     match /seasonEvidenceDecisions/{decisionId} {
       allow read: if isPlatformAdmin()
         || (signedIn() && resource.data.userId == request.auth.uid)
-        || canReadEvidenceOperations(resource.data.leagueId);
+        || isLeagueAdministrator(resource.data.leagueId);
       allow create: if signedIn() && validEvidenceDecisionCreate(decisionId);
       allow update, delete: if false;
     }
@@ -3759,7 +3731,7 @@ service cloud.firestore {
     match /leagueLeaderboardSnapshots/{snapshotId} {
       allow read: if isPlatformAdmin()
         || isLeagueMember(resource.data.leagueId)
-        || canReadLiveLeagueOperations(resource.data.leagueId);
+        || isLeagueAdministrator(resource.data.leagueId);
       allow create: if signedIn() && validLeaderboardSnapshotCreate(snapshotId);
       allow update, delete: if false;
     }
@@ -3795,7 +3767,7 @@ service cloud.firestore {
     match /leagueContributions/{contributionId} {
       allow read: if isPlatformAdmin()
         || (signedIn() && resource.data.userId == request.auth.uid)
-        || canReadLiveLeagueOperations(resource.data.leagueId)
+        || isLeagueAdministrator(resource.data.leagueId)
         || (
           isLeagueMember(resource.data.leagueId)
           && get(/databases/$(database)/documents/leagues/$(resource.data.leagueId)).data.rulesVersion

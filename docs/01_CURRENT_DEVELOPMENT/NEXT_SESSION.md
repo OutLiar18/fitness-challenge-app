@@ -6,7 +6,7 @@ Current production: v0.25.0
 
 ## First action
 
-Continue from completed Checkpoint 26G. Next run a read-only production disaster-recovery inventory: Firestore database location/edition, PITR status, current backup schedules and backups, billing/Blaze readiness and effective operator IAM. Do not create schedules, restore databases or mutate production during discovery. Keep v0.25.0 production frozen and do not deploy v0.26 Rules or Hosting changes without a dedicated reviewed activation stage.
+Continue from completed Checkpoint 26I. Run the final v0.26 release gate; if clean, use one reviewed v0.26 production activation and verify it, then begin v0.27 UX/accessibility/performance. Do not restart Google Cloud disaster-recovery/App Check/CSP work unless real scale or risk later justifies it.
 
 ## v0.25.0 order
 
@@ -70,14 +70,18 @@ The global `leagueAdmin` profile role is intentionally a bootstrap/operator role
 
 Production dependencies remain at zero known npm vulnerabilities. The development/tooling tree was remediated only through npm-compatible lockfile changes with no `--force` and no direct dependency specification changes. See `V026_DEPENDENCY_AUDIT.md` for exact before/after packages and residual advisory status.
 
-## Checkpoint 26E App Check/CSP readiness
+## Deferred infrastructure
 
-reCAPTCHA Enterprise is the preferred future App Check web provider. The rollout is intentionally staged: console registration, client integration with no enforcement, secure localhost/CI debug handling, monitoring, then separate enforcement. CSP must be derived after the App Check-enabled build exposes its real resource/origin needs and must be deployed separately from enforcement. See `V026_APP_CHECK_CSP_READINESS.md`.
+App Check enforcement and an explicit CSP are deferred until the app's scale/risk justifies them. The detailed 26E research remains in Git history, but the active readiness artifact/guard is removed from the normal development branch by 26I.
 
 ## Checkpoint 26F trusted account-deletion recovery
 
 Trusted deletion now freezes a private local recovery plan before processing begins and binds its SHA-256 into the execution record. Phase/batch progress is persisted, and retries replay the original document path set instead of silently rebuilding a smaller plan from already-anonymised data. A missing or mismatched recovery plan blocks further mutation. See `V026_ACCOUNT_DELETION_RECOVERY.md`.
 
-## Checkpoint 26G Firestore backup/restore safeguards
+## Deferred advanced Firestore recovery
 
-Normal recovery is now explicitly new-database-only. The trusted planner validates Champions Legacy backup provenance, READY/unexpired state and a `recovery-*` destination, then writes a private SHA-bound plan plus command preview. It cannot execute gcloud/Firebase commands and contains no source-database deletion path. See `V026_FIRESTORE_BACKUP_RESTORE.md`.
+Google Cloud CLI/IAM/PITR inventory, backup-schedule work and automated restore planning are deferred until the project genuinely needs enterprise-style disaster recovery. The 26G implementation remains recoverable from Git history but is removed from the active repo by 26I.
+
+## Checkpoint 26I practical closeout
+
+26I keeps the protections that matter now and removes unnecessary active infrastructure. Firestore Rules retain every real gameplay/security contract while dropping redundant retired Team/reviewer blocks and read aliases. The final recursive deny-all remains authoritative for retired paths. The next step is the v0.26 release gate, not more infrastructure work.

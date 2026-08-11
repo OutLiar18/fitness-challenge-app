@@ -99,14 +99,11 @@ Five Fires and Buddy Bonuses are intentionally removed from the pre-v1.0 roadmap
 - 1 of 7 development/tooling advisories were cleared; 6 lower-severity advisories remain documented;
 - no Firebase deployment.
 
-### 26E — App Check and CSP readiness — COMPLETE
-- select reCAPTCHA Enterprise as the preferred future App Check web provider;
-- define secure localhost/CI debug-provider handling without committing debug tokens;
-- require an App Check-enabled monitoring deployment before enforcement;
-- retain existing Hosting security headers while keeping CSP intentionally undeployed during readiness;
-- document Firebase/Auth/Firestore/reCAPTCHA origin categories required for future CSP testing;
-- require App Check enforcement and CSP activation to remain separate production changes;
-- no Firebase deployment.
+### Advanced client/Hosting hardening — DEFERRED UNTIL SCALE REQUIRES IT
+- App Check enforcement and explicit CSP rollout are not current friends-scale requirements;
+- prior 26E research remains available in Git history;
+- active readiness tooling is removed in 26I;
+- existing Hosting security headers remain.
 
 ### 26F — Trusted account-deletion interruption recovery — COMPLETE
 - freeze a private recovery plan before a trusted deletion enters processing;
@@ -117,22 +114,24 @@ Five Fires and Buddy Bonuses are intentionally removed from the pre-v1.0 roadmap
 - preserve Auth disable/revocation before Firestore mutation and Auth deletion after Firestore completion;
 - run no production account deletion and perform no Firebase deployment.
 
-### 26G — Firestore backup/restore operator safeguards — COMPLETE
-- validate backup provenance against the Champions Legacy production project/default database;
-- require READY/unexpired backup metadata before a recovery plan can be created;
-- require restore to a clearly named new `recovery-*` database and forbid `(default)`;
-- bind private recovery plans to operator/reason, application commit and Rules SHA-256;
-- render restore commands as preview only, with no external-command execution;
-- exclude source-database deletion/in-place restore and backup-schedule creation from normal tooling;
-- run no restore, production data mutation or Firebase deployment.
+### Advanced Firestore disaster recovery — DEFERRED UNTIL SCALE REQUIRES IT
+- Google Cloud IAM/PITR/backup-schedule inventory and automated restore planning are deferred;
+- prior 26G research remains available in Git history;
+- active recovery-planner/test tooling is removed in 26I;
+- trusted per-account deletion recovery remains because it supports a real app operation.
 
-### Later v0.26 remediation
-- tighten remaining administrator permission boundaries where the baseline proves it is useful;
-- improve public/private read boundaries where needed;
-- simplify Rules without weakening validation or audit binding;
-- resolve dependency/security warnings conservatively;
-- add safe client-attestation protection only with localhost/CI/debug handling and monitored rollout;
-- strengthen trusted-tool recovery, backup and account-deletion operations.
+### 26I — Practical security + Rules simplification — COMPLETE
+- remove redundant explicit deny blocks for retired permanent Team collections;
+- fully retire the old evidence-reviewer collection from client Rules;
+- collapse redundant league-read aliases into the existing scoped administrator helper;
+- retain the recursive deny-all fallback and all current gameplay/security contracts;
+- remove active enterprise-readiness tooling that is not needed at current scale;
+- complete the full application + Rules regression gate with no Firebase deployment.
+
+### Remaining v0.26 work
+- run the final release gate;
+- perform one reviewed v0.26 production activation and verification;
+- then move directly to v0.27.
 
 ## v0.27.0 — Full application UX, accessibility and performance review
 - every page and workflow;

@@ -20,7 +20,6 @@ const playerDataProvider = load("src/context/PlayerDataProvider.jsx");
 const adminAuthorityModel = load("src/services/admin/adminAuthorityModel.js");
 const accountDelete = load("scripts/trusted-account-delete.mjs");
 const accountDeleteRecovery = load("scripts/trusted-account-deletion-recovery.mjs");
-const firestoreRecoveryPlanner = load("scripts/trusted-firestore-recovery-plan.mjs");
 
 if (pkg.version !== "0.26.0") {
   throw new Error(`Expected package version 0.26.0, found ${pkg.version}.`);
@@ -111,8 +110,8 @@ console.log("Platform Admin source    : Firestore trusted role profile ONLY");
 console.log("League Admin global role : bootstrap create only");
 console.log("League Admin operations  : scoped by league administratorIds");
 console.log("Final deny-all fallback  : present");
-console.log("App Check integration    : absent (baseline finding)");
-console.log(`Explicit Hosting CSP     : ${hasCsp ? "present" : "absent (baseline finding)"}`);
+console.log("App Check integration    : deferred at current scale");
+console.log(`Explicit Hosting CSP     : ${hasCsp ? "present" : "deferred at current scale"}`);
 requireText(accountDelete, "recoveryPlanSha256", "trusted deletion frozen recovery-plan hash");
 requireText(accountDelete, 'phase: "prepared"', "trusted deletion prepared phase");
 requireText(accountDelete, 'phase: "firestore-mutating"', "trusted deletion Firestore progress phase");
@@ -123,29 +122,32 @@ requireText(
   "trusted deletion fail-closed missing-plan guard",
 );
 console.log("Trusted deletion recovery: frozen plan + phase/batch resume guard present");
-requireText(
-  firestoreRecoveryPlanner,
-  'RESTORE_TO_NEW_DATABASE_ONLY',
-  "Firestore recovery new-database acknowledgement",
-);
-requireText(
-  firestoreRecoveryPlanner,
-  'sourceDatabaseDeletionForbidden: true',
-  "Firestore recovery source-delete prohibition",
-);
-requireText(
-  firestoreRecoveryPlanner,
-  'commandExecutionSupportedByPlanner: false',
-  "Firestore recovery planning-only boundary",
-);
-if (firestoreRecoveryPlanner.includes("child_process")) {
-  throw new Error("Firestore recovery planner must not execute external commands.");
+for (const retiredToken of [
+  "canReadEvidenceOperations",
+  "canReadLiveLeagueOperations",
+  "match /teams/{document=**}",
+  "match /playerTeams/{document=**}",
+  "match /teamInvites/{document=**}",
+  "match /leagueEvidenceReviewers/{assignmentId}",
+]) {
+  if (rules.includes(retiredToken)) {
+    throw new Error(`26I expected retired Rules token to stay removed: ${retiredToken}`);
+  }
 }
-if (firestoreRecoveryPlanner.includes("firestore databases delete")) {
-  throw new Error("Normal Firestore recovery planner must not contain a database-delete command.");
+for (const deferredArtifact of [
+  "docs/01_CURRENT_DEVELOPMENT/V026_APP_CHECK_CSP_READINESS.md",
+  "docs/01_CURRENT_DEVELOPMENT/V026_FIRESTORE_BACKUP_RESTORE.md",
+  "scripts/v026-appcheck-csp-readiness.mjs",
+  "scripts/trusted-firestore-recovery-plan.mjs",
+  "tests/trusted-firestore-recovery.test.mjs",
+]) {
+  if (fs.existsSync(path.join(root, deferredArtifact))) {
+    throw new Error(`26I expected deferred infrastructure artifact to be removed: ${deferredArtifact}`);
+  }
 }
-if (firestoreRecoveryPlanner.includes("backups schedules create")) {
-  throw new Error("26G must not create production backup schedules.");
+if (pkg.scripts?.["firestore:recovery:plan"]) {
+  throw new Error("26I expected the advanced Firestore recovery planner command to be removed.");
 }
-console.log("Firestore recovery       : new-database-only SHA-bound planner present");
-console.log("Static v0.26 security guard PASSED (26A baseline + 26B/26C/26F/26G recovery contracts)");
+console.log("Rules simplification     : retired Team/reviewer blocks + read aliases removed");
+console.log("Advanced infrastructure  : DEFERRED UNTIL SCALE REQUIRES IT");
+console.log("Static v0.26 security guard PASSED (practical 26B/26C/26F/26I contracts)");
