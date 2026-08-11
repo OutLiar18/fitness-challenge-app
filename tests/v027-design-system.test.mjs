@@ -19,6 +19,14 @@ const welcomeCss = fs.readFileSync(
   new URL("../src/components/dashboard/WelcomeCard.css", import.meta.url),
   "utf8",
 );
+const authCss = fs.readFileSync(
+  new URL("../src/pages/Auth.css", import.meta.url),
+  "utf8",
+);
+const dailyProgressCss = fs.readFileSync(
+  new URL("../src/components/dashboard/DailyProgress.css", import.meta.url),
+  "utf8",
+);
 const packageJson = JSON.parse(
   fs.readFileSync(new URL("../package.json", import.meta.url), "utf8"),
 );
@@ -40,6 +48,21 @@ test("Dashboard Welcome Card uses the crimson-black warrior identity instead of 
   for (const retiredBlue of ["#101d42", "#2447c6", "#4169e1", "#16214a"]) {
     assert.ok(!lowerWelcomeCss.includes(retiredBlue));
   }
+});
+
+test("Auth and Daily Progress no longer leak legacy blue branding", () => {
+  const auth = authCss.toLowerCase();
+  const progress = dailyProgressCss.toLowerCase();
+
+  for (const retiredBlue of ["#101d42", "#2447c6", "#4169e1"]) {
+    assert.ok(!auth.includes(retiredBlue));
+  }
+
+  assert.ok(auth.includes("#050505"));
+  assert.ok(auth.includes("#c20e0d"));
+  assert.ok(!progress.includes("#5f86ff"));
+  assert.ok(progress.includes("var(--primary-control)"));
+  assert.ok(progress.includes("#ff5148"));
 });
 
 test("shared controls use readable focus and touch foundations", () => {

@@ -6,7 +6,7 @@ Current production: v0.26.0
 
 ## First action
 
-Continue from the 27G manual-acceptance remediation on development/v0.27.0. Rerun the authenticated matrix in `V027_PERFORMANCE_ACCEPTANCE.md`, first confirming the stronger crimson/black visual identity, the converted Dashboard Welcome Card and preserved scroll position when switching URL-backed tabs on the same page. If the full matrix passes, 27G is closed and the next checkpoint is 27R.
+Continue from the 27G manual-acceptance remediation on development/v0.27.0. Rerun the authenticated matrix in `V027_PERFORMANCE_ACCEPTANCE.md`, first confirming the stronger crimson/black visual identity, the converted Dashboard Welcome Card and authentication hero, the crimson-only Daily Progress fill, and preserved scroll position when switching URL-backed tabs on the same page. If the full matrix passes, 27G is closed and the next checkpoint is 27R.
 
 ## v0.25.0 order
 

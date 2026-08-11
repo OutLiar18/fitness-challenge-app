@@ -249,13 +249,15 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 #### 27G manual acceptance remediation — IMPLEMENTED / RECHECK REQUIRED
 - strengthen the shared light/dark palette from muted burgundy/pink-red to a higher-contrast saturated crimson + near-black Champions Legacy identity;
 - replace the Dashboard Welcome Card's remaining legacy blue gradient and blue transmission surface with the crimson-black warrior treatment;
+- replace the authentication hero's retired blue gradient with the same crimson-black warrior identity;
+- replace Daily Progress's red-to-blue fill with a crimson-only progression treatment;
 - preserve scroll position when only URL query-string workspace/tab state changes while retaining top reset for real pathname/page navigation;
 - add regression coverage for the Welcome Card palette and same-page URL-tab scrolling contract;
 - preserve scoring, competition, Firebase behavior and Firestore Rules;
 - rerun the authenticated manual matrix before 27R.
 
 ### Next action
-Rerun the authenticated 27G acceptance matrix after the manual-findings remediation, with particular attention to the stronger crimson/black palette, Dashboard Welcome Card, and same-page URL-backed tabs preserving scroll position. If the matrix passes, proceed directly to 27R.
+Rerun the authenticated 27G acceptance matrix after the manual-findings remediation, with particular attention to the stronger crimson/black palette, Dashboard Welcome Card, authentication hero, Daily Progress fill, and same-page URL-backed tabs preserving scroll position. If the matrix passes, proceed directly to 27R.
 
 ## Responsive development boundary
 

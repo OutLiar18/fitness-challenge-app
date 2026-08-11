@@ -217,7 +217,7 @@ Five Fires and Buddy Bonuses are intentionally removed from the pre-v1.0 roadmap
 - fix any manual acceptance defects before 27R;
 - keep Firestore Rules unchanged and perform no Firebase deployment.
 
-- manual review found and remediated three bounded defects before 27R: muted red/black presentation, the Dashboard Welcome Card's legacy blue styling, and query-string workspace/tab changes incorrectly resetting page scroll;
+- manual review and direct source audit found and remediated five bounded defects before 27R: muted red/black presentation, the Dashboard Welcome Card's legacy blue styling, query-string workspace/tab changes incorrectly resetting page scroll, the authentication hero's retired blue branding, and Daily Progress's red-to-blue fill;
 ### 27R — Release freeze
 - full application regression;
 - Rules regression only if Rules unexpectedly change;
