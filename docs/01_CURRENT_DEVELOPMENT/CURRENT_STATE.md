@@ -110,8 +110,20 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - Firestore Rules remain unchanged from 26B/26C;
 - no Firebase deployment.
 
+#### Checkpoint 26E — App Check and CSP readiness
+- reCAPTCHA Enterprise is the preferred future Firebase App Check provider for the web client;
+- App Check remains intentionally unintegrated during this checkpoint;
+- no site key or debug token is added to source control;
+- localhost/CI debug-token handling and secret-storage requirements are documented;
+- enforcement must follow an App Check-enabled monitoring deployment, not precede it;
+- existing Hosting security headers remain required;
+- CSP remains intentionally absent until the exact App Check-enabled browser origin set is proven;
+- a future CSP must cover only the Firebase/Auth/Firestore/reCAPTCHA origins actually required by the built app;
+- App Check enforcement and CSP activation must remain separate production steps;
+- no Firebase deployment.
+
 ### Next action
-Continue v0.26 operational hardening with App Check/client-attestation readiness and Hosting security-header/CSP planning; do not enable enforcement or deploy headers without a dedicated tested rollout.
+Review trusted account-deletion recovery and backup/restore operator safeguards, including interruption/retry behavior, before selecting the next v0.26 remediation checkpoint.
 
 ## Responsive development boundary
 

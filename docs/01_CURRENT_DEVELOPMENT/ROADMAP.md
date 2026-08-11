@@ -99,6 +99,15 @@ Five Fires and Buddy Bonuses are intentionally removed from the pre-v1.0 roadmap
 - 1 of 7 development/tooling advisories were cleared; 6 lower-severity advisories remain documented;
 - no Firebase deployment.
 
+### 26E — App Check and CSP readiness — COMPLETE
+- select reCAPTCHA Enterprise as the preferred future App Check web provider;
+- define secure localhost/CI debug-provider handling without committing debug tokens;
+- require an App Check-enabled monitoring deployment before enforcement;
+- retain existing Hosting security headers while keeping CSP intentionally undeployed during readiness;
+- document Firebase/Auth/Firestore/reCAPTCHA origin categories required for future CSP testing;
+- require App Check enforcement and CSP activation to remain separate production changes;
+- no Firebase deployment.
+
 ### Later v0.26 remediation
 - tighten remaining administrator permission boundaries where the baseline proves it is useful;
 - improve public/private read boundaries where needed;

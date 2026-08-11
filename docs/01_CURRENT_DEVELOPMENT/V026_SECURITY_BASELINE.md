@@ -120,3 +120,13 @@ The 26A dependency baseline reported zero production vulnerabilities and seven d
 Outcome: 1 of 7 development/tooling advisories were cleared; 6 lower-severity advisories remain documented. Production dependencies remained at zero known vulnerabilities after remediation. The candidate dependency tree passed the complete application and Firestore Rules gates in a detached clean worktree before the real branch accepted the updated lockfile.
 
 See `V026_DEPENDENCY_AUDIT.md` for exact advisory details and before/after counts. Firestore Rules remain at canonical SHA-256 `4740edd168e495a70ac8a6252bb57c3986d30995b5372198c357adaa859f6b84`.
+
+## 26E resolution — App Check and CSP are implementation-ready but intentionally inactive
+
+26E selects reCAPTCHA Enterprise as the preferred future Firebase App Check provider for the web client and defines the rollout sequence required before enforcement. The current source still contains no App Check SDK integration, site-key environment variable or debug-token configuration.
+
+Localhost/CI handling must use Firebase's documented debug-provider workflow after integration, with debug tokens stored only in local/Firebase/CI secret facilities and never committed or shipped. The App Check-enabled client must be deployed with enforcement off first so legitimate request metrics can be monitored.
+
+The Hosting header baseline remains unchanged and CSP remains intentionally absent. The future policy must be generated after App Check integration and tested against the production build's real Firebase Authentication, Cloud Firestore and reCAPTCHA Enterprise resource/network origins. App Check enforcement and CSP activation must not occur in the same production deployment.
+
+See `V026_APP_CHECK_CSP_READINESS.md` for the provider, cost/TTL, debug, CSP and rollout details. Firestore Rules remain at canonical SHA-256 `4740edd168e495a70ac8a6252bb57c3986d30995b5372198c357adaa859f6b84`.

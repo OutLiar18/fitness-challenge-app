@@ -6,7 +6,7 @@ Current production: v0.25.0
 
 ## First action
 
-Continue from completed Checkpoint 26D. Next review App Check/client-attestation readiness and Hosting CSP/security-header requirements as a design-and-test checkpoint before any enforcement or production header change. Keep v0.25.0 production frozen and do not deploy v0.26 Rules or Hosting changes without a dedicated reviewed activation stage.
+Continue from completed Checkpoint 26E. Next review trusted account-deletion recovery plus backup/restore operator safeguards, especially interruption and retry cases. App Check remains unintegrated and CSP remains undeployed until separate implementation/monitoring checkpoints. Keep v0.25.0 production frozen and do not deploy v0.26 Rules or Hosting changes without a dedicated reviewed activation stage.
 
 ## v0.25.0 order
 
@@ -69,3 +69,7 @@ The global `leagueAdmin` profile role is intentionally a bootstrap/operator role
 ## Checkpoint 26D dependency outcome
 
 Production dependencies remain at zero known npm vulnerabilities. The development/tooling tree was remediated only through npm-compatible lockfile changes with no `--force` and no direct dependency specification changes. See `V026_DEPENDENCY_AUDIT.md` for exact before/after packages and residual advisory status.
+
+## Checkpoint 26E App Check/CSP readiness
+
+reCAPTCHA Enterprise is the preferred future App Check web provider. The rollout is intentionally staged: console registration, client integration with no enforcement, secure localhost/CI debug handling, monitoring, then separate enforcement. CSP must be derived after the App Check-enabled build exposes its real resource/origin needs and must be deployed separately from enforcement. See `V026_APP_CHECK_CSP_READINESS.md`.
