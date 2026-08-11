@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import PageLoader from "../components/common/PageLoader";
 import WorkspaceTabs, {
   WorkspacePanel,
 } from "../components/common/WorkspaceTabs";
@@ -78,6 +79,12 @@ function ProfileEditor({ profile, user }) {
   const [mbtiType, setMbtiType] = useState(initial.mbtiType);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState(null);
+  const statusRef = useRef(null);
+
+  useEffect(() => {
+    if (status?.type === "error") statusRef.current?.focus();
+  }, [status]);
+
   const changed =
     displayName.trim().replace(/\s+/g, " ") !== initial.displayName
     || mbtiType !== initial.mbtiType;
@@ -132,7 +139,11 @@ function ProfileEditor({ profile, user }) {
   };
 
   return (
-    <form className="profile-editor card" onSubmit={handleSubmit}>
+    <form
+      className="profile-editor card"
+      onSubmit={handleSubmit}
+      aria-busy={saving || undefined}
+    >
       <div className="profile-editor__header">
         <div>
           <p>Personalise</p>
@@ -171,7 +182,9 @@ function ProfileEditor({ profile, user }) {
                 ? "success"
                 : "info"
           }`}
+          ref={statusRef}
           role={status.type === "error" ? "alert" : "status"}
+          tabIndex={status.type === "error" ? -1 : undefined}
         >
           {status.message}
         </div>
@@ -255,8 +268,20 @@ function PersonalityGuidance({ personality }) {
 }
 
 export default function Profile() {
-  const { profile, user, entries, progression } = usePlayerData();
-  const [activeTab, setActiveTab] = useState("overview");
+  const { profile, user, entries, progression, loading } = usePlayerData();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedTab = searchParams.get("tab");
+  const activeTab = PROFILE_TABS.some((tab) => tab.id === requestedTab)
+    ? requestedTab
+    : "overview";
+
+  function setProfileTab(tabId) {
+    const next = new URLSearchParams(searchParams);
+    if (tabId === "overview") next.delete("tab");
+    else next.set("tab", tabId);
+    setSearchParams(next, { replace: true });
+  }
+
   const { leagues, memberships } = useLeagues();
   const currentMembership = memberships.find((item) => item.status === "active")
     || memberships.find((item) => item.status === "registered")
@@ -271,6 +296,10 @@ export default function Profile() {
   const personality = getMbtiProfileByType(profile?.mbtiType);
   const hasPersonality = isValidMbtiType(profile?.mbtiType);
   const entryCount = getTotalEntries(entries);
+  if (loading) {
+    return <PageLoader message="Loading your player profile…" />;
+  }
+
   const accountDetails = [
     ["Display name", displayName],
     ["Legacy Profile", hasPersonality ? `${personality.type} · ${personality.title}` : "Not selected"],
@@ -313,7 +342,11 @@ export default function Profile() {
             {personality && <span>{personality.type}</span>}
           </div>
           {!personality && (
-            <button className="button button--primary profile-identity__choose" type="button" onClick={() => setActiveTab("personalise")}>
+            <button
+              className="button button--primary profile-identity__choose"
+              type="button"
+              onClick={() => setProfileTab("personalise")}
+            >
               Choose my Legacy Profile
             </button>
           )}
@@ -325,7 +358,7 @@ export default function Profile() {
         label="Profile sections"
         tabs={PROFILE_TABS}
         activeId={activeTab}
-        onChange={setActiveTab}
+        onChange={setProfileTab}
       />
 
       <WorkspacePanel id="overview" activeId={activeTab} idPrefix="profile">

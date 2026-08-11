@@ -6,7 +6,7 @@ Current production: v0.26.0
 
 ## First action
 
-Continue from completed 27C on development/v0.27.0. Implement 27D across Progress, Analytics, Profile, Inbox and Legacy Coach. Reuse the 27B design system and 27C interaction patterns; simplify information hierarchy, strengthen chart/data accessibility and loading/empty/error states, and verify responsive scanning without changing statistics, progression, messaging, profile or coaching semantics.
+Continue from completed 27D on development/v0.27.0. Implement 27E across Houses and Seasons. Treat this as presentation decomposition rather than competition redesign: create clearer task-focused workspaces/components, improve captain/vice-captain/player/admin scanning and responsive behavior, and preserve all House assignment/history, leadership, movement/rest, Power Play, bonus, lifecycle, service and Firestore Rules semantics.
 
 ## v0.25.0 order
 
@@ -105,3 +105,7 @@ Production activation completed successfully from `c057fca0598fe4a07ff101ea13808
 ## Checkpoint 27C core player journey
 
 27C completes the Dashboard → Log Activity → Journal UX pass. Goals now appear before lower-frequency progression/insight content, Journal has a direct Dashboard route and URL-backed tab state, validation errors receive focus, editable entry deletion uses the new accessible ConfirmDialog instead of browser confirmation, and Journal empty/history states are more actionable and human-facing. Firestore Rules and all scoring/evidence/data semantics remain unchanged. See `V027_CORE_PLAYER_JOURNEY.md`.
+
+## Checkpoint 27D personal experience
+
+27D completes the Progress, Analytics, Profile, Inbox and Legacy Coach UX pass. Personal workspace state is URL-backed, Analytics data visuals use semantic list structures rather than flattening visible values behind a single image role, Progress/Analytics have useful recovery states, Profile errors receive focus, Inbox reuses shared keyboard-accessible WorkspaceTabs, and Coach saving/empty states are explicit. All underlying statistics, profile, messaging, coaching and Rules behavior remains unchanged. See `V027_PERSONAL_EXPERIENCE.md`.

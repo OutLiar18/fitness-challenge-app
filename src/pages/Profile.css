@@ -347,3 +347,35 @@
   .profile-personality__grid { grid-template-columns: 1fr; }
   .profile-personality__wide { grid-column: auto; }
 }
+
+/* v0.27 27D — profile readability and status recovery */
+.profile-identity__copy > p:first-child,
+.profile-editor__header p:first-child,
+.profile-card__header p,
+.profile-preferences > div > p:first-child,
+.profile-personality__heading > div > p:first-child,
+.profile-personality__connections > div:first-child > p {
+  font-size: 0.78rem;
+}
+
+.profile-identity__chips span,
+.profile-preferences__chips span,
+.profile-personality__chips span,
+.profile-personality__connections > div:last-child span {
+  font-size: 0.78rem;
+}
+
+.profile-editor .inline-alert:focus {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.profile-editor__actions .button {
+  min-height: 46px;
+}
+
+@media (max-width: 620px) {
+  .profile-identity {
+    padding: 22px 18px;
+  }
+}

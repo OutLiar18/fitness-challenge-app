@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useMemo } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 
 import PageLoader from "../components/common/PageLoader";
 import WorkspaceTabs, {
@@ -120,7 +120,18 @@ function getStreakStatus(streak) {
 
 export default function Progress() {
   const { profile, user, progression, loading } = usePlayerData();
-  const [activeTab, setActiveTab] = useState("overview");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedTab = searchParams.get("tab");
+  const activeTab = PROGRESS_TABS.some((tab) => tab.id === requestedTab)
+    ? requestedTab
+    : "overview";
+
+  function setProgressTab(tabId) {
+    const next = new URLSearchParams(searchParams);
+    if (tabId === "overview") next.delete("tab");
+    else next.set("tab", tabId);
+    setSearchParams(next, { replace: true });
+  }
   const levelJourney = useMemo(
     () =>
       [...LEVEL_CONFIGURATION.titles].sort(
@@ -221,7 +232,7 @@ export default function Progress() {
         label="Progress sections"
         tabs={progressTabs}
         activeId={activeTab}
-        onChange={setActiveTab}
+        onChange={setProgressTab}
       />
 
       <WorkspacePanel id="overview" activeId={activeTab} idPrefix="progress">
@@ -404,8 +415,13 @@ export default function Progress() {
           </div>
 
           {personalRecords.length === 0 ? (
-            <div className="empty-state">
-              Your personal records will appear as you log activities.
+            <div className="empty-state progress-empty-state">
+              <span aria-hidden="true">🏅</span>
+              <h3>No personal records yet</h3>
+              <p>Your records will appear as you build a factual activity history.</p>
+              <Link className="button button--primary" to="/log">
+                Log an activity
+              </Link>
             </div>
           ) : (
             <div className="personal-record-grid">

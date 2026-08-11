@@ -99,3 +99,59 @@
   .analytics-category__heading small { text-align: left; }
   .analytics-day { min-width: 0; }
 }
+
+/* v0.27 27D — analytics semantic/readable data */
+.analytics-toolbar select {
+  min-height: 46px;
+}
+
+.analytics-summary-card small,
+.analytics-section__header > span,
+.analytics-week small,
+.analytics-week em {
+  font-size: 0.78rem;
+}
+
+.analytics-week {
+  min-width: 0;
+}
+
+.analytics-week strong {
+  font-variant-numeric: tabular-nums;
+}
+
+.analytics-empty-state {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  min-height: 210px;
+  align-content: center;
+  padding: 24px;
+  text-align: left;
+}
+
+.analytics-empty-state > span {
+  font-size: 1.9rem;
+}
+
+.analytics-empty-state h3,
+.analytics-empty-state p {
+  margin: 0;
+}
+
+.analytics-empty-state p {
+  color: var(--text-muted);
+}
+
+.analytics-day {
+  min-width: 38px;
+  min-height: 38px;
+}
+
+@media (max-width: 620px) {
+  .analytics-toolbar label,
+  .analytics-toolbar select,
+  .analytics-empty-state .button {
+    width: 100%;
+  }
+}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import { useSearchParams } from "react-router-dom";
 import Toast from "../components/common/Toast/Toast";
 import WorkspaceTabs, {
   WorkspacePanel,
@@ -65,7 +65,11 @@ function CoachPreferences({ userId, preferences, notify }) {
   }
 
   return (
-    <form className="coach-preferences card" onSubmit={handleSubmit}>
+    <form
+      className="coach-preferences card"
+      onSubmit={handleSubmit}
+      aria-busy={saving || undefined}
+    >
       <div>
         <p className="section-kicker">Your control</p>
         <h2>Choose how guidance should feel</h2>
@@ -76,6 +80,7 @@ function CoachPreferences({ userId, preferences, notify }) {
         <input
           type="checkbox"
           checked={form.enabled}
+          disabled={saving}
           onChange={(event) => setForm((current) => ({ ...current, enabled: event.target.checked }))}
         />
         <span>
@@ -87,13 +92,23 @@ function CoachPreferences({ userId, preferences, notify }) {
       <div className="coach-preference-grid">
         <div className="form-field">
           <label htmlFor="coach-tone">Coaching tone</label>
-          <select id="coach-tone" value={form.tone} onChange={(event) => setForm((current) => ({ ...current, tone: event.target.value }))}>
+          <select
+            id="coach-tone"
+            value={form.tone}
+            disabled={saving}
+            onChange={(event) => setForm((current) => ({ ...current, tone: event.target.value }))}
+          >
             {COACH_TONES.map((tone) => <option key={tone.id} value={tone.id}>{tone.label}</option>)}
           </select>
         </div>
         <div className="form-field">
           <label htmlFor="coach-focus">Primary focus</label>
-          <select id="coach-focus" value={form.focus} onChange={(event) => setForm((current) => ({ ...current, focus: event.target.value }))}>
+          <select
+            id="coach-focus"
+            value={form.focus}
+            disabled={saving}
+            onChange={(event) => setForm((current) => ({ ...current, focus: event.target.value }))}
+          >
             {COACH_FOCUSES.map((focus) => <option key={focus.id} value={focus.id}>{focus.label}</option>)}
           </select>
         </div>
@@ -108,9 +123,19 @@ export default function LegacyCoach() {
   const { user } = usePlayerData();
   const { preferences, report, error } = useCoach();
   const { toast, showToast, dismissToast } = useToast();
-  const [activeTab, setActiveTab] = useState(
-    preferences.enabled ? "recommendations" : "preferences",
-  );
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedTab = searchParams.get("tab");
+  const defaultTab = preferences.enabled ? "recommendations" : "preferences";
+  const activeTab = COACH_TABS.some((tab) => tab.id === requestedTab)
+    ? requestedTab
+    : defaultTab;
+
+  function setCoachTab(tabId) {
+    const next = new URLSearchParams(searchParams);
+    if (tabId === defaultTab) next.delete("tab");
+    else next.set("tab", tabId);
+    setSearchParams(next, { replace: true });
+  }
 
   return (
     <div className="coach-page page-stack">
@@ -159,7 +184,7 @@ export default function LegacyCoach() {
             : tab,
         )}
         activeId={activeTab}
-        onChange={setActiveTab}
+        onChange={setCoachTab}
       />
 
       <WorkspacePanel id="recommendations" activeId={activeTab} idPrefix="coach">
@@ -169,20 +194,28 @@ export default function LegacyCoach() {
               <div><p className="section-kicker">Next actions</p><h2>Recommendations with reasons</h2></div>
               <span>{report.recommendations.length} suggestions</span>
             </div>
-            <div className="coach-recommendation-grid">
-              {report.recommendations.map((recommendation, index) => (
-                <article className="coach-recommendation card" key={recommendation.id}>
-                  <span className="coach-recommendation__number">{index + 1}</span>
-                  <p className="section-kicker">{recommendation.category}</p>
-                  <h3>{recommendation.title}</h3>
-                  <p><strong>Try this:</strong> {recommendation.action}</p>
-                  <details>
-                    <summary>Why this was suggested</summary>
-                    <p>{recommendation.reason}</p>
-                  </details>
-                </article>
-              ))}
-            </div>
+            {report.recommendations.length === 0 ? (
+              <div className="empty-state coach-empty-state">
+                <span aria-hidden="true">✓</span>
+                <h3>No recommendation needs your attention</h3>
+                <p>Keep recording factual activity. Legacy Coach will surface a practical next step when the pattern supports one.</p>
+              </div>
+            ) : (
+              <div className="coach-recommendation-grid">
+                {report.recommendations.map((recommendation, index) => (
+                  <article className="coach-recommendation card" key={recommendation.id}>
+                    <span className="coach-recommendation__number">{index + 1}</span>
+                    <p className="section-kicker">{recommendation.category}</p>
+                    <h3>{recommendation.title}</h3>
+                    <p><strong>Try this:</strong> {recommendation.action}</p>
+                    <details>
+                      <summary>Why this was suggested</summary>
+                      <p>{recommendation.reason}</p>
+                    </details>
+                  </article>
+                ))}
+              </div>
+            )}
           </section>
         ) : (
           <section className="empty-state card">

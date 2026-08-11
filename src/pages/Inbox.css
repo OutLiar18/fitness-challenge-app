@@ -217,3 +217,56 @@
   .inbox-private-item { padding: 17px; }
   .inbox-private-item__copy > div:first-child { flex-direction: column; gap: 3px; }
 }
+
+/* v0.27 27D — inbox scanning and touch targets */
+.inbox-filter {
+  min-height: 44px;
+  border-width: 1px;
+}
+
+.inbox-meta span,
+.inbox-meta time,
+.inbox-section-heading p {
+  font-size: 0.75rem;
+}
+
+.inbox-text-action,
+.inbox-private-item__actions button,
+.inbox-private-item__actions .text-link {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.inbox-private-item {
+  background: var(--surface-raised);
+}
+
+.inbox-private-item--unread {
+  box-shadow: inset 3px 0 0 var(--primary);
+  background: linear-gradient(90deg, var(--primary-soft), var(--surface-raised) 52%);
+}
+
+.inbox-private-item__copy > div:first-child {
+  align-items: baseline;
+}
+
+@media (max-width: 620px) {
+  .inbox-filters {
+    padding: 12px;
+  }
+
+  .inbox-filter-row {
+    width: 100%;
+  }
+
+  .inbox-filter {
+    flex: 1 1 auto;
+  }
+
+  .inbox-private-item__actions {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 4px;
+  }
+}

@@ -468,3 +468,52 @@
     flex-direction: column;
   }
 }
+
+/* v0.27 27D — progress readability and recovery */
+.progress-eyebrow {
+  font-size: 0.78rem;
+}
+
+.progress-summary-card small,
+.progress-streak-grid small,
+.level-journey__item small {
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.progress-section__count,
+.progress-status {
+  font-size: 0.78rem;
+}
+
+.progress-empty-state {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  padding: 24px;
+  text-align: left;
+}
+
+.progress-empty-state > span {
+  font-size: 1.8rem;
+}
+
+.progress-empty-state h3,
+.progress-empty-state p {
+  margin: 0;
+}
+
+.progress-empty-state p {
+  max-width: 520px;
+  color: var(--text-muted);
+}
+
+.progress-empty-state .button {
+  margin-top: 4px;
+}
+
+@media (max-width: 560px) {
+  .progress-empty-state .button {
+    width: 100%;
+  }
+}

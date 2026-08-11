@@ -176,13 +176,16 @@ Five Fires and Buddy Bonuses are intentionally removed from the pre-v1.0 roadmap
 - preserve scoring, evidence, entry-service and Firestore Rules semantics;
 - add persistent 27C regression coverage and perform no Firebase deployment.
 
-### 27D — Personal progress and communication
-- Progress;
-- Analytics;
-- Profile/Legacy Profile;
-- Inbox;
-- Legacy Coach;
-- information hierarchy, charts/data accessibility, loading/empty/error states.
+### 27D — Personal progress and communication — COMPLETE
+- persist Progress, Analytics, Profile and Legacy Coach workspace state in the URL;
+- persist non-default Analytics range;
+- add Analytics/Profile loading and Progress/Analytics recovery states;
+- expose Analytics weekly/consistency data with semantic labelled lists rather than a flattened image-role wrapper;
+- focus Profile save errors and expose profile/coach busy states;
+- replace bespoke Inbox tabs with shared keyboard-accessible WorkspaceTabs/WorkspacePanel;
+- expose a clear enabled-but-no-recommendations Legacy Coach state;
+- improve responsive readability/touch treatment across all five surfaces;
+- preserve all statistics/profile/messaging/coaching/Rules semantics and perform no Firebase deployment.
 
 ### 27E — Competition workspaces
 - Houses;

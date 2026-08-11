@@ -4,7 +4,7 @@
 Source version: 0.27.0 development
 Production version: 0.26.0
 Last updated: 11 August 2026
-Status: v0.27 core player journey complete after 27C
+Status: v0.27 personal progress/communication experience complete after 27D
 
 ## Production baseline
 
@@ -197,8 +197,21 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - add persistent 27C core-journey regression coverage;
 - keep Firestore Rules byte-for-byte unchanged and perform no Firebase deployment.
 
+#### Checkpoint 27D — Progress / Analytics / Profile / Inbox / Legacy Coach — COMPLETE
+- persist personal workspace sections in the URL for direct links, refresh and browser navigation;
+- persist non-default Analytics range in the URL;
+- add Analytics and Profile loading states using the shared PageLoader;
+- replace Analytics weekly role="img" chart semantics with labelled list/listitem data so visible values remain accessible;
+- give Analytics and Progress useful no-data/recovery states with direct Log activity actions;
+- focus Profile save/validation errors and expose profile/coach saving state;
+- replace bespoke Inbox tabs with the shared keyboard-accessible WorkspaceTabs/WorkspacePanel pattern while preserving read/unread and URL behavior;
+- make Legacy Coach preference controls stable while saving and expose a clear zero-recommendation state;
+- strengthen small-text/touch/readability treatment across all five pages;
+- add persistent 27D regression coverage;
+- keep Firestore Rules byte-for-byte unchanged and perform no Firebase deployment.
+
 ### Next action
-Checkpoint 27D: polish Progress, Analytics, Profile, Inbox and Legacy Coach. Improve information hierarchy, charts/data accessibility, loading/empty/error states and responsive scanning while preserving all underlying statistics, profile, messaging and coach semantics.
+Checkpoint 27E: restructure Houses and Seasons presentation into clearer task-focused workspaces while preserving every competition service, House assignment/history, leadership, movement/rest, Power Play, bonus and Firestore Rules contract.
 
 ## Responsive development boundary
 

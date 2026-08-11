@@ -1,6 +1,7 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useMemo } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 
+import PageLoader from "../components/common/PageLoader";
 import WorkspaceTabs, {
   WorkspacePanel,
 } from "../components/common/WorkspaceTabs";
@@ -82,16 +83,41 @@ function SummaryCard({ icon, value, label, detail }) {
 }
 
 export default function Analytics() {
-  const { entries } = usePlayerData();
-  const [rangeWeeks, setRangeWeeks] = useState(8);
-  const [activeTab, setActiveTab] = useState("trends");
+  const { entries, loading } = usePlayerData();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedWeeks = Number(searchParams.get("weeks"));
+  const rangeWeeks = ANALYTICS_RANGE_OPTIONS.includes(requestedWeeks)
+    ? requestedWeeks
+    : 8;
+  const requestedTab = searchParams.get("tab");
+  const activeTab = ANALYTICS_TABS.some((tab) => tab.id === requestedTab)
+    ? requestedTab
+    : "trends";
+
+  function setAnalyticsTab(tabId) {
+    const next = new URLSearchParams(searchParams);
+    if (tabId === "trends") next.delete("tab");
+    else next.set("tab", tabId);
+    setSearchParams(next, { replace: true });
+  }
+
+  function setAnalyticsRange(weeks) {
+    const next = new URLSearchParams(searchParams);
+    if (weeks === 8) next.delete("weeks");
+    else next.set("weeks", String(weeks));
+    setSearchParams(next, { replace: true });
+  }
   const analytics = useMemo(
     () => getPersonalAnalytics(entries, { rangeWeeks }),
     [entries, rangeWeeks],
   );
   const weeklyMaximum = Math.max(0, ...analytics.weeklyTrend.map((week) => week.points));
   const categoryMaximum = Math.max(0, ...analytics.categoryBalance.map((category) => category.points));
-  const dailyMaximum = Math.max(0, ...analytics.dailyConsistency.map((day) => day.points));
+    const dailyMaximum = Math.max(0, ...analytics.dailyConsistency.map((day) => day.points));
+
+  if (loading) {
+    return <PageLoader message="Reading your activity patterns…" />;
+  }
 
   return (
     <div className="analytics-page page-stack">
@@ -117,7 +143,7 @@ export default function Analytics() {
           <select
             id="analytics-range"
             value={rangeWeeks}
-            onChange={(event) => setRangeWeeks(Number(event.target.value))}
+            onChange={(event) => setAnalyticsRange(Number(event.target.value))}
           >
             {ANALYTICS_RANGE_OPTIONS.map((weeks) => (
               <option key={weeks} value={weeks}>{weeks} weeks</option>
@@ -158,7 +184,7 @@ export default function Analytics() {
         label="Analytics sections"
         tabs={ANALYTICS_TABS}
         activeId={activeTab}
-        onChange={setActiveTab}
+        onChange={setAnalyticsTab}
       />
 
       <WorkspacePanel id="trends" activeId={activeTab} idPrefix="analytics">
@@ -171,13 +197,31 @@ export default function Analytics() {
             <span>Activity points only</span>
           </div>
 
-          <div className="analytics-week-chart" role="img" aria-label="Weekly activity points and active days">
+          {analytics.summary.entries === 0 && (
+            <div className="empty-state analytics-empty-state">
+              <span aria-hidden="true">📊</span>
+              <h3>No activity in this window yet</h3>
+              <p>Log activity to start building weekly trends and category patterns.</p>
+              <Link className="button button--primary" to="/log">
+                Log an activity
+              </Link>
+            </div>
+          )}
+          <div
+            className="analytics-week-chart"
+            role="list"
+            aria-label="Weekly activity points and active days"
+          >
             {analytics.weeklyTrend.map((week) => (
-              <div className="analytics-week" key={week.id}>
-                <div className="analytics-week__plot">
+              <div
+                className="analytics-week"
+                key={week.id}
+                role="listitem"
+                aria-label={`${formatShortDate(week.startDate)}: ${week.points} activity points across ${week.activeDays} active days`}
+              >
+                <div className="analytics-week__plot" aria-hidden="true">
                   <span
                     style={{ height: `${percentage(week.points, weeklyMaximum)}%` }}
-                    title={`${week.points} activity points`}
                   />
                 </div>
                 <strong>{formatNumber(week.points, { whole: true })}</strong>
@@ -199,7 +243,11 @@ export default function Analytics() {
             <span>Darker means more activity points</span>
           </div>
 
-          <div className="analytics-heatmap" aria-label="Activity over the latest 28 days">
+          <div
+            className="analytics-heatmap"
+            role="list"
+            aria-label="Activity over the latest 28 days"
+          >
             {analytics.dailyConsistency.map((day) => {
               const intensity = dailyMaximum > 0 ? day.points / dailyMaximum : 0;
               const intensityLevel = day.entries > 0
@@ -208,6 +256,7 @@ export default function Analytics() {
               return (
                 <span
                   key={day.dateKey}
+                  role="listitem"
                   className={`analytics-day${intensityLevel ? ` analytics-day--level-${intensityLevel}` : ""}`}
                   title={`${formatLongDate(day.date)}: ${day.entries} entries, ${day.points} activity points`}
                   aria-label={`${formatLongDate(day.date)}: ${day.entries} entries and ${day.points} activity points`}
@@ -217,7 +266,7 @@ export default function Analytics() {
               );
             })}
           </div>
-          <div className="analytics-heatmap__legend">
+          <div className="analytics-heatmap__legend" aria-hidden="true">
             <span>Quiet</span><i /><i /><i /><i /><span>More active</span>
           </div>
         </article>

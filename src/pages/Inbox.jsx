@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-
+import WorkspaceTabs, {
+  WorkspacePanel,
+} from "../components/common/WorkspaceTabs";
 import PageHeader from "../components/layout/PageHeader";
 import { getAnnouncementType } from "../constants/admin";
 import useAnnouncements from "../hooks/useAnnouncements";
@@ -107,7 +109,7 @@ function AnnouncementPanel({ announcementsState, actionError, setActionError }) 
   }
 
   return (
-    <div className="inbox-panel" role="tabpanel" id="inbox-panel-updates" aria-labelledby="inbox-tab-updates">
+    <div className="inbox-panel">
       {(error || actionError) && (
         <div className="inline-alert inline-alert--danger" role="alert">{actionError || error}</div>
       )}
@@ -201,7 +203,7 @@ function PrivatePanel({ notificationsState, bonusReviewRequests, actionError, se
   }
 
   return (
-    <div className="inbox-panel" role="tabpanel" id="inbox-panel-private" aria-labelledby="inbox-tab-private">
+    <div className="inbox-panel">
       {(error || actionError) && (
         <div className="inline-alert inline-alert--danger" role="alert">{actionError || error}</div>
       )}
@@ -299,7 +301,23 @@ export default function Inbox() {
   const [actionError, setActionError] = useState("");
   const visibleBonusReviewRequests = isPlatformAdmin ? bonusReviewRequests : [];
   const totalAttention = announcementsState.unreadCount + notificationsState.unreadCount + visibleBonusReviewRequests.length;
-  const privateAttention = notificationsState.unreadCount + visibleBonusReviewRequests.length;
+    const privateAttention = notificationsState.unreadCount + visibleBonusReviewRequests.length;
+  const inboxTabs = [
+    {
+      id: ANNOUNCEMENT_TAB,
+      label: "Updates",
+      icon: "📣",
+      description: "Public challenge announcements",
+      badge: announcementsState.unreadCount || null,
+    },
+    {
+      id: PRIVATE_TAB,
+      label: "Private",
+      icon: "🔒",
+      description: "Season notices and private actions",
+      badge: privateAttention || null,
+    },
+  ];
 
   function setTab(tab) {
     setActionError("");
@@ -351,49 +369,28 @@ export default function Inbox() {
         <p>Announcements are public to players. Private updates are visible only to the relevant account.</p>
       </section>
 
-      <div className="inbox-tabs" role="tablist" aria-label="Inbox sections">
-        <button
-          id="inbox-tab-updates"
-          role="tab"
-          type="button"
-          aria-selected={activeTab === ANNOUNCEMENT_TAB}
-          aria-controls="inbox-panel-updates"
-          className={activeTab === ANNOUNCEMENT_TAB ? "inbox-tab inbox-tab--active" : "inbox-tab"}
-          onClick={() => setTab(ANNOUNCEMENT_TAB)}
-        >
-          <span aria-hidden="true">📣</span>
-          Updates
-          {announcementsState.unreadCount > 0 && <strong>{announcementsState.unreadCount}</strong>}
-        </button>
-        <button
-          id="inbox-tab-private"
-          role="tab"
-          type="button"
-          aria-selected={activeTab === PRIVATE_TAB}
-          aria-controls="inbox-panel-private"
-          className={activeTab === PRIVATE_TAB ? "inbox-tab inbox-tab--active" : "inbox-tab"}
-          onClick={() => setTab(PRIVATE_TAB)}
-        >
-          <span aria-hidden="true">🔒</span>
-          Private
-          {privateAttention > 0 && <strong>{privateAttention}</strong>}
-        </button>
-      </div>
-
-      {activeTab === ANNOUNCEMENT_TAB ? (
+            <WorkspaceTabs
+        idPrefix="inbox"
+        label="Inbox sections"
+        tabs={inboxTabs}
+        activeId={activeTab}
+        onChange={setTab}
+      />
+      <WorkspacePanel id={ANNOUNCEMENT_TAB} activeId={activeTab} idPrefix="inbox">
         <AnnouncementPanel
           announcementsState={announcementsState}
           actionError={actionError}
           setActionError={setActionError}
         />
-      ) : (
+      </WorkspacePanel>
+      <WorkspacePanel id={PRIVATE_TAB} activeId={activeTab} idPrefix="inbox">
         <PrivatePanel
           notificationsState={notificationsState}
           bonusReviewRequests={visibleBonusReviewRequests}
           actionError={actionError}
           setActionError={setActionError}
         />
-      )}
+      </WorkspacePanel>
     </div>
   );
 }
