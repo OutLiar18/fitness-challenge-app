@@ -101,8 +101,17 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - Firestore Rules are unchanged from 26B and the canonical 26B Rules hash remains frozen locally;
 - no Firebase deployment.
 
+#### Checkpoint 26D — development dependency advisory remediation
+- production dependency vulnerabilities remain at zero;
+- compatible remediation was generated outside the real repository with `npm audit fix --package-lock-only` and no `--force`;
+- direct dependency specifications remain unchanged;
+- the candidate lockfile was installed/tested from scratch in a detached worktree before acceptance;
+- 1 of 7 development/tooling advisories were cleared; 6 lower-severity advisories remain documented;
+- Firestore Rules remain unchanged from 26B/26C;
+- no Firebase deployment.
+
 ### Next action
-Classify and conservatively remediate the seven development-only npm advisories. Production dependencies remain at zero known vulnerabilities.
+Continue v0.26 operational hardening with App Check/client-attestation readiness and Hosting security-header/CSP planning; do not enable enforcement or deploy headers without a dedicated tested rollout.
 
 ## Responsive development boundary
 

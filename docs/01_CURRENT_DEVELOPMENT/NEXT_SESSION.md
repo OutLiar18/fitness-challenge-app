@@ -6,7 +6,7 @@ Current production: v0.25.0
 
 ## First action
 
-Continue from completed Checkpoint 26C. The next isolated task is the seven development-only npm advisories: identify their exact dependency chains and apply only non-breaking, test-verified remediation. Production dependencies were clean at 26A. Keep v0.25.0 production frozen and do not deploy v0.26 Rules without a dedicated reviewed activation stage.
+Continue from completed Checkpoint 26D. Next review App Check/client-attestation readiness and Hosting CSP/security-header requirements as a design-and-test checkpoint before any enforcement or production header change. Keep v0.25.0 production frozen and do not deploy v0.26 Rules or Hosting changes without a dedicated reviewed activation stage.
 
 ## v0.25.0 order
 
@@ -65,3 +65,7 @@ Platform Administrator authority is canonical in the trusted Firestore profile r
 ## Checkpoint 26C League Administrator scope
 
 The global `leagueAdmin` profile role is intentionally a bootstrap/operator role for creating a new league and invite. It does not imply cross-league authority. Existing-league permissions continue to resolve from the target league's `administratorIds`, and the Rules suite now proves that a global League Administrator cannot read a foreign private draft or self-assign into it.
+
+## Checkpoint 26D dependency outcome
+
+Production dependencies remain at zero known npm vulnerabilities. The development/tooling tree was remediated only through npm-compatible lockfile changes with no `--force` and no direct dependency specification changes. See `V026_DEPENDENCY_AUDIT.md` for exact before/after packages and residual advisory status.

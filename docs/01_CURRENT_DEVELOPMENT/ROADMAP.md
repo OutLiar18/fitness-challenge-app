@@ -90,6 +90,15 @@ Five Fires and Buddy Bonuses are intentionally removed from the pre-v1.0 roadmap
 - keep Firestore Rules byte-for-byte unchanged from 26B;
 - no Firebase deployment.
 
+### 26D — Development dependency advisory remediation — COMPLETE
+- classify the npm advisories by package, severity, direct/transitive relationship and fix availability;
+- keep production dependency vulnerabilities at zero;
+- use only compatible package-lock remediation without `--force`;
+- preserve all direct dependency specifications;
+- validate the candidate from a clean detached worktree before acceptance;
+- 1 of 7 development/tooling advisories were cleared; 6 lower-severity advisories remain documented;
+- no Firebase deployment.
+
 ### Later v0.26 remediation
 - tighten remaining administrator permission boundaries where the baseline proves it is useful;
 - improve public/private read boundaries where needed;

@@ -112,3 +112,11 @@ No Firestore Rules source changes are made in 26C. The canonical local Rules SHA
 `4740edd168e495a70ac8a6252bb57c3986d30995b5372198c357adaa859f6b84`.
 
 The remaining dependency baseline is unchanged from 26A: production dependencies had zero known vulnerabilities, while the development/tooling tree reported six moderate and one high advisory pending conservative remediation.
+
+## 26D resolution — development dependency advisories
+
+The 26A dependency baseline reported zero production vulnerabilities and seven development/tooling advisories. 26D re-ran the live npm advisory service at execution time, classified the exact packages and applied only npm-compatible package-lock remediation in an isolated workspace. `--force` was not used, `package.json` was unchanged and root dependency specifications were preserved.
+
+Outcome: 1 of 7 development/tooling advisories were cleared; 6 lower-severity advisories remain documented. Production dependencies remained at zero known vulnerabilities after remediation. The candidate dependency tree passed the complete application and Firestore Rules gates in a detached clean worktree before the real branch accepted the updated lockfile.
+
+See `V026_DEPENDENCY_AUDIT.md` for exact advisory details and before/after counts. Firestore Rules remain at canonical SHA-256 `4740edd168e495a70ac8a6252bb57c3986d30995b5372198c357adaa859f6b84`.
