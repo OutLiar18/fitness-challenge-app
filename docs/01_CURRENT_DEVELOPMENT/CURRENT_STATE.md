@@ -1,10 +1,10 @@
 # Champions Legacy Challenge — Current State
 
 <!-- RELEASE_STATUS: VERIFIED_PRODUCTION -->
-Source version: 0.27.0 release finalised
+Source version: 0.28.0 development
 Production version: 0.27.0
 Last updated: 12 August 2026
-Status: v0.27.0 verified production release
+Status: v0.28 complete league-season rehearsal active after 28A contract
 
 ## Production baseline
 
@@ -271,8 +271,18 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - authenticated production smoke accepted on 12 August 2026;
 - tag `v0.27.0` points to exact deployed commit `701b58df40eedab39c8f7fe5d4b2ea95efd11ba5`.
 
+### v0.28.0 — complete league-season rehearsal
+#### Checkpoint 28A — rehearsal contract + gap inventory — COMPLETE
+- branch from finalised v0.27.0 documentation state without modifying the deployed/tagged v0.27 source;
+- define one canonical synthetic season spanning registration through completion;
+- map registration, C.H.A.O.S., leadership, Pocket Week, evidence, corrections, roster movement, Power Plays, bonuses, House balancing, trusted reconciliation, publication, honours and account deletion into one chronological rehearsal;
+- define adversarial Firestore Rules and recovery-runbook coverage;
+- prohibit production rehearsal data and Firebase deployment;
+- keep Firestore Rules and application behavior unchanged;
+- record the detailed plan in `V028_REHEARSAL_PLAN.md`.
+
 ### Next action
-Begin v0.28.0 complete league-season rehearsal from the finalised v0.27.0 production baseline.
+Checkpoint 28B: establish a fail-closed local rehearsal environment and one deterministic happy-path season harness. Advance the application package to 0.28.0 there, not in documentation-only 28A.
 
 ## Responsive development boundary
 

@@ -12,7 +12,7 @@ const shell = read("src/components/layout/AppShell.jsx");
 const integrity = read("src/components/admin/EntryIntegrityWorkspace.jsx");
 const library = read("src/components/admin/LibraryPublisher.jsx");
 const powerPlay = read("src/components/seasons/PowerPlayWorkspace.jsx");
-const state = read("docs/01_CURRENT_DEVELOPMENT/CURRENT_STATE.md");
+const v027ReleaseEvidence = read("docs/07_HISTORY/V0270_PRODUCTION_RELEASE.md");
 
 test("Firebase vendor grouping uses a size target instead of one forced monolith", () => {
   assert.match(vite, /name: "firebase-vendor"/);
@@ -37,8 +37,18 @@ test("27G acceptance verifies performance, responsiveness, interaction and contr
 });
 
 test("27G documentation records completed manual visual acceptance before 27R", () => {
-  assert.match(state, /27G manual authenticated visual acceptance: PASSED/);
-  assert.match(state, /Production version: 0\.26\.0/);
+  const manualAcceptance = "27G authenticated manual visual acceptance passed";
+  const releaseReadiness = "27R release-readiness verification passed";
+
+  assert.match(v027ReleaseEvidence, /Status: Verified production release/);
+  assert.match(v027ReleaseEvidence, /Package version: `0\.27\.0`/);
+  assert.ok(v027ReleaseEvidence.includes(manualAcceptance));
+  assert.ok(v027ReleaseEvidence.includes(releaseReadiness));
+  assert.ok(
+    v027ReleaseEvidence.indexOf(manualAcceptance) <
+      v027ReleaseEvidence.indexOf(releaseReadiness),
+    "Archived v0.27 release evidence must record manual 27G acceptance before 27R.",
+  );
 });
 
 test("27G acceptance recognises the real skip-link contract", () => {

@@ -237,11 +237,45 @@ Five Fires and Buddy Bonuses are intentionally removed from the pre-v1.0 roadmap
 Responsive behaviour remains a requirement throughout later development.
 
 ## v0.28.0 — Complete league-season rehearsal
-- registration, C.H.A.O.S., Houses and leadership;
-- Pocket Week, evidence, corrections and roster changes;
-- Power Plays, bonus-point administration and weekly balancing;
-- trusted reconciliation, publication, honours and account deletion;
-- adversarial Rules cases, recovery runbook and final release checklist.
+
+### 28A — Rehearsal contract + gap inventory — COMPLETE
+- create `development/v0.28.0` from the finalised v0.27.0 documentation state;
+- keep the deployed/tagged v0.27.0 source immutable;
+- define one canonical synthetic multi-week season;
+- map registration, C.H.A.O.S., Houses, leadership, Pocket Week, evidence, corrections, roster movement, Power Plays, bonuses, weekly balance, trusted reconciliation, publication, honours and account deletion into one chronological rehearsal;
+- define adversarial Firestore Rules and recovery-runbook cases;
+- prohibit production rehearsal data and Firebase deployment;
+- record the complete matrix in `V028_REHEARSAL_PLAN.md`.
+
+### 28B — Local rehearsal environment + deterministic happy path
+- advance package version to 0.28.0;
+- establish fail-closed test/emulator rehearsal plumbing;
+- build one deterministic season harness covering draft/registration through baseline active-season operation;
+- prove House setup, C.H.A.O.S., leadership and Pocket Week in the same coherent fixture;
+- preserve production Firebase and Rules.
+
+### 28C — Adversarial weekly operations
+- rehearse evidence decisions/expiry/reversal, factual corrections and integrity chains;
+- rehearse roster movement plus one-week post-move stability;
+- rehearse no-repeat Power Plays and contribution multipliers;
+- rehearse League Administrator bonus requests, Platform Administrator awards/review/corrections and historical House attribution;
+- rehearse private-safe weekly House balance output;
+- repair only integration defects exposed by the rehearsal.
+
+### 28D — Trusted closeout + recovery + Rules acceptance
+- trusted-reconcile the complete synthetic ledger;
+- publish final standings and honours;
+- rehearse trusted account deletion/recovery effects on historical competition facts;
+- run the full Firestore Rules emulator gate plus focused adversarial additions if gaps are found;
+- produce the permanent recovery runbook;
+- complete manual local UI rehearsal without production competition data.
+
+### 28R — Release freeze
+- full application and Rules regression;
+- production build and retained v0.27 UX/performance acceptance guard;
+- v0.28 season-rehearsal acceptance report;
+- final recovery/release checklist;
+- dedicated production activation only after the freeze passes.
 
 Only after this may the project become a v1.0 candidate, and only with explicit approval.
 

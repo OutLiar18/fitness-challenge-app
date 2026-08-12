@@ -1,7 +1,7 @@
 # Champions Legacy Challenge — Current Context
 
 <!-- RELEASE_STATUS: VERIFIED_PRODUCTION -->
-Current source: v0.27.0 release finalised
+Current source: v0.28.0 development
 Current production: v0.27.0
 Last updated: 12 August 2026
 
@@ -14,6 +14,8 @@ v0.25.0 has four controlled work areas:
 4. 25D — League Season bonus points with Platform Administrator direct awards and Platform-reviewed League Administrator requests — complete.
 
 Five Fires and Buddy Bonuses remain removed from the roadmap. Broad v0.27 visual polish is complete through 27F; 27G is the dedicated multi-viewport, keyboard, screen-reader, theme, reduced-motion and state acceptance stage. Manual review plus direct source audit exposed five bounded acceptance defects: the palette felt too muted, the Dashboard Welcome Card retained legacy blue styling, same-page URL-backed tab changes incorrectly reset page scroll, the authentication hero still used the retired blue brand gradient, and Daily Progress still faded from red into legacy blue. All five findings were remediated and the authenticated visual recheck was accepted on 11 August 2026. 27G and 27R are complete. Hosting preview/live integrity verification passed, the authenticated production smoke was accepted on 12 August 2026, and v0.27.0 is now the verified production baseline.
+
+v0.28 Checkpoint 28A starts the complete league-season rehearsal phase from finalised v0.27.0. It changes no application behavior. The rehearsal contract uses synthetic data and a fail-closed local/emulator path rather than production competition data. The required lifecycle is draft/registration → C.H.A.O.S. → leadership → Pocket Week → active weekly evidence/corrections/movement/Power Plays/bonuses/balance → trusted reconciliation/publication/honours → trusted account-deletion/recovery cases. The detailed matrix and recovery requirements are recorded in `V028_REHEARSAL_PLAN.md`. Next: 28B local rehearsal environment + deterministic happy path.
 
 25B introduces one optional player-profile field, `mbtiType`. All 16 profile definitions, quick-test questions/scoring, guidance and emblem-style artwork remain local frontend data. Firestore Rules only validate the permitted four-letter type values and the existing player-owned profile update boundary.
 

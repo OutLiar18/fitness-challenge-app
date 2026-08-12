@@ -1,12 +1,12 @@
 # Champions Legacy Challenge — Next Session
 
 <!-- RELEASE_STATUS: VERIFIED_PRODUCTION -->
-Current source: v0.27.0 release finalised
+Current source: v0.28.0 development
 Current production: v0.27.0
 
 ## First action
 
-Begin v0.28.0 complete league-season rehearsal from the finalised v0.27.0 production baseline. Do not modify or retag the frozen `v0.27.0` deployed source.
+Continue from completed 28A on `development/v0.28.0`. Implement 28B: establish a clearly test-only, fail-closed local rehearsal environment and the first chronological deterministic season harness. The harness should cover draft/registration, House setup, C.H.A.O.S., leadership, Pocket Week and baseline active-season contributions before later adversarial weekly operations. Keep v0.27.0 immutable and do not write rehearsal data to production Firebase.
 
 ## v0.25.0 order
 
@@ -121,3 +121,7 @@ Production activation completed successfully from `c057fca0598fe4a07ff101ea13808
 ## Checkpoint 27G automated performance/acceptance gate
 
 27G keeps Firebase's modular SDK and route-level lazy loading, but stops forcing the entire Firebase SDK into one oversized manual chunk by adding a Rolldown max-size target. The normal application check now enforces bundle and accessibility/responsive foundations and generates an automated report. The authenticated manual matrix in `V027_PERFORMANCE_ACCEPTANCE.md` has now been accepted. v0.27.0 is finalised and tagged at its exact deployed source. Do not reopen broad v0.27 visual work; continue with the planned v0.28.0 complete league-season rehearsal.
+
+## Checkpoint 28A rehearsal contract
+
+28A is documentation/audit only. `V028_REHEARSAL_PLAN.md` defines one canonical synthetic multi-week season, the full lifecycle matrix, adversarial Rules cases, recovery-runbook scenarios and the compact implementation order 28B → 28C → 28D → 28R. The main integration gap is that existing unit/domain coverage does not yet prove one chronological season across all competition systems. A second gap is safe manual rehearsal infrastructure: 28B must create a local/test-only path that cannot silently target production.
