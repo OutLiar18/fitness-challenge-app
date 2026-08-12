@@ -1,11 +1,11 @@
 # Champions Legacy Challenge — Current Context
 
-<!-- RELEASE_STATUS: RELEASED -->
-Current source: v0.27.0 development
-Current production: v0.26.0
-Last updated: 11 August 2026
+<!-- RELEASE_STATUS: VERIFIED_PRODUCTION -->
+Current source: v0.27.0 release finalised
+Current production: v0.27.0
+Last updated: 12 August 2026
 
-v0.26.0 is the verified production baseline and is frozen. v0.27.0 development continues on `development/v0.27.0`; no v0.27 checkpoint may deploy to production without a dedicated reviewed activation stage.
+v0.27.0 is the verified production baseline and is frozen. Exact deployed/tagged source is `701b58df40eedab39c8f7fe5d4b2ea95efd11ba5`; live/local `index.html` SHA-256 is `37d1dcf890f8836b17cfe128219fe8313ff0e15520d43547379cfe61007fac38`; Firestore Rules were not redeployed and remain SHA-256 `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e`.
 
 v0.25.0 has four controlled work areas:
 1. 25A — basic existing-app correctness fixes — complete;
@@ -13,7 +13,7 @@ v0.25.0 has four controlled work areas:
 3. 25C — safe Platform Administrator draft deletion/recovery semantics — complete;
 4. 25D — League Season bonus points with Platform Administrator direct awards and Platform-reviewed League Administrator requests — complete.
 
-Five Fires and Buddy Bonuses remain removed from the roadmap. Broad v0.27 visual polish is complete through 27F; 27G is the dedicated multi-viewport, keyboard, screen-reader, theme, reduced-motion and state acceptance stage. Manual review plus direct source audit exposed five bounded acceptance defects: the palette felt too muted, the Dashboard Welcome Card retained legacy blue styling, same-page URL-backed tab changes incorrectly reset page scroll, the authentication hero still used the retired blue brand gradient, and Daily Progress still faded from red into legacy blue. All five findings were remediated and the authenticated visual recheck was accepted on 11 August 2026. 27G is complete; 27R freezes the accepted source for release.
+Five Fires and Buddy Bonuses remain removed from the roadmap. Broad v0.27 visual polish is complete through 27F; 27G is the dedicated multi-viewport, keyboard, screen-reader, theme, reduced-motion and state acceptance stage. Manual review plus direct source audit exposed five bounded acceptance defects: the palette felt too muted, the Dashboard Welcome Card retained legacy blue styling, same-page URL-backed tab changes incorrectly reset page scroll, the authentication hero still used the retired blue brand gradient, and Daily Progress still faded from red into legacy blue. All five findings were remediated and the authenticated visual recheck was accepted on 11 August 2026. 27G and 27R are complete. Hosting preview/live integrity verification passed, the authenticated production smoke was accepted on 12 August 2026, and v0.27.0 is now the verified production baseline.
 
 25B introduces one optional player-profile field, `mbtiType`. All 16 profile definitions, quick-test questions/scoring, guidance and emblem-style artwork remain local frontend data. Firestore Rules only validate the permitted four-letter type values and the existing player-owned profile update boundary.
 

@@ -1,12 +1,12 @@
 # Champions Legacy Challenge — Next Session
 
-<!-- RELEASE_STATUS: RELEASED -->
-Current source: v0.27.0 development
-Current production: v0.26.0
+<!-- RELEASE_STATUS: VERIFIED_PRODUCTION -->
+Current source: v0.27.0 release finalised
+Current production: v0.27.0
 
 ## First action
 
-Continue from the 27G manual-acceptance remediation on development/v0.27.0. Rerun the authenticated matrix in `V027_PERFORMANCE_ACCEPTANCE.md`, first confirming the stronger crimson/black visual identity, the converted Dashboard Welcome Card and authentication hero, the crimson-only Daily Progress fill, and preserved scroll position when switching URL-backed tabs on the same page. If the full matrix passes, 27G is closed and the next checkpoint is 27R.
+Begin v0.28.0 complete league-season rehearsal from the finalised v0.27.0 production baseline. Do not modify or retag the frozen `v0.27.0` deployed source.
 
 ## v0.25.0 order
 
@@ -41,7 +41,7 @@ League Administrators may submit reasoned bonus requests only for active players
 
 ## Responsive boundary
 
-27G mobile/tablet/desktop and authenticated visual acceptance has passed and was explicitly accepted on 11 August 2026. 27R is now the active release-freeze stage.
+27G responsive/accessibility acceptance, 27R release freeze, production Hosting activation and authenticated production smoke are complete. v0.27.0 is closed.
 
 ## Verified v0.25.0 production baseline
 
@@ -120,4 +120,4 @@ Production activation completed successfully from `c057fca0598fe4a07ff101ea13808
 
 ## Checkpoint 27G automated performance/acceptance gate
 
-27G keeps Firebase's modular SDK and route-level lazy loading, but stops forcing the entire Firebase SDK into one oversized manual chunk by adding a Rolldown max-size target. The normal application check now enforces bundle and accessibility/responsive foundations and generates an automated report. The authenticated manual matrix in `V027_PERFORMANCE_ACCEPTANCE.md` has now been accepted. Continue only with the 27R release freeze and then a separate reviewed production activation; do not reopen broad v0.27 visual work.
+27G keeps Firebase's modular SDK and route-level lazy loading, but stops forcing the entire Firebase SDK into one oversized manual chunk by adding a Rolldown max-size target. The normal application check now enforces bundle and accessibility/responsive foundations and generates an automated report. The authenticated manual matrix in `V027_PERFORMANCE_ACCEPTANCE.md` has now been accepted. v0.27.0 is finalised and tagged at its exact deployed source. Do not reopen broad v0.27 visual work; continue with the planned v0.28.0 complete league-season rehearsal.

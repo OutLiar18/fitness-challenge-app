@@ -1,11 +1,11 @@
 # Champions Legacy Challenge — Roadmap
 
 <!-- RELEASE_STATUS: VERIFIED_PRODUCTION -->
-Last updated: 11 August 2026
+Last updated: 12 August 2026
 
-## Current production — v0.26.0
+## Current production — v0.27.0
 
-v0.26.0 is the verified production baseline. The exact deployed/tagged source is `c057fca0598fe4a07ff101ea13808f1da8918aa8`; Firestore Rules SHA-256 is `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e`.
+v0.27.0 is the verified production baseline. The exact deployed/tagged source is `701b58df40eedab39c8f7fe5d4b2ea95efd11ba5`; live/local `index.html` SHA-256 is `37d1dcf890f8836b17cfe128219fe8313ff0e15520d43547379cfe61007fac38`; Firestore Rules were not redeployed and remain SHA-256 `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e`.
 
 ## v0.25.0 — COMPLETE
 
@@ -218,16 +218,23 @@ Five Fires and Buddy Bonuses are intentionally removed from the pre-v1.0 roadmap
 - keep Firestore Rules unchanged and perform no Firebase deployment.
 
 - manual review and direct source audit found and remediated five bounded defects before 27R: muted red/black presentation, the Dashboard Welcome Card's legacy blue styling, query-string workspace/tab changes incorrectly resetting page scroll, the authentication hero's retired blue branding, and Daily Progress's red-to-blue fill;
-### 27R — Release freeze — VERIFIED / ACTIVATION PENDING
-- freeze accepted 27G runtime/application source at `ad92777cfa86481002639297ce8c7dce69b0e269`;
-- require the full 188-test application regression, production build and 27G automated acceptance;
-- verify the unchanged Firestore Rules SHA and run Rules regression only if that hash unexpectedly changes;
-- record completed responsive/accessibility/manual acceptance;
-- keep development production/finalisation scripts blocked;
-- perform no Firebase deployment in 27R;
-- use a separate reviewed runner for controlled production activation.
+### 27R — Release freeze — COMPLETE
+- froze accepted 27G runtime/application source at `ad92777cfa86481002639297ce8c7dce69b0e269`;
+- exact 27R/deployed release source: `701b58df40eedab39c8f7fe5d4b2ea95efd11ba5`;
+- 188/188 application tests, production build, 27G acceptance and 27R release-readiness passed;
+- unchanged Firestore Rules SHA verified;
+- development production/finalisation scripts remained blocked during the freeze.
 
-Responsive behaviour remains a requirement throughout v0.27.
+### v0.27.0 production release — COMPLETE
+- Hosting-only production activation completed successfully;
+- preview and live verification passed 10/10 SPA routes, 25/25 referenced assets and 4/4 security headers;
+- live/local `index.html` SHA-256 matched `37d1dcf890f8836b17cfe128219fe8313ff0e15520d43547379cfe61007fac38`;
+- Firestore Rules were not redeployed;
+- authenticated production smoke accepted on 12 August 2026;
+- tag `v0.27.0` points to the exact deployed source commit;
+- v0.27.0 is closed.
+
+Responsive behaviour remains a requirement throughout later development.
 
 ## v0.28.0 — Complete league-season rehearsal
 - registration, C.H.A.O.S., Houses and leadership;

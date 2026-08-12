@@ -1,67 +1,57 @@
-# Champions Legacy Challenge — v0.27.0 Release Candidate
+# Champions Legacy Challenge - v0.27.0 Production Release
 
-Date: 11 August 2026
-Release stage: 27R — VERIFIED / ACTIVATION PENDING
-Production baseline: v0.26.0
+Date: 12 August 2026
+Release stage: VERIFIED PRODUCTION
+Production version: v0.27.0
 
-## Frozen accepted source
+## Exact deployed source
 
-The v0.27.0 runtime/application release candidate is frozen from the manually accepted
-27G source:
+`701b58df40eedab39c8f7fe5d4b2ea95efd11ba5`
+
+Release tag `v0.27.0` is pinned to that exact deployed commit. The later documentation-only finalisation commit is intentionally not the tag target.
+
+Accepted 27G runtime baseline:
 
 `ad92777cfa86481002639297ce8c7dce69b0e269`
 
-Only release documentation, the 27R verifier, the development deployment blocker,
-the 27G acceptance-status regression and release-only npm script wiring may differ
-from that accepted runtime baseline before production activation.
+## Release gate
 
-## 27G acceptance
-
-- Automated application acceptance: PASS.
 - Full application regression: **188/188 application tests**.
 - Production build: PASS.
 - 27G automated acceptance: PASS.
 - 27G manual authenticated visual acceptance: PASS.
-- Manual acceptance was explicitly accepted on 11 August 2026 after the final
-  crimson/black visual closeout and same-page tab-scroll verification.
+- 27R release-readiness: PASS.
+- Authenticated production smoke: PASS / accepted 12 August 2026.
+
+## Hosting activation
+
+Firebase project: `fitnesschallengeapp-9e87f`
+
+Hosting target/site: `app` -> `champions-legacy-challenge`
+
+Live URL:
+
+`https://champions-legacy-challenge.web.app`
+
+The frozen build was verified on a short-lived preview channel before live activation.
+
+Preview and live verification each passed:
+
+- 10/10 SPA routes;
+- 25/25 assets referenced by `index.html`;
+- 4/4 configured Hosting security headers;
+- exact `index.html` SHA-256 `37d1dcf890f8836b17cfe128219fe8313ff0e15520d43547379cfe61007fac38`.
 
 ## Firestore Rules
 
-Canonical candidate SHA-256:
+Firestore Rules were not changed or redeployed by v0.27.0.
+
+Canonical unchanged SHA-256:
 
 `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e`
 
-This is byte-for-byte identical to the verified v0.26.0 production Rules source.
+## Release conclusion
 
-The existing Rules suite still contains 98 tests. Because Rules did not change during
-v0.27, 27R verifies the exact Rules hash rather than rerunning the emulator suite.
-Any unexpected Rules hash change is a hard stop and requires a separate isolated
-Rules regression before release work continues.
+v0.27.0 is verified in production. Development-repository deployment scripts remain blocked. Further application changes belong to a later development version, beginning with the planned v0.28.0 complete league-season rehearsal.
 
-## 27R release gate
-
-The release gate requires:
-
-1. lint;
-2. all 188 application tests;
-3. production build;
-4. 27G automated performance/accessibility acceptance;
-5. exact accepted-source boundary verification;
-6. exact unchanged Firestore Rules hash;
-7. verified Firebase project/Hosting mapping;
-8. explicit recorded manual 27G acceptance;
-9. blocked development production/finalisation scripts.
-
-## Production boundary
-
-Development deployment and release-finalisation npm scripts remain blocked.
-
-27R performs **NO FIREBASE DEPLOYMENT**.
-
-After 27R is committed and pushed, production activation must use a
-**separate reviewed production activation runner** pinned to the exact 27R commit.
-
-Because v0.27 does not change Firestore Rules, the production activation stage should
-treat Hosting as the intended changed deployment surface and independently verify that
-the active Rules source still matches the canonical unchanged SHA before and after
-activation.
+Detailed production evidence is archived in `docs/07_HISTORY/V0270_PRODUCTION_RELEASE.md`.

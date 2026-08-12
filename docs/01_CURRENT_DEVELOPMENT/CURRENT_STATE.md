@@ -1,14 +1,14 @@
 # Champions Legacy Challenge — Current State
 
-<!-- RELEASE_STATUS: RELEASED -->
-Source version: 0.27.0 development
-Production version: 0.26.0
-Last updated: 11 August 2026
-Status: v0.27 27R release freeze verified; 27G manual authenticated visual acceptance: PASSED; production activation pending
+<!-- RELEASE_STATUS: VERIFIED_PRODUCTION -->
+Source version: 0.27.0 release finalised
+Production version: 0.27.0
+Last updated: 12 August 2026
+Status: v0.27.0 verified production release
 
 ## Production baseline
 
-v0.26.0 is live and verified on Firebase Hosting. The exact deployed/tagged source is `c057fca0598fe4a07ff101ea13808f1da8918aa8`; Firestore Rules SHA-256 is `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e`. The later documentation-finalisation commit is `fc3a93d1b2702ab8672ce89ec9966024564c9282`.
+v0.27.0 is live and verified on Firebase Hosting. The exact deployed/tagged source is `701b58df40eedab39c8f7fe5d4b2ea95efd11ba5`; live/local `index.html` SHA-256 is `37d1dcf890f8836b17cfe128219fe8313ff0e15520d43547379cfe61007fac38`; Firestore Rules were not redeployed and remain SHA-256 `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e`. Production release evidence is recorded in `docs/07_HISTORY/V0270_PRODUCTION_RELEASE.md`.
 
 ## v0.25.0 development scope
 
@@ -256,17 +256,23 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - preserve scoring, competition, Firebase behavior and Firestore Rules;
 - authenticated manual matrix accepted on 11 August 2026; 27G is complete.
 
-#### Checkpoint 27R — release freeze — VERIFIED / ACTIVATION PENDING
-- freeze accepted runtime/application source at `ad92777cfa86481002639297ce8c7dce69b0e269`;
-- require the full 188-test application/build/27G acceptance gate;
-- pin unchanged Firestore Rules SHA-256 `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e`;
-- do not rerun the Rules emulator suite unless the Rules hash unexpectedly changes;
-- permit only release documentation/tooling and the manual-acceptance status regression to differ from the accepted 27G runtime baseline;
-- keep production deployment/finalisation scripts blocked;
-- perform no Firebase deployment.
+#### Checkpoint 27R — release freeze — COMPLETE
+- frozen accepted runtime/application source: `ad92777cfa86481002639297ce8c7dce69b0e269`;
+- exact release/deployed commit: `701b58df40eedab39c8f7fe5d4b2ea95efd11ba5`;
+- 188/188 application tests, production build, 27G acceptance and 27R verifier passed;
+- Firestore Rules remained byte-for-byte unchanged at SHA-256 `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e`.
+
+#### v0.27.0 production activation — COMPLETE
+- Hosting target `app` deployed successfully to `champions-legacy-challenge`;
+- preview and live integrity verification both passed 10/10 SPA routes, 25/25 referenced assets and 4/4 security headers;
+- live/local `index.html` SHA-256 matched `37d1dcf890f8836b17cfe128219fe8313ff0e15520d43547379cfe61007fac38`;
+- Firestore Rules were not deployed;
+- final local post-live verification passed with a clean tree;
+- authenticated production smoke accepted on 12 August 2026;
+- tag `v0.27.0` points to exact deployed commit `701b58df40eedab39c8f7fe5d4b2ea95efd11ba5`.
 
 ### Next action
-Use a separate reviewed production activation runner pinned to the exact committed 27R release-freeze commit.
+Begin v0.28.0 complete league-season rehearsal from the finalised v0.27.0 production baseline.
 
 ## Responsive development boundary
 
@@ -274,4 +280,4 @@ Use a separate reviewed production activation runner pinned to the exact committ
 
 ## Production boundary
 
-v0.26.0 production activation is complete and verified. Development-repository production deployment scripts remain blocked; v0.27 production still requires its own dedicated reviewed release stage.
+v0.27.0 production activation, automated live verification and authenticated production smoke are complete. Development-repository production deployment scripts remain blocked; every later production change still requires its own dedicated reviewed release stage.
