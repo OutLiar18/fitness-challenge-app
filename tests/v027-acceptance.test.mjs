@@ -36,8 +36,8 @@ test("27G acceptance verifies performance, responsiveness, interaction and contr
   assert.match(acceptance, /checkContrast/);
 });
 
-test("27G documentation does not pretend automated checks replace manual visual acceptance", () => {
-  assert.match(state, /manual authenticated visual acceptance remains/);
+test("27G documentation records completed manual visual acceptance before 27R", () => {
+  assert.match(state, /27G manual authenticated visual acceptance: PASSED/);
   assert.match(state, /Production version: 0\.26\.0/);
 });
 

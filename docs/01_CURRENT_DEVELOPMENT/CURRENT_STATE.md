@@ -4,7 +4,7 @@
 Source version: 0.27.0 development
 Production version: 0.26.0
 Last updated: 11 August 2026
-Status: v0.27 27G manual-acceptance findings remediated; manual authenticated visual acceptance remains before 27R
+Status: v0.27 27R release freeze verified; 27G manual authenticated visual acceptance: PASSED; production activation pending
 
 ## Production baseline
 
@@ -246,7 +246,7 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - generate an automated acceptance report from the actual production build;
 - keep Firestore Rules byte-for-byte unchanged and perform no Firebase deployment.
 
-#### 27G manual acceptance remediation — IMPLEMENTED / RECHECK REQUIRED
+#### 27G manual acceptance remediation — COMPLETE / ACCEPTED
 - strengthen the shared light/dark palette from muted burgundy/pink-red to a higher-contrast saturated crimson + near-black Champions Legacy identity;
 - replace the Dashboard Welcome Card's remaining legacy blue gradient and blue transmission surface with the crimson-black warrior treatment;
 - replace the authentication hero's retired blue gradient with the same crimson-black warrior identity;
@@ -254,14 +254,23 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - preserve scroll position when only URL query-string workspace/tab state changes while retaining top reset for real pathname/page navigation;
 - add regression coverage for the Welcome Card palette and same-page URL-tab scrolling contract;
 - preserve scoring, competition, Firebase behavior and Firestore Rules;
-- rerun the authenticated manual matrix before 27R.
+- authenticated manual matrix accepted on 11 August 2026; 27G is complete.
+
+#### Checkpoint 27R — release freeze — VERIFIED / ACTIVATION PENDING
+- freeze accepted runtime/application source at `ad92777cfa86481002639297ce8c7dce69b0e269`;
+- require the full 188-test application/build/27G acceptance gate;
+- pin unchanged Firestore Rules SHA-256 `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e`;
+- do not rerun the Rules emulator suite unless the Rules hash unexpectedly changes;
+- permit only release documentation/tooling and the manual-acceptance status regression to differ from the accepted 27G runtime baseline;
+- keep production deployment/finalisation scripts blocked;
+- perform no Firebase deployment.
 
 ### Next action
-Rerun the authenticated 27G acceptance matrix after the manual-findings remediation, with particular attention to the stronger crimson/black palette, Dashboard Welcome Card, authentication hero, Daily Progress fill, and same-page URL-backed tabs preserving scroll position. If the matrix passes, proceed directly to 27R.
+Use a separate reviewed production activation runner pinned to the exact committed 27R release-freeze commit.
 
 ## Responsive development boundary
 
-27G is the active dedicated mobile/tablet/desktop acceptance stage. Responsive acceptance is no longer deferred.
+27G responsive/accessibility acceptance is complete and accepted. 27R freezes that accepted presentation/runtime source.
 
 ## Production boundary
 

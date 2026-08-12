@@ -2,6 +2,8 @@
 
 Date: 11 August 2026
 Checkpoint: 27G
+Manual acceptance status: **PASS**
+27G accepted on 11 August 2026 after authenticated visual verification.
 
 ## Purpose
 
@@ -153,7 +155,7 @@ The remediation:
 - resets scroll only on pathname changes and leaves query-string workspace/tab changes at the user's current scroll position;
 - adds regression tests for the visual identity closeout and same-page scroll preservation.
 
-No scoring, competition rules, evidence, authority, Firebase data behavior or Firestore Rules are changed. The authenticated manual matrix must be rerun once before 27R.
+No scoring, competition rules, evidence, authority, Firebase data behavior or Firestore Rules are changed. The authenticated manual matrix was rerun and accepted on 11 August 2026; 27G is complete.
 
 ## Release boundary
 

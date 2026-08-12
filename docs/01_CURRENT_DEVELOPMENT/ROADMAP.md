@@ -207,7 +207,7 @@ Five Fires and Buddy Bonuses are intentionally removed from the pre-v1.0 roadmap
 - preserve admin authority, scoring models, Pocket/account semantics and Firestore Rules;
 - add persistent 27F regression coverage and perform no Firebase deployment.
 
-### 27G — Performance + full acceptance — MANUAL FINDINGS REMEDIATED / RECHECK PENDING
+### 27G — Performance + full acceptance — COMPLETE / ACCEPTED
 - partition the existing Firebase manual group using Rolldown's size-based splitting rather than a Firebase architecture rewrite;
 - preserve Firebase modular imports and route-level lazy loading;
 - persist build-budget, 320px, focus, reduced-motion, contrast, tab/dialog semantics and no-native-confirm checks in `npm run check`;
@@ -218,12 +218,14 @@ Five Fires and Buddy Bonuses are intentionally removed from the pre-v1.0 roadmap
 - keep Firestore Rules unchanged and perform no Firebase deployment.
 
 - manual review and direct source audit found and remediated five bounded defects before 27R: muted red/black presentation, the Dashboard Welcome Card's legacy blue styling, query-string workspace/tab changes incorrectly resetting page scroll, the authentication hero's retired blue branding, and Daily Progress's red-to-blue fill;
-### 27R — Release freeze
-- full application regression;
-- Rules regression only if Rules unexpectedly change;
-- production build;
-- responsive/accessibility acceptance;
-- controlled release activation.
+### 27R — Release freeze — VERIFIED / ACTIVATION PENDING
+- freeze accepted 27G runtime/application source at `ad92777cfa86481002639297ce8c7dce69b0e269`;
+- require the full 188-test application regression, production build and 27G automated acceptance;
+- verify the unchanged Firestore Rules SHA and run Rules regression only if that hash unexpectedly changes;
+- record completed responsive/accessibility/manual acceptance;
+- keep development production/finalisation scripts blocked;
+- perform no Firebase deployment in 27R;
+- use a separate reviewed runner for controlled production activation.
 
 Responsive behaviour remains a requirement throughout v0.27.
 

@@ -41,7 +41,7 @@ League Administrators may submit reasoned bonus requests only for active players
 
 ## Responsive boundary
 
-27G is the dedicated mobile/tablet/desktop acceptance stage. Manual authenticated visual review is now required rather than deferred, and 27R remains blocked until it passes.
+27G mobile/tablet/desktop and authenticated visual acceptance has passed and was explicitly accepted on 11 August 2026. 27R is now the active release-freeze stage.
 
 ## Verified v0.25.0 production baseline
 
@@ -120,4 +120,4 @@ Production activation completed successfully from `c057fca0598fe4a07ff101ea13808
 
 ## Checkpoint 27G automated performance/acceptance gate
 
-27G keeps Firebase's modular SDK and route-level lazy loading, but stops forcing the entire Firebase SDK into one oversized manual chunk by adding a Rolldown max-size target. The normal application check now enforces bundle and accessibility/responsive foundations and generates an automated report. This is deliberately not labelled full visual acceptance: protected authenticated layouts, keyboard/screen-reader behavior and real light/dark/reduced-motion states still require the manual matrix in `V027_PERFORMANCE_ACCEPTANCE.md` before 27R.
+27G keeps Firebase's modular SDK and route-level lazy loading, but stops forcing the entire Firebase SDK into one oversized manual chunk by adding a Rolldown max-size target. The normal application check now enforces bundle and accessibility/responsive foundations and generates an automated report. The authenticated manual matrix in `V027_PERFORMANCE_ACCEPTANCE.md` has now been accepted. Continue only with the 27R release freeze and then a separate reviewed production activation; do not reopen broad v0.27 visual work.
