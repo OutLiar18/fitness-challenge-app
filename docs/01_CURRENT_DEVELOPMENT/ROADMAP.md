@@ -236,48 +236,55 @@ Five Fires and Buddy Bonuses are intentionally removed from the pre-v1.0 roadmap
 
 Responsive behaviour remains a requirement throughout later development.
 
-## v0.28.0 — Complete league-season rehearsal
+## v0.28.0 — Full page-by-page inspection and change pass
 
-### 28A — Rehearsal contract + gap inventory — COMPLETE
-- create `development/v0.28.0` from the finalised v0.27.0 documentation state;
-- keep the deployed/tagged v0.27.0 source immutable;
-- define one canonical synthetic multi-week season;
-- map registration, C.H.A.O.S., Houses, leadership, Pocket Week, evidence, corrections, roster movement, Power Plays, bonuses, weekly balance, trusted reconciliation, publication, honours and account deletion into one chronological rehearsal;
-- define adversarial Firestore Rules and recovery-runbook cases;
-- prohibit production rehearsal data and Firebase deployment;
-- record the complete matrix in `V028_REHEARSAL_PLAN.md`.
+### 28A — initial rehearsal contract — COMPLETE / DEFERRED
+- original rehearsal-planning work completed as documentation only;
+- full rehearsal scope deferred out of v0.28;
+- no runtime/application/Rules changes were made by that planning checkpoint.
 
-### 28B — Local rehearsal environment + deterministic happy path
-- advance package version to 0.28.0;
-- establish fail-closed test/emulator rehearsal plumbing;
-- build one deterministic season harness covering draft/registration through baseline active-season operation;
-- prove House setup, C.H.A.O.S., leadership and Pocket Week in the same coherent fixture;
-- preserve production Firebase and Rules.
+### 28B — scope reset to page inspection — COMPLETE
+- confirms v0.28.0 is the owner-led page inspection/change version;
+- creates `V028_PAGE_INSPECTION_PLAN.md`;
+- moves complete season rehearsal planning to `V030_REHEARSAL_PLAN.md`;
+- keeps production/Firebase/Rules behavior unchanged.
 
-### 28C — Adversarial weekly operations
-- rehearse evidence decisions/expiry/reversal, factual corrections and integrity chains;
-- rehearse roster movement plus one-week post-move stability;
-- rehearse no-repeat Power Plays and contribution multipliers;
-- rehearse League Administrator bonus requests, Platform Administrator awards/review/corrections and historical House attribution;
-- rehearse private-safe weekly House balance output;
-- repair only integration defects exposed by the rehearsal.
+### 28C — page inspection findings capture
+- inspect the app page by page;
+- record desired visual, wording, workflow and functional changes;
+- prioritise changes as mandatory/recommended/optional.
 
-### 28D — Trusted closeout + recovery + Rules acceptance
-- trusted-reconcile the complete synthetic ledger;
-- publish final standings and honours;
-- rehearse trusted account deletion/recovery effects on historical competition facts;
-- run the full Firestore Rules emulator gate plus focused adversarial additions if gaps are found;
-- produce the permanent recovery runbook;
-- complete manual local UI rehearsal without production competition data.
+### 28D — grouped implementation pass
+- implement the accepted v0.28 page changes in sensible groups;
+- preserve responsiveness and existing production boundaries;
+- add/update focused tests where needed.
 
-### 28R — Release freeze
-- full application and Rules regression;
-- production build and retained v0.27 UX/performance acceptance guard;
-- v0.28 season-rehearsal acceptance report;
-- final recovery/release checklist;
-- dedicated production activation only after the freeze passes.
+### 28R — release freeze
+- full application regression;
+- production build verification;
+- confirm page-inspection acceptance closure.
 
-Only after this may the project become a v1.0 candidate, and only with explicit approval.
+## v0.29.0 — Friend / external feedback pass
+- let an external user/friend review the app;
+- sort feedback into accept / modify / reject;
+- implement accepted changes;
+- freeze only after the feedback pass is integrated.
+
+## v0.30.0 — Complete league-season rehearsal
+- safe local/emulator rehearsal environment;
+- canonical synthetic season;
+- deterministic happy path;
+- adversarial weekly operations;
+- trusted closeout, recovery and rehearsal acceptance;
+- release freeze only after the complete-season rehearsal passes.
+
+## v0.31.0 — Cleanup, polish and hardening
+- remove awkward or stale code paths;
+- fix small inconsistencies exposed by earlier versions;
+- improve polish, accessibility, performance and documentation;
+- rerun relevant rehearsal coverage if any late change touches season-critical logic.
+
+Only after v0.30.0 rehearsal and v0.31.0 cleanup should the project even be considered for a v1.0 candidate, and only with explicit approval.
 
 ## Confirmed inactive/rejected mechanics
 - Diamonds, player prices and the old transfer-market model remain rejected.

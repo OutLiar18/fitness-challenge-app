@@ -4,7 +4,7 @@
 Source version: 0.28.0 development
 Production version: 0.27.0
 Last updated: 12 August 2026
-Status: v0.28 complete league-season rehearsal active after 28A contract
+Status: v0.28 page inspection and change pass active; full season rehearsal deferred to v0.30.0
 
 ## Production baseline
 
@@ -271,18 +271,22 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - authenticated production smoke accepted on 12 August 2026;
 - tag `v0.27.0` points to exact deployed commit `701b58df40eedab39c8f7fe5d4b2ea95efd11ba5`.
 
-### v0.28.0 — complete league-season rehearsal
-#### Checkpoint 28A — rehearsal contract + gap inventory — COMPLETE
-- branch from finalised v0.27.0 documentation state without modifying the deployed/tagged v0.27 source;
-- define one canonical synthetic season spanning registration through completion;
-- map registration, C.H.A.O.S., leadership, Pocket Week, evidence, corrections, roster movement, Power Plays, bonuses, House balancing, trusted reconciliation, publication, honours and account deletion into one chronological rehearsal;
-- define adversarial Firestore Rules and recovery-runbook coverage;
-- prohibit production rehearsal data and Firebase deployment;
-- keep Firestore Rules and application behavior unchanged;
-- record the detailed plan in `V028_REHEARSAL_PLAN.md`.
+### v0.28.0 — page inspection and change pass
+#### Checkpoint 28A — initial rehearsal contract — COMPLETE / DEFERRED
+- the original 28A planning work was documentation-only and changed no application behavior;
+- that rehearsal scope is no longer active v0.28 work;
+- the full rehearsal plan is moved forward to `V030_REHEARSAL_PLAN.md`.
+
+#### Checkpoint 28B — scope reset to page inspection — COMPLETE
+- confirms that v0.28.0 is the owner-led page-by-page inspection and change pass;
+- creates `V028_PAGE_INSPECTION_PLAN.md` as the active working checklist;
+- defers the complete league-season rehearsal to v0.30.0;
+- places friend/external feedback work in v0.29.0;
+- places cleanup/polish/hardening work in v0.31.0;
+- keeps Firestore Rules, Firebase deployment surface and application runtime behavior unchanged.
 
 ### Next action
-Checkpoint 28B: establish a fail-closed local rehearsal environment and one deterministic happy-path season harness. Advance the application package to 0.28.0 there, not in documentation-only 28A.
+Begin the v0.28 page inspection pass. Review pages/workspaces in order, record accepted changes in `V028_PAGE_INSPECTION_PLAN.md`, and only then group the implementation work into normal v0.28 checkpoints.
 
 ## Responsive development boundary
 

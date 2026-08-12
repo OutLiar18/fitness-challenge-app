@@ -6,7 +6,7 @@ Current production: v0.27.0
 
 ## First action
 
-Continue from completed 28A on `development/v0.28.0`. Implement 28B: establish a clearly test-only, fail-closed local rehearsal environment and the first chronological deterministic season harness. The harness should cover draft/registration, House setup, C.H.A.O.S., leadership, Pocket Week and baseline active-season contributions before later adversarial weekly operations. Keep v0.27.0 immutable and do not write rehearsal data to production Firebase.
+Continue from completed 28B scope-reset planning on `development/v0.28.0`. Start the page-by-page inspection pass for v0.28.0. Review the app in order, capture what should change, and use `V028_PAGE_INSPECTION_PLAN.md` as the active checklist before implementation checkpoints are created.
 
 ## v0.25.0 order
 
@@ -122,6 +122,14 @@ Production activation completed successfully from `c057fca0598fe4a07ff101ea13808
 
 27G keeps Firebase's modular SDK and route-level lazy loading, but stops forcing the entire Firebase SDK into one oversized manual chunk by adding a Rolldown max-size target. The normal application check now enforces bundle and accessibility/responsive foundations and generates an automated report. The authenticated manual matrix in `V027_PERFORMANCE_ACCEPTANCE.md` has now been accepted. v0.27.0 is finalised and tagged at its exact deployed source. Do not reopen broad v0.27 visual work; continue with the planned v0.28.0 complete league-season rehearsal.
 
-## Checkpoint 28A rehearsal contract
+## v0.28 page inspection direction
 
-28A is documentation/audit only. `V028_REHEARSAL_PLAN.md` defines one canonical synthetic multi-week season, the full lifecycle matrix, adversarial Rules cases, recovery-runbook scenarios and the compact implementation order 28B → 28C → 28D → 28R. The main integration gap is that existing unit/domain coverage does not yet prove one chronological season across all competition systems. A second gap is safe manual rehearsal infrastructure: 28B must create a local/test-only path that cannot silently target production.
+The original 28A rehearsal-contract work stays in Git history, but it is no longer the active v0.28 scope. The complete season rehearsal is deferred to v0.30.0.
+
+For v0.28, inspect the live product page by page, record findings, decide which changes are mandatory/recommended/optional, and then group accepted changes into implementation checkpoints. Use `V028_PAGE_INSPECTION_PLAN.md` as the working inspection order and checklist.
+
+The intended pre-v1.0 order is now:
+- v0.28.0: page inspection and owner-requested changes;
+- v0.29.0: friend/external feedback pass;
+- v0.30.0: complete league-season rehearsal;
+- v0.31.0: cleanup, polish and hardening.
