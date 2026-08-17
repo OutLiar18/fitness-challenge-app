@@ -249,15 +249,27 @@ Responsive behaviour remains a requirement throughout later development.
 - moves complete season rehearsal planning to `V030_REHEARSAL_PLAN.md`;
 - keeps production/Firebase/Rules behavior unchanged.
 
-### 28C — page inspection findings capture
-- inspect the app page by page;
-- record desired visual, wording, workflow and functional changes;
-- prioritise changes as mandatory/recommended/optional.
+### 28C — first page inspection findings capture — COMPLETE
+- Global/Home/Navigation/Log Activity/Progress review captured;
+- inspection intentionally paused before the remaining pages to control backlog size;
+- detailed requirements recorded in `V028_INSPECTION_FINDINGS.md`;
+- theme-reactive assets and future MBTI-aware identity/motivation direction preserved.
 
-### 28D — grouped implementation pass
-- implement the accepted v0.28 page changes in sensible groups;
-- preserve responsiveness and existing production boundaries;
-- add/update focused tests where needed.
+### 28D1 — shared interaction + Home + Navigation + Log Activity
+- add a reusable theme-aware interactive treatment for buttons/tabs;
+- implement accepted Home/Dashboard changes;
+- implement desktop/mobile Navigation changes;
+- implement Today/Yesterday logging and the accepted Log Activity presentation/copy changes;
+- fix the Dashboard Legacy Profile avatar;
+- defer final logo/favicon artwork.
+
+### 28D2 — Progress and progression expansion
+- clean the desktop Progress layout and tab presentation;
+- greatly expand easy-to-track achievements with visible/hidden support;
+- add category-specific milestone ladders and difficulty-scaled achievement XP;
+- expand levels with a progressively harder curve targeting roughly ten years of consistent use to reach the top;
+- add scalable level titles and in-progress-first achievement presentation;
+- preserve responsive/mobile quality.
 
 ### 28R — release freeze
 - full application regression;

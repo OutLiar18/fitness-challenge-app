@@ -132,3 +132,19 @@ For each page:
 - v0.29.0: friend/external feedback pass and resulting changes.
 - v0.30.0: complete league-season rehearsal.
 - v0.31.0: cleanup, polish and hardening after rehearsal.
+
+## First inspection pause — 28C
+
+Reviewed and captured:
+- Global/shared brand and theme interaction direction;
+- Home / Dashboard;
+- Navigation;
+- Log Activity;
+- Progress.
+
+Detailed findings: `V028_INSPECTION_FINDINGS.md`.
+
+The inspection is paused here while 28D1 and 28D2 implement the accepted changes. After
+those changes are reviewed, continue with Seasons, Houses, Inbox, Analytics, Pocket
+Week, Legacy Coach, Challenge Rulebook, Points Guide, Help/Privacy, Administration and
+Profile.

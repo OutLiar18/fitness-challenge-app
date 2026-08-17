@@ -285,8 +285,17 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - places cleanup/polish/hardening work in v0.31.0;
 - keeps Firestore Rules, Firebase deployment surface and application runtime behavior unchanged.
 
+#### Checkpoint 28C — first page inspection findings capture — COMPLETE
+- pause the inspection after Global/Home/Navigation/Log Activity/Progress to avoid building an oversized backlog;
+- record the detailed owner-requested changes in `V028_INSPECTION_FINDINGS.md`;
+- preserve the theme-reactive asset rule and future MBTI-dependent brand treatment;
+- define 28D1 for shared interaction/Home/Navigation/Log Activity;
+- define 28D2 for Progress cleanup plus achievements/levels expansion;
+- keep final logo/favicon artwork deferred until the logo/identity assets are decided;
+- keep Firestore Rules and production Firebase untouched.
+
 ### Next action
-Begin the v0.28 page inspection pass. Review pages/workspaces in order, record accepted changes in `V028_PAGE_INSPECTION_PLAN.md`, and only then group the implementation work into normal v0.28 checkpoints.
+Checkpoint 28D1: implement the shared interaction treatment plus accepted Home, Navigation and Log Activity changes. Then implement 28D2 Progress/progression expansion before resuming inspection of the remaining pages.
 
 ## Responsive development boundary
 

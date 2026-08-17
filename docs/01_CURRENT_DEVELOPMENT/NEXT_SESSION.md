@@ -6,7 +6,7 @@ Current production: v0.27.0
 
 ## First action
 
-Continue from completed 28B scope-reset planning on `development/v0.28.0`. Start the page-by-page inspection pass for v0.28.0. Review the app in order, capture what should change, and use `V028_PAGE_INSPECTION_PLAN.md` as the active checklist before implementation checkpoints are created.
+Continue from completed 28C findings capture on `development/v0.28.0`. Implement 28D1 first: shared theme-aware interaction affordances, Home/Dashboard changes, Navigation cleanup and Log Activity changes recorded in `V028_INSPECTION_FINDINGS.md`. Follow with 28D2 for Progress, achievements and the long-term XP/level redesign before resuming the remaining page inspection.
 
 ## v0.25.0 order
 
