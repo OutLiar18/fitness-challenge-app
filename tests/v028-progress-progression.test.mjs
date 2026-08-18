@@ -33,19 +33,20 @@ test("28D2 uses one next visible milestone per achievement family", () => {
   assert.match(achievementService, /progressPercentage/);
 });
 
-test("28D2 level journey has a capped 100-level long-term curve", () => {
+test("28D2 level journey keeps the 100-level long-term curve but only reveals unlocked titles", () => {
   assert.match(progression, /maxLevel: 100/);
   assert.match(progression, /targetYears: 10/);
   assert.match(xpService, /getTotalXpRequiredForLevel/);
-  assert.match(progress, /LEVEL_CONFIGURATION\.maxLevel/);
+  assert.match(progress, /filter\(\(item\) => item\.minimumLevel <= unlockedLevel\)/);
+  assert.doesNotMatch(progress, /LEVEL_CONFIGURATION\.maxLevel/);
+  assert.doesNotMatch(progress, /getTotalXpRequiredForLevel/);
 });
 
-test("28D2 cleans desktop Progress tabs without regressing mobile select navigation", () => {
-  assert.match(
-    progressCss,
-    /\.progress-page \.workspace-switcher__tabs \{[\s\S]*repeat\(5, minmax\(0, 1fr\)\)/,
-  );
-  assert.match(progressCss, /@media \(max-width: 1180px\)/);
-  assert.match(progressCss, /@media \(max-width: 900px\)/);
-  assert.match(progressCss, /var\(--interactive-glow\)/);
+test("28D2A refines the hero copy, removes analytics CTA and simplifies tab chrome", () => {
+  assert.match(progress, /Every honest entry adds iron to your record/);
+  assert.doesNotMatch(progress, /View analytics/);
+  assert.doesNotMatch(progress, /badge:/);
+  assert.match(progressCss, /\.progress-page \.workspace-tab__copy \{[\s\S]*position: absolute/);
+  assert.match(progressCss, /\.progress-page \.workspace-tab__badge \{[\s\S]*display: none/);
+  assert.match(progressCss, /\.progress-hero__level-ring/);
 });

@@ -8,7 +8,6 @@ import WorkspaceTabs, {
 import PageHeader from "../components/layout/PageHeader";
 import ProgressTimeline from "../components/progression/ProgressTimeline";
 import { LEVEL_CONFIGURATION } from "../constants/progression";
-import { getTotalXpRequiredForLevel } from "../services/progression/xpService";
 import usePlayerData from "../hooks/usePlayerData";
 import {
   formatExperiencePoints,
@@ -25,31 +24,26 @@ const PROGRESS_TABS = Object.freeze([
     id: "overview",
     label: "Overview",
     icon: "🧭",
-    description: "Levels, streaks and goal history",
   },
   {
     id: "achievements",
     label: "Achievements",
     icon: "🏅",
-    description: "Unlocked milestones and what comes next",
   },
   {
     id: "records",
     label: "Records",
     icon: "🏆",
-    description: "Your strongest factual results",
   },
   {
     id: "timeline",
     label: "Timeline",
     icon: "🗓️",
-    description: "A chronological view of progress",
   },
   {
     id: "levels",
     label: "Level journey",
     icon: "⚡",
-    description: "Titles already earned and still ahead",
   },
 ]);
 
@@ -180,6 +174,14 @@ export default function Progress() {
   const activeTab = PROGRESS_TABS.some((tab) => tab.id === requestedTab)
     ? requestedTab
     : "overview";
+  const unlockedLevel = progression?.xp?.level ?? 0;
+  const levelJourney = useMemo(
+    () =>
+      [...LEVEL_CONFIGURATION.titles]
+        .filter((item) => item.minimumLevel <= unlockedLevel)
+        .sort((first, second) => first.minimumLevel - second.minimumLevel),
+    [unlockedLevel],
+  );
 
   function setProgressTab(tabId) {
     const next = new URLSearchParams(searchParams);
@@ -187,13 +189,6 @@ export default function Progress() {
     else next.set("tab", tabId);
     setSearchParams(next, { replace: true });
   }
-  const levelJourney = useMemo(
-    () =>
-      [...LEVEL_CONFIGURATION.titles].sort(
-        (first, second) => first.minimumLevel - second.minimumLevel,
-      ),
-    [],
-  );
 
   const displayName =
     profile?.displayName ||
@@ -215,37 +210,15 @@ export default function Progress() {
     0,
     (achievements.hiddenTotal ?? 0) - (achievements.hiddenUnlockedCount ?? 0),
   );
-  const progressTabs = PROGRESS_TABS.map((tab) => {
-    if (tab.id === "achievements") {
-      return {
-        ...tab,
-        badge: `${achievements.unlockedCount}/${achievements.total}`,
-      };
-    }
-
-    if (tab.id === "records") {
-      return { ...tab, badge: personalRecords.length };
-    }
-
-    if (tab.id === "timeline") {
-      return { ...tab, badge: timeline?.count ?? 0 };
-    }
-
-    return tab;
-  });
+  const ringPercentage = xp.maximumLevel ? 100 : Math.max(0, Math.min(100, xp.percentage));
 
   return (
     <div className="progress-page page-stack">
       <PageHeader
         eyebrow="Personal progression"
         title={`${displayName}'s progress`}
-        description="Experience points, streaks, achievements and records are derived from factual activity history—not stored as mysterious hidden scores."
+        description="Every honest entry adds iron to your record. Guard the streak, claim the milestones and keep forging the champion you were meant to become."
         icon="📈"
-        actions={
-          <Link className="button button--secondary" to="/analytics">
-            View analytics
-          </Link>
-        }
       />
 
       <section className="progress-hero card">
@@ -260,19 +233,20 @@ export default function Progress() {
           </p>
         </div>
 
-        <div
-          className="progress-hero__level"
-          aria-label={`Personal level ${xp.level}`}
-        >
-          <span>Level</span>
-          <strong>{xp.level}</strong>
-          <small>
-            {xp.maximumLevel
-              ? "Maximum level reached"
-              : `of ${LEVEL_CONFIGURATION.maxLevel} · ${formatExperiencePoints(
-                  xp.totalXp,
-                )} total`}
-          </small>
+        <div className="progress-hero__level-wrap">
+          <div
+            className="progress-hero__level-ring"
+            style={{ "--progress-angle": `${ringPercentage * 3.6}deg` }}
+            aria-hidden="true"
+          />
+          <div
+            className="progress-hero__level"
+            aria-label={`Current level ${xp.level}${xp.maximumLevel ? "" : `, ${xp.percentage}% to the next level`}`}
+          >
+            <span>Current level</span>
+            <strong>{xp.level}</strong>
+            <small>{xp.maximumLevel ? "Current peak" : `${xp.percentage}% to next`}</small>
+          </div>
         </div>
       </section>
 
@@ -298,7 +272,7 @@ export default function Progress() {
       <WorkspaceTabs
         idPrefix="progress"
         label="Progress sections"
-        tabs={progressTabs}
+        tabs={PROGRESS_TABS}
         activeId={activeTab}
         onChange={setProgressTab}
       />
@@ -309,7 +283,7 @@ export default function Progress() {
             <div className="progress-section__header">
               <div>
                 <p className="progress-eyebrow">Experience</p>
-                <h2 id="experience-title">Level {xp.level} progress</h2>
+                <h2 id="experience-title">Level progress</h2>
               </div>
               <strong>{xp.percentage}%</strong>
             </div>
@@ -338,7 +312,7 @@ export default function Progress() {
 
             <p className="progress-muted">
               {xp.maximumLevel ? (
-                <strong>Maximum level achieved.</strong>
+                <strong>Current peak achieved.</strong>
               ) : (
                 <>
                   <strong>{formatExperiencePoints(xp.xpToNextLevel)}</strong>{" "}
@@ -603,43 +577,26 @@ export default function Progress() {
           <div className="progress-section__header">
             <div>
               <p className="progress-eyebrow">Level journey</p>
-              <h2 id="level-journey-title">Personal titles</h2>
+              <h2 id="level-journey-title">Unlocked titles</h2>
             </div>
-            <span className="progress-section__count">
-              Level {xp.level} of {LEVEL_CONFIGURATION.maxLevel}
-            </span>
           </div>
-          <p className="level-journey__intro">
-            Level {LEVEL_CONFIGURATION.maxLevel} is tuned as a long-term consistency
-            target. It unlocks at{" "}
-            <strong>
-              {formatExperiencePoints(
-                getTotalXpRequiredForLevel(LEVEL_CONFIGURATION.maxLevel),
-              )}
-            </strong>
-            ; XP earned after that still remains in your lifetime total.
-          </p>
 
           <ol className="level-journey">
             {levelJourney.map((item) => {
-              const unlocked = xp.level >= item.minimumLevel;
               const current = item.title === xp.title;
 
               return (
                 <li
                   key={item.minimumLevel}
-                  className={`level-journey__item${
-                    unlocked ? " level-journey__item--unlocked" : ""
-                  }${current ? " level-journey__item--current" : ""}`}
+                  className={`level-journey__item level-journey__item--unlocked${
+                    current ? " level-journey__item--current" : ""
+                  }`}
                 >
-                  <span>{unlocked ? "✓" : item.minimumLevel}</span>
+                  <span>{current ? "★" : "✓"}</span>
                   <div>
                     <strong>{item.title}</strong>
                     <small>
-                      Level {item.minimumLevel} ·{" "}
-                      {formatExperiencePoints(
-                        getTotalXpRequiredForLevel(item.minimumLevel),
-                      )}
+                      Unlocked at Level {item.minimumLevel}
                       {current ? " · Current title" : ""}
                     </small>
                   </div>
