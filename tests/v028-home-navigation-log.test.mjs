@@ -14,10 +14,11 @@ const shellCss = read("src/components/layout/AppShell.css");
 const navigation = read("src/constants/navigation.js");
 const activity = read("src/pages/ActivityLog.jsx");
 const activityCss = read("src/pages/ActivityLog.css");
+const categoryGrid = read("src/components/categories/CategoryGrid.jsx");
+const categoryGridCss = read("src/components/categories/CategoryGrid.css");
 const motivation = read("src/constants/motivation.js");
 const themeIcon = read("src/components/common/ThemeIcon.jsx");
 const indexCss = read("src/index.css");
-
 const packageJson = JSON.parse(read("package.json"));
 
 test("28D1 activates application package version 0.28.0", () => {
@@ -84,11 +85,19 @@ test("Log Activity lets players choose Today or Yesterday without visiting Journ
   assert.match(activity, /setSelectedDate=\{setSelectedDate\}/);
 });
 
-test("Log Activity combines the step guide with Action Centre and adds honest stronger copy", () => {
+test("Log Activity keeps honesty copy in the header and date controls inside the category picker", () => {
   assert.match(activity, /actions=\{\s*<ol className="activity-page__guide"/);
-  assert.match(activity, /You do the work\. Log it accurately\. Champions Legacy handles the maths\./);
-  assert.match(activity, /Keep the legend real\./);
+  assert.match(activity, /description=\{\s*<>[\s\S]*Keep the legend real\./);
+  assert.doesNotMatch(
+    activity,
+    /You do the work\. Log it accurately\. Champions Legacy handles the maths\./,
+  );
   assert.match(activity, /check with an administrator/i);
-  assert.match(activityCss, /\.activity-log-toolbar/);
+  assert.match(activity, /headerActions=\{/);
+  assert.doesNotMatch(activity, /activity-log-toolbar card/);
+  assert.match(categoryGrid, /headerActions = null/);
+  assert.match(categoryGrid, /category-picker__actions/);
+  assert.match(categoryGridCss, /\.category-picker__topline/);
+  assert.match(activityCss, /\.activity-log-date-tab/);
   assert.match(indexCss, /--interactive-glow/);
 });

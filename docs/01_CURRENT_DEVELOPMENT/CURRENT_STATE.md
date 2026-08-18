@@ -307,6 +307,7 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - desktop shell labels shorten to Streak / Level / Points and the brand is rendered as CHAMPIONS LEGACY CHALLENGE with theme accents;
 - mobile navigation exposes Seasons and Houses directly while Inbox remains available through More with attention state;
 - Log Activity exposes Today/Yesterday directly, moves the 1/2/3 guide into Action Centre, adds an honesty reminder and stronger explanatory copy;
+- 28D1A owner-review correction moves the compact Today/Yesterday controls into the Choose your focus / Log an activity card header and promotes the honesty reminder into the page header, removing the redundant standalone toolbar;
 - final logo artwork and MBTI-dependent favicon/logo remain deferred;
 - Firestore Rules are unchanged and no Firebase deployment occurs.
 

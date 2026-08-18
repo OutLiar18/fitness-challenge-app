@@ -317,7 +317,8 @@ Implemented outcome:
 - Dashboard uses the MBTI-aware PlayerAvatar;
 - Quick Actions, goal-period controls and XP progress have clearer affordances;
 - desktop/mobile shell changes and direct mobile competition access are implemented;
-- Log Activity now supports direct Today/Yesterday selection and the accepted Action Centre/copy cleanup.
+- Log Activity now supports direct Today/Yesterday selection and the accepted Action Centre/copy cleanup;
+- owner review then refined that layout: Today/Yesterday are compact controls inside the Choose your focus / Log an activity card header, while the Keep the legend real honesty reminder replaces the page-header explanatory copy.
 
 Explicitly deferred:
 - final logo artwork;

@@ -202,7 +202,14 @@ function ActivityLogWorkspace({
       <PageHeader
         eyebrow="Action centre"
         title="Log activity & review your journal"
-        description="You do the work. Log it accurately. Champions Legacy handles the maths."
+        description={
+          <>
+            <strong>Keep the legend real.</strong>{" "}
+            Log what actually happened — creative accounting belongs in fantasy
+            leagues. If you are unsure what counts, check with an administrator
+            before saving.
+          </>
+        }
         icon="✍️"
         actions={
           <ol className="activity-page__guide" aria-label="Activity logging steps">
@@ -231,53 +238,42 @@ function ActivityLogWorkspace({
       />
 
       <WorkspacePanel id="log" activeId={activeTab} idPrefix="activity">
-        <div className="activity-log-toolbar card">
-          <div className="activity-log-toolbar__date">
-            <span>Logging for</span>
-            <div
-              className="activity-log-date-tabs"
-              role="group"
-              aria-label="Choose activity date"
-            >
-              <button
-                type="button"
-                className={
-                  isToday(selectedDate)
-                    ? "activity-log-date-tab activity-log-date-tab--active"
-                    : "activity-log-date-tab"
-                }
-                aria-pressed={isToday(selectedDate)}
-                onClick={() => handleLogDateChange("today")}
-              >
-                Today
-              </button>
-              <button
-                type="button"
-                className={
-                  isYesterday(selectedDate)
-                    ? "activity-log-date-tab activity-log-date-tab--active"
-                    : "activity-log-date-tab"
-                }
-                aria-pressed={isYesterday(selectedDate)}
-                onClick={() => handleLogDateChange("yesterday")}
-              >
-                Yesterday
-              </button>
-            </div>
-          </div>
-
-          <p className="activity-log-toolbar__honesty">
-            <strong>Keep the legend real.</strong>{" "}
-            Log what actually happened — creative accounting belongs in fantasy
-            leagues. If you are unsure what counts, check with an administrator
-            before saving.
-          </p>
-        </div>
-
         <div className="activity-workspace">
           <CategoryGrid
             selected={categoryId}
             onSelect={handleCategorySelect}
+            headerActions={
+              <div
+                className="activity-log-date-tabs"
+                role="group"
+                aria-label="Choose activity date"
+              >
+                <button
+                  type="button"
+                  className={
+                    isToday(selectedDate)
+                      ? "activity-log-date-tab activity-log-date-tab--active"
+                      : "activity-log-date-tab"
+                  }
+                  aria-pressed={isToday(selectedDate)}
+                  onClick={() => handleLogDateChange("today")}
+                >
+                  Today
+                </button>
+                <button
+                  type="button"
+                  className={
+                    isYesterday(selectedDate)
+                      ? "activity-log-date-tab activity-log-date-tab--active"
+                      : "activity-log-date-tab"
+                  }
+                  aria-pressed={isYesterday(selectedDate)}
+                  onClick={() => handleLogDateChange("yesterday")}
+                >
+                  Yesterday
+                </button>
+              </div>
+            }
           />
           <EntryForm
             userId={user?.uid}

@@ -7,13 +7,19 @@ export default function CategoryGrid({
   eyebrow = "Choose your focus",
   title = "Log an activity",
   description = "Select a category, then record the work you completed.",
+  headerActions = null,
 }) {
   return (
     <section className="category-picker card" aria-labelledby="category-picker-title">
-      <div className="category-picker__header">
-        <p className="category-picker__eyebrow">{eyebrow}</p>
-        <h2 id="category-picker-title">{title}</h2>
-        <p>{description}</p>
+      <div className="category-picker__topline">
+        <div className="category-picker__header">
+          <p className="category-picker__eyebrow">{eyebrow}</p>
+          <h2 id="category-picker-title">{title}</h2>
+          <p>{description}</p>
+        </div>
+        {headerActions && (
+          <div className="category-picker__actions">{headerActions}</div>
+        )}
       </div>
 
       <div className="category-grid">
