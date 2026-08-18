@@ -34,10 +34,12 @@ test("Navigation paths and identifiers remain unique", () => {
 test("Mobile navigation is a focused subset of primary navigation", () => {
   const primaryIds = new Set(PRIMARY_NAV_ITEMS.map((item) => item.id));
 
-  assert.equal(MOBILE_NAV_ITEMS.length, 4);
+  assert.equal(MOBILE_NAV_ITEMS.length, 5);
   assert.ok(MOBILE_NAV_ITEMS.every((item) => primaryIds.has(item.id)));
   assert.ok(MOBILE_NAV_ITEMS.some((item) => item.id === "log"));
-  assert.ok(MOBILE_NAV_ITEMS.some((item) => item.id === "inbox"));
+  assert.ok(MOBILE_NAV_ITEMS.some((item) => item.id === "seasons"));
+  assert.ok(MOBILE_NAV_ITEMS.some((item) => item.id === "houses"));
+  assert.equal(MOBILE_NAV_ITEMS.some((item) => item.id === "inbox"), false);
   assert.equal(MOBILE_NAV_ITEMS.some((item) => item.id === "profile"), false);
 });
 

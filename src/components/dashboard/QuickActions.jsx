@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
 
+import ThemeIcon from "../common/ThemeIcon";
 import "./QuickActions.css";
 
 const ACTIONS = [
   {
     id: "log",
-    icon: "＋",
+    icon: "add",
     title: "Log activity",
     description: "Record the work while it is still fresh.",
     to: "/log",
@@ -13,14 +14,14 @@ const ACTIONS = [
   },
   {
     id: "progress",
-    icon: "↗",
+    icon: "progress",
     title: "Open progress",
     description: "Review records, experience points and achievements.",
     to: "/progress",
   },
   {
     id: "journal",
-    icon: "◉",
+    icon: "journal",
     title: "Open journal",
     description: "Review today’s entries and jump back to recorded days.",
     to: "/log?tab=journal",
@@ -49,7 +50,7 @@ export default function QuickActions() {
             to={action.to}
           >
             <span className="quick-action__icon" aria-hidden="true">
-              {action.icon}
+              <ThemeIcon name={action.icon} size={20} strokeWidth={2.2} />
             </span>
 
             <span>
@@ -57,9 +58,6 @@ export default function QuickActions() {
               <small>{action.description}</small>
             </span>
 
-            <span className="quick-action__arrow" aria-hidden="true">
-              →
-            </span>
           </Link>
         ))}
       </div>

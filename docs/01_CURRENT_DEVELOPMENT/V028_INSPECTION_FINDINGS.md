@@ -292,7 +292,7 @@ Do not let already-completed items dominate the player's current goals.
 
 ## Implementation grouping
 
-### Checkpoint 28D1 - shared interaction + Home + Navigation + Log Activity
+### Checkpoint 28D1 - shared interaction + Home + Navigation + Log Activity - IMPLEMENTED / OWNER REVIEW PENDING
 Implement:
 - reusable interactive button/tab treatment;
 - all-caps brand title treatment;
@@ -310,9 +310,20 @@ Implement:
 - stronger Log Activity explanatory copy;
 - responsive verification.
 
-Explicitly defer:
+Implemented outcome:
+- package version is 0.28.0;
+- reusable theme-neutral currentColor SVG icons are available for high-frequency UI;
+- Champion Transmission is simplified, larger and gently MBTI-aware without deterministic personality claims;
+- Dashboard uses the MBTI-aware PlayerAvatar;
+- Quick Actions, goal-period controls and XP progress have clearer affordances;
+- desktop/mobile shell changes and direct mobile competition access are implemented;
+- Log Activity now supports direct Today/Yesterday selection and the accepted Action Centre/copy cleanup.
+
+Explicitly deferred:
 - final logo artwork;
 - final MBTI-dependent favicon/logo assets.
+
+Owner visual/responsive acceptance is still required.
 
 ### Checkpoint 28D2 - Progression expansion
 Implement:

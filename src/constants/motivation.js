@@ -1,3 +1,5 @@
+import { getMbtiProfileByType } from "./mbtiProfiles";
+
 const MOTIVATION_LIBRARY = Object.freeze([
   {
     quote: "You do not need a perfect day. You need an honest next action.",
@@ -182,15 +184,25 @@ export function getDailyMotivation(
   date = new Date(),
   playerSeed = "champion",
   offset = 0,
+  mbtiType = "",
 ) {
-  const hash = stableHash(`${getLocalDateKey(date)}:${playerSeed}`);
+  const profile = getMbtiProfileByType(mbtiType);
+  const profileKey = profile?.type ?? "general";
+  const hash = stableHash(`${getLocalDateKey(date)}:${playerSeed}:${profileKey}`);
   const safeOffset = Number.isFinite(Number(offset)) ? Number(offset) : 0;
   const index = Math.abs(hash + safeOffset) % MOTIVATION_LIBRARY.length;
+  const motivation = MOTIVATION_LIBRARY[index];
+  const profileNudges = profile?.thrive ?? [];
+  const nudgeIndex = profileNudges.length > 0
+    ? Math.abs(hash + safeOffset) % profileNudges.length
+    : -1;
 
   return {
-    ...MOTIVATION_LIBRARY[index],
+    ...motivation,
+    sideQuest: nudgeIndex >= 0 ? profileNudges[nudgeIndex] : motivation.sideQuest,
     index,
     total: MOTIVATION_LIBRARY.length,
+    profileType: profile?.type ?? "",
   };
 }
 

@@ -27,12 +27,8 @@ const dailyProgressCss = fs.readFileSync(
   new URL("../src/components/dashboard/DailyProgress.css", import.meta.url),
   "utf8",
 );
-const packageJson = JSON.parse(
-  fs.readFileSync(new URL("../package.json", import.meta.url), "utf8"),
-);
 
 test("v0.27 uses the Champions Legacy blood-red design tokens", () => {
-  assert.equal(packageJson.version, "0.27.0");
   assert.match(indexCss, /--primary:\s*#c20e0d;/);
   assert.match(indexCss, /--primary-control:\s*#c20e0d;/);
   assert.match(indexCss, /--primary:\s*#ff5148;/);

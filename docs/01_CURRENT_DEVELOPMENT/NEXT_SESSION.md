@@ -6,7 +6,7 @@ Current production: v0.27.0
 
 ## First action
 
-Continue from completed 28C findings capture on `development/v0.28.0`. Implement 28D1 first: shared theme-aware interaction affordances, Home/Dashboard changes, Navigation cleanup and Log Activity changes recorded in `V028_INSPECTION_FINDINGS.md`. Follow with 28D2 for Progress, achievements and the long-term XP/level redesign before resuming the remaining page inspection.
+Continue from implemented 28D1 on `development/v0.28.0`. First perform an owner visual/responsive review of Home/Dashboard, desktop/mobile Navigation and Log Activity. Confirm the Champion Transmission, MBTI-aware Dashboard avatar, Quick Actions, goal-period controls, XP progress, mobile competition navigation and Today/Yesterday logging feel correct. If accepted, implement 28D2 Progress cleanup plus achievements and long-term levels.
 
 ## v0.25.0 order
 
@@ -120,7 +120,7 @@ Production activation completed successfully from `c057fca0598fe4a07ff101ea13808
 
 ## Checkpoint 27G automated performance/acceptance gate
 
-27G keeps Firebase's modular SDK and route-level lazy loading, but stops forcing the entire Firebase SDK into one oversized manual chunk by adding a Rolldown max-size target. The normal application check now enforces bundle and accessibility/responsive foundations and generates an automated report. The authenticated manual matrix in `V027_PERFORMANCE_ACCEPTANCE.md` has now been accepted. v0.27.0 is finalised and tagged at its exact deployed source. Do not reopen broad v0.27 visual work; continue with the planned v0.28.0 complete league-season rehearsal.
+27G keeps Firebase's modular SDK and route-level lazy loading, but stops forcing the entire Firebase SDK into one oversized manual chunk by adding a Rolldown max-size target. The normal application check now enforces bundle and accessibility/responsive foundations and generates an automated report. The authenticated manual matrix in `V027_PERFORMANCE_ACCEPTANCE.md` has now been accepted. v0.27.0 is finalised and tagged at its exact deployed source. Do not reopen broad v0.27 visual work. Continue the active v0.28.0 page-inspection and owner-change pass; the complete league-season rehearsal is deferred to v0.30.0.
 
 ## v0.28 page inspection direction
 

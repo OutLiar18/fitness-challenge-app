@@ -294,8 +294,24 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - keep final logo/favicon artwork deferred until the logo/identity assets are decided;
 - keep Firestore Rules and production Firebase untouched.
 
+#### Checkpoint 28D1 — shared interaction + Home + Navigation + Log Activity — IMPLEMENTED
+- package version advances to 0.28.0;
+- reusable currentColor SVG icons begin the theme-reactive UI asset foundation;
+- shared buttons and high-frequency controls gain clearer theme-aware hover/focus affordance;
+- Dashboard Champion Transmission becomes the sole hero motivation, uses larger quote treatment and an icon-only cycle control;
+- Champion Transmission now uses the selected MBTI type as a gentle preference cue for deterministic rotation and profile-specific side quests, while retaining generic fallback;
+- Dashboard identity now uses the MBTI-aware PlayerAvatar;
+- Quick Actions replace character arrows with reusable vector symbols;
+- Daily/Weekly goal controls are visually stronger;
+- Dashboard XP progress now shows a clear fraction and percentage;
+- desktop shell labels shorten to Streak / Level / Points and the brand is rendered as CHAMPIONS LEGACY CHALLENGE with theme accents;
+- mobile navigation exposes Seasons and Houses directly while Inbox remains available through More with attention state;
+- Log Activity exposes Today/Yesterday directly, moves the 1/2/3 guide into Action Centre, adds an honesty reminder and stronger explanatory copy;
+- final logo artwork and MBTI-dependent favicon/logo remain deferred;
+- Firestore Rules are unchanged and no Firebase deployment occurs.
+
 ### Next action
-Checkpoint 28D1: implement the shared interaction treatment plus accepted Home, Navigation and Log Activity changes. Then implement 28D2 Progress/progression expansion before resuming inspection of the remaining pages.
+Run an owner visual/responsive review of 28D1. If accepted, continue with 28D2 Progress cleanup, achievements and long-term XP/level expansion before resuming the remaining page inspection.
 
 ## Responsive development boundary
 

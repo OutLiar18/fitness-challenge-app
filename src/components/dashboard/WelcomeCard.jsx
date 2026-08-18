@@ -2,7 +2,8 @@ import { useMemo, useState } from "react";
 
 import { getDailyMotivation } from "../../constants/motivation";
 import { formatRole } from "../../utils/displayFormatters";
-import LegacyAvatar from "../profile/LegacyAvatar";
+import ThemeIcon from "../common/ThemeIcon";
+import PlayerAvatar from "../profile/PlayerAvatar";
 import "./WelcomeCard.css";
 
 export default function WelcomeCard({ profile, user, playerSeed = "champion" }) {
@@ -13,8 +14,8 @@ export default function WelcomeCard({ profile, user, playerSeed = "champion" }) 
     ? displayName
     : displayName.split(" ")[0];
   const motivation = useMemo(
-    () => getDailyMotivation(new Date(), playerSeed, offset),
-    [offset, playerSeed],
+    () => getDailyMotivation(new Date(), playerSeed, offset, profile?.mbtiType),
+    [offset, playerSeed, profile?.mbtiType],
   );
 
   return (
@@ -22,9 +23,6 @@ export default function WelcomeCard({ profile, user, playerSeed = "champion" }) 
       <div className="welcome-card__content">
         <p className="welcome-card__eyebrow">Today is another chance</p>
         <h1>Welcome back, {firstName}.</h1>
-        <p className="welcome-card__intro">
-          Record the work, learn from the day and keep becoming better than yesterday.
-        </p>
 
         <div className="welcome-card__transmission" aria-live="polite">
           <div className="welcome-card__transmission-heading">
@@ -35,10 +33,11 @@ export default function WelcomeCard({ profile, user, playerSeed = "champion" }) 
             <button
               className="welcome-card__transmission-button"
               type="button"
+              aria-label="Show another Champion transmission"
+              title="Show another Champion transmission"
               onClick={() => setOffset((current) => current + 1)}
             >
-              <span aria-hidden="true">↻</span>
-              Another transmission
+              <ThemeIcon name="refresh" size={19} />
             </button>
           </div>
 
@@ -55,7 +54,7 @@ export default function WelcomeCard({ profile, user, playerSeed = "champion" }) 
       </div>
 
       <div className="welcome-card__identity">
-        <LegacyAvatar avatarId={profile?.avatarId} size="large" decorative />
+        <PlayerAvatar profile={profile} size="large" decorative />
 
         <div
           className="welcome-card__badge"

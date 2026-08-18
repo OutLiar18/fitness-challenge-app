@@ -141,8 +141,9 @@ export const DESKTOP_NAV_GROUPS = Object.freeze([
 export const MOBILE_NAV_ITEMS = Object.freeze([
   CORE_NAV_ITEMS[0],
   CORE_NAV_ITEMS[1],
+  COMPETITION_NAV_ITEMS[0],
+  COMPETITION_NAV_ITEMS[1],
   CORE_NAV_ITEMS[2],
-  INBOX_NAV_ITEM,
 ]);
 
 export function getNavigationItemByPath(pathname) {

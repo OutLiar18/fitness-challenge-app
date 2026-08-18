@@ -81,6 +81,7 @@ function MoreMenu({
   isAdmin,
   displayName,
   profile,
+  inboxAttentionCount,
   onNavigate,
   onLogout,
 }) {
@@ -103,9 +104,18 @@ function MoreMenu({
       </div>
 
       {mode === "mobile" && (
-        <div className="app-more-panel__section">
-          <p>Account</p>
-          <NavigationLink
+        <>
+          <div className="app-more-panel__section">
+            <p>Communications</p>
+            <NavigationLink
+              item={INBOX_NAV_ITEM}
+              badge={inboxAttentionCount}
+              onNavigate={onNavigate}
+            />
+          </div>
+          <div className="app-more-panel__section">
+            <p>Account</p>
+            <NavigationLink
             item={{
               id: "profile",
               label: "Profile",
@@ -114,9 +124,10 @@ function MoreMenu({
               tone: "cyan",
               description: "Your player identity and account overview.",
             }}
-            onNavigate={onNavigate}
-          />
-        </div>
+              onNavigate={onNavigate}
+            />
+          </div>
+        </>
       )}
 
       <div className="app-more-panel__section">
@@ -288,14 +299,14 @@ export default function AppShell() {
       id: "streak",
       icon: "🔥",
       value: progression.streak.currentStreak,
-      label: "day streak",
+      label: "streak",
     },
     { id: "level", icon: "⚡", value: progression.xp.level, label: "level" },
     {
       id: "points",
       icon: "⭐",
       value: compactNumberFormatter.format(progression.score.totalPoints),
-      label: "total points",
+      label: "points",
     },
   ];
 
@@ -313,9 +324,9 @@ export default function AppShell() {
           aria-label="Go to the Champions Legacy Challenge dashboard"
         >
           <span className="app-brand__mark" aria-hidden="true">🏆</span>
-          <span className="app-brand__copy">
-            <strong>Champions Legacy</strong>
-            <small>Challenge</small>
+          <span className="app-brand__copy" aria-hidden="true">
+            <strong><span className="app-brand__accent">CHAMPIONS</span> LEGACY</strong>
+            <small>CHALLENGE</small>
           </span>
         </button>
 
@@ -386,7 +397,9 @@ export default function AppShell() {
               <span aria-hidden="true">🏆</span>
             </button>
             <div>
-              <small>Champions Legacy Challenge</small>
+              <small className="app-mobile-header__brand-copy">
+                <span>CHAMPIONS</span> LEGACY <span>CHALLENGE</span>
+              </small>
               <strong>{activeItem?.label || "Your journey"}</strong>
             </div>
           </div>
@@ -464,7 +477,14 @@ export default function AppShell() {
           aria-controls="app-more-menu"
           onClick={() => toggleMoreMenu(mobileMoreButtonRef.current, "mobile")}
         >
-          <span className="app-mobile-nav__icon" aria-hidden="true">•••</span>
+          <span className="app-mobile-nav__icon" aria-hidden="true">
+            •••
+            {inboxAttentionCount > 0 && (
+              <span className="app-mobile-nav__badge">
+                {inboxAttentionCount > 9 ? "9+" : inboxAttentionCount}
+              </span>
+            )}
+          </span>
           <small>More</small>
         </button>
       </nav>
@@ -483,6 +503,7 @@ export default function AppShell() {
             isAdmin={isPlatformAdmin}
             displayName={displayName}
             profile={profile}
+            inboxAttentionCount={inboxAttentionCount}
             onNavigate={handleNavigation}
             onLogout={handleLogout}
           />

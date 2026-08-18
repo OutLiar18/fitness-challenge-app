@@ -255,13 +255,14 @@ Responsive behaviour remains a requirement throughout later development.
 - detailed requirements recorded in `V028_INSPECTION_FINDINGS.md`;
 - theme-reactive assets and future MBTI-aware identity/motivation direction preserved.
 
-### 28D1 — shared interaction + Home + Navigation + Log Activity
-- add a reusable theme-aware interactive treatment for buttons/tabs;
-- implement accepted Home/Dashboard changes;
-- implement desktop/mobile Navigation changes;
-- implement Today/Yesterday logging and the accepted Log Activity presentation/copy changes;
-- fix the Dashboard Legacy Profile avatar;
-- defer final logo/favicon artwork.
+### 28D1 — shared interaction + Home + Navigation + Log Activity — IMPLEMENTED / OWNER REVIEW PENDING
+- package version advanced to 0.28.0;
+- reusable currentColor SVG icons and theme-aware interaction glow added;
+- accepted Home/Dashboard changes implemented, including MBTI-aware avatar and gentle MBTI-aware transmission preference;
+- desktop/mobile Navigation changes implemented, including direct Seasons/Houses mobile access and concise stat labels;
+- Today/Yesterday logging and accepted Log Activity presentation/copy changes implemented;
+- final logo/favicon artwork remains deferred;
+- owner visual/responsive acceptance is required before moving on.
 
 ### 28D2 — Progress and progression expansion
 - clean the desktop Progress layout and tab presentation;

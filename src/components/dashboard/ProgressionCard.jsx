@@ -50,8 +50,10 @@ export default function ProgressionCard({ progression }) {
       </div>
 
       <div className="progression-card__xp-summary">
-        <span>{formatExperiencePoints(xp.xpIntoLevel)}</span>
-        <span>{formatExperiencePoints(xp.xpForNextLevel)}</span>
+        <span>
+          {formatExperiencePoints(xp.xpIntoLevel)} / {formatExperiencePoints(xp.xpForNextLevel)}
+        </span>
+        <strong>{xp.percentage}%</strong>
       </div>
 
       <div
@@ -63,6 +65,7 @@ export default function ProgressionCard({ progression }) {
         aria-valuenow={xp.percentage}
       >
         <span style={{ width: `${xp.percentage}%` }} />
+        <strong aria-hidden="true">{xp.percentage}%</strong>
       </div>
 
       <p className="progression-card__next-level">

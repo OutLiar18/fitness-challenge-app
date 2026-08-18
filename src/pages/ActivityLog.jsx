@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-
 import CategoryGrid from "../components/categories/CategoryGrid";
 import ConfirmDialog from "../components/common/ConfirmDialog";
 import Toast from "../components/common/Toast/Toast";
@@ -13,8 +12,11 @@ import PageHeader from "../components/layout/PageHeader";
 import usePlayerData from "../hooks/usePlayerData";
 import useToast from "../hooks/useToast";
 import {
+  addDays,
   getLocalDateKey,
   isEditableDate,
+  isToday,
+  isYesterday,
   normalizeChallengeDate,
 } from "../services/dateService";
 import { deleteEntry, saveChallengeEntry } from "../services/entries";
@@ -50,6 +52,8 @@ function ActivityLogWorkspace({
   onCategoryChange,
   activeTab,
   onTabChange,
+  selectedDate,
+  setSelectedDate,
 }) {
   const {
     user,
@@ -60,18 +64,14 @@ function ActivityLogWorkspace({
     loading,
   } = usePlayerData();
   const { toast, showToast, dismissToast } = useToast();
-  const [selectedDate, setSelectedDate] = useState(() =>
-    normalizeChallengeDate(new Date()),
-  );
   const [formData, setFormData] = useState(() =>
     getInitialFormData(categoryId),
   );
   const [formErrors, setFormErrors] = useState([]);
-    const [saving, setSaving] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState("");
   const [deleting, setDeleting] = useState(false);
   const readOnly = !isEditableDate(selectedDate);
-
   const selectedEntries = useMemo(
     () => entryHistoryDateIndex.get(getLocalDateKey(selectedDate)) ?? [],
     [entryHistoryDateIndex, selectedDate],
@@ -79,6 +79,12 @@ function ActivityLogWorkspace({
 
   function resetForm(nextCategoryId) {
     setFormData(getInitialFormData(nextCategoryId));
+    setFormErrors([]);
+  }
+
+  function handleLogDateChange(day) {
+    const today = normalizeChallengeDate(new Date());
+    setSelectedDate(day === "yesterday" ? addDays(today, -1) : today);
     setFormErrors([]);
   }
 
@@ -140,6 +146,7 @@ function ActivityLogWorkspace({
       const successMessage = evidenceCodes.length > 0
         ? `Entry saved. Send WhatsApp proof with ID ${evidenceCodes.join(" or ")}.`
         : "Entry saved successfully.";
+
       showToast(
         result.warning || successMessage,
         result.warning ? "warning" : "success",
@@ -156,7 +163,7 @@ function ActivityLogWorkspace({
     }
   }
 
-    function handleDeleteEntry(entryId) {
+  function handleDeleteEntry(entryId) {
     if (readOnly || !entryId || deleting) {
       return;
     }
@@ -174,6 +181,7 @@ function ActivityLogWorkspace({
     }
 
     setDeleting(true);
+
     try {
       await deleteEntry(pendingDeleteId, user?.uid);
       setPendingDeleteId("");
@@ -194,24 +202,25 @@ function ActivityLogWorkspace({
       <PageHeader
         eyebrow="Action centre"
         title="Log activity & review your journal"
-        description="Record the facts once, then let Champions Legacy Challenge calculate points, goals, experience points and progress centrally."
+        description="You do the work. Log it accurately. Champions Legacy handles the maths."
         icon="✍️"
+        actions={
+          <ol className="activity-page__guide" aria-label="Activity logging steps">
+            <li>
+              <strong>1</strong>
+              <span>Choose</span>
+            </li>
+            <li>
+              <strong>2</strong>
+              <span>Record</span>
+            </li>
+            <li>
+              <strong>3</strong>
+              <span>Review</span>
+            </li>
+          </ol>
+        }
       />
-
-      <ol className="activity-page__guide card" aria-label="Activity logging steps">
-        <li>
-          <strong>1</strong>
-          <span><b>Choose</b><small>Select the activity you completed.</small></span>
-        </li>
-        <li>
-          <strong>2</strong>
-          <span><b>Record</b><small>Enter the facts once and save.</small></span>
-        </li>
-        <li>
-          <strong>3</strong>
-          <span><b>Review</b><small>Use Journal for history and proof status.</small></span>
-        </li>
-      </ol>
 
       <WorkspaceTabs
         idPrefix="activity"
@@ -222,12 +231,54 @@ function ActivityLogWorkspace({
       />
 
       <WorkspacePanel id="log" activeId={activeTab} idPrefix="activity">
+        <div className="activity-log-toolbar card">
+          <div className="activity-log-toolbar__date">
+            <span>Logging for</span>
+            <div
+              className="activity-log-date-tabs"
+              role="group"
+              aria-label="Choose activity date"
+            >
+              <button
+                type="button"
+                className={
+                  isToday(selectedDate)
+                    ? "activity-log-date-tab activity-log-date-tab--active"
+                    : "activity-log-date-tab"
+                }
+                aria-pressed={isToday(selectedDate)}
+                onClick={() => handleLogDateChange("today")}
+              >
+                Today
+              </button>
+              <button
+                type="button"
+                className={
+                  isYesterday(selectedDate)
+                    ? "activity-log-date-tab activity-log-date-tab--active"
+                    : "activity-log-date-tab"
+                }
+                aria-pressed={isYesterday(selectedDate)}
+                onClick={() => handleLogDateChange("yesterday")}
+              >
+                Yesterday
+              </button>
+            </div>
+          </div>
+
+          <p className="activity-log-toolbar__honesty">
+            <strong>Keep the legend real.</strong>{" "}
+            Log what actually happened — creative accounting belongs in fantasy
+            leagues. If you are unsure what counts, check with an administrator
+            before saving.
+          </p>
+        </div>
+
         <div className="activity-workspace">
           <CategoryGrid
             selected={categoryId}
             onSelect={handleCategorySelect}
           />
-
           <EntryForm
             userId={user?.uid}
             type={categoryId}
@@ -265,6 +316,7 @@ function ActivityLogWorkspace({
         onConfirm={handleConfirmDelete}
         onCancel={handleCancelDelete}
       />
+
       <Toast
         message={toast?.message}
         type={toast?.type}
@@ -276,6 +328,9 @@ function ActivityLogWorkspace({
 
 export default function ActivityLog() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [selectedDate, setSelectedDate] = useState(() =>
+    normalizeChallengeDate(new Date()),
+  );
   const categoryId = getSafeCategoryId(searchParams.get("category"));
   const activeTab = searchParams.get("tab") === "journal" ? "journal" : "log";
 
@@ -287,11 +342,13 @@ export default function ActivityLog() {
 
   function handleTabChange(nextTabId) {
     const nextSearchParams = new URLSearchParams(searchParams);
+
     if (nextTabId === "journal") {
       nextSearchParams.set("tab", "journal");
     } else {
       nextSearchParams.delete("tab");
     }
+
     setSearchParams(nextSearchParams, { replace: true });
   }
 
@@ -302,6 +359,8 @@ export default function ActivityLog() {
       onCategoryChange={handleCategoryChange}
       activeTab={activeTab}
       onTabChange={handleTabChange}
+      selectedDate={selectedDate}
+      setSelectedDate={setSelectedDate}
     />
   );
 }

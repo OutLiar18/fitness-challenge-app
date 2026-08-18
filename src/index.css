@@ -18,6 +18,7 @@
   --primary-depth: #680003;
   --primary-soft: rgba(194, 14, 13, 0.11);
   --primary-glow: rgba(194, 14, 13, 0.2);
+  --interactive-glow: 0 0 0 1px color-mix(in srgb, var(--primary) 24%, transparent), 0 0 18px var(--primary-glow);
   --on-primary: #ffffff;
   --accent: #b88735;
   --success: #187751;
@@ -79,6 +80,7 @@
     --primary-depth: #690003;
     --primary-soft: rgba(255, 81, 72, 0.14);
     --primary-glow: rgba(194, 14, 13, 0.32);
+    --interactive-glow: 0 0 0 1px color-mix(in srgb, var(--primary) 28%, transparent), 0 0 20px var(--primary-glow);
     --on-primary: #ffffff;
     --accent: #e4b85f;
     --success: #72d1a6;
@@ -315,7 +317,8 @@ label {
 
 .button:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 3px 0 var(--border-strong), var(--shadow-sm);
+  border-color: color-mix(in srgb, var(--primary) 42%, var(--border-strong));
+  box-shadow: 0 3px 0 var(--border-strong), var(--interactive-glow);
 }
 
 .button:active:not(:disabled) {
@@ -335,7 +338,9 @@ label {
 }
 
 .button--primary:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--primary) 62%, transparent);
   background: var(--primary-control-hover);
+  box-shadow: 0 3px 0 var(--primary-depth), var(--interactive-glow);
 }
 
 .button--secondary {

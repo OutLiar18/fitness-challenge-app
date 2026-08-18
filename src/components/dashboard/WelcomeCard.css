@@ -62,15 +62,10 @@
   font-size: clamp(2rem, 5vw, 3.6rem);
 }
 
-.welcome-card__intro {
-  max-width: 58ch;
-  margin: 0;
-  color: rgba(255, 255, 255, 0.82);
-}
 
 .welcome-card__transmission {
   max-width: 760px;
-  margin-top: 24px;
+  margin-top: 18px;
   padding: 18px;
   border: 1px solid rgba(255, 81, 72, 0.34);
   border-radius: 18px;
@@ -109,8 +104,11 @@
   min-height: 42px;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 10px 15px;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  gap: 0;
+  padding: 0;
   border: 1px solid #f6cc75;
   border-radius: 12px;
   color: #ffffff;
@@ -138,15 +136,17 @@
 
 .welcome-card__transmission blockquote p {
   margin: 0;
-  font-size: clamp(1rem, 2vw, 1.25rem);
-  font-weight: 800;
-  line-height: 1.45;
+  color: color-mix(in srgb, #ffffff 88%, var(--accent));
+  font-size: clamp(1.18rem, 2.4vw, 1.55rem);
+  font-weight: 850;
+  line-height: 1.48;
+  text-wrap: balance;
 }
 
 .welcome-card__transmission cite {
   display: block;
   margin-top: 7px;
-  color: rgba(255, 255, 255, 0.7);
+  color: color-mix(in srgb, #ffffff 66%, var(--accent));
   font-size: 0.74rem;
   font-style: normal;
   font-weight: 750;
@@ -200,7 +200,8 @@
   gap: 13px;
 }
 
-.welcome-card__identity .legacy-avatar {
+.welcome-card__identity .legacy-avatar,
+.welcome-card__identity .mbti-avatar {
   border-color: rgba(255, 255, 255, 0.55);
 }
 
@@ -234,7 +235,7 @@
   }
 
   .welcome-card__transmission-button {
-    width: 100%;
+    align-self: flex-start;
   }
 
   .welcome-card__transmission-extras {
