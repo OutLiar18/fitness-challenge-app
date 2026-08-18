@@ -311,8 +311,23 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - final logo artwork and MBTI-dependent favicon/logo remain deferred;
 - Firestore Rules are unchanged and no Firebase deployment occurs.
 
+#### Checkpoint 28D2 — Progress and progression expansion — IMPLEMENTED / OWNER REVIEW PENDING
+- Progress desktop workspace tabs now use deliberate wide/medium layouts before the existing mobile select takes over;
+- the achievement catalogue expands to 86 deterministic milestones with 10 hidden achievements;
+- every achievement has an explicit requirement, difficulty tier and XP reward;
+- Water, Fruit, Reading, completed books, Running, Upper Body, Lower Body, Core, Cardio, Skill Development and Steps all have natural milestone ladders;
+- Running includes 1/3/5/10/15/20 km, half marathon, marathon, 50 km ultra and a hidden 100 km milestone;
+- only the next visible locked milestone per family is shown, with in-progress milestones first;
+- completed achievements live in a collapsed section so they do not dominate current goals;
+- achievement XP is personal progression only and never changes competitive points;
+- the level system expands to a capped Level 100 curve requiring 354,420 lifetime XP to begin Level 100;
+- title bands scale from Initiate through Living Legend;
+- the progression timeline surfaces achievement XP and derived level-ups;
+- detailed configuration is recorded in `V028_PROGRESSION_EXPANSION.md`;
+- Firestore Rules remain unchanged and no Firebase deployment occurs.
+
 ### Next action
-Run an owner visual/responsive review of 28D1. If accepted, continue with 28D2 Progress cleanup, achievements and long-term XP/level expansion before resuming the remaining page inspection.
+Run an owner visual/responsive review of the Progress page on desktop and mobile. If accepted, resume the remaining v0.28 page inspection starting with Seasons.
 
 ## Responsive development boundary
 

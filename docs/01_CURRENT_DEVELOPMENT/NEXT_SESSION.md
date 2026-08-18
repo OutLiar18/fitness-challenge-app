@@ -6,7 +6,7 @@ Current production: v0.27.0
 
 ## First action
 
-Continue from implemented 28D1 on `development/v0.28.0`. First perform an owner visual/responsive review of Home/Dashboard, desktop/mobile Navigation and Log Activity. Confirm the Champion Transmission, MBTI-aware Dashboard avatar, Quick Actions, goal-period controls, XP progress, mobile competition navigation and Today/Yesterday logging feel correct. If accepted, implement 28D2 Progress cleanup plus achievements and long-term levels.
+Continue from implemented 28D2 on `development/v0.28.0`. First visually review Progress on desktop and mobile: workspace tabs, in-progress achievement ordering, visible requirements, hidden-achievement handling, collapsed completed achievements, achievement XP, Level Journey and Level 100 presentation. If accepted, resume the remaining page-by-page inspection starting with Seasons.
 
 ## v0.25.0 order
 

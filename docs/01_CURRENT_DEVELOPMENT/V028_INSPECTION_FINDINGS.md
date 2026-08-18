@@ -324,21 +324,23 @@ Explicitly deferred:
 - final logo artwork;
 - final MBTI-dependent favicon/logo assets.
 
-Owner visual/responsive acceptance is still required.
+Owner review continued through 28D1A and the implementation was accepted before moving to 28D2.
 
-### Checkpoint 28D2 - Progression expansion
-Implement:
-- Progress desktop layout cleanup;
-- reusable achievement definition structure for expanded ladders;
-- visible/hidden achievement support;
-- category-specific milestone families;
-- difficulty-scaled achievement XP;
-- expanded progressively harder level curve;
-- roughly ten-year consistency target for maximum level;
-- scalable level titles;
-- in-progress-first achievement presentation;
-- completed achievement section/filter/collapse;
-- responsive verification.
+### Checkpoint 28D2 - Progression expansion - IMPLEMENTED / OWNER REVIEW PENDING
+Implemented:
+- Progress desktop workspace tabs use explicit five/three/two-column layouts before the existing mobile select;
+- 86 deterministic achievements are defined through reusable metadata and metric types;
+- 10 achievements are hidden until earned;
+- every achievement awards configured personal XP through Starter/Bronze/Silver/Gold/Epic/Legendary tiers, with bounded exceptional rewards for marathon/ultra milestones;
+- every activity category has a natural milestone ladder, with a separate completed-books ladder for Reading;
+- Running milestones include 1 km through marathon plus 50 km and hidden 100 km ultra distances;
+- only the next visible locked achievement in each family is surfaced, ordered with active/in-progress goals first;
+- completed achievements are kept in a collapsed section;
+- achievement XP feeds personal level progression and timeline events but never competitive points;
+- Level 100 begins at 354,420 lifetime XP and is explicitly capped;
+- title bands scale from Initiate through Living Legend;
+- detailed balance and milestone configuration is recorded in `V028_PROGRESSION_EXPANSION.md`;
+- responsive/mobile quality remains part of owner acceptance.
 
 ## Acceptance boundary before inspection resumes
 

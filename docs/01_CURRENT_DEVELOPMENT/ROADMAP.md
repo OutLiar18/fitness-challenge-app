@@ -255,7 +255,7 @@ Responsive behaviour remains a requirement throughout later development.
 - detailed requirements recorded in `V028_INSPECTION_FINDINGS.md`;
 - theme-reactive assets and future MBTI-aware identity/motivation direction preserved.
 
-### 28D1 — shared interaction + Home + Navigation + Log Activity — IMPLEMENTED / OWNER REVIEW PENDING
+### 28D1 — shared interaction + Home + Navigation + Log Activity — IMPLEMENTED / ACCEPTED
 - package version advanced to 0.28.0;
 - reusable currentColor SVG icons and theme-aware interaction glow added;
 - accepted Home/Dashboard changes implemented, including MBTI-aware avatar and gentle MBTI-aware transmission preference;
@@ -264,13 +264,16 @@ Responsive behaviour remains a requirement throughout later development.
 - final logo/favicon artwork remains deferred;
 - owner visual/responsive acceptance is required before moving on.
 
-### 28D2 — Progress and progression expansion
-- clean the desktop Progress layout and tab presentation;
-- greatly expand easy-to-track achievements with visible/hidden support;
-- add category-specific milestone ladders and difficulty-scaled achievement XP;
-- expand levels with a progressively harder curve targeting roughly ten years of consistent use to reach the top;
-- add scalable level titles and in-progress-first achievement presentation;
-- preserve responsive/mobile quality.
+### 28D2 — Progress and progression expansion — IMPLEMENTED / OWNER REVIEW PENDING
+- desktop Progress tabs and hierarchy cleaned up with explicit responsive transitions;
+- 86 deterministic achievements with visible/hidden support and configured XP difficulty tiers;
+- category-specific milestone families cover every activity category plus completed books;
+- achievement XP is included in personal progression while remaining separate from competitive points;
+- Level 100 is capped behind 354,420 lifetime XP with progressively increasing per-level requirements;
+- 21 escalating title bands run from Initiate to Living Legend;
+- next visible milestone per family is prioritised, while completed achievements are collapsed;
+- detailed balance/configuration is recorded in `V028_PROGRESSION_EXPANSION.md`;
+- owner visual/responsive review remains before the remaining page inspection resumes.
 
 ### 28R — release freeze
 - full application regression;

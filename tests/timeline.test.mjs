@@ -89,7 +89,7 @@ test("Timeline derives level and achievement events", () => {
       id: "large-xp-event",
       type: "participation",
       label: "Participation",
-      xp: 600,
+      xp: 1200,
       date,
     }),
   ];

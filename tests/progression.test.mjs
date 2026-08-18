@@ -1,9 +1,18 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import {
+  ACHIEVEMENT_DIFFICULTY,
+  LEVEL_CONFIGURATION,
+  PROGRESSION_ACHIEVEMENTS,
+} from "../src/constants/progression.js";
 import { getGoalBonusSummary } from "../src/services/progression/goalBonusService.js";
 import { getProgressionSummary } from "../src/services/progression/progressionService.js";
 import { getStreakSummary } from "../src/services/progression/streakService.js";
+import {
+  calculateLevel,
+  getTotalXpRequiredForLevel,
+} from "../src/services/progression/xpService.js";
 
 function createEntry(category, data, date) {
   return { category, data, challengeDate: { toDate: () => date } };
@@ -154,7 +163,8 @@ test("XP, levels and achievements remain separate from competitive points", () =
   const monday = new Date(2026, 6, 27, 12);
   const progression = getProgressionSummary(createPerfectWeek(monday), monday);
 
-  assert.equal(progression.xp.level, 2);
+  assert.ok(progression.xp.level >= 2);
+  assert.ok(progression.xp.achievementXp > 0);
   assert.ok(progression.xp.totalXp > progression.score.bonusPoints);
   assert.equal(
     progression.achievements.unlocked.some(
@@ -184,4 +194,127 @@ test("Progression ignores entries after the requested reference date", () => {
   assert.equal(progression.score.bonusPoints, 1);
   assert.equal(progression.xp.participationXp, 2);
   assert.equal(progression.records.successfulDays, 1);
+});
+
+
+test("achievement catalogue is large, unique, tiered and includes hidden rewards", () => {
+  assert.ok(PROGRESSION_ACHIEVEMENTS.length >= 80);
+
+  const ids = PROGRESSION_ACHIEVEMENTS.map((achievement) => achievement.id);
+  assert.equal(new Set(ids).size, ids.length);
+  assert.ok(
+    PROGRESSION_ACHIEVEMENTS.every(
+      (achievement) =>
+        achievement.requirement &&
+        achievement.metric?.type &&
+        Number(achievement.xp) > 0 &&
+        ACHIEVEMENT_DIFFICULTY[achievement.difficulty],
+    ),
+  );
+  assert.ok(
+    PROGRESSION_ACHIEVEMENTS.filter((achievement) => achievement.hidden).length >= 5,
+  );
+});
+
+test("every activity category has a natural achievement family", () => {
+  const families = new Set(
+    PROGRESSION_ACHIEVEMENTS.map((achievement) => achievement.family),
+  );
+
+  [
+    "water",
+    "fruit",
+    "reading",
+    "running",
+    "upperBody",
+    "lowerBody",
+    "core",
+    "cardio",
+    "skill",
+    "steps",
+  ].forEach((family) => assert.ok(families.has(family), family));
+});
+
+test("running ladder covers first kilometre through marathon and ultra milestones", () => {
+  const runningTargets = PROGRESSION_ACHIEVEMENTS
+    .filter((achievement) => achievement.family === "running")
+    .map((achievement) => achievement.metric.target);
+
+  [1, 3, 5, 10, 15, 20, 21.1, 42.2, 50, 100].forEach((target) =>
+    assert.ok(runningTargets.includes(target), target),
+  );
+
+  const marathon = PROGRESSION_ACHIEVEMENTS.find(
+    (achievement) => achievement.id === "running-marathon",
+  );
+  const ultra = PROGRESSION_ACHIEVEMENTS.find(
+    (achievement) => achievement.id === "running-ultra50",
+  );
+
+  assert.ok(ultra.xp > marathon.xp);
+  assert.ok(ultra.xp < getTotalXpRequiredForLevel(LEVEL_CONFIGURATION.maxLevel));
+});
+
+test("achievement progress promotes only the next visible milestone per family", () => {
+  const date = new Date(2026, 6, 27, 12);
+  const entries = [
+    createEntry("water", { amount: 10000 }, date),
+    createEntry(
+      "running",
+      { distance: 5, totalMinutes: 35, totalSeconds: 2100 },
+      date,
+    ),
+  ];
+  const progression = getProgressionSummary(entries, date);
+  const waterNext = progression.achievements.nextByFamily.find(
+    (achievement) => achievement.family === "water",
+  );
+  const runningNext = progression.achievements.nextByFamily.find(
+    (achievement) => achievement.family === "running",
+  );
+
+  assert.equal(waterNext.metric.target, 25000);
+  assert.equal(waterNext.progressPercentage, 40);
+  assert.equal(runningNext.metric.target, 10);
+  assert.equal(runningNext.progressPercentage, 50);
+  assert.equal(
+    progression.achievements.nextByFamily.filter(
+      (achievement) => achievement.family === "running",
+    ).length,
+    1,
+  );
+});
+
+test("hidden achievements stay out of next challenges until earned", () => {
+  const date = new Date(2026, 6, 27, 12);
+  const progression = getProgressionSummary(
+    [
+      createEntry(
+        "running",
+        { distance: 50, totalMinutes: 360, totalSeconds: 21600 },
+        date,
+      ),
+    ],
+    date,
+  );
+
+  assert.equal(
+    progression.achievements.nextByFamily.some(
+      (achievement) => achievement.id === "running-ultra100",
+    ),
+    false,
+  );
+  assert.ok(progression.achievements.hiddenTotal > 0);
+  assert.ok(progression.xp.achievementXp >= 3000);
+});
+
+test("level 100 is capped behind a roughly decade-scale XP curve", () => {
+  const maximumXp = getTotalXpRequiredForLevel(100);
+
+  assert.equal(LEVEL_CONFIGURATION.maxLevel, 100);
+  assert.equal(maximumXp, 354420);
+  assert.equal(calculateLevel(maximumXp - 1).level, 99);
+  assert.equal(calculateLevel(maximumXp).level, 100);
+  assert.equal(calculateLevel(maximumXp + 1000000).level, 100);
+  assert.equal(calculateLevel(maximumXp).maximumLevel, true);
 });

@@ -8,6 +8,7 @@ import WorkspaceTabs, {
 import PageHeader from "../components/layout/PageHeader";
 import ProgressTimeline from "../components/progression/ProgressTimeline";
 import { LEVEL_CONFIGURATION } from "../constants/progression";
+import { getTotalXpRequiredForLevel } from "../services/progression/xpService";
 import usePlayerData from "../hooks/usePlayerData";
 import {
   formatExperiencePoints,
@@ -118,6 +119,60 @@ function getStreakStatus(streak) {
   return "Complete one daily goal to begin";
 }
 
+function AchievementCard({ achievement, completed = false }) {
+  const reward = formatExperiencePoints(achievement.xp);
+
+  return (
+    <article
+      className={`achievement-card${
+        completed ? " achievement-card--unlocked" : ""
+      }${achievement.hidden ? " achievement-card--hidden" : ""}`}
+    >
+      <span className="achievement-card__emoji" aria-hidden="true">
+        {achievement.emoji}
+      </span>
+      <div className="achievement-card__content">
+        <div className="achievement-card__heading">
+          <strong>{achievement.name}</strong>
+          <span className={`achievement-tier achievement-tier--${achievement.difficulty}`}>
+            {achievement.difficultyLabel}
+          </span>
+        </div>
+        <p>{achievement.description}</p>
+        <small className="achievement-card__requirement">
+          {achievement.requirement}
+        </small>
+        {!completed && (
+          <>
+            <div
+              className="achievement-card__progress"
+              role="progressbar"
+              aria-label={`${achievement.name} progress`}
+              aria-valuemin="0"
+              aria-valuemax="100"
+              aria-valuenow={achievement.progressPercentage}
+            >
+              <span
+                style={{ width: `${achievement.progressPercentage}%` }}
+              />
+            </div>
+            <div className="achievement-card__footer">
+              <small>{achievement.progressPercentage}% complete</small>
+              <strong>+{reward}</strong>
+            </div>
+          </>
+        )}
+        {completed && (
+          <div className="achievement-card__footer">
+            <small>{achievement.hidden ? "Hidden achievement revealed" : "Completed"}</small>
+            <strong>+{reward}</strong>
+          </div>
+        )}
+      </div>
+    </article>
+  );
+}
+
 export default function Progress() {
   const { profile, user, progression, loading } = usePlayerData();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -153,6 +208,13 @@ export default function Progress() {
 
   const { xp, streak, achievements, score, records, timeline } = progression;
   const personalRecords = records.personal?.records ?? [];
+  const inProgressAchievements = achievements.inProgress ?? [];
+  const availableAchievements = achievements.available ?? [];
+  const completedAchievements = achievements.unlocked ?? [];
+  const hiddenLockedCount = Math.max(
+    0,
+    (achievements.hiddenTotal ?? 0) - (achievements.hiddenUnlockedCount ?? 0),
+  );
   const progressTabs = PROGRESS_TABS.map((tab) => {
     if (tab.id === "achievements") {
       return {
@@ -204,7 +266,13 @@ export default function Progress() {
         >
           <span>Level</span>
           <strong>{xp.level}</strong>
-          <small>{formatExperiencePoints(xp.totalXp)} in total</small>
+          <small>
+            {xp.maximumLevel
+              ? "Maximum level reached"
+              : `of ${LEVEL_CONFIGURATION.maxLevel} · ${formatExperiencePoints(
+                  xp.totalXp,
+                )} total`}
+          </small>
         </div>
       </section>
 
@@ -247,8 +315,14 @@ export default function Progress() {
             </div>
 
             <div className="progress-xp-values">
-              <span>{formatExperiencePoints(xp.xpIntoLevel)}</span>
-              <span>{formatExperiencePoints(xp.xpForNextLevel)}</span>
+              <span>
+                {xp.maximumLevel
+                  ? formatExperiencePoints(xp.totalXp)
+                  : `${formatExperiencePoints(xp.xpIntoLevel)} / ${formatExperiencePoints(
+                      xp.xpForNextLevel,
+                    )}`}
+              </span>
+              <strong>{xp.percentage}%</strong>
             </div>
 
             <div
@@ -263,8 +337,14 @@ export default function Progress() {
             </div>
 
             <p className="progress-muted">
-              <strong>{formatExperiencePoints(xp.xpToNextLevel)}</strong> remaining
-              until Level {xp.level + 1}.
+              {xp.maximumLevel ? (
+                <strong>Maximum level achieved.</strong>
+              ) : (
+                <>
+                  <strong>{formatExperiencePoints(xp.xpToNextLevel)}</strong>{" "}
+                  remaining until Level {xp.level + 1}.
+                </>
+              )}
             </p>
 
             <div className="progress-breakdown">
@@ -279,6 +359,10 @@ export default function Progress() {
               <article>
                 <strong>{formatNumber(xp.streakXp, { whole: true })}</strong>
                 <span>Streak experience</span>
+              </article>
+              <article>
+                <strong>{formatNumber(xp.achievementXp, { whole: true })}</strong>
+                <span>Achievement experience</span>
               </article>
             </div>
           </section>
@@ -367,34 +451,97 @@ export default function Progress() {
           <div className="progress-section__header">
             <div>
               <p className="progress-eyebrow">Achievements</p>
-              <h2 id="achievements-title">Achievement collection</h2>
+              <h2 id="achievements-title">Your next milestones</h2>
             </div>
             <span className="progress-section__count">
-              {achievements.unlockedCount} of {achievements.total} unlocked
+              {achievements.unlockedCount} / {achievements.total} ·{" "}
+              {formatExperiencePoints(achievements.totalXpAwarded)} earned
             </span>
           </div>
 
-          <div className="achievement-grid">
-            {achievements.achievements.map((achievement) => (
-              <article
-                key={achievement.id}
-                className={`achievement-card${
-                  achievement.unlocked ? " achievement-card--unlocked" : ""
-                }`}
-              >
-                <span className="achievement-card__emoji" aria-hidden="true">
-                  {achievement.unlocked ? achievement.emoji : "🔒"}
-                </span>
+          {inProgressAchievements.length > 0 && (
+            <section className="achievement-group" aria-labelledby="achievements-active">
+              <div className="achievement-group__header">
                 <div>
-                  <strong>{achievement.name}</strong>
-                  <p>{achievement.description}</p>
-                  <small>
-                    {achievement.unlocked ? "Unlocked" : "Not unlocked yet"}
-                  </small>
+                  <p className="progress-eyebrow">In progress</p>
+                  <h3 id="achievements-active">Closest milestones</h3>
                 </div>
-              </article>
-            ))}
-          </div>
+                <span>{inProgressAchievements.length}</span>
+              </div>
+              <div className="achievement-grid">
+                {inProgressAchievements.map((achievement) => (
+                  <AchievementCard
+                    key={achievement.id}
+                    achievement={achievement}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {availableAchievements.length > 0 && (
+            <section className="achievement-group" aria-labelledby="achievements-next">
+              <div className="achievement-group__header">
+                <div>
+                  <p className="progress-eyebrow">Available</p>
+                  <h3 id="achievements-next">Next challenges</h3>
+                </div>
+                <span>{availableAchievements.length}</span>
+              </div>
+              <div className="achievement-grid">
+                {availableAchievements.map((achievement) => (
+                  <AchievementCard
+                    key={achievement.id}
+                    achievement={achievement}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {inProgressAchievements.length === 0 &&
+            availableAchievements.length === 0 && (
+              <div className="achievement-mastered">
+                <span aria-hidden="true">🏆</span>
+                <div>
+                  <strong>Every visible achievement is complete.</strong>
+                  <p>The remaining surprises, if any, will reveal themselves when earned.</p>
+                </div>
+              </div>
+            )}
+
+          {hiddenLockedCount > 0 && (
+            <p className="achievement-hidden-note">
+              <span aria-hidden="true">🔒</span>
+              {hiddenLockedCount} hidden {pluralize(
+                hiddenLockedCount,
+                "achievement",
+                "achievements",
+              )} remain undiscovered.
+            </p>
+          )}
+
+          <details className="achievement-completed">
+            <summary>
+              <span>Completed achievements</span>
+              <strong>{completedAchievements.length}</strong>
+            </summary>
+            {completedAchievements.length === 0 ? (
+              <p className="progress-muted">
+                Completed achievements will collect here without crowding your next goals.
+              </p>
+            ) : (
+              <div className="achievement-grid">
+                {completedAchievements.map((achievement) => (
+                  <AchievementCard
+                    key={achievement.id}
+                    achievement={achievement}
+                    completed
+                  />
+                ))}
+              </div>
+            )}
+          </details>
         </section>
       </WorkspacePanel>
 
@@ -458,7 +605,20 @@ export default function Progress() {
               <p className="progress-eyebrow">Level journey</p>
               <h2 id="level-journey-title">Personal titles</h2>
             </div>
+            <span className="progress-section__count">
+              Level {xp.level} of {LEVEL_CONFIGURATION.maxLevel}
+            </span>
           </div>
+          <p className="level-journey__intro">
+            Level {LEVEL_CONFIGURATION.maxLevel} is tuned as a long-term consistency
+            target. It unlocks at{" "}
+            <strong>
+              {formatExperiencePoints(
+                getTotalXpRequiredForLevel(LEVEL_CONFIGURATION.maxLevel),
+              )}
+            </strong>
+            ; XP earned after that still remains in your lifetime total.
+          </p>
 
           <ol className="level-journey">
             {levelJourney.map((item) => {
@@ -476,7 +636,10 @@ export default function Progress() {
                   <div>
                     <strong>{item.title}</strong>
                     <small>
-                      Level {item.minimumLevel}
+                      Level {item.minimumLevel} ·{" "}
+                      {formatExperiencePoints(
+                        getTotalXpRequiredForLevel(item.minimumLevel),
+                      )}
                       {current ? " · Current title" : ""}
                     </small>
                   </div>

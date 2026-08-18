@@ -260,14 +260,21 @@ function getAchievementEvents({
         icon: achievement.emoji,
         label: achievement.name,
         description: achievement.description,
-        earnedDate: getAchievementDate({
+        xp: achievement.xp,
+        earnedDate:
+          achievement.earnedDate ??
+          getAchievementDate({
+            achievementId: achievement.id,
+            entries,
+            goalBonusEvents,
+            streakMilestoneEvents,
+            levelEvents,
+          }),
+        metadata: {
           achievementId: achievement.id,
-          entries,
-          goalBonusEvents,
-          streakMilestoneEvents,
-          levelEvents,
-        }),
-        metadata: { achievementId: achievement.id },
+          difficulty: achievement.difficulty,
+          family: achievement.family,
+        },
       }),
     )
     .filter(Boolean);
