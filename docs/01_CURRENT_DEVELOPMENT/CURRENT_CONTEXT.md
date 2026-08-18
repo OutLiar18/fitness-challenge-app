@@ -3,7 +3,7 @@
 <!-- RELEASE_STATUS: VERIFIED_PRODUCTION -->
 Current source: v0.28.0 development
 Current production: v0.27.0
-Last updated: 12 August 2026
+Last updated: 18 August 2026
 
 v0.27.0 is the verified production baseline and is frozen. Exact deployed/tagged source is `701b58df40eedab39c8f7fe5d4b2ea95efd11ba5`; live/local `index.html` SHA-256 is `37d1dcf890f8836b17cfe128219fe8313ff0e15520d43547379cfe61007fac38`; Firestore Rules were not redeployed and remain SHA-256 `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e`.
 
@@ -19,4 +19,4 @@ v0.28 is now the owner-led page inspection and change pass. The earlier 28A rehe
 
 28C captures the first owner inspection findings and intentionally pauses further review after Global/Home/Navigation/Log Activity/Progress. The detailed requirements are in `V028_INSPECTION_FINDINGS.md`. Implementation is split into 28D1 (shared interactions + Home + Navigation + Log Activity) and 28D2 (Progress cleanup + achievements + long-term XP/levels) before the remaining page inspection resumes. Final logo/favicon artwork remains deferred.
 
-28D1 is implemented and its Log Activity owner refinement is accepted. It adds the shared interaction affordance foundation, Dashboard transmission/avatar/action/goal/XP changes, concise desktop shell stats and all-caps brand treatment, direct mobile Seasons/Houses access with Inbox preserved through More, and direct Today/Yesterday Log Activity controls plus Action Centre/copy cleanup. 28D2 now implements the Progress cleanup, 86-achievement deterministic catalogue, difficulty-scaled achievement XP, category milestone ladders, hidden/completed presentation and capped 100-level decade-scale progression curve. Firestore Rules remain unchanged; no production deployment.
+28D1 is implemented and its Log Activity owner refinement is accepted. It adds the shared interaction affordance foundation, Dashboard transmission/avatar/action/goal/XP changes, concise desktop shell stats and all-caps brand treatment, direct mobile Seasons/Houses access with Inbox preserved through More, and direct Today/Yesterday Log Activity controls plus Action Centre/copy cleanup. 28D2 implements the Progress cleanup, 86-achievement deterministic catalogue, difficulty-scaled achievement XP, category milestone ladders, hidden/completed presentation and capped 100-level decade-scale progression curve. Owner-review refinements 28D2A/28D2B strengthen the Progress tone, keep the level cap mysterious in player-facing UI, show only unlocked title milestones, restore icon + title desktop tabs without extra descriptions/counts, make the current-level ring responsive and add bounded narrow-mobile shell pressure relief. Firestore Rules remain unchanged; no production deployment.

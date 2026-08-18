@@ -860,3 +860,121 @@
     flex-direction: column;
   }
 }
+/* v0.28 28D2B — responsive Progress polish and owner tab clarification */
+.progress-hero__level-wrap {
+  width: clamp(144px, 15vw, 170px);
+  min-width: 0;
+  height: auto;
+  aspect-ratio: 1;
+  flex: 0 0 auto;
+}
+
+.progress-hero__level-ring::after {
+  inset: clamp(10px, 1.4vw, 14px);
+}
+
+.progress-hero__level {
+  width: calc(100% - 28px);
+  min-height: 0;
+  aspect-ratio: 1;
+  padding: clamp(12px, 1.6vw, 18px);
+}
+
+.progress-hero__level strong {
+  font-size: clamp(2.2rem, 5vw, 2.8rem);
+}
+
+.progress-page .workspace-tab {
+  justify-content: flex-start;
+  gap: 9px;
+  padding-inline: 10px;
+}
+
+.progress-page .workspace-tab__copy {
+  position: static;
+  width: auto;
+  height: auto;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  border: 0;
+}
+
+.progress-page .workspace-tab__copy strong {
+  display: block;
+  overflow-wrap: anywhere;
+  line-height: 1.2;
+}
+
+.progress-page .workspace-tab__copy small,
+.progress-page .workspace-tab__badge {
+  display: none;
+}
+
+.progress-page .workspace-tab__icon {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  font-size: 1.05rem;
+}
+
+.progress-xp-values {
+  flex-wrap: wrap;
+}
+
+@media (max-width: 1180px) {
+  .progress-page .workspace-switcher__tabs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .progress-page .workspace-switcher__tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .progress-hero {
+    align-items: center;
+    gap: 22px;
+  }
+
+  .progress-hero__content {
+    width: 100%;
+  }
+
+  .progress-hero__level-wrap {
+    width: clamp(136px, 42vw, 160px);
+    min-width: 0;
+    min-height: 0;
+    height: auto;
+    align-self: center;
+  }
+
+  .progress-section__count {
+    white-space: normal;
+  }
+}
+
+@media (max-width: 420px) {
+  .progress-hero {
+    padding: 18px;
+  }
+
+  .progress-summary-grid {
+    gap: 10px;
+  }
+
+  .progress-summary-card {
+    gap: 2px 9px;
+    padding: 14px;
+  }
+
+  .progress-hero__level-wrap {
+    width: clamp(128px, 44vw, 146px);
+  }
+}

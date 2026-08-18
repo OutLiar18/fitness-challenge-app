@@ -6,7 +6,7 @@ Current production: v0.27.0
 
 ## First action
 
-Continue from implemented 28D2 on `development/v0.28.0`. First visually review Progress on desktop and mobile: workspace tabs, in-progress achievement ordering, visible requirements, hidden-achievement handling, collapsed completed achievements, achievement XP, Level Journey and Level 100 presentation. If accepted, resume the remaining page-by-page inspection starting with Seasons.
+Continue from implemented 28D2B on `development/v0.28.0`. First visually review Progress at wide desktop, tablet and narrow mobile widths. Confirm the circular current-level indicator stays circular and centred, desktop workspace tabs show icon + title only, the mobile section select remains clean, achievement cards do not overflow and the six-destination mobile shell remains readable without horizontal clipping. If accepted, resume the remaining page-by-page inspection starting with Seasons.
 
 ## v0.25.0 order
 

@@ -10,6 +10,7 @@ const progressCss = read("src/pages/Progress.css");
 const progression = read("src/constants/progression.js");
 const achievementService = read("src/services/progression/achievementService.js");
 const xpService = read("src/services/progression/xpService.js");
+const shellCss = read("src/components/layout/AppShell.css");
 
 test("28D2 exposes in-progress, available and collapsed completed achievements", () => {
   assert.match(progress, /achievements\.inProgress/);
@@ -42,11 +43,17 @@ test("28D2 level journey keeps the 100-level long-term curve but only reveals un
   assert.doesNotMatch(progress, /getTotalXpRequiredForLevel/);
 });
 
-test("28D2A refines the hero copy, removes analytics CTA and simplifies tab chrome", () => {
+test("28D2B keeps Progress responsive while restoring desktop tab titles", () => {
   assert.match(progress, /Every honest entry adds iron to your record/);
   assert.doesNotMatch(progress, /View analytics/);
   assert.doesNotMatch(progress, /badge:/);
-  assert.match(progressCss, /\.progress-page \.workspace-tab__copy \{[\s\S]*position: absolute/);
-  assert.match(progressCss, /\.progress-page \.workspace-tab__badge \{[\s\S]*display: none/);
-  assert.match(progressCss, /\.progress-hero__level-ring/);
+  assert.match(progressCss, /28D2B — responsive Progress polish/);
+  assert.match(progressCss, /\.progress-hero__level-wrap \{[\s\S]*aspect-ratio: 1/);
+  assert.match(progressCss, /width: clamp\(136px, 42vw, 160px\)/);
+  assert.match(progressCss, /\.progress-page \.workspace-tab__copy \{[\s\S]*position: static/);
+  assert.match(progressCss, /\.progress-page \.workspace-tab__copy strong \{[\s\S]*display: block/);
+  assert.match(progressCss, /repeat\(3, minmax\(0, 1fr\)\)/);
+  assert.match(progressCss, /repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(shellCss, /safe-area-inset-left/);
+  assert.match(shellCss, /font-size: clamp\(0\.66rem, 2\.2vw, 0\.72rem\)/);
 });

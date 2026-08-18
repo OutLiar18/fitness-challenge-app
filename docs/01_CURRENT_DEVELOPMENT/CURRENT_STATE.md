@@ -3,7 +3,7 @@
 <!-- RELEASE_STATUS: VERIFIED_PRODUCTION -->
 Source version: 0.28.0 development
 Production version: 0.27.0
-Last updated: 12 August 2026
+Last updated: 18 August 2026
 Status: v0.28 page inspection and change pass active; full season rehearsal deferred to v0.30.0
 
 ## Production baseline
@@ -326,8 +326,16 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - detailed configuration is recorded in `V028_PROGRESSION_EXPANSION.md`;
 - Firestore Rules remain unchanged and no Firebase deployment occurs.
 
+#### Checkpoint 28D2A / 28D2B — Progress owner-review refinements — IMPLEMENTED / OWNER REVIEW PENDING
+- 28D2A replaces the weak Progress introduction, removes the Analytics shortcut, keeps the level cap undisclosed and limits Level Journey to already-unlocked titles;
+- 28D2B fixes the circular current-level indicator so it stays square and scales through desktop, tablet and narrow mobile widths;
+- desktop Progress tabs now retain their icons and visible titles only — Overview, Achievements, Records, Timeline and Level Journey — without descriptions or count badges;
+- the Progress tab grid steps from five columns to three and then two before the existing mobile select takes over;
+- narrow mobile shell padding, navigation labels and safe-area handling receive a bounded shared polish without changing navigation destinations;
+- Firestore Rules remain unchanged and no Firebase deployment occurs.
+
 ### Next action
-Run an owner visual/responsive review of the Progress page on desktop and mobile. If accepted, resume the remaining v0.28 page inspection starting with Seasons.
+Run a final owner visual/responsive review of Progress at wide desktop, tablet and narrow mobile widths. If accepted, resume the remaining v0.28 page inspection starting with Seasons.
 
 ## Responsive development boundary
 

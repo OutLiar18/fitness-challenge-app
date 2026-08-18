@@ -880,3 +880,50 @@
     box-shadow: inset 0 2px 0 var(--mobile-tone);
   }
 }
+/* v0.28 28D2B — shared small-screen pressure relief */
+@media (max-width: 760px) {
+  .app-content {
+    min-width: 0;
+    padding-right: clamp(10px, 3vw, 16px);
+    padding-left: clamp(10px, 3vw, 16px);
+  }
+
+  .app-mobile-header {
+    padding-right: clamp(10px, 3.5vw, 14px);
+    padding-left: clamp(10px, 3.5vw, 14px);
+  }
+
+  .app-mobile-header__stats > span {
+    min-width: 0;
+    gap: clamp(3px, 1vw, 5px);
+    padding-right: clamp(3px, 1.4vw, 7px);
+    padding-left: clamp(3px, 1.4vw, 7px);
+  }
+
+  .app-mobile-nav {
+    padding-right: max(4px, env(safe-area-inset-right));
+    padding-left: max(4px, env(safe-area-inset-left));
+  }
+
+  .app-mobile-nav__link {
+    min-width: 0;
+  }
+
+  .app-mobile-nav__link small {
+    font-size: clamp(0.66rem, 2.2vw, 0.72rem);
+  }
+}
+
+@media (max-width: 390px) {
+  .app-mobile-header__stats {
+    gap: 4px;
+  }
+
+  .app-mobile-nav {
+    column-gap: 1px;
+  }
+
+  .app-mobile-nav__link {
+    border-radius: 10px;
+  }
+}

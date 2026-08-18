@@ -342,6 +342,14 @@ Implemented:
 - detailed balance and milestone configuration is recorded in `V028_PROGRESSION_EXPANSION.md`;
 - responsive/mobile quality remains part of owner acceptance.
 
+### 28D2A / 28D2B owner-review refinement
+- Progress introduction copy is now more motivational and the redundant Analytics shortcut is removed;
+- the public Progress UI does not reveal the maximum level or future locked level-title milestones;
+- the current level uses a circular percentage ring that must remain circular and scale cleanly at every supported width;
+- desktop workspace tabs retain their icon and title only; descriptions and numeric badges are intentionally omitted;
+- the tab layout steps down before mobile, where the existing labelled select remains authoritative;
+- shared narrow-mobile shell spacing and safe-area handling receive a bounded responsive polish rather than broad page redesign.
+
 ## Acceptance boundary before inspection resumes
 
 The remaining page inspection should resume only after 28D1 and 28D2 have been
