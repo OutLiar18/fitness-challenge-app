@@ -41,6 +41,7 @@ import {
 } from "../services/leagues/leagueService";
 import { copyTextToClipboard } from "../utils/clipboard";
 import { subscribeToLeaderboardSnapshot } from "../services/evidence/evidenceService";
+import { summarizeCurrentPowerPlay } from "../services/seasons/powerPlayModel";
 import { subscribeToLeaguePowerPlayWeeks } from "../services/seasons/powerPlayService";
 import { resolveWorkspaceTab } from "../services/ui/workspaceModel";
 import {
@@ -57,37 +58,31 @@ const SEASON_DETAIL_TABS = Object.freeze([
     id: "overview",
     label: "Overview",
     icon: "🧭",
-    description: "Season dates, rules and lifecycle",
   },
   {
     id: "operations",
     label: "Command centre",
     icon: "🎛️",
-    description: "Operational health, next actions and downloadable reports",
   },
   {
     id: "power-plays",
     label: "Power Plays",
     icon: "⚡",
-    description: "Theme-named weekly multipliers and no-repeat draw history",
   },
   {
     id: "standings",
     label: "Standings",
     icon: "📊",
-    description: "Individual and House leaderboards",
   },
   {
     id: "honours",
     label: "Honours",
     icon: "🏆",
-    description: "Provisional or final season champions",
   },
   {
     id: "evidence",
-    label: "Evidence operations",
+    label: "Evidence",
     icon: "✅",
-    description: "Review WhatsApp proof and publish player standings",
   },
 ]);
 
@@ -96,19 +91,16 @@ const SEASONS_PAGE_TABS = Object.freeze([
     id: "browse",
     label: "Browse seasons",
     icon: "🛡️",
-    description: "Explore season details, standings and honours",
   },
   {
     id: "join",
     label: "Join a season",
     icon: "🎟️",
-    description: "Register with a season invitation code",
   },
   {
     id: "create",
     label: "Create season",
     icon: "✨",
-    description: "Build a new themed House season",
   },
 ]);
 const dateFormatter = new Intl.DateTimeFormat("en-ZA", {
@@ -682,6 +674,68 @@ function LeagueDetail({
         houseChampions: EMPTY_ITEMS,
         houseOfChampions: null,
       };
+  const currentPowerPlay = useMemo(
+    () =>
+      summarizeCurrentPowerPlay({
+        league,
+        assignments: powerPlayAssignments,
+      }),
+    [league, powerPlayAssignments],
+  );
+  const currentPowerPlayLabel = !powerPlayEnabled
+    ? "Classic scoring"
+    : currentPowerPlay.powerPlay
+      ? `${currentPowerPlay.powerPlay.multiplier}× ${currentPowerPlay.powerPlay.name}`
+      : currentPowerPlay.status === "outside-season"
+        ? ["completed", "archived"].includes(league.status)
+          ? "Season complete"
+          : "Begins with the season"
+        : currentPowerPlay.status === "unselected"
+          ? "Awaiting draw"
+          : "Awaiting reveal";
+  const currentPowerPlayDetail = currentPowerPlay.week
+    ? `Week ${currentPowerPlay.week.weekIndex}`
+    : powerPlayEnabled
+      ? ["completed", "archived"].includes(league.status)
+        ? "Season ended"
+        : "Weekly multiplier"
+      : "No weekly multipliers";
+  const playerStanding =
+    standings.players.find((row) => row.userId === userId) ?? null;
+  const currentHouseName =
+    membership?.currentHouseName ||
+    membership?.houseName ||
+    membership?.teamName ||
+    (league.chaosStatus === "activated" ? "Unassigned" : "Awaiting C.H.A.O.S.");
+  const summaryMetrics = isManager
+    ? [
+        { label: "Season phase", value: getLeagueStatusLabel(league.status) },
+        {
+          label: "Players",
+          value: formatNumber(league.participantCount ?? members.length, { whole: true }),
+        },
+        { label: "Houses", value: String(league.houseCount || 0) },
+        { label: "Current Power Play", value: currentPowerPlayLabel },
+      ]
+    : membership
+      ? [
+          { label: "Your House", value: currentHouseName },
+          {
+            label: "Individual rank",
+            value: playerStanding ? `#${playerStanding.rank}` : "Awaiting publication",
+          },
+          {
+            label: "Your points",
+            value: playerStanding ? formatPoints(playerStanding.totalPoints) : "Awaiting publication",
+          },
+          { label: "Current Power Play", value: currentPowerPlayLabel },
+        ]
+      : [
+          { label: "Season phase", value: getLeagueStatusLabel(league.status) },
+          { label: "Membership", value: "Not joined" },
+          { label: "Houses", value: String(league.houseCount || 0) },
+          { label: "Current Power Play", value: currentPowerPlayLabel },
+        ];
   const nextStatus = isHouseSeason
     ? {
         draft: "registration",
@@ -765,16 +819,6 @@ function LeagueDetail({
               ✓ {getMembershipStatusLabel(membership.status)}
             </span>
           )}
-          {isHouseSeason && (
-            <Link className="button button--secondary" to={`/houses?league=${league.id}`}>
-              Open Houses
-            </Link>
-          )}
-          {isHouseSeason && league.pocketEnabled && (
-            <Link className="button button--secondary" to={`/pocket?league=${league.id}`}>
-              Open Pocket
-            </Link>
-          )}
           {isManager && league.inviteCode && (
             <button
               className="button button--secondary"
@@ -812,7 +856,7 @@ function LeagueDetail({
               onClick={() => setPendingAction("delete-draft")}
             >
               {workingAction === "delete-draft"
-                ? "Deleting draftâ€¦"
+                ? "Deleting draft…"
                 : "Delete unused draft"}
             </button>
           )}
@@ -831,47 +875,34 @@ function LeagueDetail({
         </div>
             </section>
       <CompetitionWorkspaceSummary
-        eyebrow="Your season context"
-        title={membership
-          ? `${getMembershipStatusLabel(membership.status)} in ${league.name}`
-          : `Viewing ${league.name}`}
+        eyebrow={isManager ? "Season command" : membership ? "Your campaign" : "Season preview"}
+        title={isManager
+          ? `${league.name} command view`
+          : membership
+            ? `${league.name} campaign`
+            : `Viewing ${league.name}`}
         description={isManager
-          ? "Competition administration is separated into focused workspaces. Use the shortcuts below for the next operational task without mixing setup, standings and evidence."
-          : "The season keeps individual and House competition together while preserving the House that owned each historical contribution."}
-        metrics={[
-          { label: "Season phase", value: getLeagueStatusLabel(league.status) },
-          { label: "Membership", value: membership ? getMembershipStatusLabel(membership.status) : "Not joined" },
-          { label: "Houses", value: String(league.houseCount || 0) },
-          { label: "Power Plays", value: powerPlayEnabled ? "Active" : "Off" },
-        ]}
+          ? "Run the season through focused workspaces while the critical competition state stays visible at a glance."
+          : membership
+            ? "Your House, rank, points and weekly Power Play stay visible here while the tabs below hold the deeper season detail."
+            : "Preview the season before you enter. Its Houses, phase and competition state stay season-scoped."}
+        metrics={summaryMetrics}
       >
-        <button className="button button--secondary" type="button" onClick={() => setActiveTab("overview")}>
-          Season overview
-        </button>
-        {canViewStandings && (
-          <button className="button button--secondary" type="button" onClick={() => setActiveTab("standings")}>
-            Open standings
-          </button>
+        {isHouseSeason && (
+          <Link className="button button--secondary" to={`/houses?league=${league.id}`}>
+            Open Houses
+          </Link>
         )}
-        {powerPlayEnabled && (
-          <button className="button button--secondary" type="button" onClick={() => setActiveTab("power-plays")}>
-            Power Plays
-          </button>
-        )}
-        {canViewCommandCentre && (
-          <button className="button button--primary" type="button" onClick={() => setActiveTab("operations")}>
-            Command centre
-          </button>
+        {isHouseSeason && league.pocketEnabled && (
+          <Link className="button button--secondary" to={`/pocket?league=${league.id}`}>
+            Open Pocket
+          </Link>
         )}
       </CompetitionWorkspaceSummary>
       <WorkspaceTabs
         idPrefix={`season-${league.id}`}
         label={`${league.name} sections`}
-        tabs={detailTabs.map((tab) =>
-            tab.id === "standings"
-              ? { ...tab, badge: members.length }
-              : tab,
-          )}
+        tabs={detailTabs}
         activeId={resolvedDetailTab}
         onChange={setActiveTab}
       />
@@ -907,20 +938,20 @@ function LeagueDetail({
           </article>
           <article>
             <span aria-hidden="true">⚡</span>
-            <strong>{powerPlayEnabled ? "Power Plays active" : "Classic scoring"}</strong>
-            <small>{powerPlayEnabled ? "One unique themed draw per week" : "No weekly multipliers"}</small>
+            <strong>{currentPowerPlayLabel}</strong>
+            <small>{currentPowerPlayDetail}</small>
           </article>
           <article>
             <span aria-hidden="true">⚖️</span>
-            <strong>Dual standings</strong>
-            <small>Individual and House</small>
+            <strong>{canViewStandings ? "Standings available" : "Standings locked"}</strong>
+            <small>{canViewStandings ? "Individual and House" : "Join to unlock"}</small>
           </article>
         </section>
 
         <section className="league-rules card">
           <div>
-            <p className="section-kicker">Frozen seasonal rules</p>
-            <h2>{league.ruleset?.version || "Season rules"}</h2>
+            <p className="section-kicker">Season rules</p>
+            <h2>How this season scores</h2>
             <p>
               Each active day receives up to{" "}
               <strong>{formatPoints(league.ruleset?.dailyActivityCap ?? 20)}</strong>{" "}
@@ -931,8 +962,6 @@ function LeagueDetail({
             </p>
           </div>
           <dl>
-            <div><dt>Scoring engine</dt><dd>{league.ruleset?.scoringEngineVersion}</dd></div>
-            <div><dt>Rules version</dt><dd>{league.rulesVersion}</dd></div>
             <div><dt>Standings</dt><dd>Individual and House</dd></div>
             <div>
               <dt>Participants</dt>
@@ -941,6 +970,12 @@ function LeagueDetail({
                 of {formatNumber(league.participantLimit ?? LEAGUE_PARTICIPANT_LIMIT, { whole: true })}
               </dd>
             </div>
+            {isManager && (
+              <>
+                <div><dt>Scoring engine</dt><dd>{league.ruleset?.scoringEngineVersion}</dd></div>
+                <div><dt>Rules version</dt><dd>{league.rulesVersion}</dd></div>
+              </>
+            )}
           </dl>
         </section>
 
@@ -1214,9 +1249,9 @@ export default function Seasons() {
   return (
     <div className="league-page page-stack">
       <PageHeader
-        eyebrow="Themed seasonal competition"
+        eyebrow="Seasonal competition"
         title="Seasons"
-        description="Register once, compete individually, strengthen the House you currently represent and preserve every chapter after the season ends."
+        description="Enter the season. Climb the ranks, carry your House and make every week worthy of the legacy you leave behind."
         icon="🛡️"
       />
       {error && (
@@ -1236,7 +1271,7 @@ export default function Seasons() {
         <section className="league-browser card">
           <div className="community-section-heading">
             <div>
-              <p className="section-kicker">Season archive</p>
+              <p className="section-kicker">Season roster</p>
               <h2>Choose a season</h2>
             </div>
             <span>
@@ -1258,21 +1293,22 @@ export default function Seasons() {
                     key={league.id}
                     type="button"
                     aria-pressed={selectedId === league.id}
-                    className={
-                      selectedId === league.id
-                        ? "league-browser__item league-browser__item--active"
-                        : "league-browser__item"
-                    }
+                    className={`league-browser__item${
+                      selectedId === league.id ? " league-browser__item--active" : ""
+                    }${league.status === "active" ? " league-browser__item--live" : ""}`}
                     onClick={() => selectLeague(league.id)}
                   >
-                    <span>{league.theme || league.type}</span>
+                    <span className="league-browser__theme">{league.theme || league.type}</span>
                     <strong>{league.name}</strong>
-                    <small>
-                      {getLeagueStatusLabel(league.status)}
-                      {leagueMembership
-                        ? ` · ${getMembershipStatusLabel(leagueMembership.status)}`
-                        : ""}
-                    </small>
+                    <span className="league-browser__dates">
+                      {formatDate(league.startDate)} – {formatDate(league.endDate)}
+                    </span>
+                    <span className="league-browser__meta">
+                      <small>{getLeagueStatusLabel(league.status)}</small>
+                      {leagueMembership && (
+                        <em>{getMembershipStatusLabel(leagueMembership.status)}</em>
+                      )}
+                    </span>
                   </button>
                 );
               })}

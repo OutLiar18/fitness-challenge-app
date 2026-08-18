@@ -37,13 +37,11 @@ const ACTIVITY_TABS = Object.freeze([
     id: "log",
     label: "Log activity",
     icon: "✍️",
-    description: "Choose a category and record the facts",
   },
   {
     id: "journal",
     label: "Journal",
     icon: "📖",
-    description: "Review and manage entries by date",
   },
 ]);
 
@@ -242,6 +240,7 @@ function ActivityLogWorkspace({
           <CategoryGrid
             selected={categoryId}
             onSelect={handleCategorySelect}
+            description=""
             headerActions={
               <div
                 className="activity-log-date-tabs"

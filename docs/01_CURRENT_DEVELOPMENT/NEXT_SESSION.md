@@ -6,7 +6,7 @@ Current production: v0.27.0
 
 ## First action
 
-Continue from implemented 28D2B on `development/v0.28.0`. First visually review Progress at wide desktop, tablet and narrow mobile widths. Confirm the circular current-level indicator stays circular and centred, desktop workspace tabs show icon + title only, the mobile section select remains clean, achievement cards do not overflow and the six-destination mobile shell remains readable without horizontal clipping. If accepted, resume the remaining page-by-page inspection starting with Seasons.
+Continue from implemented 28D3 on `development/v0.28.0`. First visually review the Dashboard progression preview and compact mobile Welcome Card, currentColor desktop/mobile navigation and simplified More menu, Log Activity title-only tabs, the de-duplicated Progress Experience card, and the complete Seasons arena/roster/context/rules treatment at desktop, tablet and narrow mobile widths. If accepted, resume the remaining page-by-page inspection with Houses.
 
 ## v0.25.0 order
 

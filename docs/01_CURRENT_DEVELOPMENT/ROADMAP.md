@@ -262,9 +262,9 @@ Responsive behaviour remains a requirement throughout later development.
 - desktop/mobile Navigation changes implemented, including direct Seasons/Houses mobile access and concise stat labels;
 - Today/Yesterday logging and accepted Log Activity presentation/copy changes implemented;
 - final logo/favicon artwork remains deferred;
-- owner visual/responsive acceptance is required before moving on.
+- owner visual/responsive acceptance completed before the Progress implementation pass.
 
-### 28D2 — Progress and progression expansion — IMPLEMENTED / OWNER REVIEW PENDING
+### 28D2 — Progress and progression expansion — IMPLEMENTED / ACCEPTED
 - desktop Progress tabs and hierarchy cleaned up with explicit responsive transitions;
 - 86 deterministic achievements with visible/hidden support and configured XP difficulty tiers;
 - category-specific milestone families cover every activity category plus completed books;
@@ -273,7 +273,16 @@ Responsive behaviour remains a requirement throughout later development.
 - 21 escalating title bands run from Initiate to Living Legend;
 - next visible milestone per family is prioritised, while completed achievements are collapsed;
 - detailed balance/configuration is recorded in `V028_PROGRESSION_EXPANSION.md`;
-- owner visual/responsive review remains before the remaining page inspection resumes.
+- owner visual/responsive review completed through the accepted 28D2A/28D2B refinements.
+
+### 28D3 — reviewed surfaces + Seasons polish — IMPLEMENTED / OWNER REVIEW PENDING
+- simplify Dashboard progression preview and compact the ordinary-phone Welcome Card layout;
+- complete the generic currentColor navigation icon set and simplify More-menu information architecture;
+- remove duplicate Log Activity instructions and duplicate Progress percentage labels;
+- reframe Seasons as the competition arena with concise tabs, richer roster cards, role-aware context and player-facing rule cleanup;
+- preserve all scoring, lifecycle, House movement, evidence authority and Rules semantics;
+- record broad CSS consolidation for v0.31 instead of mixing it into this checkpoint;
+- perform no Firebase deployment.
 
 ### 28R — release freeze
 - full application regression;
@@ -298,6 +307,7 @@ Responsive behaviour remains a requirement throughout later development.
 - remove awkward or stale code paths;
 - fix small inconsistencies exposed by earlier versions;
 - improve polish, accessibility, performance and documentation;
+- consolidate layered version-specific CSS overrides in oversized surfaces such as Progress and AppShell, removing obsolete selectors only after the page-inspection/rehearsal work is stable;
 - rerun relevant rehearsal coverage if any late change touches season-critical logic.
 
 Only after v0.30.0 rehearsal and v0.31.0 cleanup should the project even be considered for a v1.0 candidate, and only with explicit approval.

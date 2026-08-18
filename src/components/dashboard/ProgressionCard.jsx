@@ -1,32 +1,15 @@
 import { Link } from "react-router-dom";
 
-import {
-  formatExperiencePoints,
-  formatNumber,
-  formatPoints,
-  pluralize,
-} from "../../utils/displayFormatters";
+import { formatExperiencePoints } from "../../utils/displayFormatters";
 import "./ProgressionCard.css";
 
-function getStreakMessage(streak) {
-  if (streak.status === "active") {
-    return "Today’s effort is keeping your streak alive.";
-  }
-
-  if (streak.status === "pending" && streak.shieldAvailable > 0) {
-    return "Complete one daily goal today. Your streak shield is available if life gets dramatic.";
-  }
-
-  if (streak.status === "pending") {
-    return "Complete one daily goal today to continue your streak.";
-  }
-
-  return "Complete one daily goal to begin a new streak.";
-}
-
 export default function ProgressionCard({ progression }) {
-  const { xp, streak, achievements, score } = progression;
-  const recentAchievements = achievements.unlocked.slice(-3).reverse();
+  const { xp, streak, achievements } = progression;
+  const nextAchievement =
+    achievements.inProgress?.[0] ?? achievements.available?.[0] ?? null;
+  const latestAchievement = achievements.unlocked?.slice(-1)[0] ?? null;
+  const featuredAchievement = nextAchievement ?? latestAchievement;
+  const achievementLabel = nextAchievement ? "Next achievement" : "Latest achievement";
 
   return (
     <section
@@ -65,7 +48,6 @@ export default function ProgressionCard({ progression }) {
         aria-valuenow={xp.percentage}
       >
         <span style={{ width: `${xp.percentage}%` }} />
-        <strong aria-hidden="true">{xp.percentage}%</strong>
       </div>
 
       <p className="progression-card__next-level">
@@ -73,78 +55,37 @@ export default function ProgressionCard({ progression }) {
         {xp.level + 1}
       </p>
 
-      <div className="progression-card__metrics">
+      <div className="progression-card__highlights">
         <article>
-          <span aria-hidden="true">🔥</span>
-          <strong>{streak.currentStreak}</strong>
-          <small>Current streak</small>
-        </article>
-
-        <article>
-          <span aria-hidden="true">🏅</span>
-          <strong>{streak.longestStreak}</strong>
-          <small>Longest streak</small>
-        </article>
-
-        <article>
-          <span aria-hidden="true">⭐</span>
-          <strong>{formatNumber(score.bonusPoints, { whole: true })}</strong>
-          <small>Bonus points</small>
-        </article>
-      </div>
-
-      <div className="progression-card__streak-status">
-        <span aria-hidden="true">🛡️</span>
-
-        <div>
-          <strong>
-            {streak.shieldAvailable > 0
-              ? "Streak shield ready"
-              : `${streak.daysUntilShield} successful ${pluralize(
-                  streak.daysUntilShield,
-                  "day",
-                  "days",
-                )} until the next shield`}
-          </strong>
-
-          <p>{getStreakMessage(streak)}</p>
-        </div>
-      </div>
-
-      <div className="progression-card__achievements">
-        <div className="progression-card__achievements-header">
-          <strong>Achievements</strong>
-          <span>
-            {achievements.unlockedCount}/{achievements.total}
+          <span className="progression-card__highlight-icon" aria-hidden="true">
+            🔥
           </span>
-        </div>
+          <div>
+            <small>Current streak</small>
+            <strong>{streak.currentStreak} days</strong>
+          </div>
+        </article>
 
-        {recentAchievements.length === 0 ? (
-          <p className="progression-card__empty">
-            Your first activity will begin your achievement collection.
-          </p>
-        ) : (
-          <ul>
-            {recentAchievements.map((achievement) => (
-              <li key={achievement.id} title={achievement.description}>
-                <span aria-hidden="true">{achievement.emoji}</span>
-                <span>{achievement.name}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      <div className="progression-card__bonus-note">
-        <strong>{formatPoints(score.bonusPoints)}</strong> earned from goals and
-        consistency.
+        <article>
+          <span className="progression-card__highlight-icon" aria-hidden="true">
+            {featuredAchievement?.emoji ?? "🏅"}
+          </span>
+          <div>
+            <small>{achievementLabel}</small>
+            <strong>{featuredAchievement?.name ?? "First milestone awaits"}</strong>
+            <span>
+              {featuredAchievement?.requirement ??
+                "Log your first activity to start the achievement trail."}
+            </span>
+          </div>
+        </article>
       </div>
 
       <Link
         className="button button--secondary progression-card__action"
         to="/progress"
       >
-        View full progress
+        Open Progress
       </Link>
     </section>
   );

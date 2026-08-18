@@ -71,7 +71,7 @@ test("mobile navigation exposes Seasons and Houses directly while Inbox remains 
   assert.match(navigation, /COMPETITION_NAV_ITEMS\[0\]/);
   assert.match(navigation, /COMPETITION_NAV_ITEMS\[1\]/);
   assert.match(shell, /item=\{INBOX_NAV_ITEM\}/);
-  assert.match(shell, /Communications/);
+  assert.match(shell, /Inbox and account/);
   assert.match(shellCss, /grid-template-columns: repeat\(6, minmax\(0, 1fr\)\)/);
 });
 

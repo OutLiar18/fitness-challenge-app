@@ -326,7 +326,7 @@ Explicitly deferred:
 
 Owner review continued through 28D1A and the implementation was accepted before moving to 28D2.
 
-### Checkpoint 28D2 - Progression expansion - IMPLEMENTED / OWNER REVIEW PENDING
+### Checkpoint 28D2 - Progression expansion - IMPLEMENTED / ACCEPTED
 Implemented:
 - Progress desktop workspace tabs use explicit five/three/two-column layouts before the existing mobile select;
 - 86 deterministic achievements are defined through reusable metadata and metric types;
@@ -342,7 +342,7 @@ Implemented:
 - detailed balance and milestone configuration is recorded in `V028_PROGRESSION_EXPANSION.md`;
 - responsive/mobile quality remains part of owner acceptance.
 
-### 28D2A / 28D2B owner-review refinement
+### 28D2A / 28D2B owner-review refinement — ACCEPTED
 - Progress introduction copy is now more motivational and the redundant Analytics shortcut is removed;
 - the public Progress UI does not reveal the maximum level or future locked level-title milestones;
 - the current level uses a circular percentage ring that must remain circular and scale cleanly at every supported width;
@@ -350,8 +350,22 @@ Implemented:
 - the tab layout steps down before mobile, where the existing labelled select remains authoritative;
 - shared narrow-mobile shell spacing and safe-area handling receive a bounded responsive polish rather than broad page redesign.
 
+### Checkpoint 28D3 - reviewed surfaces + Seasons polish - IMPLEMENTED / OWNER REVIEW PENDING
+- Dashboard Progression is intentionally reduced to level/title, XP progress, current streak and one featured achievement;
+- Champion Transmission remains intact while its ordinary-phone layout is less vertically wasteful;
+- generic navigation moves to reusable currentColor SVG symbols and More-menu groups are simplified without changing routes or authority;
+- Log Activity workspace and category instructions are de-duplicated while its accepted 1/2/3 flow, honesty message and Today/Yesterday controls remain;
+- the accepted Progress hero owns the next-level percentage and the Overview Experience card no longer repeats it;
+- Seasons uses stronger competition-focused copy, icon + title workspace tabs, a Season roster with dates/status/membership, cleaner hero actions and role-aware player/manager/viewer context;
+- current House/rank/points/Power Play state is prioritised for participants, while managers retain operational context;
+- season overview cards expose current House/Pocket/Power Play/Standings state;
+- raw scoring-engine and rules-version identifiers are hidden from ordinary players but remain available to season managers;
+- malformed draft-deletion ellipsis is corrected;
+- detailed scope is recorded in `V028_REVIEWED_SURFACES_SEASONS_POLISH.md`;
+- broad layered CSS consolidation remains deferred to v0.31.0.
+
 ## Acceptance boundary before inspection resumes
 
-The remaining page inspection should resume only after 28D1 and 28D2 have been
-implemented, tested and manually reviewed enough that the current review backlog feels
-under control.
+28D1 and 28D2 are implemented and owner-accepted. 28D3 must now receive its
+visual/responsive owner review; once accepted, the remaining page inspection resumes
+with Houses.

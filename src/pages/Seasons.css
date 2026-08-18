@@ -234,3 +234,87 @@
     justify-self: start;
   }
 }
+
+/* v0.28 28D3 — season arena hierarchy and responsive state cards */
+.league-browser__item {
+  min-height: 164px;
+}
+
+.league-browser__theme {
+  color: var(--primary);
+  font-size: 0.76rem;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.league-browser__dates {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.league-browser__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px 10px;
+  margin-top: auto;
+}
+
+.league-browser__meta small {
+  display: inline-flex;
+  width: fit-content;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: var(--surface-strong);
+  font-weight: 800;
+}
+
+.league-browser__meta em {
+  display: inline-flex;
+  width: fit-content;
+  padding: 5px 8px;
+  border: 1px solid var(--success-border);
+  border-radius: 999px;
+  background: var(--success-soft);
+  font-style: normal;
+}
+
+.league-browser__item--live:not(.league-browser__item--active) {
+  border-color: color-mix(in srgb, var(--success) 42%, var(--border));
+}
+
+.league-browser__item--live .league-browser__meta small {
+  color: var(--success);
+  background: var(--success-soft);
+}
+
+.season-system {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.season-system article strong,
+.competition-summary__metrics dd {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 980px) {
+  .season-system {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .league-browser__item {
+    min-height: 0;
+  }
+
+  .league-browser__meta {
+    align-items: flex-start;
+  }
+
+  .season-system {
+    grid-template-columns: 1fr;
+  }
+}

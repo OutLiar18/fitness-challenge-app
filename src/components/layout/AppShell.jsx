@@ -18,6 +18,7 @@ import { logoutUser } from "../../services/auth/authService";
 import { subscribeToPendingSeasonBonusRequests } from "../../services/seasons/seasonBonusService";
 import { formatRole } from "../../utils/displayFormatters";
 import { isValidMbtiType } from "../../constants/mbtiProfiles";
+import ThemeIcon from "../common/ThemeIcon";
 import PlayerAvatar from "../profile/PlayerAvatar";
 import "./AppShell.css";
 
@@ -57,7 +58,7 @@ function NavigationLink({ item, onNavigate, badge }) {
       onClick={onNavigate}
     >
       <span className="app-nav__icon" aria-hidden="true">
-        {item.icon}
+        <ThemeIcon name={item.icon} />
       </span>
       <span className="app-nav__label">{item.label}</span>
       {badgeText && <span className="app-nav__badge">{badgeText}</span>}
@@ -104,48 +105,39 @@ function MoreMenu({
       </div>
 
       {mode === "mobile" && (
-        <>
-          <div className="app-more-panel__section">
-            <p>Communications</p>
-            <NavigationLink
-              item={INBOX_NAV_ITEM}
-              badge={inboxAttentionCount}
-              onNavigate={onNavigate}
-            />
-          </div>
-          <div className="app-more-panel__section">
-            <p>Account</p>
-            <NavigationLink
+        <div className="app-more-panel__section">
+          <p>Inbox and account</p>
+          <NavigationLink
+            item={INBOX_NAV_ITEM}
+            badge={inboxAttentionCount}
+            onNavigate={onNavigate}
+          />
+          <NavigationLink
             item={{
               id: "profile",
               label: "Profile",
-              icon: "👤",
+              icon: "profile",
               to: "/profile",
               tone: "cyan",
               description: "Your player identity and account overview.",
             }}
-              onNavigate={onNavigate}
-            />
-          </div>
-        </>
+            onNavigate={onNavigate}
+          />
+        </div>
       )}
 
       <div className="app-more-panel__section">
-        <p>Tools and reflection</p>
+        <p>Tools</p>
         {SECONDARY_NAV_ITEMS.map((item) => (
           <NavigationLink key={item.id} item={item} onNavigate={onNavigate} />
         ))}
       </div>
 
       <div className="app-more-panel__section">
-        <p>Challenge reference</p>
+        <p>Reference and support</p>
         {REFERENCE_NAV_ITEMS.map((item) => (
           <NavigationLink key={item.id} item={item} onNavigate={onNavigate} />
         ))}
-      </div>
-
-      <div className="app-more-panel__section">
-        <p>Support and account</p>
         {SUPPORT_NAV_ITEMS.map((item) => (
           <NavigationLink key={item.id} item={item} onNavigate={onNavigate} />
         ))}
@@ -159,7 +151,7 @@ function MoreMenu({
       )}
 
       <button className="app-more-panel__logout" type="button" onClick={onLogout}>
-        <span aria-hidden="true">↪</span>
+        <span aria-hidden="true"><ThemeIcon name="signout" /></span>
         Sign out
       </button>
     </div>
@@ -363,7 +355,7 @@ export default function AppShell() {
               aria-controls="app-more-menu"
               onClick={() => toggleMoreMenu(desktopMoreButtonRef.current, "desktop")}
             >
-              <span className="app-nav__icon" aria-hidden="true">•••</span>
+              <span className="app-nav__icon" aria-hidden="true"><ThemeIcon name="more" /></span>
               <span className="app-nav__label">More</span>
             </button>
           </div>
@@ -455,7 +447,7 @@ export default function AppShell() {
             onClick={handleNavigation}
           >
             <span className="app-mobile-nav__icon" aria-hidden="true">
-              {item.icon}
+              <ThemeIcon name={item.icon} />
               {item.id === INBOX_NAV_ITEM.id && inboxAttentionCount > 0 && (
                 <span className="app-mobile-nav__badge">
                   {inboxAttentionCount > 9 ? "9+" : inboxAttentionCount}
@@ -478,7 +470,7 @@ export default function AppShell() {
           onClick={() => toggleMoreMenu(mobileMoreButtonRef.current, "mobile")}
         >
           <span className="app-mobile-nav__icon" aria-hidden="true">
-            •••
+            <ThemeIcon name="more" />
             {inboxAttentionCount > 0 && (
               <span className="app-mobile-nav__badge">
                 {inboxAttentionCount > 9 ? "9+" : inboxAttentionCount}

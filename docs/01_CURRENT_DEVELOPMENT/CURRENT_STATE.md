@@ -311,7 +311,7 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - final logo artwork and MBTI-dependent favicon/logo remain deferred;
 - Firestore Rules are unchanged and no Firebase deployment occurs.
 
-#### Checkpoint 28D2 — Progress and progression expansion — IMPLEMENTED / OWNER REVIEW PENDING
+#### Checkpoint 28D2 — Progress and progression expansion — IMPLEMENTED / ACCEPTED
 - Progress desktop workspace tabs now use deliberate wide/medium layouts before the existing mobile select takes over;
 - the achievement catalogue expands to 86 deterministic milestones with 10 hidden achievements;
 - every achievement has an explicit requirement, difficulty tier and XP reward;
@@ -326,7 +326,7 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - detailed configuration is recorded in `V028_PROGRESSION_EXPANSION.md`;
 - Firestore Rules remain unchanged and no Firebase deployment occurs.
 
-#### Checkpoint 28D2A / 28D2B — Progress owner-review refinements — IMPLEMENTED / OWNER REVIEW PENDING
+#### Checkpoint 28D2A / 28D2B — Progress owner-review refinements — IMPLEMENTED / ACCEPTED
 - 28D2A replaces the weak Progress introduction, removes the Analytics shortcut, keeps the level cap undisclosed and limits Level Journey to already-unlocked titles;
 - 28D2B fixes the circular current-level indicator so it stays square and scales through desktop, tablet and narrow mobile widths;
 - desktop Progress tabs now retain their icons and visible titles only — Overview, Achievements, Records, Timeline and Level Journey — without descriptions or count badges;
@@ -334,8 +334,20 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - narrow mobile shell padding, navigation labels and safe-area handling receive a bounded shared polish without changing navigation destinations;
 - Firestore Rules remain unchanged and no Firebase deployment occurs.
 
+#### Checkpoint 28D3 — reviewed surfaces + Seasons polish — IMPLEMENTED / OWNER REVIEW PENDING
+- Dashboard Personal Progression is reduced to a focused level/streak/next-achievement preview rather than duplicating the Progress page;
+- Champion Transmission keeps its content while ordinary phone widths retain the compact two-column Side Quest / Coach layout;
+- generic navigation uses reusable currentColor SVG symbols and the More menu is simplified into clearer task groups;
+- Log Activity keeps its titles, Today/Yesterday selector and honesty message while removing duplicate instructional subtitles;
+- the accepted Progress hero is the sole visual owner of next-level percentage, while the Overview keeps XP amounts and breakdowns;
+- Seasons is reframed as the competition arena with stronger copy, cleaner icon + title tabs, a truthful Season roster, richer season cards, role-aware competition context and live system-state cards;
+- ordinary players no longer see raw scoring/rules version identifiers; managers retain that diagnostic detail;
+- broad layered-CSS consolidation remains explicitly deferred to v0.31.0;
+- detailed scope is recorded in `V028_REVIEWED_SURFACES_SEASONS_POLISH.md`;
+- Firestore Rules remain unchanged and no Firebase deployment occurs.
+
 ### Next action
-Run a final owner visual/responsive review of Progress at wide desktop, tablet and narrow mobile widths. If accepted, resume the remaining v0.28 page inspection starting with Seasons.
+Run an owner visual/responsive review of the 28D3 surfaces: Dashboard progression preview, desktop/mobile navigation and More menu, Log Activity tabs, Progress Overview, and Seasons across desktop/tablet/mobile. If accepted, continue the remaining v0.28 page inspection with Houses.
 
 ## Responsive development boundary
 

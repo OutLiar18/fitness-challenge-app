@@ -15,7 +15,7 @@ export default function CategoryGrid({
         <div className="category-picker__header">
           <p className="category-picker__eyebrow">{eyebrow}</p>
           <h2 id="category-picker-title">{title}</h2>
-          <p>{description}</p>
+          {description && <p>{description}</p>}
         </div>
         {headerActions && (
           <div className="category-picker__actions">{headerActions}</div>

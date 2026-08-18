@@ -285,7 +285,6 @@ export default function Progress() {
                 <p className="progress-eyebrow">Experience</p>
                 <h2 id="experience-title">Level progress</h2>
               </div>
-              <strong>{xp.percentage}%</strong>
             </div>
 
             <div className="progress-xp-values">
@@ -296,7 +295,6 @@ export default function Progress() {
                       xp.xpForNextLevel,
                     )}`}
               </span>
-              <strong>{xp.percentage}%</strong>
             </div>
 
             <div
