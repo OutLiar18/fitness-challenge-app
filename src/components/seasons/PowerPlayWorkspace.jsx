@@ -186,6 +186,7 @@ export default function PowerPlayWorkspace({
   const [correctionWeekKey, setCorrectionWeekKey] = useState("");
   const [replacementPowerPlayId, setReplacementPowerPlayId] = useState("");
   const [correctionReason, setCorrectionReason] = useState("");
+  const [editingPowerPlayId, setEditingPowerPlayId] = useState("");
 
   const weeks = useMemo(() => getSeasonPowerPlayWeeks(league), [league]);
   const assignmentByWeek = useMemo(
@@ -204,6 +205,8 @@ export default function PowerPlayWorkspace({
     () => summarizeCurrentPowerPlay({ league, assignments }),
     [assignments, league],
   );
+  const editingPowerPlay =
+    draftPowerPlays.find((item) => item.id === editingPowerPlayId) ?? null;
   const usedIds = new Set(league.powerPlayState?.usedPowerPlayIds ?? []);
   const availableCorrectionPlays = sourcePowerPlays.filter(
     (item) => item.enabled !== false && item.themeNameConfirmed === true && !usedIds.has(item.id),
@@ -257,6 +260,7 @@ export default function PowerPlayWorkspace({
       sortOrder: draftPowerPlays.length + 1,
     };
     setDraftPowerPlays((currentItems) => [...currentItems, item]);
+    setEditingPowerPlayId(item.id);
   }
 
   async function selectWeek(weekKey, reason = "") {
@@ -345,17 +349,61 @@ export default function PowerPlayWorkspace({
             </ul>
           </section>
 
-          <div className="power-play-editor-grid">
+          <div className="power-play-editor-list" role="list" aria-label="Power Play setup list">
             {draftPowerPlays.map((item) => (
-              <PowerPlayEditor
+              <article
+                className={`power-play-editor-list__item card${editingPowerPlayId === item.id ? " is-editing" : ""}`}
                 key={item.id}
-                item={item}
-                onChange={(patch) => updateDraft(item.id, patch)}
-                onRemove={() => setDraftPowerPlays((currentItems) => currentItems.filter((candidate) => candidate.id !== item.id))}
-              />
+                role="listitem"
+              >
+                <div>
+                  <span className="power-play-multiplier">{item.multiplier}×</span>
+                  <span>
+                    <strong>{item.name || "Untitled Power Play"}</strong>
+                    <small>
+                      {item.themeNameConfirmed ? "Theme confirmed" : "Theme confirmation needed"}
+                      {" · "}
+                      {(item.categories ?? []).map(categoryLabel).join(" + ")}
+                    </small>
+                  </span>
+                </div>
+                <button
+                  className="button button--secondary button--compact"
+                  type="button"
+                  onClick={() => setEditingPowerPlayId(item.id)}
+                >
+                  Edit
+                </button>
+              </article>
             ))}
           </div>
-          <section className="power-play-editor-actions card">
+          {editingPowerPlay && (
+            <section className="power-play-edit-panel">
+              <div className="community-section-heading">
+                <div>
+                  <p className="section-kicker">Power Play editor</p>
+                  <h2>Edit one play</h2>
+                </div>
+                <button
+                  className="button button--secondary button--compact"
+                  type="button"
+                  onClick={() => setEditingPowerPlayId("")}
+                >
+                  Close editor
+                </button>
+              </div>
+              <PowerPlayEditor
+                item={editingPowerPlay}
+                onChange={(patch) => updateDraft(editingPowerPlay.id, patch)}
+                onRemove={() => {
+                  setDraftPowerPlays((currentItems) =>
+                    currentItems.filter((candidate) => candidate.id !== editingPowerPlay.id),
+                  );
+                  setEditingPowerPlayId("");
+                }}
+              />
+            </section>
+          )}          <section className="power-play-editor-actions card">
             <div>
               <strong>{formatNumber(draftPowerPlays.length, { whole: true })} Power Plays configured</strong>
               <small>Custom plays may target one or several categories and use a 2× or 3× multiplier.</small>

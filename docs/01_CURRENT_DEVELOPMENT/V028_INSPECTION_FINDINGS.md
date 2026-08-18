@@ -364,6 +364,15 @@ Implemented:
 - detailed scope is recorded in `V028_REVIEWED_SURFACES_SEASONS_POLISH.md`;
 - broad layered CSS consolidation remains deferred to v0.31.0.
 
+### Checkpoint 28D3A - Seasons workspace cleanup - IMPLEMENTED / OWNER REVIEW PENDING
+- the first 28D3 Seasons pass was reopened after a real draft season exposed excessive Browse/detail density;
+- Browse is now a selection surface and a chosen season becomes a focused workspace;
+- Command Centre, Power Plays and Evidence use progressive disclosure instead of rendering every operational surface at once;
+- Standings uses an Individual/Houses switch and Honours separates award families;
+- Create Season receives a four-stage visual roadmap without data-model changes;
+- all competition rules, evidence authority, lifecycle semantics and Firestore Rules remain unchanged;
+- Houses stays paused until Seasons receives explicit owner acceptance.
+
 ## Acceptance boundary before inspection resumes
 
 28D1 and 28D2 are implemented and owner-accepted. 28D3 must now receive its

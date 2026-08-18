@@ -385,16 +385,30 @@ export default function SeasonCommandCentre({
         </div>
       </section>
 
-      <BonusPointsWorkspace
-        key={league.id}
-        league={league}
-        members={members}
-        actorId={actorId}
-        isPlatformAdmin={isPlatformAdmin}
-        isLeagueAdministrator={isLeagueAdministrator}
-        notify={notify}
-      />
+      <details className="season-ops-disclosure">
+        <summary>
+          <div><strong>Bonus points and adjustments</strong><span>Award or correct exceptional season contributions.</span></div>
+          <span aria-hidden="true">+</span>
+        </summary>
+        <div className="season-ops-disclosure__content">
+          <BonusPointsWorkspace
+            key={league.id}
+            league={league}
+            members={members}
+            actorId={actorId}
+            isPlatformAdmin={isPlatformAdmin}
+            isLeagueAdministrator={isLeagueAdministrator}
+            notify={notify}
+          />
+        </div>
+      </details>
 
+      <details className="season-ops-disclosure">
+        <summary>
+          <div><strong>Integrity tools and history</strong><span>Trusted reconciliation, evidence workload, leadership and publication history.</span></div>
+          <span aria-hidden="true">+</span>
+        </summary>
+        <div className="season-ops-disclosure__content">
       {canViewTrustedOperations && (
         <section
           id="trusted-season-operations"
@@ -521,6 +535,8 @@ export default function SeasonCommandCentre({
           </p>
         </div>
       </section>
+        </div>
+      </details>
     </div>
   );
 }

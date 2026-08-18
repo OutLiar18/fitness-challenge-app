@@ -331,3 +331,66 @@
     grid-template-columns: 1fr;
   }
 }
+/* v0.28 28D3A — Command Centre progressive disclosure */
+.season-ops-disclosure {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.season-ops-disclosure > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.season-ops-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.season-ops-disclosure > summary > div {
+  display: grid;
+  gap: 4px;
+}
+
+.season-ops-disclosure > summary span {
+  color: var(--text-muted);
+}
+
+.season-ops-disclosure > summary > span:last-child {
+  color: var(--primary);
+  font-size: 1.4rem;
+  font-weight: 900;
+  transition: transform 160ms ease;
+}
+
+.season-ops-disclosure[open] > summary > span:last-child {
+  transform: rotate(45deg);
+}
+
+.season-ops-disclosure__content {
+  display: grid;
+  gap: 18px;
+  padding: 0 18px 18px;
+  border-top: 1px solid var(--border);
+}
+
+.season-ops-disclosure__content > :first-child {
+  margin-top: 18px;
+}
+
+@media (max-width: 620px) {
+  .season-ops-disclosure > summary {
+    align-items: flex-start;
+    padding: 16px;
+  }
+
+  .season-ops-disclosure__content {
+    padding: 0 12px 12px;
+  }
+}

@@ -133,3 +133,6 @@ The intended pre-v1.0 order is now:
 - v0.29.0: friend/external feedback pass;
 - v0.30.0: complete league-season rehearsal;
 - v0.31.0: cleanup, polish and hardening.
+
+## 28D3A owner review priority
+Review Seasons before any Houses work. Check Browse without an auto-opened detail, open a season and test Overview, Command Centre disclosures, one-at-a-time Power Play editing, Individual/House standings switching, Honours separation, Evidence publication/queue hierarchy, and the four-stage Create Season presentation on desktop, tablet and narrow mobile. If accepted, resume page inspection with Houses.

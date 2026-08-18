@@ -185,3 +185,66 @@
     grid-column: 2;
   }
 }
+/* v0.28 28D3A — Evidence working hierarchy */
+.evidence-snapshot {
+  order: -3;
+}
+
+.evidence-snapshot--due {
+  border-color: var(--warning-border);
+  background: linear-gradient(135deg, var(--warning-soft), var(--surface));
+}
+
+.evidence-summary {
+  order: -2;
+}
+
+.evidence-layout {
+  order: 0;
+}
+
+details.evidence-boundary {
+  order: 2;
+  display: block;
+  padding: 0;
+  background: var(--surface);
+}
+
+details.evidence-boundary > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px 18px;
+  cursor: pointer;
+  list-style: none;
+}
+
+details.evidence-boundary > summary::-webkit-details-marker {
+  display: none;
+}
+
+details.evidence-boundary > summary > span:first-child {
+  display: grid;
+  gap: 3px;
+}
+
+details.evidence-boundary > summary small {
+  color: var(--text-muted);
+}
+
+details.evidence-boundary > summary > span:last-child {
+  color: var(--primary);
+  font-size: 1.35rem;
+  font-weight: 900;
+}
+
+.evidence-boundary__content {
+  padding: 0 18px 18px;
+  border-top: 1px solid var(--border);
+}
+
+.evidence-boundary__content p {
+  margin: 14px 0 0;
+  color: var(--text-muted);
+}

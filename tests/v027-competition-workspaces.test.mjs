@@ -56,9 +56,10 @@ test("oversized competition routes extract roster and standings presentation", (
   assert.doesNotMatch(seasons, /function StandingsTable/);
 });
 
-test("Houses and Seasons share a task-focused competition summary", () => {
+test("Houses keeps the shared summary while Seasons uses a focused detail workspace", () => {
   assert.match(houses, /<CompetitionWorkspaceSummary/);
-  assert.match(seasons, /<CompetitionWorkspaceSummary/);
+  assert.doesNotMatch(seasons, /<CompetitionWorkspaceSummary/);
+  assert.match(seasons, /Season at a glance/);
   assert.match(summary, /competition-summary__metrics/);
   assert.match(summary, /competition-summary__actions/);
 });

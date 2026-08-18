@@ -120,6 +120,67 @@ const ICON_PATHS = Object.freeze({
       <path d="M8 12h10" />
     </>
   ),
+  compass: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="m15.5 8.5-2 5-5 2 2-5z" />
+    </>
+  ),
+  command: (
+    <>
+      <rect x="4" y="5" width="16" height="14" rx="2" />
+      <path d="M8 9h8M8 13h5M8 17h3" />
+    </>
+  ),
+  power: (
+    <>
+      <path d="m13 2-7 11h6l-1 9 7-12h-6z" />
+    </>
+  ),
+  standings: (
+    <>
+      <path d="M5 20v-6h4v6M10 20V8h4v12M15 20V4h4v16" />
+      <path d="M3 20h18" />
+    </>
+  ),
+  trophy: (
+    <>
+      <path d="M8 4h8v4a4 4 0 0 1-8 0z" />
+      <path d="M8 6H5v1a4 4 0 0 0 4 4M16 6h3v1a4 4 0 0 1-4 4" />
+      <path d="M12 12v4M8 20h8M10 16h4v4" />
+    </>
+  ),
+  evidence: (
+    <>
+      <path d="M5 3h10l4 4v14H5z" />
+      <path d="M15 3v5h5" />
+      <path d="m8 14 2 2 5-5" />
+    </>
+  ),
+  ticket: (
+    <>
+      <path d="M4 7h16v4a2 2 0 0 0 0 4v4H4v-4a2 2 0 0 0 0-4z" />
+      <path d="M12 8v2M12 14v2M12 18v1" />
+    </>
+  ),
+  back: (
+    <>
+      <path d="m11 6-6 6 6 6" />
+      <path d="M5 12h14" />
+    </>
+  ),
+  info: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 11v6M12 7h.01" />
+    </>
+  ),
+  edit: (
+    <>
+      <path d="M4 20h4l11-11-4-4L4 16z" />
+      <path d="m13.5 6.5 4 4" />
+    </>
+  ),
 });
 
 export default function ThemeIcon({

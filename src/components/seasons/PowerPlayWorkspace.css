@@ -283,3 +283,67 @@
     width: 100%;
   }
 }
+/* v0.28 28D3A — compact Power Play setup */
+.power-play-editor-list {
+  display: grid;
+  gap: 10px;
+}
+
+.power-play-editor-list__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+}
+
+.power-play-editor-list__item > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.power-play-editor-list__item > div > span:last-child {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.power-play-editor-list__item small {
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.power-play-editor-list__item.is-editing {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.power-play-edit-panel {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid color-mix(in srgb, var(--primary) 42%, var(--border));
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--primary-soft) 55%, var(--surface));
+}
+
+.power-play-edit-panel .power-play-editor {
+  margin: 0;
+}
+
+@media (max-width: 680px) {
+  .power-play-editor-list__item {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .power-play-editor-list__item .button {
+    width: 100%;
+  }
+
+  .power-play-edit-panel {
+    padding: 12px;
+  }
+}

@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import ConfirmDialog from "../components/common/ConfirmDialog";
+import ThemeIcon from "../components/common/ThemeIcon";
 import Toast from "../components/common/Toast/Toast";
-import CompetitionWorkspaceSummary from "../components/seasons/CompetitionWorkspaceSummary";
 import EvidenceWorkspace from "../components/seasons/EvidenceWorkspace";
 import PowerPlayWorkspace from "../components/seasons/PowerPlayWorkspace";
 import SeasonCommandCentre from "../components/seasons/SeasonCommandCentre";
@@ -57,32 +57,32 @@ const SEASON_DETAIL_TABS = Object.freeze([
   {
     id: "overview",
     label: "Overview",
-    icon: "🧭",
+    icon: <ThemeIcon name="compass" />,
   },
   {
     id: "operations",
     label: "Command centre",
-    icon: "🎛️",
+    icon: <ThemeIcon name="command" />,
   },
   {
     id: "power-plays",
     label: "Power Plays",
-    icon: "⚡",
+    icon: <ThemeIcon name="power" />,
   },
   {
     id: "standings",
     label: "Standings",
-    icon: "📊",
+    icon: <ThemeIcon name="standings" />,
   },
   {
     id: "honours",
     label: "Honours",
-    icon: "🏆",
+    icon: <ThemeIcon name="trophy" />,
   },
   {
     id: "evidence",
     label: "Evidence",
-    icon: "✅",
+    icon: <ThemeIcon name="evidence" />,
   },
 ]);
 
@@ -90,17 +90,17 @@ const SEASONS_PAGE_TABS = Object.freeze([
   {
     id: "browse",
     label: "Browse seasons",
-    icon: "🛡️",
+    icon: <ThemeIcon name="seasons" />,
   },
   {
     id: "join",
     label: "Join a season",
-    icon: "🎟️",
+    icon: <ThemeIcon name="ticket" />,
   },
   {
     id: "create",
     label: "Create season",
-    icon: "✨",
+    icon: <ThemeIcon name="add" />,
   },
 ]);
 const dateFormatter = new Intl.DateTimeFormat("en-ZA", {
@@ -208,6 +208,16 @@ function LeagueCreationForm({ actorId, notify }) {
           seven-day Pocket window, themed no-repeat Power Plays and its own
           permanent roster history.
         </p>
+      </div>
+      <ol className="season-create-roadmap" aria-label="Season creation stages">
+        <li><span>1</span><div><strong>Season foundations</strong><small>Name, theme, dates and House count</small></div></li>
+        <li><span>2</span><div><strong>Competition format</strong><small>Pocket Week and season structure</small></div></li>
+        <li><span>3</span><div><strong>Evidence policy</strong><small>Proof and leaderboard publication</small></div></li>
+        <li><span>4</span><div><strong>Review and create</strong><small>Freeze the agreed draft settings</small></div></li>
+      </ol>
+      <div className="season-create-stage-heading">
+        <span>1</span>
+        <div><p className="section-kicker">Season foundations</p><h3>Build the competition shell</h3></div>
       </div>
       <div className="league-form-grid">
         <div className="form-field">
@@ -325,6 +335,10 @@ function LeagueCreationForm({ actorId, notify }) {
           }
         />
       </div>
+      <div className="season-create-stage-heading">
+        <span>2</span>
+        <div><p className="section-kicker">Competition format</p><h3>Set the pre-season structure</h3></div>
+      </div>
       <label className="league-pocket-toggle">
         <input
           type="checkbox"
@@ -345,9 +359,16 @@ function LeagueCreationForm({ actorId, notify }) {
         </span>
       </label>
       <section className="season-evidence-config" aria-labelledby="season-evidence-heading">
+        <div className="season-create-stage-heading">
+          <span>3</span>
+          <div>
+            <p className="section-kicker">Evidence policy</p>
+            <h3 id="season-evidence-heading">Configure proof and leaderboard publication</h3>
+          </div>
+        </div>
         <div>
           <p className="section-kicker">WhatsApp proof workflow</p>
-          <h3 id="season-evidence-heading">Configure evidence and leaderboard publication</h3>
+          <h4>Proof stays external; decisions stay auditable</h4>
           <p>
             The app stores structured decisions only. Players send proof in the
             season WhatsApp group using the verification ID shown on their entry.
@@ -476,6 +497,10 @@ function LeagueCreationForm({ actorId, notify }) {
           </span>
         </label>
       </section>
+      <div className="season-create-stage-heading">
+        <span>4</span>
+        <div><p className="section-kicker">Review and create</p><h3>Freeze the draft settings</h3></div>
+      </div>
       <button
         className="button button--primary"
         type="submit"
@@ -555,6 +580,7 @@ function LeagueDetail({
   userId,
   notify,
   onDeleted,
+  onBack,
   onTabChange,
   requestedTab = "",
 }) {
@@ -567,6 +593,7 @@ function LeagueDetail({
   const [powerPlayAssignments, setPowerPlayAssignments] = useState([]);
   const [workingAction, setWorkingAction] = useState("");
   const [pendingAction, setPendingAction] = useState("");
+  const [standingsView, setStandingsView] = useState("player");
   const isManager =
     canManage && canManageLeague(league, userId, isPlatformAdmin);
   const isHouseSeason =
@@ -799,6 +826,10 @@ function LeagueDetail({
 
   return (
     <div className="league-detail">
+      <button className="season-detail-back" type="button" onClick={onBack}>
+        <ThemeIcon name="back" />
+        Back to seasons
+      </button>
       <section className="league-hero card">
         <div>
           <span className={`league-status league-status--${league.status}`}>
@@ -874,31 +905,6 @@ function LeagueDetail({
           )}
         </div>
             </section>
-      <CompetitionWorkspaceSummary
-        eyebrow={isManager ? "Season command" : membership ? "Your campaign" : "Season preview"}
-        title={isManager
-          ? `${league.name} command view`
-          : membership
-            ? `${league.name} campaign`
-            : `Viewing ${league.name}`}
-        description={isManager
-          ? "Run the season through focused workspaces while the critical competition state stays visible at a glance."
-          : membership
-            ? "Your House, rank, points and weekly Power Play stay visible here while the tabs below hold the deeper season detail."
-            : "Preview the season before you enter. Its Houses, phase and competition state stay season-scoped."}
-        metrics={summaryMetrics}
-      >
-        {isHouseSeason && (
-          <Link className="button button--secondary" to={`/houses?league=${league.id}`}>
-            Open Houses
-          </Link>
-        )}
-        {isHouseSeason && league.pocketEnabled && (
-          <Link className="button button--secondary" to={`/pocket?league=${league.id}`}>
-            Open Pocket
-          </Link>
-        )}
-      </CompetitionWorkspaceSummary>
       <WorkspaceTabs
         idPrefix={`season-${league.id}`}
         label={`${league.name} sections`}
@@ -908,6 +914,34 @@ function LeagueDetail({
       />
 
       <WorkspacePanel id="overview" activeId={resolvedDetailTab} idPrefix={`season-${league.id}`}>
+        <section className="season-at-glance card">
+          <div className="community-section-heading">
+            <div>
+              <p className="section-kicker">{isManager ? "Season command" : membership ? "Your campaign" : "Season preview"}</p>
+              <h2>Season at a glance</h2>
+            </div>
+          </div>
+          <div className="season-at-glance__metrics">
+            {summaryMetrics.map((metric) => (
+              <article key={metric.label}>
+                <span>{metric.label}</span>
+                <strong>{metric.value}</strong>
+              </article>
+            ))}
+          </div>
+          <div className="season-at-glance__actions">
+            {isHouseSeason && (
+              <Link className="button button--secondary" to={`/houses?league=${league.id}`}>
+                Open Houses
+              </Link>
+            )}
+            {isHouseSeason && league.pocketEnabled && (
+              <Link className="button button--secondary" to={`/pocket?league=${league.id}`}>
+                Open Pocket
+              </Link>
+            )}
+          </div>
+        </section>
         {!isHouseSeason && (
           <section className="inline-alert card" role="status">
             This is a legacy league record from before season-scoped Houses. It
@@ -919,7 +953,7 @@ function LeagueDetail({
 
         <section className="season-system card">
           <article>
-            <span aria-hidden="true">🏰</span>
+            <span aria-hidden="true"><ThemeIcon name="houses" /></span>
             <strong>{league.houseCount || 0} Houses</strong>
             <small>
               {league.chaosStatus === "activated"
@@ -928,7 +962,7 @@ function LeagueDetail({
             </small>
           </article>
           <article>
-            <span aria-hidden="true">🧳</span>
+            <span aria-hidden="true"><ThemeIcon name="pocket" /></span>
             <strong>{league.pocketEnabled ? "Pocket enabled" : "No Pocket"}</strong>
             <small>
               {league.pocketEnabled
@@ -937,12 +971,12 @@ function LeagueDetail({
             </small>
           </article>
           <article>
-            <span aria-hidden="true">⚡</span>
+            <span aria-hidden="true"><ThemeIcon name="power" /></span>
             <strong>{currentPowerPlayLabel}</strong>
             <small>{currentPowerPlayDetail}</small>
           </article>
           <article>
-            <span aria-hidden="true">⚖️</span>
+            <span aria-hidden="true"><ThemeIcon name="standings" /></span>
             <strong>{canViewStandings ? "Standings available" : "Standings locked"}</strong>
             <small>{canViewStandings ? "Individual and House" : "Join to unlock"}</small>
           </article>
@@ -1027,9 +1061,32 @@ function LeagueDetail({
       <WorkspacePanel id="standings" activeId={resolvedDetailTab} idPrefix={`season-${league.id}`}>
         {canViewStandings ? (
           <>
+            <section className="season-standings-switch card" aria-label="Standings view">
+              <button
+                type="button"
+                className={standingsView === "player" ? "is-active" : ""}
+                aria-pressed={standingsView === "player"}
+                onClick={() => setStandingsView("player")}
+              >
+                <ThemeIcon name="profile" />
+                Individual
+              </button>
+              <button
+                type="button"
+                className={standingsView === "house" ? "is-active" : ""}
+                aria-pressed={standingsView === "house"}
+                onClick={() => setStandingsView("house")}
+              >
+                <ThemeIcon name="houses" />
+                Houses
+              </button>
+            </section>
             <section className="league-standings card">
               <div className="community-section-heading">
-                <div><p className="section-kicker">Personal contest</p><h2>Individual leaderboard</h2></div>
+                <div>
+                  <p className="section-kicker">{standingsView === "player" ? "Personal contest" : "Collective impact"}</p>
+                  <h2>{standingsView === "player" ? "Individual leaderboard" : "House leaderboard"}</h2>
+                </div>
                 <span>
                   {canViewLiveStandings
                     ? "Live administrator view"
@@ -1040,31 +1097,17 @@ function LeagueDetail({
               </div>
               {!canViewLiveStandings && !publishedSnapshot ? (
                 <div className="empty-state">
-                  No player-facing leaderboard has been published yet. Your own
-                  entries and proof statuses remain visible while the public table
-                  stays frozen.
+                  {standingsView === "player"
+                    ? "No player-facing leaderboard has been published yet. Your entries and proof statuses remain visible while the public table stays frozen."
+                    : "House standings will appear after the first daily publication."}
                 </div>
               ) : (
-                <SeasonStandingsTable rows={standings.players} kind="player" />
-              )}
-            </section>
-            <section className="league-standings card">
-              <div className="community-section-heading">
-                <div><p className="section-kicker">Collective impact</p><h2>House leaderboard</h2></div>
-                <span>
-                  {canViewLiveStandings
-                    ? "Live historical allocation"
-                    : publishedSnapshot
-                      ? "Published daily snapshot"
-                      : "Waiting for the first published snapshot"}
-                </span>
-              </div>
-              {!canViewLiveStandings && !publishedSnapshot ? (
-                <div className="empty-state">
-                  House standings will appear after the first daily publication.
-                </div>
-              ) : (
-                <SeasonStandingsTable rows={standings.houses} kind="house" />
+                <SeasonStandingsTable
+                  rows={standingsView === "player" ? standings.players : standings.houses}
+                  kind={standingsView}
+                  highlightPlayerId={userId}
+                  highlightHouseName={currentHouseName}
+                />
               )}
             </section>
           </>
@@ -1075,11 +1118,9 @@ function LeagueDetail({
             </div>
           </section>
         )}
-      </WorkspacePanel>
-
-      <WorkspacePanel id="honours" activeId={resolvedDetailTab} idPrefix={`season-${league.id}`}>
+      </WorkspacePanel>      <WorkspacePanel id="honours" activeId={resolvedDetailTab} idPrefix={`season-${league.id}`}>
         {canViewStandings ? (
-          <section className="season-honours card">
+          <section className={`season-honours card${["completed", "archived"].includes(league.status) ? " season-honours--final" : ""}`}>
             <div className="community-section-heading">
               <div>
                 <p className="section-kicker">
@@ -1099,6 +1140,10 @@ function LeagueDetail({
                       : "Awaiting first snapshot"}
               </span>
             </div>
+            <div className="season-honours__subheading">
+              <ThemeIcon name="trophy" />
+              <strong>Individual honours</strong>
+            </div>
             {!canViewLiveStandings && !publishedSnapshot ? (
               <div className="empty-state">
                 Honours will appear after the first daily leaderboard snapshot is published.
@@ -1117,7 +1162,12 @@ function LeagueDetail({
               </div>
             )}
             {(honours.houseOfChampions || honours.houseChampions.length > 0) && (
-              <div className="season-honours__houses">
+              <>
+                <div className="season-honours__subheading">
+                  <ThemeIcon name="houses" />
+                  <strong>House honours</strong>
+                </div>
+                <div className="season-honours__houses">
                 {honours.houseOfChampions && (
                   <article className="season-honours__winner">
                     <span aria-hidden="true">{getHouseEmblem(honours.houseOfChampions.houseEmblemId).symbol}</span>
@@ -1133,12 +1183,16 @@ function LeagueDetail({
                   </article>
                 ))}
               </div>
+              </>
             )}
-            <p className="season-honours__note">
-              Individual titles follow the original prestige order. Once
-              provisionally placed in one category, a player is not repeated in
-              another individual title.
-            </p>
+            <details className="season-honours__note">
+              <summary>How individual honours are assigned</summary>
+              <p>
+                Individual titles follow the original prestige order. Once
+                provisionally placed in one category, a player is not repeated in
+                another individual title.
+              </p>
+            </details>
           </section>
         ) : (
           <section className="empty-state card">Join this season to view its honours.</section>
@@ -1203,10 +1257,9 @@ export default function Seasons() {
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedPageTab = searchParams.get("workspace") || "browse";
   const requestedId = searchParams.get("league") || "";
-  const fallbackId = memberships[0]?.leagueId || leagues[0]?.id || "";
   const selectedId = leagues.some((league) => league.id === requestedId)
     ? requestedId
-    : fallbackId;
+    : "";
   const selectedLeague =
     leagues.find((league) => league.id === selectedId) || null;
   const selectedMembership =
@@ -1215,7 +1268,25 @@ export default function Seasons() {
   const pageTabs = SEASONS_PAGE_TABS.filter((tab) =>
     tab.id !== "create" || canManageLeagues,
   );
-    const resolvedPageTab = resolveWorkspaceTab(pageTabs, requestedPageTab)?.id ?? "browse";
+  const resolvedPageTab = resolveWorkspaceTab(pageTabs, requestedPageTab)?.id ?? "browse";
+  const focusedLeague = resolvedPageTab === "browse" ? selectedLeague : null;
+  const seasonGroups = [
+    {
+      id: "live",
+      label: "Live now",
+      items: leagues.filter((league) => league.status === "active"),
+    },
+    {
+      id: "upcoming",
+      label: "Upcoming",
+      items: leagues.filter((league) => ["draft", "registration"].includes(league.status)),
+    },
+    {
+      id: "history",
+      label: "Completed seasons",
+      items: leagues.filter((league) => ["completed", "archived"].includes(league.status)),
+    },
+  ].filter((group) => group.items.length > 0);
 
   function setActivePageTab(tabId) {
     const next = new URLSearchParams(searchParams);
@@ -1259,79 +1330,87 @@ export default function Seasons() {
           {error}
         </div>
       )}
-      <WorkspaceTabs
-        idPrefix="seasons"
-        label="Season workspace"
-        tabs={pageTabs}
-        activeId={resolvedPageTab}
-        onChange={setActivePageTab}
-      />
-
-      <WorkspacePanel id="browse" activeId={resolvedPageTab} idPrefix="seasons">
-        <section className="league-browser card">
-          <div className="community-section-heading">
-            <div>
-              <p className="section-kicker">Season roster</p>
-              <h2>Choose a season</h2>
+      {!focusedLeague && (
+        <WorkspaceTabs
+          idPrefix="seasons"
+          label="Season workspace"
+          tabs={pageTabs}
+          activeId={resolvedPageTab}
+          onChange={setActivePageTab}
+        />
+      )}
+      {focusedLeague ? (
+        <LeagueDetail
+          key={`${focusedLeague.id}:${searchParams.get("tab") || ""}`}
+          league={focusedLeague}
+          membership={selectedMembership}
+          canManage={canManageLeagues}
+          isPlatformAdmin={isPlatformAdmin}
+          userId={user?.uid}
+          notify={showToast}
+          onDeleted={clearSelectedLeague}
+          onBack={clearSelectedLeague}
+          onTabChange={setDetailTab}
+          requestedTab={searchParams.get("tab") || ""}
+        />
+      ) : (
+        <WorkspacePanel id="browse" activeId={resolvedPageTab} idPrefix="seasons">
+          <section className="league-browser card">
+            <div className="community-section-heading">
+              <div>
+                <p className="section-kicker">Season roster</p>
+                <h2>Choose your arena</h2>
+              </div>
+              <span>
+                {leagues.length} {pluralize(leagues.length, "season", "seasons")}
+              </span>
             </div>
-            <span>
-              {leagues.length} {pluralize(leagues.length, "season", "seasons")}
-            </span>
-          </div>
-          {loading ? (
-            <div className="empty-state">Loading seasons…</div>
-          ) : leagues.length === 0 ? (
-            <div className="empty-state">No seasons are available yet.</div>
-          ) : (
-            <div className="league-browser__list">
-              {leagues.map((league) => {
-                const leagueMembership = memberships.find(
-                  (item) => item.leagueId === league.id,
-                );
-                return (
-                  <button
-                    key={league.id}
-                    type="button"
-                    aria-pressed={selectedId === league.id}
-                    className={`league-browser__item${
-                      selectedId === league.id ? " league-browser__item--active" : ""
-                    }${league.status === "active" ? " league-browser__item--live" : ""}`}
-                    onClick={() => selectLeague(league.id)}
-                  >
-                    <span className="league-browser__theme">{league.theme || league.type}</span>
-                    <strong>{league.name}</strong>
-                    <span className="league-browser__dates">
-                      {formatDate(league.startDate)} – {formatDate(league.endDate)}
-                    </span>
-                    <span className="league-browser__meta">
-                      <small>{getLeagueStatusLabel(league.status)}</small>
-                      {leagueMembership && (
-                        <em>{getMembershipStatusLabel(leagueMembership.status)}</em>
-                      )}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </section>
-        {selectedLeague && (
-          <LeagueDetail
-            key={`${selectedLeague.id}:${searchParams.get("tab") || ""}`}
-            league={selectedLeague}
-            membership={selectedMembership}
-            canManage={canManageLeagues}
-            isPlatformAdmin={isPlatformAdmin}
-            userId={user?.uid}
-            notify={showToast}
-            onDeleted={clearSelectedLeague}
-            onTabChange={setDetailTab}
-            requestedTab={searchParams.get("tab") || ""}
-          />
-        )}
-      </WorkspacePanel>
-
-      <WorkspacePanel id="join" activeId={resolvedPageTab} idPrefix="seasons">
+            {loading ? (
+              <div className="empty-state">Loading seasons…</div>
+            ) : leagues.length === 0 ? (
+              <div className="empty-state">No seasons are available yet.</div>
+            ) : (
+              <div className="league-browser__groups">
+                {seasonGroups.map((group) => (
+                  <section className="league-browser__group" key={group.id}>
+                    <div className="league-browser__group-heading">
+                      <h3>{group.label}</h3>
+                      <span>{group.items.length}</span>
+                    </div>
+                    <div className="league-browser__list">
+                      {group.items.map((league) => {
+                        const leagueMembership = memberships.find(
+                          (item) => item.leagueId === league.id,
+                        );
+                        return (
+                          <button
+                            key={league.id}
+                            type="button"
+                            className={`league-browser__item${league.status === "active" ? " league-browser__item--live" : ""}`}
+                            onClick={() => selectLeague(league.id)}
+                          >
+                            <span className="league-browser__theme">{league.theme || league.type}</span>
+                            <strong>{league.name}</strong>
+                            <span className="league-browser__dates">
+                              {formatDate(league.startDate)} – {formatDate(league.endDate)}
+                            </span>
+                            <span className="league-browser__meta">
+                              <small>{getLeagueStatusLabel(league.status)}</small>
+                              {leagueMembership && (
+                                <em>{getMembershipStatusLabel(leagueMembership.status)}</em>
+                              )}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </section>
+                ))}
+              </div>
+            )}
+          </section>
+        </WorkspacePanel>
+      )}      <WorkspacePanel id="join" activeId={resolvedPageTab} idPrefix="seasons">
         <div className="league-tools league-tools--single">
           <JoinLeagueForm userId={user?.uid} profile={profile} notify={showToast} />
         </div>

@@ -346,13 +346,19 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - detailed scope is recorded in `V028_REVIEWED_SURFACES_SEASONS_POLISH.md`;
 - Firestore Rules remain unchanged and no Firebase deployment occurs.
 
+#### Checkpoint 28D3A — Seasons workspace cleanup — IMPLEMENTED / OWNER REVIEW PENDING
+- Browse no longer auto-opens a season or stacks a full season workspace underneath the roster;
+- choosing a season enters a focused detail view with a Back to seasons control;
+- Overview owns one Season at a glance summary instead of the always-visible CompetitionWorkspaceSummary;
+- Command Centre keeps health, metrics and required actions visible while secondary tools/history use progressive disclosure;
+- Power Play setup uses a compact list with one editor open at a time;
+- Standings switches between Individual and Houses instead of stacking both leaderboards;
+- Honours separates Individual and House presentation and hides assignment detail behind disclosure;
+- Evidence prioritises publication/working queue and collapses explanatory boundary copy;
+- Create Season presents a four-stage visual roadmap without changing saved data;
+- shared ThemeIcon gains season-workspace symbols;
+- detailed scope is recorded in `V028_SEASONS_WORKSPACE_CLEANUP.md`;
+- Firestore Rules remain unchanged and no Firebase deployment occurs.
+
 ### Next action
-Run an owner visual/responsive review of the 28D3 surfaces: Dashboard progression preview, desktop/mobile navigation and More menu, Log Activity tabs, Progress Overview, and Seasons across desktop/tablet/mobile. If accepted, continue the remaining v0.28 page inspection with Houses.
-
-## Responsive development boundary
-
-27G responsive/accessibility acceptance is complete and accepted. 27R freezes that accepted presentation/runtime source.
-
-## Production boundary
-
-v0.27.0 production activation, automated live verification and authenticated production smoke are complete. Development-repository production deployment scripts remain blocked; every later production change still requires its own dedicated reviewed release stage.
+Run an owner visual/responsive review of the complete Seasons experience: Browse, focused season Overview, Command Centre, Power Plays, Standings, Honours, Evidence and Create Season. Do not resume Houses until Seasons is explicitly accepted.

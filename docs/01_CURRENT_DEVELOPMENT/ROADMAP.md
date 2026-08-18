@@ -284,6 +284,16 @@ Responsive behaviour remains a requirement throughout later development.
 - record broad CSS consolidation for v0.31 instead of mixing it into this checkpoint;
 - perform no Firebase deployment.
 
+### 28D3A — Seasons workspace cleanup — IMPLEMENTED / OWNER REVIEW PENDING
+- separate Browse from focused season detail;
+- reduce repeated season summary layers;
+- make Command Centre attention-first with secondary operational disclosures;
+- make Power Play setup one-editor-at-a-time;
+- switch Standings between Individual and Houses;
+- separate Honours families and prioritise Evidence working state;
+- organise Create Season into four visual stages;
+- preserve gameplay, authority, Firestore Rules and deployment boundaries.
+
 ### 28R — release freeze
 - full application regression;
 - production build verification;

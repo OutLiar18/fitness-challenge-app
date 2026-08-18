@@ -266,7 +266,7 @@ function SnapshotPublisher({
   }
 
   return (
-    <section className="evidence-snapshot card">
+    <section className={`evidence-snapshot card${due ? " evidence-snapshot--due" : ""}`}>
       <div className="community-section-heading">
         <div>
           <p className="section-kicker">Controlled standings</p>
@@ -377,20 +377,19 @@ export default function EvidenceWorkspace({
     <div className="evidence-workspace">
       {loadingError && <div className="inline-alert inline-alert--danger" role="alert">{loadingError}</div>}
 
-      <section className="evidence-boundary card" aria-label="WhatsApp proof boundary">
-        <span aria-hidden="true">💬</span>
-        <div>
-          <p className="section-kicker">External proof, structured decisions</p>
-          <h3>Pictures and screenshots stay in WhatsApp</h3>
+      <details className="evidence-boundary card">
+        <summary>
+          <span><strong>How evidence review works</strong><small>WhatsApp media stays external; decisions stay auditable.</small></span>
+          <span aria-hidden="true">+</span>
+        </summary>
+        <div className="evidence-boundary__content">
           <p>
             Search with the verification ID sent by the player. Champions Legacy
             Challenge stores the review status, points decision and audit history—never
             the media itself.
           </p>
         </div>
-      </section>
-
-      <section className="evidence-summary card">
+      </details>      <section className="evidence-summary card">
         <article><span>Awaiting proof</span><strong>{metrics.pending}</strong></article>
         <article><span>Past deadline</span><strong>{metrics.expired}</strong></article>
         <article><span>Accepted</span><strong>{metrics.verified}</strong></article>

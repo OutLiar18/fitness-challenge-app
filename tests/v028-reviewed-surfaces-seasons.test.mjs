@@ -93,10 +93,12 @@ test("28D3 gives Seasons role-aware context and hides technical rule IDs from pl
   assert.match(seasons, /label: "Individual rank"/);
   assert.match(seasons, /label: "Your points"/);
   assert.match(seasons, /label: "Current Power Play"/);
-  assert.match(seasons, /metrics=\{summaryMetrics\}/);
+  assert.match(seasons, /summaryMetrics\.map/);
+  assert.match(seasons, /Season at a glance/);
   assert.doesNotMatch(seasons, />Season overview</);
   assert.match(seasons, />\s*Open Houses\s*</);
   assert.match(seasons, />\s*Open Pocket\s*</);
+  assert.doesNotMatch(seasons, /<CompetitionWorkspaceSummary/);
   assert.match(seasons, /\{isManager && \([\s\S]*Scoring engine[\s\S]*Rules version/);
   assert.match(seasons, /How this season scores/);
   assert.match(seasonsCss, /grid-template-columns: repeat\(4, minmax\(0, 1fr\)\)/);
