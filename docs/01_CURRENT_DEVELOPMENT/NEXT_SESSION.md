@@ -139,3 +139,6 @@ Review Seasons before any Houses work. Check Browse without an auto-opened detai
 
 ## 28D4 fast owner review
 Visually check Houses only for major regressions: current House appears first, selected House palette themes only the Houses route, several palettes remain readable in light/dark mode, emblem/colour libraries stay neat, selected House banner/roster hierarchy is clear, workspace tabs fit, and desktop/tablet/mobile spacing does not overflow. Defer minor cosmetic issues to v0.31. If accepted, continue immediately with Inbox.
+
+## 28D4A emblem verification
+Open Manage House, scan all 56 emblem choices, select several including Raven, Planet, Axe, Lotus and Feather, and verify the picker, live preview, House card and selected House banner all render. If they do, accept Houses and continue directly to Inbox.

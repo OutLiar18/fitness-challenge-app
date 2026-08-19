@@ -936,3 +936,40 @@
     align-items: start;
   }
 }
+/* v0.28 28D4A — portable vector House emblems */
+.house-emblem > span,
+.season-house-card__emblem,
+.house-theme-preview__emblem,
+.house-identity > span {
+  color: var(--house-accent, var(--primary));
+}
+
+.house-emblem > span svg,
+.season-house-card__emblem svg,
+.house-theme-preview__emblem svg,
+.house-identity > span svg {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.house-emblem > span {
+  display: grid;
+  min-height: 38px;
+  place-items: center;
+}
+
+.season-house-card__emblem {
+  display: grid;
+  place-items: center;
+}
+
+.house-theme-preview__emblem svg {
+  width: 38px;
+  height: 38px;
+}
+
+.house-identity > span svg {
+  width: 58px;
+  height: 58px;
+}

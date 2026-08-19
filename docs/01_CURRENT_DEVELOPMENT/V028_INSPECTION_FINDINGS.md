@@ -388,3 +388,9 @@ Implemented:
 28D1 and 28D2 are implemented and owner-accepted. 28D3 must now receive its
 visual/responsive owner review; once accepted, the remaining page inspection resumes
 with Houses.
+
+### Checkpoint 28D4A - portable House emblems - IMPLEMENTED / OWNER REVIEW PENDING
+- owner review found some emoji-based House emblems broken or invisible;
+- all 56 visible emblems now use deterministic app-owned currentColor SVG artwork;
+- stored House emblem IDs remain unchanged and require no migration;
+- final acceptance needs only a fast scan of the emblem picker/preview/banner.

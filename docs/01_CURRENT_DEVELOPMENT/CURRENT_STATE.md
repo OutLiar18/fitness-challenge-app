@@ -375,5 +375,13 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - detailed scope is recorded in `V028_HOUSES_IDENTITY_POLISH.md`;
 - no Firebase deployment occurs.
 
+#### Checkpoint 28D4A — portable House emblems — IMPLEMENTED / OWNER REVIEW PENDING
+- all 56 House emblem IDs now render through app-owned currentColor inline SVG artwork;
+- visible House identity no longer depends on operating-system emoji glyph support;
+- stored emblem IDs and House documents remain unchanged, so no migration is required;
+- House palette colours naturally tint the vector artwork;
+- competition mechanics, House rules, Firestore Rules and deployment state remain unchanged;
+- detailed scope is recorded in `V028_PORTABLE_HOUSE_EMBLEMS.md`.
+
 ### Next action
-Run a fast owner visual/responsive review of Houses at desktop, tablet and narrow mobile widths, including several selected House colour palettes and the Manage identity picker. If accepted, continue the remaining v0.28 page inspection with Inbox.
+Perform one fast visual pass over the full House emblem picker and selected House banner. If all emblems render, accept Houses and continue immediately to Inbox. Minor icon-art refinement can wait for v0.31.

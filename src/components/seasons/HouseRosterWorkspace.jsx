@@ -1,7 +1,7 @@
 import ThemeIcon from "../common/ThemeIcon";
+import HouseEmblem from "./HouseEmblem";
 import LegacyAvatar from "../profile/LegacyAvatar";
 import {
-  getHouseEmblem,
   getHouseThemeStyle,
 } from "../../constants/seasons";
 import { pluralize } from "../../utils/displayFormatters";
@@ -13,7 +13,6 @@ export function HouseCard({
   current = false,
   onSelect,
 }) {
-  const emblem = getHouseEmblem(house.emblemId);
   const captain = members.find((member) => member.userId === house.captainId);
   const viceCaptains = (house.viceCaptainIds ?? [])
     .map((id) => members.find((member) => member.userId === id))
@@ -34,7 +33,7 @@ export function HouseCard({
       onClick={onSelect}
     >
       <span className="season-house-card__emblem" aria-hidden="true">
-        {emblem.symbol}
+        <HouseEmblem id={house.emblemId} size={38} />
       </span>
       <span className="season-house-card__copy">
         <span className="season-house-card__title">

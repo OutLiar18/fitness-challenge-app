@@ -26,3 +26,6 @@ v0.28 is now the owner-led page inspection and change pass. The earlier 28A rehe
 
 ## 28D4 Houses identity and workspace polish
 Seasons is owner-accepted at 28D3A with minor desktop spacing deferred to v0.31. 28D4 applies the high-value Houses pass: a 24-palette House-only theme system, 56 emblems, stronger current-House identity, concise workspace tabs, deliberate icons and spacing/responsive cleanup. House mechanics and Firestore Rules are unchanged. After a fast owner visual check, continue directly to Inbox to maintain the accelerated v0.28 page-inspection pace.
+
+## 28D4A portable House emblems
+The 28D4 owner check exposed operating-system-dependent emoji rendering in the 56-item House emblem library. 28D4A keeps all stored emblem IDs but replaces visible emoji with app-owned currentColor inline SVG artwork for every configured emblem. After a fast all-emblems visual check, accept Houses and continue to Inbox.

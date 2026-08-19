@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import ConfirmDialog from "../components/common/ConfirmDialog";
+import HouseEmblem from "../components/seasons/HouseEmblem";
 import ThemeIcon from "../components/common/ThemeIcon";
 import Toast from "../components/common/Toast/Toast";
 import WorkspaceTabs, { WorkspacePanel } from "../components/common/WorkspaceTabs";
@@ -15,7 +16,6 @@ import {
   HOUSE_ACCENTS,
   HOUSE_COMPOSITION_OPTIONS,
   HOUSE_EMBLEMS,
-  getHouseEmblem,
   getHouseThemeStyle,
 } from "../constants/seasons";
 import useLeagues from "../hooks/useLeagues";
@@ -123,7 +123,7 @@ function HouseIdentityForm({ initial = EMPTY_HOUSE, submitLabel, busy, onSubmit 
             {HOUSE_EMBLEMS.map((item) => (
               <label key={item.id} className={form.emblemId === item.id ? "house-emblem house-emblem--selected" : "house-emblem"}>
                 <input className="sr-only" type="radio" name={`house-emblem-${initial.id || "new"}`} checked={form.emblemId === item.id} onChange={() => setForm((current) => ({ ...current, emblemId: item.id }))} />
-                <span aria-hidden="true">{item.symbol}</span>
+                <span aria-hidden="true"><HouseEmblem id={item.id} size={34} /></span>
                 <small>{item.name}</small>
               </label>
             ))}
@@ -154,7 +154,7 @@ function HouseIdentityForm({ initial = EMPTY_HOUSE, submitLabel, busy, onSubmit 
         aria-label="House identity preview"
       >
         <span className="house-theme-preview__emblem" aria-hidden="true">
-          {getHouseEmblem(form.emblemId).symbol}
+          <HouseEmblem id={form.emblemId} size={38} />
         </span>
         <div>
           <small>{HOUSE_ACCENTS.find((item) => item.id === form.accentId)?.label || "House"} theme</small>
@@ -1186,7 +1186,7 @@ export default function Houses() {
                 style={getHouseThemeStyle(selectedHouse)}
               >
                 <span aria-hidden="true">
-                  {getHouseEmblem(selectedHouse.emblemId).symbol}
+                  <HouseEmblem id={selectedHouse.emblemId} size={58} />
                 </span>
                 <div>
                   <p className="section-kicker">{selectedIsCurrentHouse ? "Your House" : "Selected House"}</p>
