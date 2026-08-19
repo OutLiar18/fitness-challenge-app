@@ -294,6 +294,14 @@ Responsive behaviour remains a requirement throughout later development.
 - organise Create Season into four visual stages;
 - preserve gameplay, authority, Firestore Rules and deployment boundaries.
 
+### 28D4 — Houses identity & workspace polish — IMPLEMENTED / OWNER REVIEW PENDING
+- expand House colour and emblem identity libraries;
+- apply selected House colours as a route-scoped Houses theme only;
+- prioritise the player's current House and strengthen the selected House banner/roster hierarchy;
+- simplify House workspace chrome and replace generic operational emoji;
+- polish spacing/responsiveness while preserving all House mechanics;
+- perform no Firebase deployment.
+
 ### 28R — release freeze
 - full application regression;
 - production build verification;

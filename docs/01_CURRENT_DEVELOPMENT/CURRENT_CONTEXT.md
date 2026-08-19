@@ -23,3 +23,6 @@ v0.28 is now the owner-led page inspection and change pass. The earlier 28A rehe
 
 ## 28D3A Seasons workspace cleanup
 28D3 remains technically complete and pushed, but the deeper Seasons owner review reopened the page after a real draft season was created. 28D3A restructures Browse and every created-season workspace for clearer hierarchy while preserving all competition logic and Firestore Rules. Seasons must receive explicit owner acceptance before the v0.28 inspection continues to Houses.
+
+## 28D4 Houses identity and workspace polish
+Seasons is owner-accepted at 28D3A with minor desktop spacing deferred to v0.31. 28D4 applies the high-value Houses pass: a 24-palette House-only theme system, 56 emblems, stronger current-House identity, concise workspace tabs, deliberate icons and spacing/responsive cleanup. House mechanics and Firestore Rules are unchanged. After a fast owner visual check, continue directly to Inbox to maintain the accelerated v0.28 page-inspection pace.

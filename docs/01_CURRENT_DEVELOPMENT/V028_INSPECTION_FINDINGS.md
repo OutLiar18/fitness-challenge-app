@@ -373,6 +373,16 @@ Implemented:
 - all competition rules, evidence authority, lifecycle semantics and Firestore Rules remain unchanged;
 - Houses stays paused until Seasons receives explicit owner acceptance.
 
+### Checkpoint 28D4 - Houses identity & workspace polish - IMPLEMENTED / OWNER REVIEW PENDING
+- 24 paired House colour palettes replace the former 8-colour library;
+- 56 emblems expand seasonal identity choice;
+- selecting a House applies its palette only inside the Houses route;
+- the player's House is prioritised, selected identity is stronger and leadership presentation is clearer;
+- House workspace tabs use icon + title only;
+- context copy, historical wording, spacing and responsive structure are cleaned up;
+- C.H.A.O.S., House movement, leadership, scoring, balance and Rules behaviour remain unchanged;
+- minor cosmetic perfection is intentionally deferred to v0.31 so the remaining page inspection can move faster.
+
 ## Acceptance boundary before inspection resumes
 
 28D1 and 28D2 are implemented and owner-accepted. 28D3 must now receive its

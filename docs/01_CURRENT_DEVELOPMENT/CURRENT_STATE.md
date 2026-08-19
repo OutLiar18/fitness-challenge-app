@@ -360,5 +360,20 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - detailed scope is recorded in `V028_SEASONS_WORKSPACE_CLEANUP.md`;
 - Firestore Rules remain unchanged and no Firebase deployment occurs.
 
+#### Checkpoint 28D4 — Houses identity & workspace polish — IMPLEMENTED / OWNER REVIEW PENDING
+- House colours expand from 8 to 24 paired palettes;
+- House emblems expand from 32 to 56 curated choices;
+- the selected House colour becomes a Houses-route-only theme and never changes the global application theme;
+- the player's current House is sorted first and clearly marked;
+- House cards, the selected banner and the roster have stronger identity and leadership hierarchy;
+- workspace tabs use icon + title only and generic operational emoji are replaced with ThemeIcon symbols;
+- House context is role-aware and duplicate summary navigation actions are removed;
+- Historical Integrity copy is simplified and the malformed draft-House loading ellipsis is corrected;
+- layout, spacing and responsive transitions are polished without changing House mechanics;
+- C.H.A.O.S., leadership, roster movement/rest, scoring, balance logic and Firestore Rules remain unchanged;
+- the evidence-proof UX follow-up remains separate and is not mixed into this checkpoint;
+- detailed scope is recorded in `V028_HOUSES_IDENTITY_POLISH.md`;
+- no Firebase deployment occurs.
+
 ### Next action
-Run an owner visual/responsive review of the complete Seasons experience: Browse, focused season Overview, Command Centre, Power Plays, Standings, Honours, Evidence and Create Season. Do not resume Houses until Seasons is explicitly accepted.
+Run a fast owner visual/responsive review of Houses at desktop, tablet and narrow mobile widths, including several selected House colour palettes and the Manage identity picker. If accepted, continue the remaining v0.28 page inspection with Inbox.

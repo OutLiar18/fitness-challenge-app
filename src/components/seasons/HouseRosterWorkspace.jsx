@@ -1,66 +1,116 @@
+import ThemeIcon from "../common/ThemeIcon";
 import LegacyAvatar from "../profile/LegacyAvatar";
-import { getHouseAccent, getHouseEmblem } from "../../constants/seasons";
+import {
+  getHouseEmblem,
+  getHouseThemeStyle,
+} from "../../constants/seasons";
 import { pluralize } from "../../utils/displayFormatters";
 
-export function HouseCard({ house, members, selected, onSelect }) {
+export function HouseCard({
+  house,
+  members,
+  selected,
+  current = false,
+  onSelect,
+}) {
   const emblem = getHouseEmblem(house.emblemId);
-  const accent = getHouseAccent(house.accentId);
   const captain = members.find((member) => member.userId === house.captainId);
   const viceCaptains = (house.viceCaptainIds ?? [])
     .map((id) => members.find((member) => member.userId === id))
     .filter(Boolean);
 
+  const classes = [
+    "season-house-card",
+    selected ? "season-house-card--selected" : "",
+    current ? "season-house-card--current" : "",
+  ].filter(Boolean).join(" ");
+
   return (
     <button
       type="button"
-      className={selected ? "season-house-card season-house-card--selected" : "season-house-card"}
-      style={{ "--house-accent": accent.value }}
+      className={classes}
+      style={getHouseThemeStyle(house)}
       aria-pressed={selected}
       onClick={onSelect}
     >
-      <span className="season-house-card__emblem" aria-hidden="true">{emblem.symbol}</span>
+      <span className="season-house-card__emblem" aria-hidden="true">
+        {emblem.symbol}
+      </span>
       <span className="season-house-card__copy">
-        <strong>{house.name}</strong>
+        <span className="season-house-card__title">
+          <strong>{house.name}</strong>
+          {current && <b>Your House</b>}
+        </span>
         <em>“{house.motto}”</em>
-        <small>{members.length} {pluralize(members.length, "member", "members")}</small>
+        <small>
+          {members.length} {pluralize(members.length, "member", "members")}
+        </small>
       </span>
       <span className="season-house-card__leadership">
         {captain ? `Captain: ${captain.displayName}` : "Captain pending"}
-        {viceCaptains.length > 0 && ` · ${viceCaptains.length} vice ${pluralize(viceCaptains.length, "captain", "captains")}`}
+        {viceCaptains.length > 0
+          && ` · ${viceCaptains.length} vice ${pluralize(viceCaptains.length, "captain", "captains")}`}
       </span>
     </button>
   );
 }
 
 export function HouseRoster({ house, members }) {
-  const leadership = new Set([house.captainId, ...(house.viceCaptainIds ?? [])]);
+  const leadership = new Set([
+    house.captainId,
+    ...(house.viceCaptainIds ?? []),
+  ]);
+
   const sorted = [...members].sort((first, second) => {
-    const firstRank = first.userId === house.captainId ? 0 : leadership.has(first.userId) ? 1 : 2;
-    const secondRank = second.userId === house.captainId ? 0 : leadership.has(second.userId) ? 1 : 2;
-    return firstRank - secondRank || first.displayName.localeCompare(second.displayName);
+    const firstRank = first.userId === house.captainId
+      ? 0
+      : leadership.has(first.userId) ? 1 : 2;
+    const secondRank = second.userId === house.captainId
+      ? 0
+      : leadership.has(second.userId) ? 1 : 2;
+    return firstRank - secondRank
+      || first.displayName.localeCompare(second.displayName);
   });
 
   return (
-    <section className="house-roster card">
+    <section className="house-roster card" style={getHouseThemeStyle(house)}>
       <div className="community-section-heading">
-        <div><p className="section-kicker">Current roster</p><h2>{house.name}</h2></div>
-        <span>{members.length} {pluralize(members.length, "player", "players")}</span>
+        <div>
+          <p className="section-kicker">Current roster</p>
+          <h2>{house.name}</h2>
+        </div>
+        <span>
+          {members.length} {pluralize(members.length, "player", "players")}
+        </span>
       </div>
+
       <div className="house-roster__list">
         {sorted.map((member) => {
-          const label = member.userId === house.captainId
+          const captain = member.userId === house.captainId;
+          const viceCaptain = house.viceCaptainIds?.includes(member.userId);
+          const label = captain
             ? "House captain"
-            : house.viceCaptainIds?.includes(member.userId)
-              ? "Vice-captain"
-              : "House member";
+            : viceCaptain ? "Vice-captain" : "House member";
 
           return (
-            <article className="house-member" key={member.userId}>
+            <article
+              className={
+                captain
+                  ? "house-member house-member--captain"
+                  : viceCaptain
+                    ? "house-member house-member--vice"
+                    : "house-member"
+              }
+              key={member.userId}
+            >
               <LegacyAvatar avatarId={member.avatarId} size="small" decorative />
-              <div><strong>{member.displayName}</strong><span>{label}</span></div>
+              <div>
+                <strong>{member.displayName}</strong>
+                <span>{label}</span>
+              </div>
               {leadership.has(member.userId) && (
                 <span className="house-member__crest" aria-label={label}>
-                  {member.userId === house.captainId ? "👑" : "⭐"}
+                  <ThemeIcon name={captain ? "crown" : "star"} size={18} />
                 </span>
               )}
             </article>

@@ -181,6 +181,45 @@ const ICON_PATHS = Object.freeze({
       <path d="m13.5 6.5 4 4" />
     </>
   ),
+  crown: (
+    <>
+      <path d="m4 8 4 4 4-7 4 7 4-4-2 10H6z" />
+      <path d="M7 20h10" />
+    </>
+  ),
+  star: (
+    <>
+      <path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z" />
+    </>
+  ),
+  roster: (
+    <>
+      <circle cx="9" cy="8" r="3" />
+      <circle cx="17" cy="9" r="2.5" />
+      <path d="M3.5 20a5.5 5.5 0 0 1 11 0" />
+      <path d="M14 15.5a4.5 4.5 0 0 1 6.5 4" />
+    </>
+  ),
+  swap: (
+    <>
+      <path d="M7 7h12l-3-3" />
+      <path d="m19 7-3 3" />
+      <path d="M17 17H5l3 3" />
+      <path d="m5 17 3-3" />
+    </>
+  ),
+  balance: (
+    <>
+      <path d="M12 3v18M5 7h14M8 21h8" />
+      <path d="m7 7-3 6h6zM17 7l-3 6h6z" />
+    </>
+  ),
+  check: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="m8 12 2.5 2.5L16.5 8" />
+    </>
+  ),
 });
 
 export default function ThemeIcon({

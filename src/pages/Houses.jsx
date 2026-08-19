@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import ConfirmDialog from "../components/common/ConfirmDialog";
+import ThemeIcon from "../components/common/ThemeIcon";
 import Toast from "../components/common/Toast/Toast";
 import WorkspaceTabs, { WorkspacePanel } from "../components/common/WorkspaceTabs";
 import PageHeader from "../components/layout/PageHeader";
@@ -14,8 +15,8 @@ import {
   HOUSE_ACCENTS,
   HOUSE_COMPOSITION_OPTIONS,
   HOUSE_EMBLEMS,
-  getHouseAccent,
   getHouseEmblem,
+  getHouseThemeStyle,
 } from "../constants/seasons";
 import useLeagues from "../hooks/useLeagues";
 import usePlayerData from "../hooks/usePlayerData";
@@ -117,7 +118,7 @@ function HouseIdentityForm({ initial = EMPTY_HOUSE, submitLabel, busy, onSubmit 
       </div>
       <div className="house-style-grid">
         <fieldset className="house-emblems">
-          <legend>Emblem</legend>
+          <legend>Emblem library <span>{HOUSE_EMBLEMS.length} choices</span></legend>
           <div>
             {HOUSE_EMBLEMS.map((item) => (
               <label key={item.id} className={form.emblemId === item.id ? "house-emblem house-emblem--selected" : "house-emblem"}>
@@ -129,17 +130,37 @@ function HouseIdentityForm({ initial = EMPTY_HOUSE, submitLabel, busy, onSubmit 
           </div>
         </fieldset>
         <fieldset className="house-accents">
-          <legend>House colour</legend>
+          <legend>House colour theme <span>{HOUSE_ACCENTS.length} palettes</span></legend>
           <div>
             {HOUSE_ACCENTS.map((item) => (
               <label key={item.id} className={form.accentId === item.id ? "house-accent house-accent--selected" : "house-accent"}>
                 <input className="sr-only" type="radio" name={`house-accent-${initial.id || "new"}`} checked={form.accentId === item.id} onChange={() => setForm((current) => ({ ...current, accentId: item.id }))} />
-                <span style={{ "--swatch": item.value }} aria-hidden="true" />
+                <span
+                  style={{
+                    "--swatch": item.value,
+                    "--swatch-secondary": item.secondary,
+                  }}
+                  aria-hidden="true"
+                />
                 <small>{item.label}</small>
               </label>
             ))}
           </div>
         </fieldset>
+      </div>
+      <div
+        className="house-theme-preview"
+        style={getHouseThemeStyle(form)}
+        aria-label="House identity preview"
+      >
+        <span className="house-theme-preview__emblem" aria-hidden="true">
+          {getHouseEmblem(form.emblemId).symbol}
+        </span>
+        <div>
+          <small>{HOUSE_ACCENTS.find((item) => item.id === form.accentId)?.label || "House"} theme</small>
+          <strong>{form.name || "House preview"}</strong>
+          <em>“{form.motto || "Your motto will appear here."}”</em>
+        </div>
       </div>
       <button className="button button--primary" type="submit" disabled={busy}>
         {busy ? "Saving House…" : submitLabel}
@@ -392,7 +413,7 @@ function AssignmentHistoryPanel({ history }) {
           {history.slice(0, 60).map((record) => (
             <article key={record.id}>
               <span className="assignment-history__icon" aria-hidden="true">
-                {record.method === "chaos" ? "⚡" : "🔄"}
+                <ThemeIcon name={record.method === "chaos" ? "power" : "swap"} size={20} />
               </span>
               <div>
                 <strong>{record.displayName}</strong>
@@ -832,28 +853,63 @@ export default function Houses() {
     league?.status === "active"
     && (manager || (currentHouse && isHouseLeader(currentHouse, user?.uid))),
   );
+  const selectedCaptain = members.find((item) => item.userId === selectedHouse?.captainId) || null;
+  const selectedViceCaptains = (selectedHouse?.viceCaptainIds ?? [])
+    .map((id) => members.find((item) => item.userId === id))
+    .filter(Boolean);
+  const selectedIsCurrentHouse = Boolean(
+    selectedHouse && currentHouse && selectedHouse.id === currentHouse.id,
+  );
+  const currentHouseRole = !currentHouse
+    ? membership ? "Awaiting assignment" : "Observer"
+    : currentHouse.captainId === user?.uid
+      ? "Captain"
+      : currentHouse.viceCaptainIds?.includes(user?.uid)
+        ? "Vice-captain"
+        : "House member";
+  const orderedHouses = [...houses].sort((first, second) => {
+    if (first.id === currentHouse?.id) return -1;
+    if (second.id === currentHouse?.id) return 1;
+    return String(first.name).localeCompare(String(second.name));
+  });
+  const houseThemeStyle = selectedHouse ? getHouseThemeStyle(selectedHouse) : undefined;
+  const summaryMetrics = manager
+    ? [
+        { label: "Selected House", value: selectedHouse?.name || "None" },
+        { label: "Roster", value: selectedMembers.length },
+        { label: "Captain", value: selectedCaptain?.displayName || "Pending" },
+        { label: "Season phase", value: league.status },
+      ]
+    : membership
+      ? [
+          { label: "Your House", value: currentHouse?.name || "Pending" },
+          { label: "Your role", value: currentHouseRole },
+          { label: "Selected roster", value: selectedMembers.length },
+          { label: "Selected captain", value: selectedCaptain?.displayName || "Pending" },
+        ]
+      : [
+          { label: "Selected House", value: selectedHouse?.name || "None" },
+          { label: "Roster", value: selectedMembers.length },
+          { label: "Captain", value: selectedCaptain?.displayName || "Pending" },
+          { label: "Season phase", value: league.status },
+        ];
   const tabs = [
     {
       id: "overview",
       label: "Overview",
-      icon: "🏰",
-      description: "House identities and season context",
-      badge: houses.length,
+      icon: <ThemeIcon name="houses" />,
     },
     ...(selectedHouse
       ? [
           {
             id: "roster",
             label: "Roster",
-            icon: "🛡️",
-            description: `Players representing ${selectedHouse.name}`,
-            badge: selectedMembers.length,
+            icon: <ThemeIcon name="roster" />,
           },
           {
             id: "leadership",
             label: "Leadership",
-            icon: "👑",
-            description: "Weekly captain and vice-captain voting",
+            icon: <ThemeIcon name="crown" />,
           },
         ]
       : []),
@@ -861,34 +917,28 @@ export default function Houses() {
       ? [{
           id: "history",
           label: "History",
-          icon: "🧭",
-          description: "Immutable House assignment timeline",
-          badge: assignmentHistory.length,
+          icon: <ThemeIcon name="compass" />,
         }]
       : []),
     ...(canUseComposition
       ? [{
           id: "balance",
           label: "Balance",
-          icon: "⚖️",
-          description: "Weekly privacy-safe House balance",
+          icon: <ThemeIcon name="balance" />,
         }]
       : []),
     ...(canUseRosterTurn
       ? [{
           id: "roster-turn",
           label: "Roster turn",
-          icon: "🔄",
-          description: "Complete the weekly balanced swap",
+          icon: <ThemeIcon name="swap" />,
         }]
       : []),
     ...(preSeasonManagement
       ? [{
           id: "manage",
           label: "Manage",
-          icon: "⚙️",
-          description: "Build Houses and prepare C.H.A.O.S.",
-          badge: chaosReadiness.eligible ? "Ready" : completedChaosChecks,
+          icon: <ThemeIcon name="admin" />,
         }]
       : []),
   ];
@@ -983,20 +1033,17 @@ export default function Houses() {
   }
 
   return (
-    <div className="season-houses-page page-stack">
+    <div
+      className={selectedHouse
+        ? "season-houses-page page-stack house-theme-scope house-theme-scope--active"
+        : "season-houses-page page-stack"}
+      style={houseThemeStyle}
+    >
       <PageHeader
         eyebrow="Season Houses"
         title="Houses"
-        description="Every House belongs to one season. Individual points remain personal, while every new contribution also strengthens the House you represent at that moment."
-        icon="🏰"
-        actions={(
-          <Link
-            className="button button--secondary"
-            to={league ? `/pocket?league=${league.id}` : "/pocket"}
-          >
-            Open Pocket Week
-          </Link>
-        )}
+        description="Your House is more than a roster. Carry its banner, back its leaders and make every contribution add weight to the name you represent."
+        icon={<ThemeIcon name="houses" size={26} />}
       />
 
       <section className="season-selector card">
@@ -1037,34 +1084,23 @@ export default function Houses() {
             </div>
                     </section>
           <CompetitionWorkspaceSummary
-            eyebrow="Your House context"
-            title={currentHouse ? `You represent ${currentHouse.name}` : membership ? "Opening House assignment pending" : "Explore the season Houses"}
+            eyebrow={selectedIsCurrentHouse ? "Your House" : manager ? "House command" : "House context"}
+            title={selectedIsCurrentHouse
+              ? "Your banner: " + selectedHouse.name
+              : selectedHouse
+                ? "Inspecting " + selectedHouse.name
+                : membership
+                  ? "Opening House assignment pending"
+                  : "Explore the season Houses"}
             description={manager
-              ? "Player-facing House identity stays separate from setup, balance and roster operations. Use the task buttons below to jump directly to the work that needs attention."
-              : "Choose a House to inspect its roster and leadership. Your own House remains your competition home until an authorised weekly roster move changes future representation."}
-            metrics={[
-              { label: "Season phase", value: league.status },
-              { label: "Your House", value: currentHouse?.name || (membership ? "Pending" : "Not joined") },
-              { label: "Selected House", value: selectedHouse?.name || "None" },
-              { label: "Your access", value: manager ? "Season administrator" : currentHouse && isHouseLeader(currentHouse, user?.uid) ? "House leader" : membership ? "Player" : "Observer" },
-            ]}
-          >
-            {selectedHouse && (
-              <button className="button button--secondary" type="button" onClick={() => setActiveTab("roster")}>
-                View selected roster
-              </button>
-            )}
-            {canUseRosterTurn && (
-              <button className="button button--secondary" type="button" onClick={() => setActiveTab("roster-turn")}>
-                Open roster turn
-              </button>
-            )}
-            {preSeasonManagement && (
-              <button className="button button--primary" type="button" onClick={() => setActiveTab("manage")}>
-                Open season setup
-              </button>
-            )}
-          </CompetitionWorkspaceSummary>
+              ? "Inspect the selected House here. Setup, balance and roster operations stay in their dedicated workspaces."
+              : selectedIsCurrentHouse
+                ? "This is your competition home for the current roster state. Know the people beside you, the leaders carrying the banner and the history you are building."
+                : currentHouse
+                  ? "You still represent " + currentHouse.name + ". Inspecting another House never changes your allegiance."
+                  : "Choose a House to inspect its identity, roster and leadership."}
+            metrics={summaryMetrics}
+          />
           <WorkspaceTabs
             tabs={tabs}
             activeId={resolvedActiveTab}
@@ -1081,7 +1117,7 @@ export default function Houses() {
             {preSeasonManagement && (
               <section className="house-management-callout card">
                 <div className="house-management-callout__icon" aria-hidden="true">
-                  {chaosReadiness.eligible ? "✓" : "⚙️"}
+                  <ThemeIcon name={chaosReadiness.eligible ? "check" : "admin"} size={22} />
                 </div>
                 <div>
                   <p className="section-kicker">Season setup</p>
@@ -1106,7 +1142,7 @@ export default function Houses() {
 
             {houses.length > 0 ? (
               <section className="house-grid" aria-label="Season Houses">
-                {houses.map((house) => {
+                {orderedHouses.map((house) => {
                   const houseMembers = members.filter(
                     (item) => item.currentHouseId === house.id,
                   );
@@ -1116,6 +1152,7 @@ export default function Houses() {
                       house={house}
                       members={houseMembers}
                       selected={selectedHouse?.id === house.id}
+                      current={currentHouse?.id === house.id}
                       onSelect={() => selectHouse(house.id)}
                     />
                   );
@@ -1123,7 +1160,7 @@ export default function Houses() {
               </section>
             ) : (
               <section className="house-empty card">
-                <span aria-hidden="true">🏗️</span>
+                <span aria-hidden="true"><ThemeIcon name="houses" size={28} /></span>
                 <div>
                   <p className="section-kicker">No Houses yet</p>
                   <h2>The season identities still need to be forged</h2>
@@ -1146,16 +1183,21 @@ export default function Houses() {
             {selectedHouse && (
               <section
                 className="house-identity card"
-                style={{ "--house-accent": getHouseAccent(selectedHouse.accentId).value }}
+                style={getHouseThemeStyle(selectedHouse)}
               >
                 <span aria-hidden="true">
                   {getHouseEmblem(selectedHouse.emblemId).symbol}
                 </span>
                 <div>
-                  <p className="section-kicker">Selected House</p>
+                  <p className="section-kicker">{selectedIsCurrentHouse ? "Your House" : "Selected House"}</p>
                   <h2>{selectedHouse.name}</h2>
                   <blockquote>“{selectedHouse.motto}”</blockquote>
                   <p>{selectedHouse.description}</p>
+                  <div className="house-identity__meta">
+                    <span><small>Captain</small><strong>{selectedCaptain?.displayName || "Pending"}</strong></span>
+                    <span><small>Vice-captains</small><strong>{selectedViceCaptains.length || "Pending"}</strong></span>
+                    <span><small>Roster</small><strong>{selectedMembers.length} players</strong></span>
+                  </div>
                 </div>
                 <div className="house-overview-actions">
                   <button
@@ -1188,7 +1230,7 @@ export default function Houses() {
                       disabled={working}
                       onClick={() => setPendingAction({ type: "delete-house", house: selectedHouse })}
                     >
-                      {working ? "Workingâ€¦" : "Delete draft House"}
+                      {working ? "Working…" : "Delete draft House"}
                     </button>
                   )}
                 </div>
@@ -1196,13 +1238,13 @@ export default function Houses() {
             )}
 
             <section className="season-integrity card">
-              <span aria-hidden="true">🧭</span>
+              <span aria-hidden="true"><ThemeIcon name="compass" size={26} /></span>
               <div>
                 <p className="section-kicker">Historical integrity</p>
-                <h2>Your old House keeps what you earned there</h2>
+                <h2>The banner keeps its history</h2>
                 <p>
-                  A roster move changes only future House contributions. Individual points remain yours,
-                  and completed contribution snapshots are never rewritten to make the past look different.
+                  What you earned under a banner stays with that House. Changing Houses only changes where
+                  your future House points go; your individual points remain yours.
                 </p>
               </div>
             </section>

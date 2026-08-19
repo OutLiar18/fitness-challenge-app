@@ -506,3 +506,433 @@
     width: 100%;
   }
 }
+/* v0.28 28D4 — House identity and local palette system */
+.season-houses-page {
+  width: 100%;
+}
+
+.season-houses-page.page-stack {
+  gap: clamp(16px, 2vw, 24px);
+}
+
+.house-theme-scope--active {
+  --primary: color-mix(in srgb, var(--house-accent) 62%, #000);
+  --primary-hover: color-mix(in srgb, var(--house-accent) 70%, #000);
+  --primary-strong: color-mix(in srgb, var(--house-accent) 54%, #000);
+  --primary-control: color-mix(in srgb, var(--house-accent) 62%, #000);
+  --primary-control-hover: color-mix(in srgb, var(--house-accent) 70%, #000);
+  --primary-depth: color-mix(in srgb, var(--house-accent) 42%, #000);
+  --primary-soft: color-mix(in srgb, var(--house-accent) 13%, transparent);
+  --primary-glow: color-mix(in srgb, var(--house-accent) 28%, transparent);
+  --interactive-glow:
+    0 0 0 1px color-mix(in srgb, var(--house-accent) 30%, transparent),
+    0 0 20px color-mix(in srgb, var(--house-secondary) 22%, transparent);
+  --focus-ring: color-mix(in srgb, var(--house-accent) 42%, transparent);
+  --accent: var(--house-secondary);
+  --on-primary: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+  .house-theme-scope--active {
+    --primary: color-mix(in srgb, var(--house-accent) 68%, #fff);
+    --primary-hover: color-mix(in srgb, var(--house-accent) 58%, #fff);
+    --primary-strong: color-mix(in srgb, var(--house-accent) 48%, #fff);
+    --primary-soft: color-mix(in srgb, var(--house-accent) 17%, transparent);
+    --primary-glow: color-mix(in srgb, var(--house-secondary) 30%, transparent);
+    --focus-ring: color-mix(in srgb, var(--house-secondary) 46%, transparent);
+  }
+}
+
+.season-houses-page .page-header,
+.season-houses-page .season-banner,
+.season-houses-page .competition-summary,
+.season-houses-page .workspace-switcher {
+  border-color: color-mix(in srgb, var(--house-accent, var(--primary)) 20%, var(--border));
+}
+
+.house-theme-scope--active .page-header {
+  background:
+    radial-gradient(circle at 0 0, color-mix(in srgb, var(--house-accent) 15%, transparent), transparent 30rem),
+    radial-gradient(circle at 100% 100%, color-mix(in srgb, var(--house-secondary) 10%, transparent), transparent 24rem),
+    var(--surface-raised);
+}
+
+.season-houses-page .workspace-panel {
+  display: grid;
+  gap: clamp(16px, 2vw, 24px);
+  min-width: 0;
+}
+
+.season-houses-page .workspace-switcher__tabs {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.season-houses-page .workspace-tab__copy small,
+.season-houses-page .workspace-tab__badge {
+  display: none;
+}
+
+.house-style-grid {
+  align-items: start;
+  grid-template-columns: minmax(0, 1.25fr) minmax(300px, .75fr);
+}
+
+.house-emblems legend,
+.house-accents legend {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+
+.house-emblems legend span,
+.house-accents legend span {
+  color: var(--text-muted);
+  font-size: .74rem;
+  font-weight: 750;
+}
+
+.house-emblems > div {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.house-accents > div {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.house-emblem,
+.house-accent {
+  min-height: 72px;
+}
+
+.house-accent > span {
+  width: 38px;
+  height: 38px;
+  background:
+    linear-gradient(
+      135deg,
+      var(--swatch) 0 58%,
+      var(--swatch-secondary) 58% 100%
+    );
+}
+
+.house-theme-preview {
+  display: grid;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border: 1px solid color-mix(in srgb, var(--house-accent) 48%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(circle at 0 50%, color-mix(in srgb, var(--house-accent) 17%, transparent), transparent 18rem),
+    linear-gradient(135deg, var(--surface-raised), color-mix(in srgb, var(--house-secondary) 7%, var(--surface-raised)));
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.house-theme-preview__emblem {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--house-accent) 40%, var(--border));
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--house-accent) 14%, var(--surface));
+  font-size: 2rem;
+}
+
+.house-theme-preview > div {
+  display: grid;
+  gap: 3px;
+}
+
+.house-theme-preview small {
+  color: var(--house-accent);
+  font-weight: 850;
+}
+
+.house-theme-preview strong {
+  font-family: var(--font-display);
+  font-size: 1.08rem;
+}
+
+.house-theme-preview em {
+  color: var(--text-muted);
+}
+
+.house-grid {
+  gap: clamp(12px, 1.5vw, 18px);
+}
+
+.season-house-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 126px;
+  padding: 18px;
+  border-color: color-mix(in srgb, var(--house-accent) 22%, var(--border));
+  background:
+    radial-gradient(circle at 0 0, color-mix(in srgb, var(--house-accent) 14%, transparent), transparent 18rem),
+    linear-gradient(150deg, var(--surface-raised), color-mix(in srgb, var(--house-secondary) 6%, var(--surface-raised)));
+}
+
+.season-house-card::after {
+  position: absolute;
+  right: -28px;
+  bottom: -34px;
+  width: 92px;
+  height: 92px;
+  border: 18px solid color-mix(in srgb, var(--house-accent) 8%, transparent);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
+}
+
+.season-house-card--selected {
+  border-color: var(--house-accent);
+  box-shadow:
+    inset 4px 0 0 var(--house-accent),
+    0 0 0 3px color-mix(in srgb, var(--house-secondary) 12%, transparent),
+    var(--shadow-md);
+}
+
+.season-house-card--current {
+  border-color: color-mix(in srgb, var(--house-accent) 65%, var(--border));
+}
+
+.season-house-card__title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.season-house-card__title b {
+  padding: 3px 7px;
+  border-radius: 999px;
+  color: var(--house-accent);
+  background: color-mix(in srgb, var(--house-accent) 13%, transparent);
+  font-size: .66rem;
+  font-weight: 900;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.house-identity {
+  position: relative;
+  overflow: hidden;
+  gap: clamp(20px, 3vw, 34px);
+  padding: clamp(24px, 3vw, 34px);
+  border-top: 0;
+  border-left: 6px solid var(--house-accent);
+  background:
+    radial-gradient(circle at 0 50%, color-mix(in srgb, var(--house-accent) 20%, transparent), transparent 26rem),
+    radial-gradient(circle at 100% 0, color-mix(in srgb, var(--house-secondary) 12%, transparent), transparent 22rem),
+    var(--surface-raised);
+}
+
+.house-identity::after {
+  position: absolute;
+  right: -48px;
+  bottom: -70px;
+  width: 180px;
+  height: 180px;
+  border: 32px solid color-mix(in srgb, var(--house-accent) 7%, transparent);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
+}
+
+.house-identity > * {
+  position: relative;
+  z-index: 1;
+}
+
+.house-identity > span {
+  display: grid;
+  width: 92px;
+  height: 92px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--house-accent) 42%, var(--border));
+  border-radius: 28px;
+  background: color-mix(in srgb, var(--house-accent) 14%, var(--surface));
+  font-size: 3.7rem;
+}
+
+.house-identity h2 {
+  margin-bottom: 6px;
+  font-size: clamp(1.65rem, 3vw, 2.35rem);
+}
+
+.house-identity blockquote {
+  color: var(--primary);
+  font-size: clamp(1.05rem, 1.8vw, 1.24rem);
+}
+
+.house-identity__meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.house-identity__meta span {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--house-accent) 18%, var(--border));
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--house-accent) 7%, var(--surface-soft));
+}
+
+.house-identity__meta small {
+  color: var(--text-muted);
+  font-size: .72rem;
+}
+
+.house-identity__meta strong {
+  overflow-wrap: anywhere;
+  font-size: .88rem;
+}
+
+.house-roster {
+  border-top: 4px solid var(--house-accent);
+}
+
+.house-member {
+  min-height: 72px;
+}
+
+.house-member--captain {
+  border-color: color-mix(in srgb, var(--house-accent) 50%, var(--border));
+  background: color-mix(in srgb, var(--house-accent) 10%, var(--surface-soft));
+}
+
+.house-member--vice {
+  border-color: color-mix(in srgb, var(--house-secondary) 35%, var(--border));
+}
+
+.house-member__crest {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.season-integrity {
+  border-color: color-mix(in srgb, var(--house-accent, var(--primary)) 20%, var(--border));
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--house-accent, var(--primary)) 6%, var(--surface-raised)), var(--surface-raised));
+}
+
+.season-integrity > span {
+  color: var(--primary);
+}
+
+.assignment-history__icon {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border-radius: 12px;
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.house-management-callout,
+.house-management-summary,
+.house-builder,
+.leadership-panel,
+.roster-swap,
+.assignment-history,
+.composition-privacy,
+.composition-coverage,
+.house-balance {
+  padding: clamp(20px, 2.5vw, 28px);
+}
+
+@media (max-width: 1100px) {
+  .season-houses-page .workspace-switcher__tabs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .house-style-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .house-emblems > div {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .house-accents > div {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 820px) {
+  .season-houses-page .workspace-switcher__tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .house-identity {
+    grid-template-columns: 1fr;
+  }
+
+  .house-identity > span {
+    width: 78px;
+    height: 78px;
+    font-size: 3rem;
+  }
+
+  .house-overview-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+}
+
+@media (max-width: 620px) {
+  .season-houses-page.page-stack {
+    gap: 14px;
+  }
+
+  .season-banner,
+  .house-builder,
+  .house-roster,
+  .leadership-panel,
+  .roster-swap,
+  .season-integrity,
+  .assignment-history,
+  .composition-privacy,
+  .composition-coverage,
+  .house-balance {
+    padding: 17px;
+  }
+
+  .house-emblems > div {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .house-accents > div {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .house-identity {
+    padding: 20px 18px;
+    border-left-width: 4px;
+  }
+
+  .house-identity__meta {
+    grid-template-columns: 1fr;
+  }
+
+  .house-overview-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .house-theme-preview {
+    align-items: start;
+  }
+}

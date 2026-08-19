@@ -136,3 +136,6 @@ The intended pre-v1.0 order is now:
 
 ## 28D3A owner review priority
 Review Seasons before any Houses work. Check Browse without an auto-opened detail, open a season and test Overview, Command Centre disclosures, one-at-a-time Power Play editing, Individual/House standings switching, Honours separation, Evidence publication/queue hierarchy, and the four-stage Create Season presentation on desktop, tablet and narrow mobile. If accepted, resume page inspection with Houses.
+
+## 28D4 fast owner review
+Visually check Houses only for major regressions: current House appears first, selected House palette themes only the Houses route, several palettes remain readable in light/dark mode, emblem/colour libraries stay neat, selected House banner/roster hierarchy is clear, workspace tabs fit, and desktop/tablet/mobile spacing does not overflow. Defer minor cosmetic issues to v0.31. If accepted, continue immediately with Inbox.
