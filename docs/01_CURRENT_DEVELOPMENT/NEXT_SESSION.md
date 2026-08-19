@@ -151,3 +151,6 @@ Open the full House emblem picker and inspect a representative mix of animals, m
 
 ## 28D5 Inbox review
 Houses is accepted. Review Inbox only for major issues: Updates/Private tab badges, announcement filters, featured/previous update hierarchy, Mark all read, Platform bonus-review attention, private notification actions, empty states, icon consistency and narrow-mobile stacking. If the page scans cleanly and read/unread behaviour is intact, accept Inbox and move immediately to Analytics.
+
+## 28D6 Analytics review
+Inbox is accepted. Review Analytics only for major issues: range selector, four summary cards, Trends chart/no-data state, 28-day consistency grid, category balance, insight cards, professional icon consistency and narrow-mobile stacking/scrolling. Confirm URL-backed range/tab state still feels natural. If accepted, move immediately to Pocket Week.

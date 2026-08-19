@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import PageLoader from "../components/common/PageLoader";
+import ThemeIcon from "../components/common/ThemeIcon";
 import WorkspaceTabs, {
   WorkspacePanel,
 } from "../components/common/WorkspaceTabs";
@@ -22,28 +23,37 @@ const ANALYTICS_TABS = Object.freeze([
   {
     id: "trends",
     label: "Trends",
-    icon: "📈",
-    description: "Weekly activity momentum",
+    icon: <ThemeIcon name="analytics" size={18} />,
+    description: "Weekly momentum",
   },
   {
     id: "consistency",
     label: "Consistency",
-    icon: "🗓️",
-    description: "Your latest 28 days at a glance",
+    icon: <ThemeIcon name="check" size={18} />,
+    description: "Latest 28 days",
   },
   {
     id: "categories",
-    label: "Category balance",
-    icon: "⚖️",
-    description: "How your activity is distributed",
+    label: "Categories",
+    icon: <ThemeIcon name="balance" size={18} />,
+    description: "Activity distribution",
   },
   {
     id: "insights",
     label: "Insights",
-    icon: "🔎",
-    description: "Transparent observations from your data",
+    icon: <ThemeIcon name="info" size={18} />,
+    description: "Patterns in your data",
   },
 ]);
+
+const INSIGHT_ICON_NAMES = Object.freeze({
+  "best-week": "trophy",
+  "consistent-category": "star",
+  "momentum-up": "progress",
+  "momentum-steady": "coach",
+  "momentum-level": "balance",
+  "consistency-window": "check",
+});
 
 const shortDateFormatter = new Intl.DateTimeFormat(undefined, {
   day: "numeric",
@@ -113,7 +123,7 @@ export default function Analytics() {
   );
   const weeklyMaximum = Math.max(0, ...analytics.weeklyTrend.map((week) => week.points));
   const categoryMaximum = Math.max(0, ...analytics.categoryBalance.map((category) => category.points));
-    const dailyMaximum = Math.max(0, ...analytics.dailyConsistency.map((day) => day.points));
+  const dailyMaximum = Math.max(0, ...analytics.dailyConsistency.map((day) => day.points));
 
   if (loading) {
     return <PageLoader message="Reading your activity patterns…" />;
@@ -123,14 +133,9 @@ export default function Analytics() {
     <div className="analytics-page page-stack">
       <PageHeader
         eyebrow="Reflection and insight"
-        title="Personal analytics"
-        description="See patterns in your factual activity history without turning every day into a judgement. Analytics explain what happened; they do not change Points or Experience Points."
-        icon="📈"
-        actions={
-          <Link className="button button--secondary" to="/progress">
-            Back to progress
-          </Link>
-        }
+        title="Analytics"
+        description="See how your activity changes over time, where your effort goes and what patterns are emerging. Analytics never changes your Points or Experience Points."
+        icon={<ThemeIcon name="analytics" size={28} strokeWidth={2.2} />}
       />
 
       <section className="analytics-toolbar card">
@@ -154,25 +159,25 @@ export default function Analytics() {
 
       <section className="analytics-summary-grid" aria-label="Analytics summary">
         <SummaryCard
-          icon="🗓️"
+          icon={<ThemeIcon name="check" size={22} />}
           value={formatNumber(analytics.summary.activeDays, { whole: true })}
           label="Active days"
           detail={`${analytics.summary.entries} ${pluralize(analytics.summary.entries, "entry", "entries")}`}
         />
         <SummaryCard
-          icon="⭐"
+          icon={<ThemeIcon name="points" size={22} />}
           value={formatPoints(analytics.summary.activityPoints)}
           label="Activity points"
           detail="Goal bonuses are kept separate"
         />
         <SummaryCard
-          icon="⚖️"
+          icon={<ThemeIcon name="balance" size={22} />}
           value={formatNumber(analytics.summary.averagePointsPerActiveDay, { whole: true })}
           label="Average per active day"
           detail="A reflection metric, not a target"
         />
         <SummaryCard
-          icon="🏅"
+          icon={<ThemeIcon name="trophy" size={22} />}
           value={analytics.summary.bestDay ? formatPoints(analytics.summary.bestDay.points) : "No data yet"}
           label="Strongest recent day"
           detail={analytics.summary.bestDay ? formatLongDate(analytics.summary.bestDay.date) : "Log activity to begin"}
@@ -197,39 +202,42 @@ export default function Analytics() {
             <span>Activity points only</span>
           </div>
 
-          {analytics.summary.entries === 0 && (
+          {analytics.summary.entries === 0 ? (
             <div className="empty-state analytics-empty-state">
-              <span aria-hidden="true">📊</span>
+              <span aria-hidden="true">
+                <ThemeIcon name="analytics" size={34} strokeWidth={2.2} />
+              </span>
               <h3>No activity in this window yet</h3>
               <p>Log activity to start building weekly trends and category patterns.</p>
               <Link className="button button--primary" to="/log">
                 Log an activity
               </Link>
             </div>
-          )}
-          <div
-            className="analytics-week-chart"
-            role="list"
-            aria-label="Weekly activity points and active days"
-          >
-            {analytics.weeklyTrend.map((week) => (
-              <div
-                className="analytics-week"
-                key={week.id}
-                role="listitem"
-                aria-label={`${formatShortDate(week.startDate)}: ${week.points} activity points across ${week.activeDays} active days`}
-              >
-                <div className="analytics-week__plot" aria-hidden="true">
-                  <span
-                    style={{ height: `${percentage(week.points, weeklyMaximum)}%` }}
-                  />
+          ) : (
+            <div
+              className="analytics-week-chart"
+              role="list"
+              aria-label="Weekly activity points and active days"
+            >
+              {analytics.weeklyTrend.map((week) => (
+                <div
+                  className="analytics-week"
+                  key={week.id}
+                  role="listitem"
+                  aria-label={`${formatShortDate(week.startDate)}: ${week.points} activity points across ${week.activeDays} active days`}
+                >
+                  <div className="analytics-week__plot" aria-hidden="true">
+                    <span
+                      style={{ height: `${percentage(week.points, weeklyMaximum)}%` }}
+                    />
+                  </div>
+                  <strong>{formatNumber(week.points, { whole: true })}</strong>
+                  <small>{formatShortDate(week.startDate)}</small>
+                  <em>{week.activeDays}d</em>
                 </div>
-                <strong>{formatNumber(week.points, { whole: true })}</strong>
-                <small>{formatShortDate(week.startDate)}</small>
-                <em>{week.activeDays}d</em>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </article>
       </WorkspacePanel>
 
@@ -315,7 +323,12 @@ export default function Analytics() {
           <div className="analytics-insight-list">
             {analytics.insights.map((insight) => (
               <article key={insight.id}>
-                <span aria-hidden="true">{insight.icon}</span>
+                <span aria-hidden="true">
+                  <ThemeIcon
+                    name={INSIGHT_ICON_NAMES[insight.id] ?? "info"}
+                    size={22}
+                  />
+                </span>
                 <div>
                   <strong>{insight.title}</strong>
                   <p>{insight.message}</p>
@@ -327,12 +340,14 @@ export default function Analytics() {
         </article>
 
         <section className="analytics-integrity card">
-          <span aria-hidden="true">🔎</span>
+          <span aria-hidden="true">
+            <ThemeIcon name="info" size={26} />
+          </span>
           <div>
             <p className="section-kicker">Explainable by design</p>
-            <h2>Analytics reuse the Points Engine</h2>
+            <h2>Built from your recorded activity</h2>
             <p>
-              The page reads the same factual entries and point breakdowns used elsewhere. Running still contributes to both Running and Cardio where eligible; no scoring rule is duplicated inside the interface.
+              Analytics uses the same factual entries and point breakdowns used elsewhere. Running still contributes to both Running and Cardio where eligible; the page does not create a second scoring system.
             </p>
           </div>
         </section>

@@ -408,10 +408,18 @@ with Houses.
 - Phosphor remains the ordinary UI icon system;
 - stored House identity and all competition behaviour remain unchanged.
 
-### Checkpoint 28D5 - Inbox focus + icon polish - IMPLEMENTED / OWNER REVIEW PENDING
+### Checkpoint 28D5 - Inbox focus + icon polish - IMPLEMENTED / ACCEPTED
 - Houses is owner-accepted after 28D4C;
 - Inbox keeps the v0.27 URL-backed shared WorkspaceTabs and existing read/unread behaviour;
 - redundant page/private summary cards are removed because tab badges already communicate attention;
 - remaining Inbox emoji presentation is replaced by the shared professional ThemeIcon language;
 - announcement filter labels stay text-first, private status markers become CSS dots and related actions use clearer wording;
 - Firestore Rules, notification data, bonus-review authority and season behaviour remain unchanged.
+
+### Checkpoint 28D6 - Analytics focus + icon polish - IMPLEMENTED / OWNER REVIEW PENDING
+- Inbox is owner-accepted after 28D5;
+- Analytics keeps the v0.27 URL-backed range/tab state, loading state and accessible list/listitem data semantics;
+- page-level emoji chrome is replaced by the shared professional ThemeIcon language while category identity remains sourced from category metadata;
+- the page/header/tab wording is tightened and the redundant Progress return action is removed;
+- Trends no longer stacks an empty weekly chart underneath its no-data recovery state;
+- analytics calculations, Points behavior, Firestore Rules and deployment state remain unchanged.

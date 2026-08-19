@@ -38,3 +38,6 @@ Owner review rejected monochrome House emblems. House identity is now deliberate
 
 ## 28D5 Inbox focus
 Houses is owner-accepted after 28D4C. 28D5 is the next accelerated page-inspection pass: Inbox retains its existing URL-backed Updates/Private behaviour, read state and Platform bonus-review queue, while duplicate summary chrome and remaining emoji presentation are removed. Shared ThemeIcon presentation, concise read actions and clearer private links make the page faster to scan. After owner review, continue directly to Analytics.
+
+## 28D6 Analytics focus
+Inbox is owner-accepted after 28D5. 28D6 keeps the existing analytics model and accessible URL-backed workspaces intact while cleaning the page hierarchy: professional ThemeIcon chrome replaces page-level emoji, the redundant Progress return action is removed, tab labels are tightened, and Trends shows either recovery or chart content rather than both when the range is empty. After owner review, continue directly to Pocket Week.

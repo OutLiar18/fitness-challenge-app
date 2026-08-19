@@ -401,7 +401,7 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - source attribution and Microsoft MIT licence are retained beside the assets;
 - detailed scope is recorded in `V028_FULL_COLOUR_HOUSE_EMBLEMS.md`.
 
-#### Checkpoint 28D5 — Inbox focus + professional icon polish — IMPLEMENTED / OWNER REVIEW PENDING
+#### Checkpoint 28D5 — Inbox focus + professional icon polish — IMPLEMENTED / ACCEPTED
 - Houses is owner-accepted after the full-colour 28D4C emblem pass;
 - Inbox keeps its existing URL-backed Updates/Private workspace, read/unread behaviour and bonus-review attention;
 - ordinary Inbox emoji chrome is replaced with the shared Phosphor-backed ThemeIcon system;
@@ -412,5 +412,15 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - detailed scope is recorded in `V028_INBOX_POLISH.md`;
 - Firestore Rules and messaging/bonus semantics remain unchanged.
 
+#### Checkpoint 28D6 — Analytics focus + icon polish — IMPLEMENTED / OWNER REVIEW PENDING
+- Inbox is owner-accepted after the 28D5 communication-workspace pass;
+- Analytics keeps its existing URL-backed range/tab state, loading state, semantic chart data and analytics model;
+- ordinary Analytics emoji chrome is replaced with the shared Phosphor-backed ThemeIcon system while category identity remains data-driven;
+- the page title and workspace labels are shorter and the redundant Back to progress action is removed;
+- summary, insight, empty-state and integrity icon surfaces use consistent theme-aware presentation;
+- the Trends workspace no longer renders an empty chart beneath its no-data recovery state;
+- detailed scope is recorded in `V028_ANALYTICS_POLISH.md`;
+- analytics calculations, scoring, Firestore Rules and deployment state remain unchanged.
+
 ### Next action
-Perform one fast Inbox visual/interaction review at desktop and narrow mobile. If accepted, continue immediately to Analytics.
+Perform one fast Analytics visual/interaction review on desktop and narrow mobile. If accepted, continue immediately to Pocket Week.
