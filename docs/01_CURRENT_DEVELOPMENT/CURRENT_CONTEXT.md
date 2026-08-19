@@ -32,3 +32,6 @@ The 28D4 owner check exposed operating-system-dependent emoji rendering in the 5
 
 ## 28D4B professional icon system
 After the owner rejected the temporary hand-drawn House emblems, 28D4B standardises the application on Phosphor React 2.1.10. ThemeIcon now uses professional pack icons across existing UI callers, and all 56 House emblem IDs map to curated duotone Phosphor symbols while retaining House-local currentColor theming. After a fast visual scan, close Houses and move directly to Inbox.
+
+## 28D4C full-colour House emblems
+Owner review rejected monochrome House emblems. House identity is now deliberately separated from ordinary UI iconography: Phosphor remains for standard application controls, while all 56 House emblem IDs use locally bundled Microsoft Fluent Emoji 3D PNG artwork in natural colour. House palette colour is retained on the emblem frame/halo rather than recolouring the image. After a fast visual check, close Houses and move directly to Inbox.

@@ -26,11 +26,13 @@ test("28D4A gives every House emblem an app-owned renderer", () => {
   assert.equal(new Set(configured).size, 56);
 });
 
-test("28D4A no longer uses operating-system emoji as the visible House emblem", () => {
+test("House identity no longer depends on operating-system emoji or inline SVG artwork", () => {
   assert.match(houses, /<HouseEmblem id=\{item\.id\}/);
   assert.match(houses, /<HouseEmblem id=\{form\.emblemId\}/);
   assert.match(roster, /<HouseEmblem id=\{house\.emblemId\}/);
   assert.doesNotMatch(houses, /\{item\.symbol\}/);
   assert.doesNotMatch(roster, /\{emblem\.symbol\}/);
-  assert.match(emblem, /color="currentColor"/);
+  assert.match(emblem, /<img/);
+  assert.match(emblem, /assets\/house-emblems/);
+  assert.doesNotMatch(emblem, /<svg|<path|@phosphor-icons\/react/);
 });

@@ -1001,3 +1001,67 @@
     inset 0 0 22px color-mix(in srgb, var(--house-accent) 10%, transparent),
     0 12px 28px color-mix(in srgb, var(--house-accent) 12%, transparent);
 }
+/* v0.28 28D4C — full-colour raster House emblems */
+.house-emblem > span,
+.season-house-card__emblem,
+.house-theme-preview__emblem,
+.house-identity > span {
+  position: relative;
+  isolation: isolate;
+}
+
+.house-emblem > span::before,
+.season-house-card__emblem::before,
+.house-theme-preview__emblem::before,
+.house-identity > span::before {
+  position: absolute;
+  inset: -5px;
+  z-index: -1;
+  border: 1px solid color-mix(
+    in srgb,
+    var(--house-accent, var(--primary)) 42%,
+    transparent
+  );
+  border-radius: 30%;
+  background:
+    radial-gradient(
+      circle at 50% 42%,
+      color-mix(in srgb, var(--house-accent, var(--primary)) 18%, transparent),
+      transparent 68%
+    );
+  box-shadow:
+    0 0 18px
+    color-mix(in srgb, var(--house-accent, var(--primary)) 16%, transparent);
+  content: "";
+}
+
+.house-emblem > span img,
+.season-house-card__emblem img,
+.house-theme-preview__emblem img,
+.house-identity > span img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 5px 9px rgb(0 0 0 / 34%));
+}
+
+.house-emblem > span img {
+  transition:
+    transform 150ms ease,
+    filter 150ms ease;
+}
+
+.house-emblem:hover > span img,
+.house-emblem:focus-visible > span img {
+  transform: translateY(-1px) scale(1.07);
+  filter: drop-shadow(0 7px 13px rgb(0 0 0 / 42%));
+}
+
+.house-identity > span::before {
+  inset: -8px;
+  border-radius: 34%;
+  box-shadow:
+    0 0 24px
+    color-mix(in srgb, var(--house-accent, var(--primary)) 22%, transparent);
+}

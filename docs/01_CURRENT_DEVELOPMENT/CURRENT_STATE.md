@@ -392,5 +392,14 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - House IDs/data, competition mechanics, Firestore Rules and deployment state remain unchanged;
 - detailed scope is recorded in `V028_PROFESSIONAL_ICON_SYSTEM.md`.
 
+#### Checkpoint 28D4C — full-colour House emblems — IMPLEMENTED / OWNER REVIEW PENDING
+- monochrome/vector House emblem presentation has been retired;
+- House identity now uses 56 locally bundled Microsoft Fluent Emoji 3D PNG assets;
+- the artwork keeps its native colours while the selected House palette colours the surrounding frame/halo;
+- ordinary application UI icons remain on Phosphor;
+- stored House emblem IDs, House palettes and competition mechanics remain unchanged;
+- source attribution and Microsoft MIT licence are retained beside the assets;
+- detailed scope is recorded in `V028_FULL_COLOUR_HOUSE_EMBLEMS.md`.
+
 ### Next action
-Perform one fast visual scan of ordinary navigation icons and the House emblem picker/banner. If the new professional icon language is accepted, close Houses and continue immediately to Inbox.
+Perform one fast visual scan of the full House emblem picker plus a selected House card/banner. If the full-colour artwork is accepted, close Houses and continue immediately to Inbox.

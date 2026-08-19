@@ -1,0 +1,233 @@
+{
+  "source": "Microsoft Fluent Emoji",
+  "repository": "https://github.com/microsoft/fluentui-emoji",
+  "style": "3D PNG",
+  "license": "MIT",
+  "note": "Files are copied locally during Checkpoint 28D4C and renamed to stable Champions Legacy Challenge House emblem IDs. Stored House emblem IDs are unchanged.",
+  "assets": {
+    "springbok": {
+      "sourceName": "Deer",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Deer/3D/deer_3d.png"
+    },
+    "lion": {
+      "sourceName": "Lion",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Lion/3D/lion_3d.png"
+    },
+    "leopard": {
+      "sourceName": "Tiger face",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Tiger%20face/3D/tiger_face_3d.png"
+    },
+    "rhino": {
+      "sourceName": "Rhinoceros",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Rhinoceros/3D/rhinoceros_3d.png"
+    },
+    "elephant": {
+      "sourceName": "Elephant",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Elephant/3D/elephant_3d.png"
+    },
+    "buffalo": {
+      "sourceName": "Water buffalo",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Water%20buffalo/3D/water_buffalo_3d.png"
+    },
+    "eagle": {
+      "sourceName": "Eagle",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Eagle/3D/eagle_3d.png"
+    },
+    "wolf": {
+      "sourceName": "Wolf",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Wolf/3D/wolf_3d.png"
+    },
+    "shark": {
+      "sourceName": "Shark",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Shark/3D/shark_3d.png"
+    },
+    "phoenix": {
+      "sourceName": "Fire",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Fire/3D/fire_3d.png"
+    },
+    "dragon": {
+      "sourceName": "Dragon",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Dragon/3D/dragon_3d.png"
+    },
+    "storm": {
+      "sourceName": "Cloud with lightning",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Cloud%20with%20lightning/3D/cloud_with_lightning_3d.png"
+    },
+    "mountain": {
+      "sourceName": "Snow-capped mountain",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Snow-capped%20mountain/3D/snow-capped_mountain_3d.png"
+    },
+    "shield": {
+      "sourceName": "Shield",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Shield/3D/shield_3d.png"
+    },
+    "crown": {
+      "sourceName": "Crown",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Crown/3D/crown_3d.png"
+    },
+    "compass": {
+      "sourceName": "Compass",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Compass/3D/compass_3d.png"
+    },
+    "cobra": {
+      "sourceName": "Snake",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Snake/3D/snake_3d.png"
+    },
+    "tiger": {
+      "sourceName": "Tiger",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Tiger/3D/tiger_3d.png"
+    },
+    "scorpion": {
+      "sourceName": "Scorpion",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Scorpion/3D/scorpion_3d.png"
+    },
+    "bear": {
+      "sourceName": "Bear",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Bear/3D/bear_3d.png"
+    },
+    "orca": {
+      "sourceName": "Whale",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Whale/3D/whale_3d.png"
+    },
+    "wave": {
+      "sourceName": "Water wave",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Water%20wave/3D/water_wave_3d.png"
+    },
+    "volcano": {
+      "sourceName": "Volcano",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Volcano/3D/volcano_3d.png"
+    },
+    "moon": {
+      "sourceName": "Crescent moon",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Crescent%20moon/3D/crescent_moon_3d.png"
+    },
+    "planet": {
+      "sourceName": "Ringed planet",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Ringed%20planet/3D/ringed_planet_3d.png"
+    },
+    "comet": {
+      "sourceName": "Comet",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Comet/3D/comet_3d.png"
+    },
+    "rocket": {
+      "sourceName": "Rocket",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Rocket/3D/rocket_3d.png"
+    },
+    "diamond": {
+      "sourceName": "Gem stone",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Gem%20stone/3D/gem_stone_3d.png"
+    },
+    "anchor": {
+      "sourceName": "Anchor",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Anchor/3D/anchor_3d.png"
+    },
+    "swords": {
+      "sourceName": "Crossed swords",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Crossed%20swords/3D/crossed_swords_3d.png"
+    },
+    "oak": {
+      "sourceName": "Deciduous tree",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Deciduous%20tree/3D/deciduous_tree_3d.png"
+    },
+    "mask": {
+      "sourceName": "Performing arts",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Performing%20arts/3D/performing_arts_3d.png"
+    },
+    "raven": {
+      "sourceName": "Bird",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Bird/3D/bird_3d.png"
+    },
+    "owl": {
+      "sourceName": "Owl",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Owl/3D/owl_3d.png"
+    },
+    "fox": {
+      "sourceName": "Fox",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Fox/3D/fox_3d.png"
+    },
+    "boar": {
+      "sourceName": "Boar",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Boar/3D/boar_3d.png"
+    },
+    "crocodile": {
+      "sourceName": "Crocodile",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Crocodile/3D/crocodile_3d.png"
+    },
+    "gorilla": {
+      "sourceName": "Gorilla",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Gorilla/3D/gorilla_3d.png"
+    },
+    "kraken": {
+      "sourceName": "Octopus",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Octopus/3D/octopus_3d.png"
+    },
+    "bat": {
+      "sourceName": "Bat",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Bat/3D/bat_3d.png"
+    },
+    "ram": {
+      "sourceName": "Ram",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Ram/3D/ram_3d.png"
+    },
+    "bull": {
+      "sourceName": "Ox",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Ox/3D/ox_3d.png"
+    },
+    "stallion": {
+      "sourceName": "Horse face",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Horse%20face/3D/horse_face_3d.png"
+    },
+    "spider": {
+      "sourceName": "Spider",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Spider/3D/spider_3d.png"
+    },
+    "trident": {
+      "sourceName": "Trident emblem",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Trident%20emblem/3D/trident_emblem_3d.png"
+    },
+    "axe": {
+      "sourceName": "Axe",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Axe/3D/axe_3d.png"
+    },
+    "hammer": {
+      "sourceName": "Hammer",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Hammer/3D/hammer_3d.png"
+    },
+    "castle": {
+      "sourceName": "Castle",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Castle/3D/castle_3d.png"
+    },
+    "fleur": {
+      "sourceName": "Fleur-de-lis",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Fleur-de-lis/3D/fleur-de-lis_3d.png"
+    },
+    "sun": {
+      "sourceName": "Sun",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Sun/3D/sun_3d.png"
+    },
+    "star": {
+      "sourceName": "Glowing star",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Glowing%20star/3D/glowing_star_3d.png"
+    },
+    "snowflake": {
+      "sourceName": "Snowflake",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Snowflake/3D/snowflake_3d.png"
+    },
+    "tornado": {
+      "sourceName": "Tornado",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Tornado/3D/tornado_3d.png"
+    },
+    "lotus": {
+      "sourceName": "Lotus",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Lotus/3D/lotus_3d.png"
+    },
+    "skull": {
+      "sourceName": "Skull",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Skull/3D/skull_3d.png"
+    },
+    "feather": {
+      "sourceName": "Feather",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Feather/3D/feather_3d.png"
+    }
+  }
+}

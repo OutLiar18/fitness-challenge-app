@@ -1,141 +1,140 @@
-import { HorseIcon } from "@phosphor-icons/react/dist/csr/Horse";
-import { CrownIcon } from "@phosphor-icons/react/dist/csr/Crown";
-import { CatIcon } from "@phosphor-icons/react/dist/csr/Cat";
-import { ShieldChevronIcon } from "@phosphor-icons/react/dist/csr/ShieldChevron";
-import { TreeIcon } from "@phosphor-icons/react/dist/csr/Tree";
-import { CowIcon } from "@phosphor-icons/react/dist/csr/Cow";
-import { BirdIcon } from "@phosphor-icons/react/dist/csr/Bird";
-import { PawPrintIcon } from "@phosphor-icons/react/dist/csr/PawPrint";
-import { FishIcon } from "@phosphor-icons/react/dist/csr/Fish";
-import { FlameIcon } from "@phosphor-icons/react/dist/csr/Flame";
-import { FireSimpleIcon } from "@phosphor-icons/react/dist/csr/FireSimple";
-import { CloudLightningIcon } from "@phosphor-icons/react/dist/csr/CloudLightning";
-import { MountainsIcon } from "@phosphor-icons/react/dist/csr/Mountains";
-import { ShieldIcon } from "@phosphor-icons/react/dist/csr/Shield";
-import { CrownSimpleIcon } from "@phosphor-icons/react/dist/csr/CrownSimple";
-import { CompassRoseIcon } from "@phosphor-icons/react/dist/csr/CompassRose";
-import { SpiralIcon } from "@phosphor-icons/react/dist/csr/Spiral";
-import { TargetIcon } from "@phosphor-icons/react/dist/csr/Target";
-import { BugBeetleIcon } from "@phosphor-icons/react/dist/csr/BugBeetle";
-import { HandFistIcon } from "@phosphor-icons/react/dist/csr/HandFist";
-import { WavesIcon } from "@phosphor-icons/react/dist/csr/Waves";
-import { WaveSineIcon } from "@phosphor-icons/react/dist/csr/WaveSine";
-import { FireIcon } from "@phosphor-icons/react/dist/csr/Fire";
-import { MoonStarsIcon } from "@phosphor-icons/react/dist/csr/MoonStars";
-import { PlanetIcon } from "@phosphor-icons/react/dist/csr/Planet";
-import { MeteorIcon } from "@phosphor-icons/react/dist/csr/Meteor";
-import { RocketLaunchIcon } from "@phosphor-icons/react/dist/csr/RocketLaunch";
-import { DiamondIcon } from "@phosphor-icons/react/dist/csr/Diamond";
-import { AnchorIcon } from "@phosphor-icons/react/dist/csr/Anchor";
-import { SwordIcon } from "@phosphor-icons/react/dist/csr/Sword";
-import { TreeEvergreenIcon } from "@phosphor-icons/react/dist/csr/TreeEvergreen";
-import { MaskHappyIcon } from "@phosphor-icons/react/dist/csr/MaskHappy";
-import { FeatherIcon } from "@phosphor-icons/react/dist/csr/Feather";
-import { BinocularsIcon } from "@phosphor-icons/react/dist/csr/Binoculars";
-import { DetectiveIcon } from "@phosphor-icons/react/dist/csr/Detective";
-import { PiggyBankIcon } from "@phosphor-icons/react/dist/csr/PiggyBank";
-import { KnifeIcon } from "@phosphor-icons/react/dist/csr/Knife";
-import { BoxingGloveIcon } from "@phosphor-icons/react/dist/csr/BoxingGlove";
-import { HurricaneIcon } from "@phosphor-icons/react/dist/csr/Hurricane";
-import { MoonIcon } from "@phosphor-icons/react/dist/csr/Moon";
-import { ArrowsOutCardinalIcon } from "@phosphor-icons/react/dist/csr/ArrowsOutCardinal";
-import { BarbellIcon } from "@phosphor-icons/react/dist/csr/Barbell";
-import { BootIcon } from "@phosphor-icons/react/dist/csr/Boot";
-import { BugIcon } from "@phosphor-icons/react/dist/csr/Bug";
-import { AsclepiusIcon } from "@phosphor-icons/react/dist/csr/Asclepius";
-import { AxeIcon } from "@phosphor-icons/react/dist/csr/Axe";
-import { HammerIcon } from "@phosphor-icons/react/dist/csr/Hammer";
-import { CastleTurretIcon } from "@phosphor-icons/react/dist/csr/CastleTurret";
-import { FlowerIcon } from "@phosphor-icons/react/dist/csr/Flower";
-import { SunIcon } from "@phosphor-icons/react/dist/csr/Sun";
-import { StarFourIcon } from "@phosphor-icons/react/dist/csr/StarFour";
-import { SnowflakeIcon } from "@phosphor-icons/react/dist/csr/Snowflake";
-import { TornadoIcon } from "@phosphor-icons/react/dist/csr/Tornado";
-import { FlowerLotusIcon } from "@phosphor-icons/react/dist/csr/FlowerLotus";
-import { SkullIcon } from "@phosphor-icons/react/dist/csr/Skull";
-import { PenNibIcon } from "@phosphor-icons/react/dist/csr/PenNib";
+import springbokImage from "../../assets/house-emblems/springbok.png";
+import lionImage from "../../assets/house-emblems/lion.png";
+import leopardImage from "../../assets/house-emblems/leopard.png";
+import rhinoImage from "../../assets/house-emblems/rhino.png";
+import elephantImage from "../../assets/house-emblems/elephant.png";
+import buffaloImage from "../../assets/house-emblems/buffalo.png";
+import eagleImage from "../../assets/house-emblems/eagle.png";
+import wolfImage from "../../assets/house-emblems/wolf.png";
+import sharkImage from "../../assets/house-emblems/shark.png";
+import phoenixImage from "../../assets/house-emblems/phoenix.png";
+import dragonImage from "../../assets/house-emblems/dragon.png";
+import stormImage from "../../assets/house-emblems/storm.png";
+import mountainImage from "../../assets/house-emblems/mountain.png";
+import shieldImage from "../../assets/house-emblems/shield.png";
+import crownImage from "../../assets/house-emblems/crown.png";
+import compassImage from "../../assets/house-emblems/compass.png";
+import cobraImage from "../../assets/house-emblems/cobra.png";
+import tigerImage from "../../assets/house-emblems/tiger.png";
+import scorpionImage from "../../assets/house-emblems/scorpion.png";
+import bearImage from "../../assets/house-emblems/bear.png";
+import orcaImage from "../../assets/house-emblems/orca.png";
+import waveImage from "../../assets/house-emblems/wave.png";
+import volcanoImage from "../../assets/house-emblems/volcano.png";
+import moonImage from "../../assets/house-emblems/moon.png";
+import planetImage from "../../assets/house-emblems/planet.png";
+import cometImage from "../../assets/house-emblems/comet.png";
+import rocketImage from "../../assets/house-emblems/rocket.png";
+import diamondImage from "../../assets/house-emblems/diamond.png";
+import anchorImage from "../../assets/house-emblems/anchor.png";
+import swordsImage from "../../assets/house-emblems/swords.png";
+import oakImage from "../../assets/house-emblems/oak.png";
+import maskImage from "../../assets/house-emblems/mask.png";
+import ravenImage from "../../assets/house-emblems/raven.png";
+import owlImage from "../../assets/house-emblems/owl.png";
+import foxImage from "../../assets/house-emblems/fox.png";
+import boarImage from "../../assets/house-emblems/boar.png";
+import crocodileImage from "../../assets/house-emblems/crocodile.png";
+import gorillaImage from "../../assets/house-emblems/gorilla.png";
+import krakenImage from "../../assets/house-emblems/kraken.png";
+import batImage from "../../assets/house-emblems/bat.png";
+import ramImage from "../../assets/house-emblems/ram.png";
+import bullImage from "../../assets/house-emblems/bull.png";
+import stallionImage from "../../assets/house-emblems/stallion.png";
+import spiderImage from "../../assets/house-emblems/spider.png";
+import tridentImage from "../../assets/house-emblems/trident.png";
+import axeImage from "../../assets/house-emblems/axe.png";
+import hammerImage from "../../assets/house-emblems/hammer.png";
+import castleImage from "../../assets/house-emblems/castle.png";
+import fleurImage from "../../assets/house-emblems/fleur.png";
+import sunImage from "../../assets/house-emblems/sun.png";
+import starImage from "../../assets/house-emblems/star.png";
+import snowflakeImage from "../../assets/house-emblems/snowflake.png";
+import tornadoImage from "../../assets/house-emblems/tornado.png";
+import lotusImage from "../../assets/house-emblems/lotus.png";
+import skullImage from "../../assets/house-emblems/skull.png";
+import featherImage from "../../assets/house-emblems/feather.png";
 
-const HOUSE_EMBLEM_ICONS = Object.freeze({
-  springbok: HorseIcon,
-  lion: CrownIcon,
-  leopard: CatIcon,
-  rhino: ShieldChevronIcon,
-  elephant: TreeIcon,
-  buffalo: CowIcon,
-  eagle: BirdIcon,
-  wolf: PawPrintIcon,
-  shark: FishIcon,
-  phoenix: FlameIcon,
-  dragon: FireSimpleIcon,
-  storm: CloudLightningIcon,
-  mountain: MountainsIcon,
-  shield: ShieldIcon,
-  crown: CrownSimpleIcon,
-  compass: CompassRoseIcon,
-  cobra: SpiralIcon,
-  tiger: TargetIcon,
-  scorpion: BugBeetleIcon,
-  bear: HandFistIcon,
-  orca: WavesIcon,
-  wave: WaveSineIcon,
-  volcano: FireIcon,
-  moon: MoonStarsIcon,
-  planet: PlanetIcon,
-  comet: MeteorIcon,
-  rocket: RocketLaunchIcon,
-  diamond: DiamondIcon,
-  anchor: AnchorIcon,
-  swords: SwordIcon,
-  oak: TreeEvergreenIcon,
-  mask: MaskHappyIcon,
-  raven: FeatherIcon,
-  owl: BinocularsIcon,
-  fox: DetectiveIcon,
-  boar: PiggyBankIcon,
-  crocodile: KnifeIcon,
-  gorilla: BoxingGloveIcon,
-  kraken: HurricaneIcon,
-  bat: MoonIcon,
-  ram: ArrowsOutCardinalIcon,
-  bull: BarbellIcon,
-  stallion: BootIcon,
-  spider: BugIcon,
-  trident: AsclepiusIcon,
-  axe: AxeIcon,
-  hammer: HammerIcon,
-  castle: CastleTurretIcon,
-  fleur: FlowerIcon,
-  sun: SunIcon,
-  star: StarFourIcon,
-  snowflake: SnowflakeIcon,
-  tornado: TornadoIcon,
-  lotus: FlowerLotusIcon,
-  skull: SkullIcon,
-  feather: PenNibIcon,
+const HOUSE_EMBLEM_IMAGES = Object.freeze({
+  springbok: springbokImage,
+  lion: lionImage,
+  leopard: leopardImage,
+  rhino: rhinoImage,
+  elephant: elephantImage,
+  buffalo: buffaloImage,
+  eagle: eagleImage,
+  wolf: wolfImage,
+  shark: sharkImage,
+  phoenix: phoenixImage,
+  dragon: dragonImage,
+  storm: stormImage,
+  mountain: mountainImage,
+  shield: shieldImage,
+  crown: crownImage,
+  compass: compassImage,
+  cobra: cobraImage,
+  tiger: tigerImage,
+  scorpion: scorpionImage,
+  bear: bearImage,
+  orca: orcaImage,
+  wave: waveImage,
+  volcano: volcanoImage,
+  moon: moonImage,
+  planet: planetImage,
+  comet: cometImage,
+  rocket: rocketImage,
+  diamond: diamondImage,
+  anchor: anchorImage,
+  swords: swordsImage,
+  oak: oakImage,
+  mask: maskImage,
+  raven: ravenImage,
+  owl: owlImage,
+  fox: foxImage,
+  boar: boarImage,
+  crocodile: crocodileImage,
+  gorilla: gorillaImage,
+  kraken: krakenImage,
+  bat: batImage,
+  ram: ramImage,
+  bull: bullImage,
+  stallion: stallionImage,
+  spider: spiderImage,
+  trident: tridentImage,
+  axe: axeImage,
+  hammer: hammerImage,
+  castle: castleImage,
+  fleur: fleurImage,
+  sun: sunImage,
+  star: starImage,
+  snowflake: snowflakeImage,
+  tornado: tornadoImage,
+  lotus: lotusImage,
+  skull: skullImage,
+  feather: featherImage,
 });
 
 export default function HouseEmblem({
   id,
   size = 32,
-  strokeWidth = 1.8,
   className = "",
   decorative = true,
   label,
 }) {
-  const Icon = HOUSE_EMBLEM_ICONS[id] ?? HOUSE_EMBLEM_ICONS.springbok;
+  const src = HOUSE_EMBLEM_IMAGES[id] ?? HOUSE_EMBLEM_IMAGES.springbok;
   const accessibleLabel = label || id || "House emblem";
-  const weight = strokeWidth >= 2.2 ? "fill" : "duotone";
 
   return (
-    <Icon
+    <img
       className={className}
-      size={size}
-      weight={weight}
-      color="currentColor"
+      src={src}
+      width={size}
+      height={size}
+      alt={decorative ? "" : accessibleLabel}
       aria-hidden={decorative ? "true" : undefined}
-      aria-label={decorative ? undefined : accessibleLabel}
-      role={decorative ? undefined : "img"}
-      focusable="false"
+      draggable="false"
+      decoding="async"
+      loading="lazy"
     />
   );
 }

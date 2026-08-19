@@ -400,3 +400,10 @@ with Houses.
 - Phosphor React 2.1.10 is now the professional icon source for the shared ThemeIcon API and all 56 House emblem IDs;
 - House emblems use duotone currentColor rendering so identity palettes remain intact;
 - stored House identity data and all competition behaviour remain unchanged.
+
+### Checkpoint 28D4C - full-colour House emblems - IMPLEMENTED / OWNER REVIEW PENDING
+- owner review rejected both temporary hand-drawn line emblems and monochrome Phosphor House symbols;
+- House emblems now use locally bundled, naturally coloured Microsoft Fluent Emoji 3D PNG artwork;
+- House palette identity is expressed by the surrounding crest/frame/halo instead of recolouring the emblem pixels;
+- Phosphor remains the ordinary UI icon system;
+- stored House identity and all competition behaviour remain unchanged.

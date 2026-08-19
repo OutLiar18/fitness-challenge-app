@@ -145,3 +145,6 @@ Open Manage House, scan all 56 emblem choices, select several including Raven, P
 
 ## 28D4B icon-system review
 Check the main navigation, one or two action surfaces, and the complete House emblem picker. Confirm the Phosphor icons render, House emblems inherit the selected House colour, and the duotone presentation feels materially better than the temporary custom line set. Defer individual emblem substitutions to v0.31 unless an emblem is clearly misleading. If accepted, move to Inbox immediately.
+
+## 28D4C full-colour emblem review
+Open the full House emblem picker and inspect a representative mix of animals, mythology/symbolic choices, objects and natural elements. Confirm the images keep their own colours, remain readable on dark surfaces, and the House palette is visible in the surrounding frame rather than tinting the artwork. Check the selected House card/banner as well. If accepted, continue immediately to Inbox.
