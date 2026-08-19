@@ -35,3 +35,6 @@ After the owner rejected the temporary hand-drawn House emblems, 28D4B standardi
 
 ## 28D4C full-colour House emblems
 Owner review rejected monochrome House emblems. House identity is now deliberately separated from ordinary UI iconography: Phosphor remains for standard application controls, while all 56 House emblem IDs use locally bundled Microsoft Fluent Emoji 3D PNG artwork in natural colour. House palette colour is retained on the emblem frame/halo rather than recolouring the image. After a fast visual check, close Houses and move directly to Inbox.
+
+## 28D5 Inbox focus
+Houses is owner-accepted after 28D4C. 28D5 is the next accelerated page-inspection pass: Inbox retains its existing URL-backed Updates/Private behaviour, read state and Platform bonus-review queue, while duplicate summary chrome and remaining emoji presentation are removed. Shared ThemeIcon presentation, concise read actions and clearer private links make the page faster to scan. After owner review, continue directly to Analytics.

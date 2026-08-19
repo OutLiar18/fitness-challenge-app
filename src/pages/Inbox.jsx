@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import WorkspaceTabs, {
   WorkspacePanel,
 } from "../components/common/WorkspaceTabs";
+import ThemeIcon from "../components/common/ThemeIcon";
 import PageHeader from "../components/layout/PageHeader";
 import { getAnnouncementType } from "../constants/admin";
 import useAnnouncements from "../hooks/useAnnouncements";
@@ -11,11 +12,18 @@ import usePlayerData from "../hooks/usePlayerData";
 import { filterAnnouncements } from "../services/announcements/announcementService";
 import { toDate } from "../services/dateService";
 import { subscribeToPendingSeasonBonusRequests } from "../services/seasons/seasonBonusService";
-import { pluralize } from "../utils/displayFormatters";
 import "./Inbox.css";
 
 const ANNOUNCEMENT_TAB = "updates";
 const PRIVATE_TAB = "private";
+
+const ANNOUNCEMENT_ICON_NAMES = Object.freeze({
+  release: "progress",
+  feature: "star",
+  challenge: "trophy",
+  community: "roster",
+  maintenance: "admin",
+});
 
 const announcementDateFormatter = new Intl.DateTimeFormat(undefined, {
   day: "numeric",
@@ -52,7 +60,11 @@ function AnnouncementArticle({ announcement, featured = false, read, onToggleRea
         className={featured ? "inbox-announcement-feature__icon" : "inbox-announcement-card__icon"}
         aria-hidden="true"
       >
-        {announcement.icon || type.icon}
+        <ThemeIcon
+          name={ANNOUNCEMENT_ICON_NAMES[type.id] ?? "inbox"}
+          size={featured ? 38 : 24}
+          strokeWidth={featured ? 2.2 : 2}
+        />
       </div>
       <div className="inbox-announcement__content">
         <div className="inbox-meta">
@@ -129,7 +141,7 @@ function AnnouncementPanel({ announcementsState, actionError, setActionError }) 
                 aria-pressed={typeFilter === typeId}
                 onClick={() => setTypeFilter(typeId)}
               >
-                {typeId === "all" ? "All updates" : `${type.icon} ${type.label}`}
+                {typeId === "all" ? "All updates" : type.label}
               </button>
             );
           })}
@@ -175,7 +187,9 @@ function AnnouncementPanel({ announcementsState, actionError, setActionError }) 
 
       {filtered.length === 0 && (
         <section className="empty-state card">
-          <span aria-hidden="true">📭</span>
+          <span className="inbox-empty-icon" aria-hidden="true">
+            <ThemeIcon name="inbox" size={38} strokeWidth={2.2} />
+          </span>
           <h2>No updates match these filters</h2>
           <p>Show all update types or include messages you have already read.</p>
         </section>
@@ -185,7 +199,7 @@ function AnnouncementPanel({ announcementsState, actionError, setActionError }) 
 }
 
 function PrivatePanel({ notificationsState, bonusReviewRequests, actionError, setActionError }) {
-  const { items, unreadCount, error, markRead } = notificationsState;
+  const { items, error, markRead } = notificationsState;
   const [workingId, setWorkingId] = useState("");
 
   async function handleMarkRead(notificationId) {
@@ -208,16 +222,6 @@ function PrivatePanel({ notificationsState, bonusReviewRequests, actionError, se
         <div className="inline-alert inline-alert--danger" role="alert">{actionError || error}</div>
       )}
 
-      <section className="inbox-private-summary card">
-        <div>
-          <span aria-hidden="true">✦</span>
-          <strong>{unreadCount}</strong>
-          <small>{pluralize(unreadCount, "unread private update", "unread private updates")}</small>
-        </div>
-        <p>
-          Private season notices record assignments, leadership results, roster moves and Pocket activity. They do not change points by themselves.
-        </p>
-      </section>
 
       {bonusReviewRequests.length > 0 && (
         <section className="inbox-private-list card" aria-label="Platform bonus reviews">
@@ -227,7 +231,7 @@ function PrivatePanel({ notificationsState, bonusReviewRequests, actionError, se
           </div>
           {bonusReviewRequests.map((request) => (
             <article className="inbox-private-item inbox-private-item--unread" key={`bonus-review-${request.id}`}>
-              <span className="inbox-private-item__mark" aria-hidden="true">●</span>
+              <span className="inbox-private-item__mark" aria-hidden="true" />
               <div className="inbox-private-item__copy">
                 <div>
                   <strong>Bonus review required · {request.displayName}</strong>
@@ -235,7 +239,7 @@ function PrivatePanel({ notificationsState, bonusReviewRequests, actionError, se
                 </div>
                 <p>{request.points} points requested. {request.reason}</p>
                 <div className="inbox-private-item__actions">
-                  <Link className="text-link" to="/seasons">Open Seasons to review</Link>
+                  <Link className="text-link" to="/seasons">Review in Seasons</Link>
                 </div>
               </div>
             </article>
@@ -245,14 +249,14 @@ function PrivatePanel({ notificationsState, bonusReviewRequests, actionError, se
       <section className="inbox-private-list card" aria-label="Private notifications">
         {items.length === 0 ? (
           <div className="empty-state">
-            No private season notifications yet. When C.H.A.O.S. stirs, you will hear it here.
+            No private season notifications yet. Assignments, leadership, roster moves and Pocket activity will appear here.
           </div>
         ) : (
           items.map((item) => {
             const working = workingId === item.id;
             return (
               <article className={`inbox-private-item${item.readAt ? "" : " inbox-private-item--unread"}`} key={item.id}>
-                <span className="inbox-private-item__mark" aria-hidden="true">{item.readAt ? "○" : "●"}</span>
+                <span className="inbox-private-item__mark" aria-hidden="true" />
                 <div className="inbox-private-item__copy">
                   <div>
                     <strong>{item.title}</strong>
@@ -262,7 +266,7 @@ function PrivatePanel({ notificationsState, bonusReviewRequests, actionError, se
                   <div className="inbox-private-item__actions">
                     {item.actionPath && (
                       <Link className="text-link" to={item.actionPath} onClick={() => void handleMarkRead(item.id)}>
-                        Open related page
+                        View details
                       </Link>
                     )}
                     {!item.readAt && (
@@ -300,21 +304,20 @@ export default function Inbox() {
   const [working, setWorking] = useState(false);
   const [actionError, setActionError] = useState("");
   const visibleBonusReviewRequests = isPlatformAdmin ? bonusReviewRequests : [];
-  const totalAttention = announcementsState.unreadCount + notificationsState.unreadCount + visibleBonusReviewRequests.length;
-    const privateAttention = notificationsState.unreadCount + visibleBonusReviewRequests.length;
+  const privateAttention = notificationsState.unreadCount + visibleBonusReviewRequests.length;
   const inboxTabs = [
     {
       id: ANNOUNCEMENT_TAB,
       label: "Updates",
-      icon: "📣",
-      description: "Public challenge announcements",
+      icon: <ThemeIcon name="inbox" size={18} />,
+      description: "Public announcements",
       badge: announcementsState.unreadCount || null,
     },
     {
       id: PRIVATE_TAB,
       label: "Private",
-      icon: "🔒",
-      description: "Season notices and private actions",
+      icon: <ThemeIcon name="evidence" size={18} />,
+      description: "Private season notices",
       badge: privateAttention || null,
     },
   ];
@@ -349,27 +352,20 @@ export default function Inbox() {
   return (
     <div className="inbox-page page-stack">
       <PageHeader
-        eyebrow="Challenge communications"
+        eyebrow="Communications"
         title="Inbox"
-        description="Public challenge announcements and private season notifications now live in one calm, organised workspace."
-        icon="🔔"
+        description="Challenge updates and private season notices, organised by what needs your attention."
+        icon={<ThemeIcon name="inbox" size={28} strokeWidth={2.2} />}
         actions={activeUnread > 0 ? (
           <button className="button button--secondary" type="button" disabled={working} onClick={handleMarkAllRead}>
-            {working ? "Updating read status…" : `Mark ${activeUnread} as read`}
+            <ThemeIcon name="check" size={18} />
+            {working ? "Updating…" : "Mark all read"}
           </button>
         ) : null}
       />
 
-      <section className="inbox-overview card" aria-label="Inbox summary">
-        <div>
-          <span aria-hidden="true">📬</span>
-          <strong>{totalAttention}</strong>
-          <small>{pluralize(totalAttention, "message or review needing attention", "messages or reviews needing attention")}</small>
-        </div>
-        <p>Announcements are public to players. Private updates are visible only to the relevant account.</p>
-      </section>
 
-            <WorkspaceTabs
+      <WorkspaceTabs
         idPrefix="inbox"
         label="Inbox sections"
         tabs={inboxTabs}

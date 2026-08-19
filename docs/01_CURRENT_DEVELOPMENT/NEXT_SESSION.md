@@ -148,3 +148,6 @@ Check the main navigation, one or two action surfaces, and the complete House em
 
 ## 28D4C full-colour emblem review
 Open the full House emblem picker and inspect a representative mix of animals, mythology/symbolic choices, objects and natural elements. Confirm the images keep their own colours, remain readable on dark surfaces, and the House palette is visible in the surrounding frame rather than tinting the artwork. Check the selected House card/banner as well. If accepted, continue immediately to Inbox.
+
+## 28D5 Inbox review
+Houses is accepted. Review Inbox only for major issues: Updates/Private tab badges, announcement filters, featured/previous update hierarchy, Mark all read, Platform bonus-review attention, private notification actions, empty states, icon consistency and narrow-mobile stacking. If the page scans cleanly and read/unread behaviour is intact, accept Inbox and move immediately to Analytics.

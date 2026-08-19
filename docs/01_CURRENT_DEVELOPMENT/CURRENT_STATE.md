@@ -392,7 +392,7 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - House IDs/data, competition mechanics, Firestore Rules and deployment state remain unchanged;
 - detailed scope is recorded in `V028_PROFESSIONAL_ICON_SYSTEM.md`.
 
-#### Checkpoint 28D4C — full-colour House emblems — IMPLEMENTED / OWNER REVIEW PENDING
+#### Checkpoint 28D4C — full-colour House emblems — IMPLEMENTED / ACCEPTED
 - monochrome/vector House emblem presentation has been retired;
 - House identity now uses 56 locally bundled Microsoft Fluent Emoji 3D PNG assets;
 - the artwork keeps its native colours while the selected House palette colours the surrounding frame/halo;
@@ -401,5 +401,16 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - source attribution and Microsoft MIT licence are retained beside the assets;
 - detailed scope is recorded in `V028_FULL_COLOUR_HOUSE_EMBLEMS.md`.
 
+#### Checkpoint 28D5 — Inbox focus + professional icon polish — IMPLEMENTED / OWNER REVIEW PENDING
+- Houses is owner-accepted after the full-colour 28D4C emblem pass;
+- Inbox keeps its existing URL-backed Updates/Private workspace, read/unread behaviour and bonus-review attention;
+- ordinary Inbox emoji chrome is replaced with the shared Phosphor-backed ThemeIcon system;
+- announcement filters use clean text labels and announcement cards use semantic ThemeIcon mappings;
+- redundant overview/private summary cards are removed so messages begin higher in the workspace;
+- read controls and private-action wording are shorter and clearer;
+- unread private markers are CSS status dots rather than text glyphs;
+- detailed scope is recorded in `V028_INBOX_POLISH.md`;
+- Firestore Rules and messaging/bonus semantics remain unchanged.
+
 ### Next action
-Perform one fast visual scan of the full House emblem picker plus a selected House card/banner. If the full-colour artwork is accepted, close Houses and continue immediately to Inbox.
+Perform one fast Inbox visual/interaction review at desktop and narrow mobile. If accepted, continue immediately to Analytics.

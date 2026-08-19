@@ -1,44 +1,5 @@
 .inbox-page { width: 100%; }
 
-.inbox-overview,
-.inbox-private-summary {
-  display: flex;
-  align-items: center;
-  gap: 22px;
-  padding: 20px 24px;
-}
-
-.inbox-overview > div,
-.inbox-private-summary > div {
-  display: grid;
-  min-width: 130px;
-  grid-template-columns: auto 1fr;
-  column-gap: 9px;
-}
-
-.inbox-overview span,
-.inbox-private-summary span {
-  grid-row: 1 / span 2;
-  color: var(--primary);
-  font-size: 1.8rem;
-}
-
-.inbox-overview strong,
-.inbox-private-summary strong {
-  font-family: var(--font-display);
-  font-size: 1.55rem;
-}
-
-.inbox-overview small,
-.inbox-private-summary small,
-.inbox-overview p,
-.inbox-private-summary p {
-  color: var(--text-muted);
-}
-
-.inbox-overview p,
-.inbox-private-summary p { margin: 0; }
-
 .inbox-tabs {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -137,6 +98,7 @@
 .inbox-announcement-card__icon {
   display: grid;
   place-items: center;
+  color: var(--primary);
   background: var(--primary-soft);
 }
 .inbox-announcement-feature__icon {
@@ -191,7 +153,18 @@
 .inbox-private-item { display: grid; gap: 12px; padding: 20px 24px; border-bottom: 1px solid var(--border); grid-template-columns: auto minmax(0, 1fr); }
 .inbox-private-item:last-child { border-bottom: 0; }
 .inbox-private-item--unread { background: linear-gradient(90deg, var(--primary-soft), transparent 48%); }
-.inbox-private-item__mark { padding-top: 2px; color: var(--primary); }
+.inbox-private-item__mark {
+  width: 10px;
+  height: 10px;
+  margin-top: 5px;
+  border: 2px solid var(--text-subtle);
+  border-radius: 50%;
+}
+.inbox-private-item--unread .inbox-private-item__mark {
+  border-color: var(--primary);
+  background: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-soft);
+}
 .inbox-private-item__copy { display: grid; gap: 8px; }
 .inbox-private-item__copy > div:first-child { display: flex; justify-content: space-between; gap: 14px; }
 .inbox-private-item time { color: var(--text-muted); font-size: 0.78rem; }
@@ -200,7 +173,12 @@
 .inbox-private-item__actions button:disabled { color: var(--text-subtle); cursor: progress; }
 
 .inbox-page .empty-state { padding: 34px; text-align: center; }
-.inbox-page .empty-state > span { display: block; margin-bottom: 12px; font-size: 2.4rem; }
+.inbox-page .empty-state > span {
+  display: grid;
+  margin-bottom: 12px;
+  place-items: center;
+  color: var(--primary);
+}
 .inbox-page .empty-state p { margin: 0; color: var(--text-muted); }
 
 @media (max-width: 840px) {
@@ -209,8 +187,6 @@
 }
 
 @media (max-width: 620px) {
-  .inbox-overview,
-  .inbox-private-summary { align-items: flex-start; flex-direction: column; }
   .inbox-announcement-feature { grid-template-columns: 1fr; }
   .inbox-announcement-feature__icon { width: 68px; height: 68px; }
   .inbox-unread-filter { width: 100%; white-space: normal; }

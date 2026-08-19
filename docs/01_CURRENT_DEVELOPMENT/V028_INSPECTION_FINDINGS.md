@@ -407,3 +407,11 @@ with Houses.
 - House palette identity is expressed by the surrounding crest/frame/halo instead of recolouring the emblem pixels;
 - Phosphor remains the ordinary UI icon system;
 - stored House identity and all competition behaviour remain unchanged.
+
+### Checkpoint 28D5 - Inbox focus + icon polish - IMPLEMENTED / OWNER REVIEW PENDING
+- Houses is owner-accepted after 28D4C;
+- Inbox keeps the v0.27 URL-backed shared WorkspaceTabs and existing read/unread behaviour;
+- redundant page/private summary cards are removed because tab badges already communicate attention;
+- remaining Inbox emoji presentation is replaced by the shared professional ThemeIcon language;
+- announcement filter labels stay text-first, private status markers become CSS dots and related actions use clearer wording;
+- Firestore Rules, notification data, bonus-review authority and season behaviour remain unchanged.
