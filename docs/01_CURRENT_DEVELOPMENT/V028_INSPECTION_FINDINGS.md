@@ -394,3 +394,9 @@ with Houses.
 - all 56 visible emblems now use deterministic app-owned currentColor SVG artwork;
 - stored House emblem IDs remain unchanged and require no migration;
 - final acceptance needs only a fast scan of the emblem picker/preview/banner.
+
+### Checkpoint 28D4B - professional icon system - IMPLEMENTED / OWNER REVIEW PENDING
+- temporary hand-authored House SVGs were visually rejected during owner review;
+- Phosphor React 2.1.10 is now the professional icon source for the shared ThemeIcon API and all 56 House emblem IDs;
+- House emblems use duotone currentColor rendering so identity palettes remain intact;
+- stored House identity data and all competition behaviour remain unchanged.

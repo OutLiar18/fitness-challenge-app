@@ -38,7 +38,7 @@ test("28D3 uses currentColor ThemeIcon symbols for ordinary navigation", () => {
   for (const icon of ["home", "seasons", "houses", "inbox", "analytics", "profile", "more", "signout"]) {
     assert.match(themeIcon, new RegExp(`${icon}:`));
   }
-  assert.match(themeIcon, /stroke="currentColor"/);
+  assert.match(themeIcon, /color="currentColor"/);
   assert.match(shell, /import ThemeIcon from "\.\.\/common\/ThemeIcon"/);
   assert.match(shell, /<ThemeIcon name=\{item\.icon\}/);
   assert.match(shell, /<ThemeIcon name="more"/);

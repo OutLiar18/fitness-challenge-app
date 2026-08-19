@@ -973,3 +973,31 @@
   width: 58px;
   height: 58px;
 }
+/* v0.28 28D4B — professional House emblem pack */
+.house-emblem > span svg,
+.season-house-card__emblem svg,
+.house-theme-preview__emblem svg,
+.house-identity > span svg {
+  overflow: visible;
+  filter: drop-shadow(
+    0 4px 10px
+    color-mix(in srgb, var(--house-accent, var(--primary)) 24%, transparent)
+  );
+}
+
+.house-emblem:hover > span svg,
+.house-emblem:focus-visible > span svg {
+  transform: scale(1.06);
+}
+
+.house-emblem > span svg {
+  transition:
+    transform 150ms ease,
+    filter 150ms ease;
+}
+
+.house-identity > span {
+  box-shadow:
+    inset 0 0 22px color-mix(in srgb, var(--house-accent) 10%, transparent),
+    0 12px 28px color-mix(in srgb, var(--house-accent) 12%, transparent);
+}

@@ -43,7 +43,7 @@ test("Champion Transmission uses MBTI as a preference cue without requiring it",
 test("Quick Actions use reusable currentColor SVG symbols instead of arrow affordances", () => {
   assert.match(quickActions, /<ThemeIcon name=\{action\.icon\}/);
   assert.doesNotMatch(quickActions, /quick-action__arrow/);
-  assert.match(themeIcon, /stroke="currentColor"/);
+  assert.match(themeIcon, /color="currentColor"/);
   assert.match(themeIcon, /name/);
 });
 

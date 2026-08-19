@@ -29,3 +29,6 @@ Seasons is owner-accepted at 28D3A with minor desktop spacing deferred to v0.31.
 
 ## 28D4A portable House emblems
 The 28D4 owner check exposed operating-system-dependent emoji rendering in the 56-item House emblem library. 28D4A keeps all stored emblem IDs but replaces visible emoji with app-owned currentColor inline SVG artwork for every configured emblem. After a fast all-emblems visual check, accept Houses and continue to Inbox.
+
+## 28D4B professional icon system
+After the owner rejected the temporary hand-drawn House emblems, 28D4B standardises the application on Phosphor React 2.1.10. ThemeIcon now uses professional pack icons across existing UI callers, and all 56 House emblem IDs map to curated duotone Phosphor symbols while retaining House-local currentColor theming. After a fast visual scan, close Houses and move directly to Inbox.

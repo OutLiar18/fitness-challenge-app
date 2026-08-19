@@ -383,5 +383,14 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - competition mechanics, House rules, Firestore Rules and deployment state remain unchanged;
 - detailed scope is recorded in `V028_PORTABLE_HOUSE_EMBLEMS.md`.
 
+#### Checkpoint 28D4B — professional icon system — IMPLEMENTED / OWNER REVIEW PENDING
+- the official Phosphor React icon library is pinned at 2.1.10;
+- the shared ThemeIcon wrapper now uses professional Phosphor icons while preserving its existing semantic API;
+- all 56 House emblem IDs now map to curated Phosphor symbols and use duotone/currentColor rendering;
+- the selected House palette continues to colour all House emblems;
+- direct per-icon CSR imports keep the dependency bounded rather than importing the complete icon catalogue;
+- House IDs/data, competition mechanics, Firestore Rules and deployment state remain unchanged;
+- detailed scope is recorded in `V028_PROFESSIONAL_ICON_SYSTEM.md`.
+
 ### Next action
-Perform one fast visual pass over the full House emblem picker and selected House banner. If all emblems render, accept Houses and continue immediately to Inbox. Minor icon-art refinement can wait for v0.31.
+Perform one fast visual scan of ordinary navigation icons and the House emblem picker/banner. If the new professional icon language is accepted, close Houses and continue immediately to Inbox.

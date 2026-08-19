@@ -142,3 +142,6 @@ Visually check Houses only for major regressions: current House appears first, s
 
 ## 28D4A emblem verification
 Open Manage House, scan all 56 emblem choices, select several including Raven, Planet, Axe, Lotus and Feather, and verify the picker, live preview, House card and selected House banner all render. If they do, accept Houses and continue directly to Inbox.
+
+## 28D4B icon-system review
+Check the main navigation, one or two action surfaces, and the complete House emblem picker. Confirm the Phosphor icons render, House emblems inherit the selected House colour, and the duotone presentation feels materially better than the temporary custom line set. Defer individual emblem substitutions to v0.31 unless an emblem is clearly misleading. If accepted, move to Inbox immediately.
