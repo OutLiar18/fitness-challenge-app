@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 import CategoryGrid from "../components/categories/CategoryGrid";
 import Toast from "../components/common/Toast/Toast";
@@ -7,6 +7,7 @@ import WorkspaceTabs, {
   WorkspacePanel,
 } from "../components/common/WorkspaceTabs";
 import EntryForm from "../components/entries/EntryForm";
+import ThemeIcon from "../components/common/ThemeIcon";
 import PageHeader from "../components/layout/PageHeader";
 import { CATEGORY_MAP } from "../constants/categories";
 import useLeagues from "../hooks/useLeagues";
@@ -106,14 +107,14 @@ function PocketCard({ pocket, league, userId, notify, canRedeem }) {
 
   return (
     <article className={`pocket-card${empty ? " pocket-card--empty" : ""}`}>
-      <div className="pocket-card__icon" aria-hidden="true">{category?.emoji || "🧳"}</div>
+      <div className="pocket-card__icon" aria-hidden="true">{category?.emoji || <ThemeIcon name="pocket" size={28} />}</div>
       <div className="pocket-card__copy">
         <p>{category?.name || pocket.category}</p>
         <h3>{formatPocketQuantity(pocket)} remaining</h3>
         <span>Stored {formatDate(pocket.activityDate)}</span>
       </div>
       {empty ? (
-        <div className="pocket-card__empty"><span aria-hidden="true">✓</span> Pocket empty</div>
+        <div className="pocket-card__empty"><ThemeIcon name="check" size={18} /> Pocket empty</div>
       ) : (
         <div className="pocket-card__controls">
           {!whole && (
@@ -204,26 +205,26 @@ export default function PocketWeek() {
     ...(canStore
       ? [{
           id: "store",
-          label: "Store activity",
-          icon: "➕",
-          description: "Record work during the official Pocket window",
+          label: "Store",
+          icon: <ThemeIcon name="add" size={18} />,
+          description: "Bank activity during Pocket Week",
         }]
       : []),
     {
       id: "wallet",
-      label: "Your Pocket",
-      icon: "🧳",
-      description: "Review balances and activate them in-season",
+      label: "Pocket",
+      icon: <ThemeIcon name="pocket" size={18} />,
+      description: "Review and activate balances",
       badge: availablePockets.filter((item) => Number(item.remainingQuantity) > 0).length,
     },
     {
       id: "guide",
       label: "How it works",
-      icon: "🔎",
-      description: "Storage, activation and integrity rules",
+      icon: <ThemeIcon name="info" size={18} />,
+      description: "Storage and activation rules",
     },
   ];
-    const defaultTab = canStore ? "store" : "wallet";
+  const defaultTab = canStore ? "store" : "wallet";
   const requestedTab = searchParams.get("tab") || defaultTab;
   const activeTab = resolveWorkspaceTab(pocketTabs, requestedTab)?.id ?? defaultTab;
 
@@ -277,11 +278,10 @@ export default function PocketWeek() {
   return (
     <div className="pocket-page page-stack">
       <PageHeader
-        eyebrow="Seven-day safety net"
+        eyebrow="Pre-season reserve"
         title="Pocket Week"
-        description="Store real activities before the season, then activate only what you need when unforeseen circumstances interrupt a category. Stored work earns no points until you use it."
-        icon="🧳"
-        actions={<Link className="button button--secondary" to={league ? `/houses?league=${league.id}` : "/houses"}>View Houses</Link>}
+        description="Bank real activity during the official seven-day window. During the season, activate only what you need. Stored work earns no points until you activate it."
+        icon={<ThemeIcon name="pocket" size={28} strokeWidth={2.2} />}
       />
 
       <section className="pocket-season card">
@@ -345,7 +345,7 @@ export default function PocketWeek() {
                     eyebrow="Pocket deposit"
                     title={CATEGORY_MAP.get(categoryId)?.name}
                     description="This deposit is recorded but deliberately receives no points yet."
-                    notice="🧳 Store only activities completed during this season’s Pocket Week. Integrity rules still apply."
+                    notice="Store only activities completed during this season’s Pocket Week. Integrity rules still apply."
                     submitLabel="Store in Pocket"
                     savingLabel="Storing activity…"
                   />
@@ -388,15 +388,11 @@ export default function PocketWeek() {
 
           <WorkspacePanel id="guide" activeId={activeTab} idPrefix="pocket">
             <section className="pocket-principles">
-              <article className="card"><span aria-hidden="true">0</span><strong>Zero points while stored</strong><p>The activity exists in your Pocket, not in the daily score.</p></article>
-              <article className="card"><span aria-hidden="true">↗</span><strong>You choose when to use it</strong><p>Activate part of a simple balance or an entire stored session.</p></article>
-              <article className="card"><span aria-hidden="true">🔒</span><strong>Activation is final</strong><p>Once used, that amount leaves your Pocket and cannot be returned.</p></article>
+              <article className="card"><span aria-hidden="true"><ThemeIcon name="points" size={22} /></span><strong>Zero points while stored</strong><p>The activity exists in your Pocket, not in the daily score.</p></article>
+              <article className="card"><span aria-hidden="true"><ThemeIcon name="progress" size={22} /></span><strong>Activate it later</strong><p>Use part of a simple balance or an entire stored session during the active season.</p></article>
+              <article className="card"><span aria-hidden="true"><ThemeIcon name="evidence" size={22} /></span><strong>Activation is final</strong><p>Once used, that amount leaves your Pocket and cannot be returned.</p></article>
             </section>
 
-            <section className="pocket-easter card">
-              <span aria-hidden="true">🦓</span>
-              <div><strong>Pocket inspection complete</strong><p>No prison zebras were inconvenienced. Stored activities remain non-transferable, carefully counted and entirely yours.</p></div>
-            </section>
           </WorkspacePanel>
         </>
       )}

@@ -416,10 +416,18 @@ with Houses.
 - announcement filter labels stay text-first, private status markers become CSS dots and related actions use clearer wording;
 - Firestore Rules, notification data, bonus-review authority and season behaviour remain unchanged.
 
-### Checkpoint 28D6 - Analytics focus + icon polish - IMPLEMENTED / OWNER REVIEW PENDING
+### Checkpoint 28D6 - Analytics focus + icon polish - IMPLEMENTED / ACCEPTED
 - Inbox is owner-accepted after 28D5;
 - Analytics keeps the v0.27 URL-backed range/tab state, loading state and accessible list/listitem data semantics;
 - page-level emoji chrome is replaced by the shared professional ThemeIcon language while category identity remains sourced from category metadata;
 - the page/header/tab wording is tightened and the redundant Progress return action is removed;
 - Trends no longer stacks an empty weekly chart underneath its no-data recovery state;
 - analytics calculations, Points behavior, Firestore Rules and deployment state remain unchanged.
+
+### Checkpoint 28D7 - Pocket Week focus + icon polish - IMPLEMENTED / OWNER REVIEW PENDING
+- Analytics is owner-accepted after 28D6;
+- Pocket Week keeps the existing URL-backed league/tab state and store/redeem mechanics;
+- ordinary page/workspace emoji and text-glyph chrome is replaced with the shared professional ThemeIcon language while category identity remains model-driven;
+- the unrelated Houses action and zebra easter-egg card are removed;
+- guide principles and empty-state presentation are clearer without changing Pocket rules;
+- Pocket calculations, season lifecycle, Firestore Rules and deployment state remain unchanged.

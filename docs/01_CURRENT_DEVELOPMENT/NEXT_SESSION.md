@@ -154,3 +154,6 @@ Houses is accepted. Review Inbox only for major issues: Updates/Private tab badg
 
 ## 28D6 Analytics review
 Inbox is accepted. Review Analytics only for major issues: range selector, four summary cards, Trends chart/no-data state, 28-day consistency grid, category balance, insight cards, professional icon consistency and narrow-mobile stacking/scrolling. Confirm URL-backed range/tab state still feels natural. If accepted, move immediately to Pocket Week.
+
+## 28D7 Pocket Week review
+Analytics is accepted. Review Pocket Week only for major issues: season selector/window status, Store/Pocket/How it works tabs, category deposit workflow, wallet balances and activation controls, zero-point/integrity wording, icon consistency and narrow-mobile stacking. Confirm URL-backed league/tab state still feels natural. If accepted, move immediately to Legacy Coach.

@@ -412,7 +412,7 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - detailed scope is recorded in `V028_INBOX_POLISH.md`;
 - Firestore Rules and messaging/bonus semantics remain unchanged.
 
-#### Checkpoint 28D6 — Analytics focus + icon polish — IMPLEMENTED / OWNER REVIEW PENDING
+#### Checkpoint 28D6 — Analytics focus + icon polish — IMPLEMENTED / ACCEPTED
 - Inbox is owner-accepted after the 28D5 communication-workspace pass;
 - Analytics keeps its existing URL-backed range/tab state, loading state, semantic chart data and analytics model;
 - ordinary Analytics emoji chrome is replaced with the shared Phosphor-backed ThemeIcon system while category identity remains data-driven;
@@ -422,5 +422,14 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - detailed scope is recorded in `V028_ANALYTICS_POLISH.md`;
 - analytics calculations, scoring, Firestore Rules and deployment state remain unchanged.
 
+#### Checkpoint 28D7 — Pocket Week focus + icon polish — IMPLEMENTED / OWNER REVIEW PENDING
+- Analytics is owner-accepted after the 28D6 reflection-workspace pass;
+- Pocket Week keeps its existing URL-backed season/tab state, official seven-day window, zero-point storage and active-season redemption mechanics;
+- ordinary Pocket Week emoji/text-glyph chrome is replaced with the shared Phosphor-backed ThemeIcon system while category identity remains data-driven;
+- the page header and workspace labels are shorter and the unrelated View Houses action is removed;
+- the Pocket guide is simplified to three focused principles and the unrelated zebra easter-egg card is removed;
+- detailed scope is recorded in `V028_POCKET_WEEK_POLISH.md`;
+- Pocket calculations, scoring, season lifecycle, Firestore Rules and deployment state remain unchanged.
+
 ### Next action
-Perform one fast Analytics visual/interaction review on desktop and narrow mobile. If accepted, continue immediately to Pocket Week.
+Perform one fast Pocket Week visual/interaction review on desktop and narrow mobile. If accepted, continue immediately to Legacy Coach.
