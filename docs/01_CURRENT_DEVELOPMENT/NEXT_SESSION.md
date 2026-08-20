@@ -179,3 +179,10 @@ Administration is accepted. Review Profile as the final v0.28 page: confirm the 
 ## After 28D14
 
 Perform an owner visual smoke across representative MBTI palettes in both light and dark operating-system modes, including Dashboard Champion Transmission, navigation, forms, cards and focus states. If accepted, proceed to the v0.28 closeout/freeze rather than another page inspection.
+
+## After 28R — begin v0.29 external-tester cycle
+
+If 28R passes, treat v0.28.0 as frozen. The next development line is v0.29.0,
+reserved for changes arising from external tester feedback. Do not reopen the
+broad v0.28 page-inspection scope unless a concrete regression is discovered.
+Complete season rehearsal remains deferred to v0.30.0.

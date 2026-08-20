@@ -335,3 +335,20 @@ Only after v0.30.0 rehearsal and v0.31.0 cleanup should the project even be cons
 - Original one-player-per-House immunity remains replaced by the one-week post-move stability rule.
 - Five Fires is removed from the planned product.
 - Buddy Bonuses are removed from the planned product.
+
+### v0.28.0 — page inspection and identity polish
+
+Status: Owner-accepted; 28R release-candidate freeze.
+
+Completed scope:
+- page-by-page inspection and polish across the application;
+- professional shared icon language and identity-art separation;
+- reconciled Rulebook / Points Guide / Help & Privacy surfaces;
+- owner-accepted Administration and Profile passes;
+- 16 Legacy Profile emblems and expanded MBTI identity content;
+- 16 MBTI-driven presentation palettes;
+- 64 tailored Champion Transmission messages.
+
+Next: v0.29.0 external-tester feedback cycle.
+
+v0.30.0 remains the complete season rehearsal milestone.

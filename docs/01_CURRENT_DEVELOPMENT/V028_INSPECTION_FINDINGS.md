@@ -496,3 +496,12 @@ with Houses.
 ## Post-inspection enhancement — 28D14
 
 Owner accepted Profile after 28D13, so every page in the v0.28 page-by-page inspection is accepted. A final owner-requested enhancement remains before closeout: apply the selected MBTI as a global presentation theme and make Champion Transmission genuinely type-specific. This enhancement must preserve the accepted page structures and all gameplay/security boundaries.
+
+## 28R closeout
+
+Every page in the v0.28 page-by-page inspection is owner-accepted. The
+post-inspection 28D14 MBTI theme and Champion Transmission enhancement is also
+owner-accepted. No open visual page-inspection item remains for v0.28.
+
+28R freezes the accepted runtime source and records the transition to v0.29
+external-tester work.

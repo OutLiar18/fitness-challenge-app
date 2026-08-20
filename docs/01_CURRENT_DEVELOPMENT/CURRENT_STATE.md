@@ -514,3 +514,16 @@ Profile is owner-accepted after 28D13, completing the page-by-page inspection. 2
 - existing type-specific Challenge approaches remain the side-quest source;
 - semantic success/warning/danger colours remain stable;
 - no persisted-data, Firestore Rules, scoring, league, House, evidence or authority changes.
+
+## v0.28 Checkpoint 28R — release candidate freeze
+
+All v0.28 page inspections and the final MBTI theme / Champion Transmission
+enhancement are owner-accepted. The accepted runtime source is frozen at
+`7fdfd149df8d9d9e09ddf05bddf1a24a9d1c99c8`.
+
+28R is a documentation-only freeze. Production remains v0.27.0. No Firebase
+deployment occurs. The release gate requires 298/298 application tests, a
+successful production build, retained v0.27 automated acceptance, unchanged
+Firestore Rules SHA-256
+`35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e`,
+remote match and a clean tree.

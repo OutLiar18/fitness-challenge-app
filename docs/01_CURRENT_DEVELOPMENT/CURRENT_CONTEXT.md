@@ -66,3 +66,10 @@ Administration is owner-accepted after 28D12. 28D13 is the final v0.28 page impl
 ## 28D14 — MBTI themes + Champion Transmission
 
 The full v0.28 page inspection is owner-accepted through Profile. The next checkpoint extends the accepted Legacy Profile layer into presentation only: 16 global MBTI palettes and genuinely type-specific Champion Transmission copy. `profile.mbtiType` remains the only persisted MBTI field. The default crimson theme remains the no-selection fallback.
+
+## 28R — frozen v0.28 release candidate
+
+v0.28 is feature-closed and owner-accepted through 28D14. Runtime source is
+frozen at `7fdfd149df8d9d9e09ddf05bddf1a24a9d1c99c8`. 28R changes documentation
+only and re-verifies the complete application gate before commit. Production
+remains v0.27.0 and Firebase is not deployed by this checkpoint.
