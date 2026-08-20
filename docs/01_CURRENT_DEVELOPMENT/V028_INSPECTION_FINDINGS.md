@@ -424,10 +424,18 @@ with Houses.
 - Trends no longer stacks an empty weekly chart underneath its no-data recovery state;
 - analytics calculations, Points behavior, Firestore Rules and deployment state remain unchanged.
 
-### Checkpoint 28D7 - Pocket Week focus + icon polish - IMPLEMENTED / OWNER REVIEW PENDING
+### Checkpoint 28D7 - Pocket Week focus + icon polish - IMPLEMENTED / ACCEPTED
 - Analytics is owner-accepted after 28D6;
 - Pocket Week keeps the existing URL-backed league/tab state and store/redeem mechanics;
 - ordinary page/workspace emoji and text-glyph chrome is replaced with the shared professional ThemeIcon language while category identity remains model-driven;
 - the unrelated Houses action and zebra easter-egg card are removed;
 - guide principles and empty-state presentation are clearer without changing Pocket rules;
 - Pocket calculations, season lifecycle, Firestore Rules and deployment state remain unchanged.
+
+### Checkpoint 28D8 - Legacy Coach focus + icon polish - IMPLEMENTED / OWNER REVIEW PENDING
+- Pocket Week is owner-accepted after 28D7;
+- Legacy Coach keeps its existing URL-backed workspace state, optional preferences and factual recommendation/evidence model;
+- ordinary page/workspace emoji and text-glyph chrome is replaced with the shared professional ThemeIcon language;
+- workspace descriptions are tightened and recommendation count grammar is corrected;
+- recommendation reasons, evidence disclosure, saving state and paused-guidance behaviour remain explicit;
+- coach calculations, Points behaviour, Firestore Rules and deployment state remain unchanged.

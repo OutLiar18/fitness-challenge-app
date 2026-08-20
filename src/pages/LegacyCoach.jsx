@@ -4,6 +4,7 @@ import Toast from "../components/common/Toast/Toast";
 import WorkspaceTabs, {
   WorkspacePanel,
 } from "../components/common/WorkspaceTabs";
+import ThemeIcon from "../components/common/ThemeIcon";
 import PageHeader from "../components/layout/PageHeader";
 import { COACH_FOCUSES, COACH_TONES } from "../constants/coach";
 import useCoach from "../hooks/useCoach";
@@ -17,20 +18,20 @@ const COACH_TABS = Object.freeze([
   {
     id: "recommendations",
     label: "Recommendations",
-    icon: "🧭",
-    description: "Practical next actions with clear reasons",
+    icon: <ThemeIcon name="coach" size={18} />,
+    description: "Practical next actions",
   },
   {
     id: "evidence",
     label: "Evidence",
-    icon: "🔎",
-    description: "What the coach used and what it never assumes",
+    icon: <ThemeIcon name="evidence" size={18} />,
+    description: "What the coach used",
   },
   {
     id: "preferences",
     label: "Preferences",
-    icon: "⚙️",
-    description: "Control tone, focus and whether guidance appears",
+    icon: <ThemeIcon name="admin" size={18} />,
+    description: "Tone, focus and visibility",
   },
 ]);
 
@@ -114,7 +115,7 @@ function CoachPreferences({ userId, preferences, notify }) {
         </div>
       </div>
 
-      <button className="button button--primary" type="submit" disabled={saving}>{saving ? "Saving preferences…" : "Save coach preferences"}</button>
+      <button className="button button--primary" type="submit" disabled={saving}>{saving ? "Saving preferences…" : "Save preferences"}</button>
     </form>
   );
 }
@@ -143,7 +144,7 @@ export default function LegacyCoach() {
         eyebrow="Transparent guidance"
         title="Legacy Coach"
         description="Understand your recent patterns and choose one realistic next action. Every recommendation shows the evidence behind it."
-        icon="✨"
+        icon={<ThemeIcon name="coach" size={28} strokeWidth={2.2} />}
       />
 
       {error && <div className="inline-alert inline-alert--danger" role="alert">{error}</div>}
@@ -154,7 +155,7 @@ export default function LegacyCoach() {
           <h2>{preferences.enabled ? "Your week, explained" : "Guidance is paused"}</h2>
           <blockquote>{preferences.enabled ? report.summary : "Your judgement remains in charge. Legacy Coach will remain quiet until you enable it again."}</blockquote>
         </div>
-        <span aria-hidden="true">🧭</span>
+        <span aria-hidden="true"><ThemeIcon name="compass" size={42} strokeWidth={2.2} /></span>
       </section>
 
       <section className="coach-metrics" aria-label="Weekly coaching summary">
@@ -192,11 +193,11 @@ export default function LegacyCoach() {
           <section className="coach-recommendations">
             <div className="community-section-heading">
               <div><p className="section-kicker">Next actions</p><h2>Recommendations with reasons</h2></div>
-              <span>{report.recommendations.length} suggestions</span>
+              <span>{report.recommendations.length} {pluralize(report.recommendations.length, "suggestion", "suggestions")}</span>
             </div>
             {report.recommendations.length === 0 ? (
               <div className="empty-state coach-empty-state">
-                <span aria-hidden="true">✓</span>
+                <span aria-hidden="true"><ThemeIcon name="check" size={20} /></span>
                 <h3>No recommendation needs your attention</h3>
                 <p>Keep recording factual activity. Legacy Coach will surface a practical next step when the pattern supports one.</p>
               </div>
@@ -232,12 +233,12 @@ export default function LegacyCoach() {
             <p>Legacy Coach uses only your own factual entries from the current and previous 7-day periods. It does not diagnose health conditions, claim certainty or send data to an external artificial-intelligence service.</p>
           </div>
           <ul>
-            {report.evidence.map((item) => <li key={item}><span aria-hidden="true">✓</span>{item}</li>)}
+            {report.evidence.map((item) => <li key={item}><span aria-hidden="true"><ThemeIcon name="check" size={17} /></span>{item}</li>)}
           </ul>
         </section>
 
         <section className="community-guardrail card">
-          <span aria-hidden="true">🌱</span>
+          <span aria-hidden="true"><ThemeIcon name="info" size={26} /></span>
           <div><p className="section-kicker">Human first</p><h2>Advice, not authority</h2><p><em>Legacy Coach should help you notice patterns—not replace your judgement, a qualified professional or the reality of your circumstances.</em></p></div>
         </section>
       </WorkspacePanel>

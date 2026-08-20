@@ -422,7 +422,7 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - detailed scope is recorded in `V028_ANALYTICS_POLISH.md`;
 - analytics calculations, scoring, Firestore Rules and deployment state remain unchanged.
 
-#### Checkpoint 28D7 — Pocket Week focus + icon polish — IMPLEMENTED / OWNER REVIEW PENDING
+#### Checkpoint 28D7 — Pocket Week focus + icon polish — IMPLEMENTED / ACCEPTED
 - Analytics is owner-accepted after the 28D6 reflection-workspace pass;
 - Pocket Week keeps its existing URL-backed season/tab state, official seven-day window, zero-point storage and active-season redemption mechanics;
 - ordinary Pocket Week emoji/text-glyph chrome is replaced with the shared Phosphor-backed ThemeIcon system while category identity remains data-driven;
@@ -431,5 +431,15 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - detailed scope is recorded in `V028_POCKET_WEEK_POLISH.md`;
 - Pocket calculations, scoring, season lifecycle, Firestore Rules and deployment state remain unchanged.
 
+#### Checkpoint 28D8 — Legacy Coach focus + icon polish — IMPLEMENTED / OWNER REVIEW PENDING
+- Pocket Week is owner-accepted after the 28D7 reserve-workspace pass;
+- Legacy Coach keeps its existing URL-backed workspaces, optional preference model and factual current/previous seven-day recommendation report;
+- ordinary Legacy Coach emoji/text-glyph chrome is replaced with the shared Phosphor-backed ThemeIcon system;
+- workspace descriptions are shorter, the weekly hero keeps its factual summary with a professional compass treatment and recommendation count grammar is corrected;
+- zero-recommendation, evidence-list and human-first guardrail presentation now use shared icon treatment;
+- the preference save action is shortened without changing preference fields or persistence;
+- detailed scope is recorded in `V028_LEGACY_COACH_POLISH.md`;
+- recommendation calculations, evidence, scoring, Firestore Rules and deployment state remain unchanged.
+
 ### Next action
-Perform one fast Pocket Week visual/interaction review on desktop and narrow mobile. If accepted, continue immediately to Legacy Coach.
+Perform one fast Legacy Coach visual/interaction review on desktop and narrow mobile. If accepted, continue immediately to Challenge Rulebook.

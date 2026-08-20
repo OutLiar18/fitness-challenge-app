@@ -44,3 +44,6 @@ Inbox is owner-accepted after 28D5. 28D6 keeps the existing analytics model and 
 
 ## 28D7 Pocket Week focus
 Analytics is owner-accepted after 28D6. 28D7 keeps the Pocket domain and URL-backed presentation state intact while tightening the page: shared ThemeIcon presentation replaces ordinary emoji/text glyphs, labels are shorter, the unrelated Houses action and zebra easter egg are removed, and the three integrity principles become easier to scan. After owner review, continue directly to Legacy Coach.
+
+## 28D8 Legacy Coach focus
+Pocket Week is owner-accepted after 28D7. 28D8 keeps Legacy Coach optional, factual and explainable while aligning its page-level presentation with the shared ThemeIcon system, shortening workspace descriptions and correcting singular/plural recommendation count copy. Recommendation logic, seven-day comparisons, preferences and scoring remain unchanged. After owner review, continue directly to Challenge Rulebook.

@@ -157,3 +157,6 @@ Inbox is accepted. Review Analytics only for major issues: range selector, four 
 
 ## 28D7 Pocket Week review
 Analytics is accepted. Review Pocket Week only for major issues: season selector/window status, Store/Pocket/How it works tabs, category deposit workflow, wallet balances and activation controls, zero-point/integrity wording, icon consistency and narrow-mobile stacking. Confirm URL-backed league/tab state still feels natural. If accepted, move immediately to Legacy Coach.
+
+## 28D8 Legacy Coach review
+Pocket Week is accepted. Review Legacy Coach only for major issues: weekly summary hero, three metrics, Recommendations/Evidence/Preferences workspaces, reason disclosure, paused guidance state, preference saving, icon consistency and narrow-mobile stacking. Confirm it still feels optional and factual rather than authoritative. If accepted, move immediately to Challenge Rulebook.
