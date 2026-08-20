@@ -441,7 +441,7 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - detailed scope is recorded in `V028_LEGACY_COACH_POLISH.md`;
 - recommendation calculations, evidence, scoring, Firestore Rules and deployment state remain unchanged.
 
-#### Checkpoint 28D9 — Challenge Rulebook reconciliation — IMPLEMENTED / OWNER REVIEW PENDING
+#### Checkpoint 28D9 — Challenge Rulebook reconciliation — IMPLEMENTED / ACCEPTED
 - Legacy Coach is owner-accepted after 28D8; minor padding polish is explicitly deferred to v0.31;
 - every Rulebook rule was reviewed against current entry-correction, evidence, league-scoring, season-bonus, House-movement, Power Play and honours behaviour;
 - Rulebook version advances to 2026-08-v3 and every rule receives a stable section.rule number such as Rule 1.1 before filtering;
@@ -454,5 +454,16 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - detailed scope is recorded in `V028_RULEBOOK_RECONCILIATION.md`;
 - underlying scoring/evidence/House/Power Play services, Firestore Rules and deployment state remain unchanged.
 
+#### Checkpoint 28D10 — Points Guide reconciliation — IMPLEMENTED / OWNER REVIEW PENDING
+- Challenge Rulebook is owner-accepted after the comprehensive 28D9 mechanics reconciliation;
+- Points Guide keeps its live activity tables, difficulty multipliers, goal bonuses and URL-backed tab/category state while advancing its public reference to points-v4;
+- ordinary Points Guide chrome now uses ThemeIcon while category identity remains data-driven;
+- the intro no longer implies one activity always maps to one calculation and explicitly recognises multi-path scoring such as Running + Cardio;
+- Steps, Running, Water and Fruit guides now expose their active evidence-season scoring effects;
+- Water/Fruit thresholds, +3 values, proof deadline and five-serving Fruit league cap are derived from the current season evidence policy;
+- Season scoring adds a focused evidence/approved-adjustment reference, including audited season bonus behaviour, without presenting administrator awards as activity formulas;
+- the Rulebook cross-reference, point tables, formulas, goal values, scoring services, Firestore Rules and deployment state remain unchanged;
+- detailed scope is recorded in `V028_POINTS_GUIDE_RECONCILIATION.md`.
+
 ### Next action
-Perform one focused Challenge Rulebook review: scan numbering, search Rule 1.3, confirm the restored cheating rule and No Excuses aside, inspect Evidence/Points/Season rules, toggle inactive mechanics, and check desktop plus narrow mobile readability. If accepted, continue immediately to Points Guide.
+Perform one fast Points Guide review across Activity scoring, Bonuses & difficulty, Season scoring and Reference formulas, including narrow mobile. If accepted, continue immediately to Help and Privacy.

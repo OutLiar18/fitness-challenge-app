@@ -4,6 +4,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import WorkspaceTabs, {
   WorkspacePanel,
 } from "../components/common/WorkspaceTabs";
+import ThemeIcon from "../components/common/ThemeIcon";
 import PageHeader from "../components/layout/PageHeader";
 import {
   ACTIVITY_POINT_GUIDES,
@@ -12,6 +13,7 @@ import {
   PUBLIC_GOAL_BONUSES,
   PUBLIC_LEAGUE_SCORING,
   PUBLIC_POINT_FORMULAS,
+  PUBLIC_SEASON_SCORING_NOTES,
   getActivityPointGuide,
 } from "../services/points/pointsGuideModel";
 import {
@@ -25,28 +27,44 @@ const POINTS_GUIDE_TABS = Object.freeze([
   {
     id: "activities",
     label: "Activity scoring",
-    icon: "🎯",
+    icon: <ThemeIcon name="points" size={18} />,
     description: "Category ladders and examples",
   },
   {
     id: "bonuses",
     label: "Bonuses & difficulty",
-    icon: "✨",
-    description: "Goal bonuses and moderate multipliers",
+    icon: <ThemeIcon name="star" size={18} />,
+    description: "Goal bonuses and difficulty",
   },
   {
     id: "season",
     label: "Season scoring",
-    icon: "🛡️",
-    description: "Daily caps, bonuses and House allocation",
+    icon: <ThemeIcon name="seasons" size={18} />,
+    description: "Caps, evidence and House scoring",
   },
   {
     id: "formulas",
     label: "Reference formulas",
-    icon: "🔎",
-    description: "Visible calculations for curious players",
+    icon: <ThemeIcon name="info" size={18} />,
+    description: "Visible calculations",
   },
 ]);
+
+const GOAL_BONUS_ICON_NAMES = Object.freeze({
+  "daily-goal": "check",
+  "perfect-day": "star",
+  "weekly-goal": "progress",
+  "perfect-week": "crown",
+});
+
+const SEASON_NOTE_ICON_NAMES = Object.freeze({
+  "proof-deadline": "info",
+  "running-proof": "evidence",
+  "steps-proof": "evidence",
+  "water-photo-bonus": "star",
+  "fruit-photo-bonus": "star",
+  "approved-season-bonus": "admin",
+});
 
 function formatRangeValue(value, unit) {
   return formatMeasurement(value, unit, {
@@ -182,8 +200,8 @@ export default function PointsGuide() {
       <PageHeader
         eyebrow={`Public scoring reference · ${POINTS_GUIDE_VERSION}`}
         title="Points Guide"
-        description="A simple view of the repeatable point calculations used by the current scoring engine. Choose a category to inspect its scoring ladder."
-        icon="📊"
+        description="See how activity points, goal bonuses and season scoring are calculated from the same factual entries used across Champions Legacy Challenge."
+        icon={<ThemeIcon name="points" size={28} strokeWidth={2.2} />}
         actions={
           <Link className="button button--secondary" to="/rules">
             Read the Rulebook
@@ -193,28 +211,28 @@ export default function PointsGuide() {
 
       <section className="points-guide-intro card" aria-labelledby="points-purpose-title">
         <div>
-          <p className="section-kicker">One action, one calculation</p>
+          <p className="section-kicker">One entry, consistent rules</p>
           <h2 id="points-purpose-title">Your entries provide the facts</h2>
           <p>
-            The app applies the current point table automatically. Statistics,
-            personal points and league scores remain separate so each can serve
-            its own purpose.
+            The app applies the current scoring rules automatically. One factual
+            activity can contribute through more than one scoring path where the
+            rules require it—for example, Running can also contribute Cardio.
           </p>
         </div>
 
         <div className="points-guide-intro__facts">
           <article>
-            <span aria-hidden="true">🔎</span>
+            <span aria-hidden="true"><ThemeIcon name="info" size={22} /></span>
             <strong>Visible</strong>
             <small>Repeatable scoring only</small>
           </article>
           <article>
-            <span aria-hidden="true">⚖️</span>
+            <span aria-hidden="true"><ThemeIcon name="balance" size={22} /></span>
             <strong>Balanced</strong>
             <small>Difficulty matters moderately</small>
           </article>
           <article>
-            <span aria-hidden="true">🧭</span>
+            <span aria-hidden="true"><ThemeIcon name="compass" size={22} /></span>
             <strong>Versioned</strong>
             <small>Historical league rules stay frozen</small>
           </article>
@@ -292,7 +310,7 @@ export default function PointsGuide() {
           <div className="points-bonus-list">
             {PUBLIC_GOAL_BONUSES.map((bonus) => (
               <article key={bonus.id}>
-                <span aria-hidden="true">{bonus.icon}</span>
+                <span aria-hidden="true"><ThemeIcon name={GOAL_BONUS_ICON_NAMES[bonus.id] ?? "points"} size={20} /></span>
                 <div>
                   <strong>{bonus.label}</strong>
                   <small>
@@ -338,6 +356,27 @@ export default function PointsGuide() {
 
           <p>{PUBLIC_LEAGUE_SCORING.note}</p>
         </section>
+
+        <section className="points-season-notes card" aria-labelledby="season-adjustments-title">
+          <div className="points-section-heading">
+            <p className="section-kicker">Evidence and approved adjustments</p>
+            <h2 id="season-adjustments-title">What can change a season score</h2>
+            <p>These rules affect season scoring without changing the base activity ladders above.</p>
+          </div>
+          <div className="points-season-note-list">
+            {PUBLIC_SEASON_SCORING_NOTES.map((item) => (
+              <article key={item.id}>
+                <span aria-hidden="true">
+                  <ThemeIcon name={SEASON_NOTE_ICON_NAMES[item.id] ?? "info"} size={20} />
+                </span>
+                <div>
+                  <strong>{item.label}</strong>
+                  <p>{item.detail}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
         </div>
       </WorkspacePanel>
 
@@ -360,12 +399,13 @@ export default function PointsGuide() {
       </section>
 
       <section className="points-guide-boundary card">
-        <span aria-hidden="true">🔐</span>
+        <span aria-hidden="true"><ThemeIcon name="info" size={22} /></span>
         <div>
           <strong>This page intentionally stays simple</strong>
           <p>
-            It lists visible, repeatable scoring. One-off progression surprises
-            and non-competitive experience rewards are deliberately left out.
+            It lists visible scoring rules and common season adjustments.
+            Hidden progression rewards and non-competitive Experience Points are
+            deliberately left out.
           </p>
         </div>
       </section>      </WorkspacePanel>

@@ -163,3 +163,6 @@ Pocket Week is accepted. Review Legacy Coach only for major issues: weekly summa
 
 ## 28D9 Challenge Rulebook review
 Legacy Coach is accepted; defer its minor padding issue to v0.31. Review the Rulebook for rule numbering/search stability, the restored Prison Zebra cheating consequence, the parenthetical No Excuses clarification, current evidence rules, 20-point/+5 season scoring, season bonuses, five-serving Fruit league cap, one-week post-move roster rest, inactive mechanics and slightly denser desktop/mobile reading. If accepted, move immediately to Points Guide.
+
+## 28D10 Points Guide review
+Rulebook is accepted. Review Points Guide for the activity category selector/ladders, Running + Cardio wording, Steps/Running proof holds, Water/Fruit evidence bonuses and Fruit league cap, difficulty and goal bonuses, daily season cap/+5 active-day bonus, Power Play/Pocket/House formulas, approved season bonus explanation, Reference formulas, icon consistency and narrow-mobile stacking. If accepted, move immediately to Help and Privacy.

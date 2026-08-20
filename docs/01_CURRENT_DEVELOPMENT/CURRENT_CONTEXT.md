@@ -50,3 +50,6 @@ Pocket Week is owner-accepted after 28D7. 28D8 keeps Legacy Coach optional, fact
 
 ## 28D9 Challenge Rulebook reconciliation
 Legacy Coach is owner-accepted after 28D8, with minor padding deferred to v0.31. 28D9 is a full mechanics reconciliation rather than a cosmetic-only Rulebook pass. It numbers rules hierarchically, removes migration/provenance commentary, restores the requested Prison Zebra cheating consequence, aligns evidence/season scoring/bonus/roster-rest wording with the implemented app, removes unsupported learning exceptions and false inactive-photo-bonus wording, and slightly tightens long-form presentation without shrinking touch controls. After owner review, continue directly to Points Guide.
+
+## 28D10 Points Guide reconciliation
+Challenge Rulebook is owner-accepted after 28D9. 28D10 aligns the public Points Guide with that accepted Rulebook without changing scoring: evidence-enabled Running/Steps holds, Water/Fruit +3 proof bonuses, the evidence deadline, Fruit league cap and approved season bonus treatment become visible, while all values tied to the season evidence policy are derived from the live ruleset. Ordinary UI chrome moves to ThemeIcon; category identity remains data-driven. After owner review, continue directly to Help and Privacy.

@@ -6,7 +6,7 @@ import { WORKOUT_POINTS } from "../../constants/points/workoutPoints";
 import { RUNNING_SCORING_RULES } from "../../constants/points/categoryScoring";
 import { FRUIT_POINTS_PER_SERVING } from "./categoryPoints";
 
-export const POINTS_GUIDE_VERSION = "points-v3";
+export const POINTS_GUIDE_VERSION = "points-v4";
 
 export function createThresholdRows(table = [], increment = 1) {
   if (table.length === 0) {
@@ -71,6 +71,8 @@ export const ACTIVITY_POINT_GUIDES = Object.freeze([
     unit: "steps",
     table: POINTS.steps,
     intro: "Daily movement begins earning points at 3,000 steps.",
+    footnote:
+      "During an evidence-enabled season, Steps points wait for verified proof.",
     accent: "cyan",
   }),
   createTableGuide({
@@ -80,6 +82,7 @@ export const ACTIVITY_POINT_GUIDES = Object.freeze([
     unit: "ml",
     table: POINTS.water,
     intro: "Plain still water begins earning points at 500 millilitres.",
+    footnote: `During an evidence-enabled season, verified photo proof at ${DEFAULT_LEAGUE_RULESET.evidencePolicy.waterBonus.thresholdMillilitres} millilitres can add +${DEFAULT_LEAGUE_RULESET.evidencePolicy.waterBonus.points} season points once per day. Base Water points are not held for this bonus.`,
     accent: "blue",
   }),
   Object.freeze({
@@ -97,6 +100,7 @@ export const ACTIVITY_POINT_GUIDES = Object.freeze([
       { input: "3 servings", points: FRUIT_POINTS_PER_SERVING * 3 },
       { input: "5 servings", points: FRUIT_POINTS_PER_SERVING * 5 },
     ]),
+    footnote: `During an evidence-enabled season, verified photo proof at ${DEFAULT_LEAGUE_RULESET.evidencePolicy.fruitBonus.thresholdServings} servings can add +${DEFAULT_LEAGUE_RULESET.evidencePolicy.fruitBonus.points} season points once per day. League standings count at most ${DEFAULT_LEAGUE_RULESET.evidencePolicy.fruitDailyServingCap} Fruit servings per player per day.`,
     accent: "red",
   }),
   createTableGuide({
@@ -137,7 +141,7 @@ export const ACTIVITY_POINT_GUIDES = Object.freeze([
     intro: "Running points require both the minimum distance and qualifying pace.",
     footnote: `Minimum ${RUNNING_SCORING_RULES.minimumDistanceKm} kilometres at ${Math.floor(
       RUNNING_SCORING_RULES.maximumPaceSecondsPerKm / 60,
-    )}:00 per kilometre or faster. Running duration also receives Cardio points at Tier 3.`,
+    )}:00 per kilometre or faster. Running duration also receives Cardio points at Tier 3. During an evidence-enabled season, Cardio points are released immediately while Running points wait for verified proof.`,
     accent: "green",
   }),
   createTableGuide({
@@ -190,6 +194,41 @@ export const PUBLIC_GOAL_BONUSES = Object.freeze([
     points: GOAL_BONUS_POINTS.weeklyMission,
     suffix: "additional",
     icon: "👑",
+  },
+]);
+
+export const PUBLIC_SEASON_SCORING_NOTES = Object.freeze([
+  {
+    id: "proof-deadline",
+    label: "Evidence deadline",
+    detail: `Evidence is normally due within ${DEFAULT_LEAGUE_RULESET.evidencePolicy.proofDeadlineHours} hours. Expired claims stay visible for administrator review.`,
+  },
+  {
+    id: "running-proof",
+    label: "Running proof",
+    detail:
+      "Qualifying Running releases eligible Cardio points immediately; Running points wait for verified proof.",
+  },
+  {
+    id: "steps-proof",
+    label: "Steps proof",
+    detail: "Steps points wait for verified proof during an evidence-enabled season.",
+  },
+  {
+    id: "water-photo-bonus",
+    label: "Water photo bonus",
+    detail: `Verified proof at ${DEFAULT_LEAGUE_RULESET.evidencePolicy.waterBonus.thresholdMillilitres} millilitres can add +${DEFAULT_LEAGUE_RULESET.evidencePolicy.waterBonus.points} season points once per day. Base Water points are not held.`,
+  },
+  {
+    id: "fruit-photo-bonus",
+    label: "Fruit photo bonus",
+    detail: `Verified proof at ${DEFAULT_LEAGUE_RULESET.evidencePolicy.fruitBonus.thresholdServings} Fruit servings can add +${DEFAULT_LEAGUE_RULESET.evidencePolicy.fruitBonus.points} season points once per day. League standings count at most ${DEFAULT_LEAGUE_RULESET.evidencePolicy.fruitDailyServingCap} servings per player per day.`,
+  },
+  {
+    id: "approved-season-bonus",
+    label: "Approved season bonus",
+    detail:
+      "A positive whole-number award requires a factual reason, credits the player and their House equally, sits outside the daily activity cap and Power Plays, and does not create a category title.",
   },
 ]);
 

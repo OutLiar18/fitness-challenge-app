@@ -440,7 +440,7 @@ with Houses.
 - recommendation reasons, evidence disclosure, saving state and paused-guidance behaviour remain explicit;
 - coach calculations, Points behaviour, Firestore Rules and deployment state remain unchanged.
 
-### Checkpoint 28D9 - Challenge Rulebook reconciliation - IMPLEMENTED / OWNER REVIEW PENDING
+### Checkpoint 28D9 - Challenge Rulebook reconciliation - IMPLEMENTED / ACCEPTED
 - Legacy Coach is owner-accepted; its minor padding issue is deferred to v0.31;
 - all Rulebook content is reconciled against current app mechanics rather than merely restyled;
 - stable hierarchical Rule numbers are assigned before filtering and are searchable;
@@ -451,3 +451,13 @@ with Houses.
 - inactive legacy Power Play voting/rank/40% mechanics are explicitly separated from current no-repeat 2x/3x Power Plays;
 - ordinary Rulebook chrome uses ThemeIcon and long-form cards become slightly denser while touch targets remain unchanged;
 - underlying game services, Firestore Rules and deployment state remain unchanged.
+
+### Checkpoint 28D10 - Points Guide reconciliation - IMPLEMENTED / OWNER REVIEW PENDING
+- Challenge Rulebook is owner-accepted after 28D9;
+- the public Points Guide remains driven by live point tables and now exposes active evidence/season scoring effects that were missing from the reference;
+- evidence policy thresholds, proof deadline, bonus values and Fruit league cap are derived rather than duplicated;
+- Running and Steps proof holds plus Water/Fruit photo bonuses are visible in the relevant activity guides;
+- Season scoring gains a concise evidence/approved-adjustment reference, including season bonus behaviour;
+- the intro no longer claims one activity always maps to one calculation;
+- ordinary UI chrome moves to ThemeIcon while category identity remains data-driven;
+- scoring engines, values, Firestore Rules and deployment state remain unchanged.
