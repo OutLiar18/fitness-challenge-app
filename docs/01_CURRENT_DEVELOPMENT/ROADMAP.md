@@ -352,3 +352,17 @@ Completed scope:
 Next: v0.29.0 external-tester feedback cycle.
 
 v0.30.0 remains the complete season rehearsal milestone.
+
+### v0.28.0 — verified production
+
+Status: live, owner-accepted and release-finalised.
+
+Production source:
+`2f01401a980e0e9573c9b70b4beff00ab7191c16`
+
+Production index SHA-256:
+`f18aef3aa90e2ed5220eb1adf881ae36738ba30da95a351ce348ae4950cd1e83`
+
+Next: v0.29.0 external-tester feedback cycle.
+
+v0.30.0 remains the complete season rehearsal milestone.

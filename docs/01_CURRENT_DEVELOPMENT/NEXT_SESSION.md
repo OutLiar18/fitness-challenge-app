@@ -186,3 +186,12 @@ If 28R passes, treat v0.28.0 as frozen. The next development line is v0.29.0,
 reserved for changes arising from external tester feedback. Do not reopen the
 broad v0.28 page-inspection scope unless a concrete regression is discovered.
 Complete season rehearsal remains deferred to v0.30.0.
+
+## v0.29 external-tester cycle
+
+After v0.28 repository finalisation, continue on
+`development/v0.29.0`. v0.29 is reserved for concrete external-tester
+feedback and resulting changes. Do not reopen broad v0.28 page inspection
+without a verified regression.
+
+Complete league-season rehearsal remains the v0.30.0 milestone.

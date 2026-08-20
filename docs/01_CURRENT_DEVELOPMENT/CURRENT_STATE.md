@@ -2,9 +2,9 @@
 
 <!-- RELEASE_STATUS: VERIFIED_PRODUCTION -->
 Source version: 0.28.0 development
-Production version: 0.27.0
+Production version: 0.28.0
 Last updated: 18 August 2026
-Status: v0.28 page inspection and change pass active; full season rehearsal deferred to v0.30.0
+Status: v0.28.0 verified production release; release finalisation in progress
 
 ## Production baseline
 
@@ -527,3 +527,17 @@ successful production build, retained v0.27 automated acceptance, unchanged
 Firestore Rules SHA-256
 `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e`,
 remote match and a clean tree.
+
+## v0.28.0 verified production release
+
+v0.28.0 is live and verified on Firebase Hosting. The exact deployed source is
+`2f01401a980e0e9573c9b70b4beff00ab7191c16`; live `index.html` SHA-256 is
+`f18aef3aa90e2ed5220eb1adf881ae36738ba30da95a351ce348ae4950cd1e83`.
+All 10 production SPA routes and 26 referenced assets were verified against the
+exact gated build.
+
+Firestore Rules were not redeployed and remain SHA-256
+`35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e`.
+
+Production evidence is archived in
+`docs/07_HISTORY/V0280_PRODUCTION_RELEASE.md`.
