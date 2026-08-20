@@ -432,10 +432,22 @@ with Houses.
 - guide principles and empty-state presentation are clearer without changing Pocket rules;
 - Pocket calculations, season lifecycle, Firestore Rules and deployment state remain unchanged.
 
-### Checkpoint 28D8 - Legacy Coach focus + icon polish - IMPLEMENTED / OWNER REVIEW PENDING
+### Checkpoint 28D8 - Legacy Coach focus + icon polish - IMPLEMENTED / ACCEPTED
 - Pocket Week is owner-accepted after 28D7;
 - Legacy Coach keeps its existing URL-backed workspace state, optional preferences and factual recommendation/evidence model;
 - ordinary page/workspace emoji and text-glyph chrome is replaced with the shared professional ThemeIcon language;
 - workspace descriptions are tightened and recommendation count grammar is corrected;
 - recommendation reasons, evidence disclosure, saving state and paused-guidance behaviour remain explicit;
 - coach calculations, Points behaviour, Firestore Rules and deployment state remain unchanged.
+
+### Checkpoint 28D9 - Challenge Rulebook reconciliation - IMPLEMENTED / OWNER REVIEW PENDING
+- Legacy Coach is owner-accepted; its minor padding issue is deferred to v0.31;
+- all Rulebook content is reconciled against current app mechanics rather than merely restyled;
+- stable hierarchical Rule numbers are assigned before filtering and are searchable;
+- migration/provenance labels and explanatory change-history notes are removed from the player experience;
+- the original requested Prison Zebra cheating consequence returns, while the useful No Excuses safety clarification becomes a parenthetical aside;
+- evidence, league caps/participation, season bonuses, Fruit league cap and roster-rest rules now describe the implemented systems;
+- unsupported learning exceptions and incorrect inactive-photo-bonus wording are removed;
+- inactive legacy Power Play voting/rank/40% mechanics are explicitly separated from current no-repeat 2x/3x Power Plays;
+- ordinary Rulebook chrome uses ThemeIcon and long-form cards become slightly denser while touch targets remain unchanged;
+- underlying game services, Firestore Rules and deployment state remain unchanged.

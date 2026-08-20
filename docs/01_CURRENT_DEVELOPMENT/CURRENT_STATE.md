@@ -431,7 +431,7 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - detailed scope is recorded in `V028_POCKET_WEEK_POLISH.md`;
 - Pocket calculations, scoring, season lifecycle, Firestore Rules and deployment state remain unchanged.
 
-#### Checkpoint 28D8 — Legacy Coach focus + icon polish — IMPLEMENTED / OWNER REVIEW PENDING
+#### Checkpoint 28D8 — Legacy Coach focus + icon polish — IMPLEMENTED / ACCEPTED
 - Pocket Week is owner-accepted after the 28D7 reserve-workspace pass;
 - Legacy Coach keeps its existing URL-backed workspaces, optional preference model and factual current/previous seven-day recommendation report;
 - ordinary Legacy Coach emoji/text-glyph chrome is replaced with the shared Phosphor-backed ThemeIcon system;
@@ -441,5 +441,18 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - detailed scope is recorded in `V028_LEGACY_COACH_POLISH.md`;
 - recommendation calculations, evidence, scoring, Firestore Rules and deployment state remain unchanged.
 
+#### Checkpoint 28D9 — Challenge Rulebook reconciliation — IMPLEMENTED / OWNER REVIEW PENDING
+- Legacy Coach is owner-accepted after 28D8; minor padding polish is explicitly deferred to v0.31;
+- every Rulebook rule was reviewed against current entry-correction, evidence, league-scoring, season-bonus, House-movement, Power Play and honours behaviour;
+- Rulebook version advances to 2026-08-v3 and every rule receives a stable section.rule number such as Rule 1.1 before filtering;
+- migration/provenance labels and Why this changed commentary are removed; the meaningful No Excuses clarification remains as a parenthetical aside;
+- the owner-requested original 2025 Prison Zebra cheating consequence is restored;
+- stale evidence wording is replaced with the active verification-code/WhatsApp proof flow, 24-hour deadline, Running/Steps holds, Water/Fruit +3 photo bonuses and Platform Administrator-only evidence decisions;
+- current 20-point daily league cap, +5 participation bonus, season bonus behaviour, five-serving Fruit league cap and one-week post-move roster rest are documented;
+- unsupported primary-skill/professional-study exceptions are removed; inactive photo-bonus wording is removed and former Power Play voting/rank/40% mechanics are explicitly inactive;
+- Rulebook presentation uses ThemeIcon for ordinary chrome and is slightly denser without reducing the 46 px interactive touch-target foundation;
+- detailed scope is recorded in `V028_RULEBOOK_RECONCILIATION.md`;
+- underlying scoring/evidence/House/Power Play services, Firestore Rules and deployment state remain unchanged.
+
 ### Next action
-Perform one fast Legacy Coach visual/interaction review on desktop and narrow mobile. If accepted, continue immediately to Challenge Rulebook.
+Perform one focused Challenge Rulebook review: scan numbering, search Rule 1.3, confirm the restored cheating rule and No Excuses aside, inspect Evidence/Points/Season rules, toggle inactive mechanics, and check desktop plus narrow mobile readability. If accepted, continue immediately to Points Guide.

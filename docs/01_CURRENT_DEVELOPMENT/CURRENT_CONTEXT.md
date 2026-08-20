@@ -47,3 +47,6 @@ Analytics is owner-accepted after 28D6. 28D7 keeps the Pocket domain and URL-bac
 
 ## 28D8 Legacy Coach focus
 Pocket Week is owner-accepted after 28D7. 28D8 keeps Legacy Coach optional, factual and explainable while aligning its page-level presentation with the shared ThemeIcon system, shortening workspace descriptions and correcting singular/plural recommendation count copy. Recommendation logic, seven-day comparisons, preferences and scoring remain unchanged. After owner review, continue directly to Challenge Rulebook.
+
+## 28D9 Challenge Rulebook reconciliation
+Legacy Coach is owner-accepted after 28D8, with minor padding deferred to v0.31. 28D9 is a full mechanics reconciliation rather than a cosmetic-only Rulebook pass. It numbers rules hierarchically, removes migration/provenance commentary, restores the requested Prison Zebra cheating consequence, aligns evidence/season scoring/bonus/roster-rest wording with the implemented app, removes unsupported learning exceptions and false inactive-photo-bonus wording, and slightly tightens long-form presentation without shrinking touch controls. After owner review, continue directly to Points Guide.

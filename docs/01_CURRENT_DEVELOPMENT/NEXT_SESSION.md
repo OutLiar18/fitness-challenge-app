@@ -160,3 +160,6 @@ Analytics is accepted. Review Pocket Week only for major issues: season selector
 
 ## 28D8 Legacy Coach review
 Pocket Week is accepted. Review Legacy Coach only for major issues: weekly summary hero, three metrics, Recommendations/Evidence/Preferences workspaces, reason disclosure, paused guidance state, preference saving, icon consistency and narrow-mobile stacking. Confirm it still feels optional and factual rather than authoritative. If accepted, move immediately to Challenge Rulebook.
+
+## 28D9 Challenge Rulebook review
+Legacy Coach is accepted; defer its minor padding issue to v0.31. Review the Rulebook for rule numbering/search stability, the restored Prison Zebra cheating consequence, the parenthetical No Excuses clarification, current evidence rules, 20-point/+5 season scoring, season bonuses, five-serving Fruit league cap, one-week post-move roster rest, inactive mechanics and slightly denser desktop/mobile reading. If accepted, move immediately to Points Guide.

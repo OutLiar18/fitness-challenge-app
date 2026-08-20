@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
+import ThemeIcon from "../components/common/ThemeIcon";
 import PageHeader from "../components/layout/PageHeader";
 import { GOAL_CONFIGURATIONS, GOAL_PERIODS } from "../constants/goals";
 import {
@@ -28,6 +29,28 @@ const STATUS_FILTERS = Object.freeze([
   { id: "all", label: "Everything" },
 ]);
 
+const RULEBOOK_SECTION_ICON_NAMES = Object.freeze({
+  absolutes: "evidence",
+  structure: "seasons",
+  evidence: "evidence",
+  "points-and-standings": "points",
+  workouts: "progress",
+  "water-and-fruit": "check",
+  movement: "progress",
+  learning: "rulebook",
+  "teams-and-leagues": "houses",
+  "safety-and-conduct": "info",
+  "season-awards": "crown",
+  "inactive-legacy": "info",
+});
+
+const PARTICULAR_ICON_NAMES = Object.freeze({
+  name: "trophy",
+  week: "seasons",
+  "entry-window": "edit",
+  objective: "progress",
+});
+
 function formatGoal(goal, period) {
   const target = goal.targets?.[period];
 
@@ -51,17 +74,11 @@ function RuleStatusBadge({ status }) {
 }
 
 function RuleItem({ item }) {
-  const source = item.legacyRule
-    ? `Adapted from 2025 ${
-        /[-,]/.test(String(item.legacyRule)) ? "Rules" : "Rule"
-      } ${item.legacyRule}`
-    : "Added for the app";
-
   return (
     <li className="rule-item">
       <div className="rule-item__meta">
+        <span className="rule-item__number">Rule {item.number}</span>
         <RuleStatusBadge status={item.status} />
-        <span>{source}</span>
       </div>
 
       <p className="rule-item__text">{item.text}</p>
@@ -73,11 +90,8 @@ function RuleItem({ item }) {
           ))}
         </ul>
       )}
-
-      {item.note && (
-        <p className="rule-item__note">
-          <strong>Why this changed:</strong> {item.note}
-        </p>
+      {item.aside && (
+        <p className="rule-item__aside">({item.aside})</p>
       )}
     </li>
   );
@@ -93,12 +107,12 @@ function RuleSection({ section, open, forceOpen, onToggle }) {
     >
       <summary className="rule-section__summary">
         <span className="rule-section__icon" aria-hidden="true">
-          {section.icon}
+          <ThemeIcon name={RULEBOOK_SECTION_ICON_NAMES[section.id] ?? "rulebook"} size={24} />
         </span>
 
         <span className="rule-section__copy">
           <span className="rule-section__eyebrow">
-            {section.rules.length}{" "}
+            Section {section.number} · {section.rules.length}{" "}
             {pluralize(section.rules.length, "rule", "rules")}
           </span>
           <strong>{section.title}</strong>
@@ -201,8 +215,8 @@ export default function Rulebook() {
       <PageHeader
         eyebrow={`Official challenge reference · ${RULEBOOK_VERSION}`}
         title="Challenge Rulebook"
-        description="The current rules, season options and retired 2025 mechanics—organised so you can find the answer without reading one enormous wall of text."
-        icon="📜"
+        description="The rules that govern everyday activity, season competition and inactive mechanics—numbered and organised for quick reference."
+        icon={<ThemeIcon name="rulebook" size={28} strokeWidth={2.2} />}
         actions={
           <Link className="button button--primary" to="/points-guide">
             View Points Guide
@@ -219,10 +233,9 @@ export default function Rulebook() {
             perfection, laughter over limits.”
           </blockquote>
           <p>
-            The original 2025 wording has been retained wherever it still fits.
-            Rules were changed only when the app now behaves differently, a rule
-            conflicted with safety or fairness, or the old mechanic is not yet
-            supported.
+            Use this as the live reference for how Champions Legacy Challenge
+            works. Current rules apply across the app, Season options activate
+            only when a season uses them, and inactive mechanics are reference only.
           </p>
         </div>
 
@@ -251,7 +264,7 @@ export default function Rulebook() {
         <div className="rulebook-particulars__grid">
           {CHALLENGE_PARTICULARS.map((item) => (
             <article key={item.id} className="rulebook-particular card">
-              <span aria-hidden="true">{item.icon}</span>
+              <span aria-hidden="true"><ThemeIcon name={PARTICULAR_ICON_NAMES[item.id] ?? "rulebook"} size={22} /></span>
               <div>
                 <small>{item.label}</small>
                 <strong>{item.value}</strong>
@@ -302,7 +315,7 @@ export default function Rulebook() {
           <input
             type="search"
             value={query}
-            placeholder="Try “running”, “fruit”, “House” or a 2025 rule number"
+            placeholder="Try “running”, “fruit”, “House” or “1.3”"
             onChange={(event) => setRuleQuery(event.target.value)}
           />
         </label>
@@ -345,7 +358,7 @@ export default function Rulebook() {
               href={`#rules-section-${section.id}`}
               onClick={() => openSection(section.id)}
             >
-              <span aria-hidden="true">{section.icon}</span>
+              <span aria-hidden="true"><ThemeIcon name={RULEBOOK_SECTION_ICON_NAMES[section.id] ?? "rulebook"} size={17} /></span>
               {section.title}
             </a>
           ))}
@@ -375,7 +388,7 @@ export default function Rulebook() {
 
       {filteredSections.length === 0 && (
         <section className="empty-state card">
-          <span aria-hidden="true">🔎</span>
+          <span aria-hidden="true"><ThemeIcon name="rulebook" size={30} /></span>
           <h2>No rules match this search</h2>
           <p>Try a broader phrase or change the rule-status filter.</p>
           <button className="button button--secondary" type="button" onClick={clearRuleFilters}>
@@ -385,7 +398,7 @@ export default function Rulebook() {
       )}
 
       <section className="rulebook-final card">
-        <span aria-hidden="true">⚖️</span>
+        <span aria-hidden="true"><ThemeIcon name="balance" size={25} /></span>
         <div>
           <strong>When a rule is uncertain</strong>
           <p>

@@ -7,12 +7,23 @@ function normalizeSearch(value) {
   return String(value ?? "").trim().toLowerCase();
 }
 
+export function numberRulebookSections(sections = RULEBOOK_SECTIONS) {
+  return sections.map((section, sectionIndex) => ({
+    ...section,
+    number: String(sectionIndex + 1),
+    rules: section.rules.map((item, ruleIndex) => ({
+      ...item,
+      number: String(sectionIndex + 1) + "." + String(ruleIndex + 1),
+    })),
+  }));
+}
+
 function getRuleSearchText(rule) {
   return [
     rule.id,
-    rule.legacyRule,
+    rule.number,
     rule.text,
-    rule.note,
+    rule.aside,
     ...(rule.bullets ?? []),
   ]
     .filter(Boolean)
@@ -24,7 +35,6 @@ export function matchesRuleStatus(rule, statusFilter = "current") {
   if (statusFilter === "all") {
     return true;
   }
-
   if (statusFilter === "current") {
     return rule.status === RULE_STATUSES.CURRENT;
   }
@@ -37,20 +47,32 @@ export function filterRulebookSections(
   { query = "", status = "current" } = {},
 ) {
   const normalizedQuery = normalizeSearch(query);
+  const numberedSections = numberRulebookSections(sections);
+  const exactRuleNumberQuery = /^\d+\.\d+$/.test(normalizedQuery);
+  const exactSectionNumberQuery = /^\d+$/.test(normalizedQuery);
 
-  return sections
+  return numberedSections
     .map((section) => {
-      const sectionMatches = [section.title, section.summary, section.id]
-        .join(" ")
-        .toLowerCase()
-        .includes(normalizedQuery);
+      const sectionMatches = exactSectionNumberQuery
+        ? section.number === normalizedQuery
+        : !exactRuleNumberQuery &&
+          [section.title, section.summary, section.id]
+            .join(" ")
+            .toLowerCase()
+            .includes(normalizedQuery);
 
       const rules = section.rules.filter((item) => {
         const statusMatches = matchesRuleStatus(item, status);
-        const queryMatches =
-          !normalizedQuery ||
-          sectionMatches ||
-          getRuleSearchText(item).includes(normalizedQuery);
+
+        let queryMatches = !normalizedQuery;
+        if (!queryMatches && exactRuleNumberQuery) {
+          queryMatches = item.number === normalizedQuery;
+        } else if (!queryMatches && exactSectionNumberQuery) {
+          queryMatches = section.number === normalizedQuery;
+        } else if (!queryMatches) {
+          queryMatches =
+            sectionMatches || getRuleSearchText(item).includes(normalizedQuery);
+        }
 
         return statusMatches && queryMatches;
       });

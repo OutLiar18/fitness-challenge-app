@@ -1,4 +1,4 @@
-export const RULEBOOK_VERSION = "2026-08-v2";
+export const RULEBOOK_VERSION = "2026-08-v3";
 
 export const RULE_STATUSES = Object.freeze({
   CURRENT: "current",
@@ -21,7 +21,7 @@ export const RULE_STATUS_META = Object.freeze({
   [RULE_STATUSES.INACTIVE]: {
     label: "Not currently active",
     description:
-      "Retained from the 2025 challenge for transparency, but not enforced by the app.",
+      "Documented for reference, but not enforced by the current app.",
     tone: "inactive",
   },
 });
@@ -61,7 +61,7 @@ function rule(id, legacyRule, text, options = {}) {
     text,
     status: RULE_STATUSES.CURRENT,
     bullets: [],
-    note: "",
+    aside: "",
     ...options,
   });
 }
@@ -81,18 +81,14 @@ export const RULEBOOK_SECTIONS = Object.freeze([
     summary: "The standards that protect trust, effort and fair competition.",
     rules: [
       rule("no-excuses", 1, "No excuses!", {
-        note:
+        aside:
           "This is a call to take responsibility, not permission to ignore illness, injury or genuine emergencies.",
       }),
       rule("integrity", 2, "No cheating, integrity is everything."),
       rule(
         "cheating-consequences",
         3,
-        "If a player is found to have deliberately cheated, their entry may be removed and their participation may be suspended or terminated after administrator review.",
-        {
-          note:
-            "This replaces the 2025 novelty punishment with a clear, reviewable process.",
-        },
+        'If you are caught cheating, we will be disappointed. Your participation in this challenge will be terminated with immediate effect. You will be obligated to complete the "3 Stripes of a Prison Zebra Debacle".',
       ),
       rule(
         "bug-exploitation",
@@ -116,10 +112,6 @@ export const RULEBOOK_SECTIONS = Object.freeze([
         "challenge-week",
         4,
         "Each challenge week starts on Monday and ends on Sunday, a duration of 7 days.",
-        {
-          note:
-            "The app uses Monday-to-Sunday local calendar weeks rather than the 2025 Tuesday-to-Monday format.",
-        },
       ),
       rule(
         "official-dates-only",
@@ -130,19 +122,16 @@ export const RULEBOOK_SECTIONS = Object.freeze([
         "record-in-app",
         5,
         "Record completed activities directly in Champions Legacy Challenge as soon as reasonably possible.",
-        {
-          note:
-            "The app replaces the 2025 WhatsApp submission process.",
-        },
       ),
       rule(
         "editable-window",
         6,
         "Activities may be added or deleted for today and yesterday. Older factual history becomes read-only.",
-        {
-          note:
-            "This is the app equivalent of the original 24-hour submission rule.",
-        },
+      ),
+      rule(
+        "entry-corrections",
+        null,
+        "When a factual correction is available, the app creates an immutable replacement while preserving the original history. The category and challenge date stay fixed, a reason is required, and Pocket redemptions cannot use this replacement workflow.",
       ),
       rule(
         "correct-date",
@@ -170,18 +159,37 @@ export const RULEBOOK_SECTIONS = Object.freeze([
     id: "evidence",
     icon: "✅",
     title: "Evidence and truthful recording",
-    summary: "What the app records now and how optional proof may work in a season.",
+    summary: "How proof claims, deadlines and verified season points work.",
     rules: [
       rule(
         "device-tracking",
         7,
         "Step counts, cardiovascular exercises and runs should be tracked with a suitable smart device or application where practical.",
       ),
-      rule(
+      seasonRule(
         "evidence-season-rule",
         7,
-        "Evidence is not uploaded to the app at present. A league may require screenshots, GPS records or other proof through an organiser-approved process.",
-        { status: RULE_STATUSES.SEASON },
+        "During an Active season using the current evidence policy, qualifying Running, Steps, Water photo-bonus and Fruit photo-bonus activity creates an evidence claim with a verification code. Proof is sent through the season’s approved evidence-delivery channel, currently WhatsApp, rather than uploaded as media into Champions Legacy Challenge.",
+      ),
+      seasonRule(
+        "evidence-deadline",
+        6,
+        "Evidence is normally due within 24 hours of the activity. Expired claims remain visible. A late proof decision requires Platform Administrator authority and a recorded reason.",
+      ),
+      seasonRule(
+        "running-proof-release",
+        "7, 69-72",
+        "For a qualifying Running entry, eligible Cardio points are released immediately while Running points wait for verified proof. A run that misses Running qualification keeps its eligible Cardio contribution and creates no required Running proof claim.",
+      ),
+      seasonRule(
+        "steps-proof-hold",
+        "7, 61",
+        "Steps points wait for verified proof during an evidence-enabled season.",
+      ),
+      seasonRule(
+        "water-fruit-photo-bonus",
+        "8, 37",
+        "Verified photo proof can award +3 season points once per category per day when the day reaches at least 750 millilitres of Water or 3 Fruit servings. Normal Water and Fruit activity points are not held for this bonus.",
       ),
       rule(
         "text-facts",
@@ -193,10 +201,10 @@ export const RULEBOOK_SECTIONS = Object.freeze([
         null,
         "The absence of a proof requirement does not reduce the obligation to record activities honestly.",
       ),
-      rule(
+      seasonRule(
         "administrator-verification",
         null,
-        "A Platform Administrator or League Administrator may request clarification when an entry appears incomplete, duplicated or inconsistent with the rules.",
+        "Only Platform Administrators may approve, reject, reverse or late-verify evidence claims. Late verification requires a recorded reason.",
       ),
     ],
   },
@@ -210,10 +218,6 @@ export const RULEBOOK_SECTIONS = Object.freeze([
         "official-points-guide",
         14,
         "Points are earned and accumulated according to the official Points Guide and the versioned scoring engine.",
-        {
-          note:
-            "The 2025 ‘Calculus Laplace Transformation’ wording was a joke and is not an actual calculation method.",
-        },
       ),
       rule(
         "single-source",
@@ -225,6 +229,16 @@ export const RULEBOOK_SECTIONS = Object.freeze([
         15,
         "Personal points and league standings serve different purposes. League scoring may cap activity points and reward participation without changing personal point totals.",
       ),
+      seasonRule(
+        "league-daily-scoring",
+        null,
+        "Under the current season ruleset, at most 20 competitive activity points count per player per day. A day with at least one counted activity point earns a 5-point participation bonus. Evidence bonuses and approved season bonus awards sit outside the daily activity cap.",
+      ),
+      seasonRule(
+        "season-bonus-awards",
+        null,
+        "An approved season bonus is a positive whole-number award with a factual reason. It bypasses the daily activity cap and Power Plays, increases the player and their House by the same amount using the applicable historical House attribution, and does not create a category championship title.",
+      ),
       rule(
         "xp-separate",
         null,
@@ -235,11 +249,10 @@ export const RULEBOOK_SECTIONS = Object.freeze([
         null,
         "An active league keeps the scoring ruleset with which it started. Later balancing changes must not rewrite completed seasonal history.",
       ),
-      rule(
+      seasonRule(
         "leaderboards",
         15,
-        "Individual and team leaderboards may track progress when an active league supports them.",
-        { status: RULE_STATUSES.SEASON },
+        "Individual and House leaderboards track progress when an active season supports House competition.",
       ),
     ],
   },
@@ -258,10 +271,6 @@ export const RULEBOOK_SECTIONS = Object.freeze([
         "core-definition",
         32,
         "Core workouts include exercises that activate and stabilise the region between the hips and chest. This zone is the core of our strength, balance and resilience.",
-        {
-          note:
-            "The app uses the name Core instead of the 2025 term Mid Body.",
-        },
       ),
       rule(
         "lower-body-definition",
@@ -277,10 +286,6 @@ export const RULEBOOK_SECTIONS = Object.freeze([
         "hold-conversion",
         28,
         "Static and duration-based exercises are converted into base repetitions using the exercise’s configured seconds-per-repetition value.",
-        {
-          note:
-            "This replaces the fixed 30-second rule because different holds have different configured difficulty and timing.",
-        },
       ),
       rule(
         "effective-repetitions",
@@ -349,15 +354,16 @@ export const RULEBOOK_SECTIONS = Object.freeze([
         "water-safety",
         39,
         "Excessive water intake can be dangerous. Drink responsibly, consider your circumstances and seek professional guidance when appropriate.",
-        {
-          note:
-            "The original safety warning was reworded because insulting language is not acceptable health guidance.",
-        },
       ),
       rule(
         "fruit-recording",
         43,
         "Fresh fruit may be logged progressively or recorded as a truthful total for the day while that date remains editable.",
+      ),
+      seasonRule(
+        "fruit-season-cap",
+        null,
+        "For league standings under the current evidence policy, Fruit activity is capped at five servings per player per day.",
       ),
       rule(
         "fruit-identification",
@@ -383,10 +389,6 @@ export const RULEBOOK_SECTIONS = Object.freeze([
         "culinary-fruit",
         54,
         "The challenge uses culinary classification: a plant product typically sweet or tart and eaten as a snack or used in sweet dishes. Tomato, cucumber, pepper, squash and avocado do not count.",
-        {
-          note:
-            "This resolves the contradiction in the 2025 document, which listed avocado before later applying culinary classification.",
-        },
       ),
       rule(
         "vegetables",
@@ -504,12 +506,6 @@ export const RULEBOOK_SECTIONS = Object.freeze([
         "A chosen skill should be developed long enough to show meaningful progress rather than being changed merely to collect entries.",
       ),
       rule(
-        "primary-skill",
-        79,
-        "A season may require one primary skill focus. The general app may still record more than one legitimate skill.",
-        { status: RULE_STATUSES.SEASON },
-      ),
-      rule(
         "skill-partner",
         80,
         "A journey is often more significant when shared. Players are encouraged, but not required, to learn alongside another person.",
@@ -537,7 +533,7 @@ export const RULEBOOK_SECTIONS = Object.freeze([
       rule(
         "reading-work",
         88,
-        "Routine reading completed as part of ordinary job duties does not count unless the season explicitly includes professional study.",
+        "Routine reading completed as part of ordinary job duties does not count.",
       ),
       rule(
         "reading-social",
@@ -658,9 +654,11 @@ export const RULEBOOK_SECTIONS = Object.freeze([
         "weekly-roster-move",
         "24, 108-128",
         "Each House may take part in one balanced player swap per challenge week. A Captain, Vice-Captain, League Administrator or Platform Administrator may complete the swap.",
-        {
-          note: "This is the app-supported roster system. Diamonds, player prices, House Immunity and timed Transfer Market bidding remain inactive.",
-        },
+      ),
+      seasonRule(
+        "post-move-rest",
+        null,
+        "A player moved by a roster swap cannot move again in the following challenge week. They become eligible again the week after. An authorised administrator may override the rest lock only when the app permits an exceptional audited correction.",
       ),
       seasonRule(
         "leader-movement",
@@ -743,7 +741,7 @@ export const RULEBOOK_SECTIONS = Object.freeze([
     id: "safety-and-conduct",
     icon: "❤️",
     title: "Safety, respect and platform conduct",
-    summary: "Rules added for a sustainable, inclusive application experience.",
+    summary: "Health, privacy, respect and trusted administration.",
     rules: [
       rule(
         "personal-safety",
@@ -818,9 +816,9 @@ export const RULEBOOK_SECTIONS = Object.freeze([
   {
     id: "inactive-legacy",
     icon: "🗃️",
-    title: "2025 mechanics not currently active",
+    title: "Mechanics not currently active",
     summary:
-      "Preserved so players can distinguish historical challenge ideas from live app rules.",
+      "Reference-only mechanics that the current app does not enforce.",
     rules: [
       rule(
         "transfer-market",
@@ -829,15 +827,15 @@ export const RULEBOOK_SECTIONS = Object.freeze([
         { status: RULE_STATUSES.INACTIVE },
       ),
       rule(
-        "buddy-bonus",
-        "129-133",
-        "Buddy Bonuses for exactly three participants are not currently supported and award no points.",
+        "legacy-power-play",
+        "22-23, 95-107",
+        "Player voting, House-position Power Play multiplier tables and the former 40% individual-contribution penalty are not part of the current Power Play system. Current season Power Plays are selected from the configured no-repeat pool and use a 2× or 3× multiplier.",
         { status: RULE_STATUSES.INACTIVE },
       ),
       rule(
-        "photo-bonus",
-        "8, 37",
-        "Photo evidence bonuses are not currently supported and award no points.",
+        "buddy-bonus",
+        "129-133",
+        "Buddy Bonuses for exactly three participants are not currently supported and award no points.",
         { status: RULE_STATUSES.INACTIVE },
       ),
       rule(
@@ -849,7 +847,7 @@ export const RULEBOOK_SECTIONS = Object.freeze([
       rule(
         "whatsapp-administration",
         "5-10, 109",
-        "WhatsApp posting, House group chats and manual administrator logging have been replaced by direct app entries, Announcements and Firestore-backed administration.",
+        "Routine activity posting through WhatsApp, House group-chat administration and manual activity logging are not used for normal entries. Players log activity in the app. WhatsApp may still be used as the evidence-delivery channel when an active season’s proof policy requires it.",
         { status: RULE_STATUSES.INACTIVE },
       ),
     ],
