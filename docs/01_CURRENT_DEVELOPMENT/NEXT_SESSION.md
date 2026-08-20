@@ -169,3 +169,6 @@ Rulebook is accepted. Review Points Guide for the activity category selector/lad
 
 ## 28D11 Help & Privacy review
 Points Guide is accepted. Review Help & Privacy for the four workspace tabs, getting-started path, stored-vs-derived explanation, privacy/access boundaries, evidence delivery/storage explanation, Firebase disclosure, export scope, deletion request/cancellation wording, focused errors and narrow-mobile stacking. If accepted, move immediately to Administration.
+
+## 28D12 Administration review
+Help & Privacy is accepted. Review Administration for the nine workspace tabs, attention-first Overview, loaded-player wording, announcement editor, suggestion queue, library publishing/archive confirmation, trusted role changes, error-report resolution, deletion-request timing, entry-integrity correction flow, audit history, focused load errors, icon consistency and narrow-mobile stacking. If accepted, move immediately to Profile.

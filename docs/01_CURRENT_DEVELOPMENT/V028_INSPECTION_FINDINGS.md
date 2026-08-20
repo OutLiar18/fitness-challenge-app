@@ -462,7 +462,7 @@ with Houses.
 - ordinary UI chrome moves to ThemeIcon while category identity remains data-driven;
 - scoring engines, values, Firestore Rules and deployment state remain unchanged.
 
-### Checkpoint 28D11 - Help & Privacy polish - IMPLEMENTED / OWNER REVIEW PENDING
+### Checkpoint 28D11 - Help & Privacy polish - IMPLEMENTED / ACCEPTED
 - Points Guide is owner-accepted after 28D10;
 - Help's functional onboarding/export/deletion foundations stay intact;
 - raw ordinary Help/Privacy emoji chrome is replaced with ThemeIcon while sequence numbers remain numbers;
@@ -471,3 +471,13 @@ with Houses.
 - Firebase service/SDK disclosure remains grounded in the current client;
 - personal export scope is clearer, partial-export grammar is corrected and account-request load errors gain focus;
 - Firestore Rules, deletion policy, export service scope and deployment state remain unchanged.
+
+### Checkpoint 28D12 - Administration polish - IMPLEMENTED / OWNER REVIEW PENDING
+- Help & Privacy is owner-accepted after 28D11;
+- trusted authority, URL-backed workspaces, confirmations, deletion and immutable correction workflows remain intact;
+- ordinary Administration chrome moves from raw emoji to ThemeIcon across the route, Overview, Announcement Studio, Library publishing, Audit history and Entry Integrity;
+- asynchronous top-level admin data failures now receive focus;
+- workspace descriptions are shorter and the Overview prioritises queues needing a decision;
+- paginated user/administrator metrics are labelled as loaded counts instead of total registered-player counts;
+- existing touch-target/mobile foundations remain and broad Admin CSS consolidation stays deferred to v0.31;
+- Firestore Rules and operational service semantics remain unchanged.

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import ThemeIcon from "../common/ThemeIcon";
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
   day: "numeric",
@@ -63,7 +64,7 @@ export default function AuditLog({
         ) : (
           filtered.map((event) => (
             <article className="audit-row" key={event.id}>
-              <span className="audit-row__icon" aria-hidden="true">🕵️</span>
+              <span className="audit-row__icon" aria-hidden="true"><ThemeIcon name="admin" size={20} /></span>
               <div>
                 <strong>{event.summary}</strong>
                 <p>{event.action} · {event.entityType} · {event.entityId}</p>

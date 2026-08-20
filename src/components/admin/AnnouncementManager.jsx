@@ -10,6 +10,7 @@ import {
   updateAnnouncement,
 } from "../../services/admin/announcementAdminService";
 import { getAnnouncementType } from "../../constants/admin";
+import ThemeIcon from "../common/ThemeIcon";
 
 const EMPTY_FORM = Object.freeze({
   title: "",
@@ -147,7 +148,7 @@ export default function AnnouncementManager({
               of deleting platform history.
             </p>
           </div>
-          <span aria-hidden="true">📣</span>
+          <span aria-hidden="true"><ThemeIcon name="inbox" size={32} /></span>
         </div>
 
         <div className="admin-form-grid">

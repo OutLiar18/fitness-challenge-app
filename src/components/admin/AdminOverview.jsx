@@ -1,3 +1,4 @@
+import ThemeIcon from "../common/ThemeIcon";
 import { formatNumber, pluralize } from "../../utils/displayFormatters";
 
 export default function AdminOverview({
@@ -30,16 +31,7 @@ export default function AdminOverview({
 
   const metrics = [
     {
-      icon: "📣",
-      value: publishedAnnouncements,
-      label: pluralize(
-        publishedAnnouncements,
-        "published announcement",
-        "published announcements",
-      ),
-    },
-    {
-      icon: "🧾",
+      iconName: "command",
       value: pendingSuggestions,
       label: pluralize(
         pendingSuggestions,
@@ -48,21 +40,30 @@ export default function AdminOverview({
       ),
     },
     {
-      icon: "👥",
-      value: users.length,
-      label: pluralize(users.length, "registered player", "registered players"),
+      iconName: "info",
+      value: openErrors,
+      label: pluralize(openErrors, "open error report", "open error reports"),
     },
     {
-      icon: "🛡️",
-      value: administrators,
+      iconName: "profile",
+      value: activeDeletionRequests,
       label: pluralize(
-        administrators,
-        "Platform Administrator",
-        "Platform Administrators",
+        activeDeletionRequests,
+        "active deletion request",
+        "active deletion requests",
       ),
     },
     {
-      icon: "📚",
+      iconName: "inbox",
+      value: publishedAnnouncements,
+      label: pluralize(
+        publishedAnnouncements,
+        "published announcement",
+        "published announcements",
+      ),
+    },
+    {
+      iconName: "journal",
       value: publishedLibraryItems,
       label: pluralize(
         publishedLibraryItems,
@@ -71,21 +72,20 @@ export default function AdminOverview({
       ),
     },
     {
-      icon: "🚨",
-      value: openErrors,
-      label: pluralize(openErrors, "open error report", "open error reports"),
+      iconName: "roster",
+      value: users.length,
+      label: pluralize(users.length, "loaded player", "loaded players"),
     },
     {
-      icon: "🧹",
-      value: activeDeletionRequests,
+      iconName: "admin",
+      value: administrators,
       label: pluralize(
-        activeDeletionRequests,
-        "active deletion request",
-        "active deletion requests",
+        administrators,
+        "loaded Platform Administrator",
+        "loaded Platform Administrators",
       ),
     },
   ];
-
   return (
     <div className="admin-overview">
       <section className="admin-overview__hero card">
@@ -97,13 +97,13 @@ export default function AdminOverview({
             access without changing competitive scores behind the scenes.
           </p>
         </div>
-        <span aria-hidden="true">🧭</span>
+        <span aria-hidden="true"><ThemeIcon name="compass" size={54} strokeWidth={2.2} /></span>
       </section>
 
       <section className="admin-metric-grid" aria-label="Administration summary">
         {metrics.map((metric) => (
           <article className="admin-metric card" key={metric.label}>
-            <span aria-hidden="true">{metric.icon}</span>
+            <span aria-hidden="true"><ThemeIcon name={metric.iconName} size={26} /></span>
             <strong>{formatNumber(metric.value, { whole: true })}</strong>
             <small>{metric.label}</small>
           </article>

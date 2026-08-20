@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import ConfirmDialog from "../common/ConfirmDialog";
+import ThemeIcon from "../common/ThemeIcon";
 import EntryForm from "../entries/EntryForm";
 import {
   createEntryCorrection,
@@ -171,7 +172,7 @@ export default function EntryIntegrityWorkspace({ actorId, notify }) {
     }
   }
 
-    function requestCorrection() {
+  function requestCorrection() {
     if (!bundle?.currentEntry || saving) return;
     setConfirmingCorrection(true);
   }
@@ -222,7 +223,7 @@ export default function EntryIntegrityWorkspace({ actorId, notify }) {
             and replacement records for season points.
           </p>
         </div>
-        <span aria-hidden="true">🧾</span>
+        <span aria-hidden="true"><ThemeIcon name="evidence" size={32} /></span>
       </section>
 
       <form className="entry-integrity__search card" onSubmit={handleLookup}>

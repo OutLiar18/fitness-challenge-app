@@ -465,7 +465,7 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - the Rulebook cross-reference, point tables, formulas, goal values, scoring services, Firestore Rules and deployment state remain unchanged;
 - detailed scope is recorded in `V028_POINTS_GUIDE_RECONCILIATION.md`.
 
-#### Checkpoint 28D11 — Help & Privacy polish — IMPLEMENTED / OWNER REVIEW PENDING
+#### Checkpoint 28D11 — Help & Privacy polish — IMPLEMENTED / ACCEPTED
 - Points Guide is owner-accepted after 28D10;
 - Help & Privacy retains its URL-backed four-workspace structure, onboarding replay, personal export and trusted deletion request workflow;
 - ordinary Help/Privacy chrome moves to ThemeIcon while numbered getting-started steps remain semantic sequence numbers;
@@ -478,5 +478,17 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - Firestore Rules, export scope, deletion policy, onboarding mechanics and deployment state remain unchanged;
 - detailed scope is recorded in `V028_HELP_PRIVACY_POLISH.md`.
 
+#### Checkpoint 28D12 — Administration polish — IMPLEMENTED / OWNER REVIEW PENDING
+- Help & Privacy is owner-accepted after 28D11;
+- Administration retains Platform Administrator-only authority, URL-backed workspaces, ConfirmDialog boundaries, trusted deletion, immutable entry corrections and paginated operational feeds;
+- ordinary Administration route/overview/editor/audit/integrity chrome moves to ThemeIcon while announcement and activity/library identity remains data-driven;
+- top-level asynchronous administrative data-load errors now receive focus;
+- nine workspace descriptions are shortened for faster operator scanning;
+- Overview becomes attention-first and places pending suggestions, open errors and active deletion requests before publication/inventory metrics;
+- paged user/admin overview counts are labelled as loaded counts instead of implying complete registered-player totals;
+- existing 46px Admin touch-target overrides remain intact and a small Entry Integrity indentation defect is corrected;
+- Firestore Rules, authority, moderation, publishing, account deletion, entry reconciliation and deployment state remain unchanged;
+- detailed scope is recorded in `V028_ADMINISTRATION_POLISH.md`.
+
 ### Next action
-Perform one fast Help & Privacy review across Getting started, How data works, Privacy and safety, and Account tools. Confirm evidence/privacy wording, export/deletion clarity and narrow-mobile layout. If accepted, continue immediately to Administration.
+Perform one fast Administration review across Overview, Announcements, Suggestions, Library releases, Players and roles, Error reports, Account requests, Entry integrity and Audit history. If accepted, continue immediately to Profile, the final v0.28 page inspection.

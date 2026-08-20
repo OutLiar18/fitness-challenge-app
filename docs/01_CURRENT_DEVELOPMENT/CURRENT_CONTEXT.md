@@ -56,3 +56,6 @@ Challenge Rulebook is owner-accepted after 28D9. 28D10 aligns the public Points 
 
 ## 28D11 Help & Privacy polish
 Points Guide is owner-accepted after 28D10. 28D11 keeps Help's existing functional workflows but makes privacy/access boundaries substantially clearer: current Firebase services and SDK boundaries are stated, League Administrator versus Platform Administrator access is explained, current WhatsApp evidence delivery is separated from stored claim/decision metadata, export scope is clearer and request-subscription errors become focusable. Ordinary UI chrome moves to ThemeIcon. After owner review, continue directly to Administration.
+
+## 28D12 Administration polish
+Help & Privacy is owner-accepted after 28D11. 28D12 keeps the existing trusted operational workflows intact while making Administration faster and safer to scan: ordinary route/overview/editor/audit/integrity chrome uses ThemeIcon, top-level load errors receive focus, tab descriptions are shorter, the Overview prioritises queues needing attention, and paginated user/admin counts are explicitly labelled as loaded rather than complete totals. After owner review, continue directly to Profile, the final v0.28 page inspection.

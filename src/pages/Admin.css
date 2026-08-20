@@ -12,7 +12,7 @@
 }
 
 .admin-restricted > span {
-  font-size: 2rem;
+  color: var(--primary);
 }
 
 .admin-restricted h2 {
@@ -23,6 +23,11 @@
   max-width: 780px;
   margin: 0;
   color: var(--text-muted);
+}
+
+.admin-data-errors:focus {
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
 }
 
 .admin-data-errors ul {
@@ -73,7 +78,7 @@
 }
 
 .admin-overview__hero > span {
-  font-size: clamp(3rem, 8vw, 6rem);
+  color: var(--primary);
 }
 
 .admin-metric-grid {
@@ -92,7 +97,7 @@
 
 .admin-metric > span {
   grid-row: 1 / span 2;
-  font-size: 1.7rem;
+  color: var(--primary);
 }
 
 .admin-metric strong {
@@ -151,7 +156,7 @@
 }
 
 .admin-editor__heading > span {
-  font-size: 2.5rem;
+  color: var(--primary);
 }
 
 .admin-section-heading > strong {
@@ -257,10 +262,10 @@
   height: 46px;
   place-items: center;
   border-radius: 14px;
+  color: var(--primary);
   background: var(--primary-soft);
   font-size: 1.25rem;
 }
-
 .admin-announcement-row__content > div {
   display: flex;
   flex-wrap: wrap;
@@ -627,6 +632,7 @@
   height: 46px;
   place-items: center;
   border-radius: 14px;
+  color: var(--primary);
   background: var(--primary-soft);
   font-size: 1.25rem;
 }

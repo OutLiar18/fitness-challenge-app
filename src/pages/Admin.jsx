@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import AccountDeletionRequests from "../components/admin/AccountDeletionRequests";
@@ -9,6 +10,7 @@ import EntryIntegrityWorkspace from "../components/admin/EntryIntegrityWorkspace
 import LibraryPublisher from "../components/admin/LibraryPublisher";
 import SuggestionModeration from "../components/admin/SuggestionModeration";
 import UserManagement from "../components/admin/UserManagement";
+import ThemeIcon from "../components/common/ThemeIcon";
 import Toast from "../components/common/Toast/Toast";
 import WorkspaceTabs, {
   WorkspacePanel,
@@ -20,17 +22,16 @@ import useToast from "../hooks/useToast";
 import "./Admin.css";
 
 const ADMIN_TABS = Object.freeze([
-  { id: "overview", label: "Overview", icon: "🧭" },
-  { id: "announcements", label: "Announcements", icon: "📣" },
-  { id: "suggestions", label: "Suggestions", icon: "🧾" },
-  { id: "library", label: "Library releases", icon: "📚" },
-  { id: "users", label: "Players and roles", icon: "👥" },
-  { id: "errors", label: "Error reports", icon: "🚨" },
-  { id: "account-requests", label: "Account requests", icon: "🧹" },
-  { id: "entry-integrity", label: "Entry integrity", icon: "🧾" },
-  { id: "audit", label: "Audit history", icon: "🕵️" },
+  { id: "overview", label: "Overview", icon: <ThemeIcon name="compass" size={18} /> },
+  { id: "announcements", label: "Announcements", icon: <ThemeIcon name="inbox" size={18} /> },
+  { id: "suggestions", label: "Suggestions", icon: <ThemeIcon name="command" size={18} /> },
+  { id: "library", label: "Library releases", icon: <ThemeIcon name="journal" size={18} /> },
+  { id: "users", label: "Players and roles", icon: <ThemeIcon name="roster" size={18} /> },
+  { id: "errors", label: "Error reports", icon: <ThemeIcon name="info" size={18} /> },
+  { id: "account-requests", label: "Account requests", icon: <ThemeIcon name="profile" size={18} /> },
+  { id: "entry-integrity", label: "Entry integrity", icon: <ThemeIcon name="evidence" size={18} /> },
+  { id: "audit", label: "Audit history", icon: <ThemeIcon name="admin" size={18} /> },
 ]);
-
 export default function Admin() {
   const { user, isPlatformAdmin } = usePlayerData();
   const isAdmin = isPlatformAdmin;
@@ -41,6 +42,11 @@ export default function Admin() {
     ? requestedTab
     : "overview";
   const { toast, showToast, dismissToast } = useToast();
+  const adminErrorRef = useRef(null);
+
+  useEffect(() => {
+    if (adminData.errors.length > 0) adminErrorRef.current?.focus();
+  }, [adminData.errors.length]);
 
   function setActiveTab(tabId) {
     const next = new URLSearchParams(searchParams);
@@ -154,12 +160,12 @@ export default function Admin() {
         eyebrow="Secure operations"
         title="Platform administration"
         description="Publish announcements, review community suggestions, reconcile factual entry history and manage trusted access with an immutable audit trail."
-        icon="⚙️"
+        icon={<ThemeIcon name="admin" size={28} strokeWidth={2.2} />}
       />
 
       {!isAdmin ? (
         <section className="admin-restricted card" role="status">
-          <span aria-hidden="true">🔐</span>
+          <span aria-hidden="true"><ThemeIcon name="evidence" size={30} /></span>
           <div>
             <p className="section-kicker">Restricted area</p>
             <h2>Platform Administrator access is required</h2>
@@ -173,7 +179,12 @@ export default function Admin() {
       ) : (
         <>
           {adminData.errors.length > 0 && (
-            <section className="admin-data-errors inline-alert inline-alert--danger" role="alert">
+            <section
+              className="admin-data-errors inline-alert inline-alert--danger"
+              ref={adminErrorRef}
+              role="alert"
+              tabIndex="-1"
+            >
               <strong>Some administrative data could not be loaded.</strong>
               <ul>
                 {adminData.errors.map((error) => (
@@ -192,15 +203,15 @@ export default function Admin() {
               ...tab,
               description:
                 {
-                  overview: "Operational health and current workload",
-                  announcements: "Create and publish platform updates",
-                  suggestions: "Review community-submitted library ideas",
-                  library: "Prepare and publish versioned library releases",
-                  users: "Manage trusted access and player roles",
-                  errors: "Inspect first-party client error reports",
-                  "account-requests": "Acknowledge player account deletion requests",
-                  "entry-integrity": "Inspect and replace incorrect factual entries with immutable correction chains",
-                  audit: "Review immutable administrative history",
+                  overview: "Current workload",
+                  announcements: "Publish platform updates",
+                  suggestions: "Review community ideas",
+                  library: "Publish shared options",
+                  users: "Trusted player access",
+                  errors: "Client failures",
+                  "account-requests": "Deletion workflow",
+                  "entry-integrity": "Audited factual corrections",
+                  audit: "Trusted change history",
                 }[tab.id],
             }))}
             activeId={activeTab}

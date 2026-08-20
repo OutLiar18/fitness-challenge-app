@@ -13,6 +13,7 @@ import {
   getSuggestionLibraryType,
 } from "../../services/admin/libraryPublishingModel";
 import ConfirmDialog from "../common/ConfirmDialog";
+import ThemeIcon from "../common/ThemeIcon";
 import { formatNumber, pluralize } from "../../utils/displayFormatters";
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
@@ -142,7 +143,7 @@ export default function LibraryPublisher({
               it to the shared player library under an explicit release version.
             </p>
           </div>
-          <span aria-hidden="true">📚</span>
+          <span aria-hidden="true"><ThemeIcon name="journal" size={32} /></span>
         </div>
 
         {publishableSuggestions.length === 0 ? (
@@ -309,7 +310,7 @@ export default function LibraryPublisher({
           <div className="library-release-list">
             {releases.map((release) => (
               <article className="library-release-row" key={release.id}>
-                <span aria-hidden="true">🚀</span>
+                <span aria-hidden="true"><ThemeIcon name="progress" size={22} /></span>
                 <div>
                   <strong>Release {release.version}</strong>
                   <p>{release.notes || "No release notes were provided."}</p>
