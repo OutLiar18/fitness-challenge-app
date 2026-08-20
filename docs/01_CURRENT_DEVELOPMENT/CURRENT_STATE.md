@@ -478,7 +478,7 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - Firestore Rules, export scope, deletion policy, onboarding mechanics and deployment state remain unchanged;
 - detailed scope is recorded in `V028_HELP_PRIVACY_POLISH.md`.
 
-#### Checkpoint 28D12 — Administration polish — IMPLEMENTED / OWNER REVIEW PENDING
+#### Checkpoint 28D12 — Administration polish — IMPLEMENTED / ACCEPTED
 - Help & Privacy is owner-accepted after 28D11;
 - Administration retains Platform Administrator-only authority, URL-backed workspaces, ConfirmDialog boundaries, trusted deletion, immutable entry corrections and paginated operational feeds;
 - ordinary Administration route/overview/editor/audit/integrity chrome moves to ThemeIcon while announcement and activity/library identity remains data-driven;
@@ -492,3 +492,15 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 
 ### Next action
 Perform one fast Administration review across Overview, Announcements, Suggestions, Library releases, Players and roles, Error reports, Account requests, Entry integrity and Audit history. If accepted, continue immediately to Profile, the final v0.28 page inspection.
+
+#### Checkpoint 28D13 — Profile & Legacy Identity — IMPLEMENTED / OWNER REVIEW PENDING
+- Administration is owner-accepted after 28D12;
+- Profile is the final v0.28 page implementation pass;
+- all 16 profiles use the official current 16Personalities role titles plus the owner-approved Champions Legacy mythic identities;
+- locally bundled full-colour SVG emblems replace emoji/four-letter avatar artwork while MBTI codes remain supporting metadata;
+- Profile foregrounds the mythic identity, symbolism, strengths, watch-outs, Challenge approaches, growth advice and at-best framing;
+- the 12-question estimate and external 16Personalities route remain optional discovery tools and the player still makes the final selection;
+- ordinary Profile chrome uses ThemeIcon;
+- the persisted field remains optional `mbtiType`; Firestore Rules, scoring, progression, competition history and permissions are unchanged;
+- app-wide 16-profile theming and genuinely type-aware Champion Transmission are deferred to 28D14 so the cross-app change can be tested independently;
+- detailed scope is recorded in `V028_PROFILE_LEGACY_IDENTITY.md`.

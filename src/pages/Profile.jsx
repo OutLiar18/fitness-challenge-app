@@ -4,6 +4,7 @@ import PageLoader from "../components/common/PageLoader";
 import WorkspaceTabs, {
   WorkspacePanel,
 } from "../components/common/WorkspaceTabs";
+import ThemeIcon from "../components/common/ThemeIcon";
 import PageHeader from "../components/layout/PageHeader";
 import MbtiProfileChooser from "../components/profile/MbtiProfileChooser";
 import PlayerAvatar from "../components/profile/PlayerAvatar";
@@ -31,20 +32,20 @@ const PROFILE_TABS = Object.freeze([
   {
     id: "overview",
     label: "Overview",
-    icon: "⚡",
-    description: "Account details, current legacy and personality guidance",
+    icon: <ThemeIcon name="profile" size={20} />,
+    description: "Identity, progress and reflective guidance",
   },
   {
     id: "personalise",
     label: "Personalise",
-    icon: "🧭",
-    description: "Change your display name and choose your Legacy Profile",
+    icon: <ThemeIcon name="compass" size={20} />,
+    description: "Update your name or Legacy Profile",
   },
   {
     id: "protections",
     label: "Protections",
-    icon: "🔐",
-    description: "How identity, permissions and history stay safe",
+    icon: <ThemeIcon name="info" size={20} />,
+    description: "Identity, permissions and history boundaries",
   },
 ]);
 
@@ -223,13 +224,24 @@ function PersonalityGuidance({ personality }) {
       <div className="profile-personality__heading">
         <div>
           <p>Legacy Profile guidance</p>
-          <h2 id="personality-guidance-title">How {personality.title} may thrive</h2>
+          <h2 id="personality-guidance-title">{personality.mythicName}</h2>
           <p>
-            Use these ideas as prompts, not rules. Personality frameworks describe tendencies;
-            your habits, circumstances and choices matter more than four letters.
+            {personality.type} · {personality.title}. Use this as reflective guidance, not a rulebook
+            for who you are. Personality describes tendencies; your choices, circumstances and growth
+            matter more than a four-letter type.
           </p>
         </div>
-        <span className="profile-personality__code">{personality.type}</span>
+      </div>
+
+      <div className="profile-personality__identity-grid">
+        <article>
+          <h3>Core personality</h3>
+          <p>{personality.corePersonality}</p>
+        </article>
+        <article>
+          <h3>Why this emblem fits</h3>
+          <p>{personality.symbolism}</p>
+        </article>
       </div>
 
       <div className="profile-personality__grid">
@@ -249,6 +261,18 @@ function PersonalityGuidance({ personality }) {
         </article>
       </div>
 
+      <div className="profile-personality__growth">
+        <div>
+          <p>Growth advice</p>
+          <strong>{personality.growthAdvice}</strong>
+        </div>
+        <div>
+          <p>At your best</p>
+          <strong>{personality.atBest}</strong>
+          <small>{personality.archetype}</small>
+        </div>
+      </div>
+
       <div className="profile-personality__connections">
         <div>
           <p>Potentially complementary profiles</p>
@@ -266,7 +290,6 @@ function PersonalityGuidance({ personality }) {
     </section>
   );
 }
-
 export default function Profile() {
   const { profile, user, entries, progression, loading } = usePlayerData();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -302,7 +325,7 @@ export default function Profile() {
 
   const accountDetails = [
     ["Display name", displayName],
-    ["Legacy Profile", hasPersonality ? `${personality.type} · ${personality.title}` : "Not selected"],
+    ["Legacy Profile", hasPersonality ? `${personality.mythicName} · ${personality.type} ${personality.title}` : "Not selected"],
     ["Email", profile?.email || user?.email || "Not available"],
     ["Role", formatRole(profile?.role)],
     ["Current season", currentSeason?.name || "No season joined"],
@@ -315,7 +338,7 @@ export default function Profile() {
       <PageHeader
         eyebrow="Player identity"
         title={displayName}
-        description="Build an identity that feels like yours while keeping account and competitive permissions secure."
+        description="Know your player identity, understand its strengths and keep personality separate from permissions and scoring."
         icon={null}
         actions={
           <Link className="button button--primary" to="/progress">
@@ -324,11 +347,22 @@ export default function Profile() {
         }
       />
 
-      <section className="profile-identity card">
+      <section
+        className="profile-identity card"
+        style={personality ? {
+          "--legacy-primary": personality.primary,
+          "--legacy-secondary": personality.secondary,
+        } : undefined}
+      >
         <PlayerAvatar profile={profile} size="hero" />
         <div className="profile-identity__copy">
           <p>Your Legacy Profile</p>
-          <h2>{personality ? `${personality.type} · ${personality.title}` : "Choose the profile that feels most like you"}</h2>
+          <h2>{personality?.mythicName || "Choose the profile that feels most like you"}</h2>
+          {personality && (
+            <p className="profile-identity__role">
+              {personality.type} · {personality.title} · {personality.definingQuality}
+            </p>
+          )}
           <p>
             <em>
               {personality?.tagline
@@ -339,7 +373,7 @@ export default function Profile() {
             <span>Level {progression.xp.level}</span>
             <span>{progression.xp.title}</span>
             <span>{progression.streak.currentStreak}-day streak</span>
-            {personality && <span>{personality.type}</span>}
+            {personality && <span>{personality.title}</span>}
           </div>
           {!personality && (
             <button
@@ -352,7 +386,6 @@ export default function Profile() {
           )}
         </div>
       </section>
-
       <WorkspaceTabs
         idPrefix="profile"
         label="Profile sections"
@@ -365,7 +398,7 @@ export default function Profile() {
         <div className="profile-grid">
           <section className="profile-card card" aria-labelledby="account-title">
             <div className="profile-card__header">
-              <span aria-hidden="true">🪪</span>
+              <span className="profile-card__icon" aria-hidden="true"><ThemeIcon name="profile" size={22} /></span>
               <div>
                 <p>Account</p>
                 <h2 id="account-title">Player details</h2>
@@ -383,7 +416,7 @@ export default function Profile() {
 
           <section className="profile-card card" aria-labelledby="snapshot-title">
             <div className="profile-card__header">
-              <span aria-hidden="true">⚡</span>
+              <span className="profile-card__icon" aria-hidden="true"><ThemeIcon name="progress" size={22} /></span>
               <div>
                 <p>Snapshot</p>
                 <h2 id="snapshot-title">Current legacy</h2>
@@ -439,7 +472,7 @@ export default function Profile() {
         </section>
 
         <section className="profile-easter-egg card">
-          <span aria-hidden="true">🧭</span>
+          <span className="profile-easter-egg__icon" aria-hidden="true"><ThemeIcon name="compass" size={23} /></span>
           <div>
             <strong>Personality is a lens, not a limit</strong>
             <p>

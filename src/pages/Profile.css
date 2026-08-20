@@ -379,3 +379,109 @@
     padding: 22px 18px;
   }
 }
+
+/* 28D13 Profile legacy identity */
+.profile-identity {
+  position: relative;
+  border-color: color-mix(in srgb, var(--legacy-secondary, var(--primary)) 34%, var(--border));
+  background:
+    radial-gradient(circle at 5% 15%, color-mix(in srgb, var(--legacy-secondary, var(--primary)) 20%, transparent), transparent 23rem),
+    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--legacy-primary, var(--primary)) 24%, transparent), transparent 30rem),
+    var(--surface);
+}
+
+.profile-identity::after {
+  position: absolute;
+  inset: 8px;
+  border: 1px solid color-mix(in srgb, var(--legacy-secondary, var(--primary)) 13%, transparent);
+  border-radius: inherit;
+  content: "";
+  pointer-events: none;
+}
+
+.profile-identity__copy,
+.profile-identity > .mbti-avatar {
+  position: relative;
+  z-index: 1;
+}
+
+.profile-identity__role {
+  color: var(--text) !important;
+  font-size: 0.82rem;
+  font-style: normal;
+  font-weight: 850;
+  letter-spacing: 0.025em;
+}
+
+.profile-card__icon,
+.profile-easter-egg__icon {
+  color: var(--primary);
+}
+
+.profile-personality__identity-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.profile-personality__identity-grid article {
+  padding: 17px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface-soft);
+}
+
+.profile-personality__identity-grid h3,
+.profile-personality__identity-grid p {
+  margin: 0;
+}
+
+.profile-personality__identity-grid p {
+  margin-top: 7px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.profile-personality__growth {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.profile-personality__growth > div {
+  padding: 17px;
+  border: 1px solid color-mix(in srgb, var(--primary) 28%, var(--border));
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--primary-soft) 56%, var(--surface));
+}
+
+.profile-personality__growth p {
+  margin: 0 0 7px;
+  color: var(--primary);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.profile-personality__growth strong {
+  display: block;
+  line-height: 1.55;
+}
+
+.profile-personality__growth small {
+  display: block;
+  margin-top: 10px;
+  color: var(--text-muted);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+@media (max-width: 720px) {
+  .profile-personality__identity-grid,
+  .profile-personality__growth {
+    grid-template-columns: 1fr;
+  }
+}

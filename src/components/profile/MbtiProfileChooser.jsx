@@ -1,4 +1,5 @@
 import { useState } from "react";
+import ThemeIcon from "../common/ThemeIcon";
 import { MBTI_PROFILES, getMbtiProfileByType } from "../../constants/mbtiProfiles";
 import { MBTI_QUICK_QUESTIONS, scoreMbtiQuickTest } from "../../services/profile/mbtiProfileModel";
 import MbtiProfileAvatar from "./MbtiProfileAvatar";
@@ -23,8 +24,8 @@ function TypeGrid({ value, onSelect, disabled }) {
           >
             <MbtiProfileAvatar type={profile.type} size="medium" decorative />
             <span>
-              <strong>{profile.type}</strong>
-              <small>{profile.title}</small>
+              <strong>{profile.mythicName}</strong>
+              <small>{profile.type} · {profile.title}</small>
             </span>
             <span className="mbti-type-card__check" aria-hidden="true">{selected ? "✓" : ""}</span>
           </button>
@@ -65,8 +66,8 @@ function QuickTest({ onUseResult, onExit }) {
         <div className="mbti-quick-result__identity">
           <MbtiProfileAvatar type={completedResult.type} size="large" />
           <div>
-            <h3>{completedResult.type} · {profile?.title}</h3>
-            <p>This is a rough 12-question estimate, not a definitive personality assessment. Review it before choosing your profile.</p>
+            <h3>{profile?.mythicName}</h3>
+            <p>{completedResult.type} · {profile?.title}. This is a rough 12-question estimate, not a definitive personality assessment. Review it before choosing your profile.</p>
           </div>
         </div>
         <div className="mbti-dimensions" aria-label="Quick estimate response lean">
@@ -138,17 +139,17 @@ export default function MbtiProfileChooser({ value, onChange, disabled = false }
     <fieldset className="mbti-chooser" disabled={disabled}>
       <legend>Your Legacy Profile</legend>
       <p className="mbti-chooser__intro">
-        Choose your four-letter MBTI type if you know it. If you are unsure, use the short in-app estimate or take a longer external test.
+        Choose the Legacy identity that matches your MBTI type. If you are unsure, use the 12-question quick estimate or take a longer external test.
       </p>
 
       <div className="mbti-chooser__routes">
         <button type="button" onClick={() => setMode("quick")}>
-          <span aria-hidden="true">🧭</span>
+          <span aria-hidden="true"><ThemeIcon name="compass" size={24} /></span>
           <strong>I’m not sure</strong>
           <small>Take the 12-question quick estimate</small>
         </button>
         <a href={EXTERNAL_TEST_URL} target="_blank" rel="noreferrer">
-          <span aria-hidden="true">↗</span>
+          <span aria-hidden="true"><ThemeIcon name="profile" size={24} /></span>
           <strong>Take a longer test</strong>
           <small>Open 16Personalities, then return and select the first four letters</small>
         </a>
@@ -159,7 +160,7 @@ export default function MbtiProfileChooser({ value, onChange, disabled = false }
           <p className="section-kicker">I know my type</p>
           <h3>Select one of the 16 profiles</h3>
         </div>
-        {selectedProfile && <span className="mbti-chooser__selected">Selected: {selectedProfile.type} · {selectedProfile.title}</span>}
+        {selectedProfile && <span className="mbti-chooser__selected">Selected: {selectedProfile.mythicName}</span>}
       </div>
       <TypeGrid value={value} onSelect={onChange} disabled={disabled} />
       <p className="mbti-chooser__disclaimer">

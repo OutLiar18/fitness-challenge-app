@@ -472,7 +472,7 @@ with Houses.
 - personal export scope is clearer, partial-export grammar is corrected and account-request load errors gain focus;
 - Firestore Rules, deletion policy, export service scope and deployment state remain unchanged.
 
-### Checkpoint 28D12 - Administration polish - IMPLEMENTED / OWNER REVIEW PENDING
+### Checkpoint 28D12 - Administration polish - IMPLEMENTED / ACCEPTED
 - Help & Privacy is owner-accepted after 28D11;
 - trusted authority, URL-backed workspaces, confirmations, deletion and immutable correction workflows remain intact;
 - ordinary Administration chrome moves from raw emoji to ThemeIcon across the route, Overview, Announcement Studio, Library publishing, Audit history and Entry Integrity;
@@ -481,3 +481,14 @@ with Houses.
 - paginated user/administrator metrics are labelled as loaded counts instead of total registered-player counts;
 - existing touch-target/mobile foundations remain and broad Admin CSS consolidation stays deferred to v0.31;
 - Firestore Rules and operational service semantics remain unchanged.
+
+### Checkpoint 28D13 - Profile & Legacy Identity - IMPLEMENTED / OWNER REVIEW PENDING
+- Administration is owner-accepted after 28D12;
+- the final Profile inspection adopts the owner-approved 16 mythic identities and official current 16Personalities role titles;
+- emoji/four-letter avatar artwork is replaced by 16 locally bundled full-colour SVG emblems with retained source attribution;
+- the hero and chooser foreground mythic identity while keeping the MBTI code/title readable as supporting metadata;
+- reflective guidance expands to core personality, symbolism, strengths, watch-outs, Challenge approaches, growth advice and at-best/archetypal framing;
+- ordinary Profile UI chrome moves to ThemeIcon;
+- URL-backed tabs, the 12-question estimate, external-test route, profile persistence, focused errors and busy semantics remain intact;
+- `mbtiType` storage, Firestore Rules, scoring, XP, achievements, Houses, seasons, evidence, authority and history remain unchanged;
+- app-wide per-MBTI colour theming and Champion Transmission message/tone personalisation are intentionally isolated to 28D14.

@@ -1,3 +1,4 @@
+import { getMbtiEmblem } from "../../constants/mbtiEmblems";
 import { getMbtiProfileByType } from "../../constants/mbtiProfiles";
 import "./MbtiProfileAvatar.css";
 
@@ -15,23 +16,21 @@ export default function MbtiProfileAvatar({
   className = "",
 }) {
   const profile = getMbtiProfileByType(type);
-  if (!profile) return null;
+  const emblem = getMbtiEmblem(type);
+
+  if (!profile || !emblem) return null;
+
+  const label = `${profile.mythicName} — ${profile.type} ${profile.title}`;
 
   return (
     <span
       className={`mbti-avatar ${SIZE_CLASS[size] ?? SIZE_CLASS.medium} ${className}`.trim()}
-      style={{
-        "--mbti-primary": profile.primary,
-        "--mbti-secondary": profile.secondary,
-      }}
       role={decorative ? undefined : "img"}
       aria-hidden={decorative ? "true" : undefined}
-      aria-label={decorative ? undefined : `${profile.type} — ${profile.title}`}
-      title={decorative ? undefined : `${profile.type} — ${profile.title}`}
+      aria-label={decorative ? undefined : label}
+      title={decorative ? undefined : label}
     >
-      <span className="mbti-avatar__halo" aria-hidden="true" />
-      <span className="mbti-avatar__symbol" aria-hidden="true">{profile.symbol}</span>
-      <span className="mbti-avatar__type" aria-hidden="true">{profile.type}</span>
+      <img src={emblem} alt="" aria-hidden="true" draggable="false" />
     </span>
   );
 }
