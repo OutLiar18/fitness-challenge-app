@@ -4,6 +4,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import WorkspaceTabs, {
   WorkspacePanel,
 } from "../components/common/WorkspaceTabs";
+import ThemeIcon from "../components/common/ThemeIcon";
 import PageHeader from "../components/layout/PageHeader";
 import usePlayerData from "../hooks/usePlayerData";
 import {
@@ -30,26 +31,26 @@ const HELP_TABS = Object.freeze([
   {
     id: "getting-started",
     label: "Getting started",
-    icon: "🧭",
-    description: "A clear path through your first week",
+    icon: <ThemeIcon name="compass" size={18} />,
+    description: "First-week essentials",
   },
   {
     id: "data",
     label: "How data works",
-    icon: "🗂️",
-    description: "What is stored and what is derived",
+    icon: <ThemeIcon name="journal" size={18} />,
+    description: "Stored facts and derived results",
   },
   {
     id: "privacy",
     label: "Privacy and safety",
-    icon: "🔐",
-    description: "Plain-language account and competition boundaries",
+    icon: <ThemeIcon name="evidence" size={18} />,
+    description: "Access, evidence and account boundaries",
   },
   {
     id: "account",
     label: "Account tools",
-    icon: "🧰",
-    description: "Export data or request account closure",
+    icon: <ThemeIcon name="profile" size={18} />,
+    description: "Export and deletion requests",
   },
 ]);
 
@@ -146,30 +147,30 @@ function DataExplainer() {
   const rows = [
     {
       title: "Stored facts",
-      icon: "📝",
+      iconName: "journal",
       body: "Activity category, measurements, selected challenge date and creation time are stored so your history can be reconstructed.",
     },
     {
       title: "Derived results",
-      icon: "⚡",
+      iconName: "points",
       body: "Points, goals, streaks, Experience Points, records and analytics are calculated from factual entries rather than stored as competing versions of the truth.",
     },
     {
       title: "Season snapshots",
-      icon: "🛡️",
+      iconName: "seasons",
       body: "When an entry counts in a season, its contribution remembers the House represented at that moment. The activity date also determines any weekly Power Play. Later roster movement or proof review does not rewrite those historical facts.",
     },
     {
-      title: "Private account settings",
-      icon: "🔐",
-      body: "Legacy Coach preferences, Pocket activities, notification read status and account requests are restricted to the player and authorised administrators where required.",
+      title: "Private and scoped records",
+      iconName: "profile",
+      body: "Access depends on the record type. Coach preferences and announcement read state are player-only; Pocket, evidence and account-request records allow only the additional operational access required by their season or trusted workflow.",
     },
   ];
 
   return (
     <div className="help-data-stack">
       <section className="help-callout card">
-        <span aria-hidden="true">🧱</span>
+        <span aria-hidden="true"><ThemeIcon name="check" size={30} /></span>
         <div>
           <p className="section-kicker">One source of truth</p>
           <h2>Store what happened. Derive what it means.</h2>
@@ -184,7 +185,7 @@ function DataExplainer() {
       <div className="help-grid help-grid--two">
         {rows.map((row) => (
           <article className="help-card card" key={row.title}>
-            <span className="help-card__symbol" aria-hidden="true">{row.icon}</span>
+            <span className="help-card__symbol" aria-hidden="true"><ThemeIcon name={row.iconName} size={23} /></span>
             <div>
               <h2>{row.title}</h2>
               <p>{row.body}</p>
@@ -200,14 +201,14 @@ function PrivacyExplainer() {
   return (
     <div className="help-privacy-stack">
       <section className="help-callout card">
-        <span aria-hidden="true">🛡️</span>
+        <span aria-hidden="true"><ThemeIcon name="evidence" size={30} /></span>
         <div>
           <p className="section-kicker">Plain-language privacy</p>
-          <h2>Your activity history is account-owned data</h2>
+          <h2>Your personal activity history stays tied to your account</h2>
           <p>
-            Ordinary players can read their own personal entries and private account
-            records. Season members can see the shared competition information needed
-            for standings, House leadership and roster transparency.
+            You can read your own personal entries and account records. Season
+            members can see the shared competition facts required for standings,
+            House rosters, leadership and season history.
           </p>
         </div>
       </section>
@@ -230,27 +231,38 @@ function PrivacyExplainer() {
           </p>
         </article>
         <article className="card">
-          <strong>Private does not mean invisible to operations</strong>
+          <strong>Season administration is scoped</strong>
           <p>
-            Platform Administrators may access records required for moderation,
-            security, support and deletion processing. Administrative authority is
-            intentionally limited and auditable.
+            League Administrators can access the season records needed to operate
+            leagues they manage, including membership, Pocket and evidence records.
+            Only Platform Administrators can make evidence decisions. Platform
+            Administrators may access additional records required for moderation,
+            security, support and trusted deletion.
+          </p>
+        </article>
+        <article className="card">
+          <strong>Evidence media stays outside the app</strong>
+          <p>
+            The current evidence flow sends proof through the approved delivery
+            channel, currently WhatsApp. Champions Legacy stores the claim,
+            verification code, submission time, reviewed quantity, status and
+            decision metadata; the proof image itself is not uploaded to Cloud
+            Firestore by the current client.
           </p>
         </article>
         <article className="card">
           <strong>Shared season history remains truthful</strong>
           <p>
             Deleting or closing an account must not silently rewrite completed House
-            results. A trusted process is required to remove personal account data
-            while preserving legitimate shared competition records in an appropriate
-            form.
+            results. Trusted processing removes eligible private records while
+            preserving legitimate shared competition history in anonymised form.
           </p>
         </article>
       </div>
-
       <div className="inline-alert inline-alert--info">
-        Champions Legacy Challenge is still pre-v1.0. A final legal/privacy review and
-        confirmed support contact remain required before a public real-world launch.
+        Pre-v1.0 notice: this page explains current product behaviour; it is not a
+        final legal privacy notice. A formal privacy review and confirmed support
+        contact are still required before v1.0.
       </div>
     </div>
   );
@@ -262,14 +274,19 @@ function AccountTools({ profile, user }) {
   const [requestError, setRequestError] = useState("");
   const [reasonCode, setReasonCode] = useState("prefer-not-to-say");
   const [understood, setUnderstood] = useState(false);
-    const [exporting, setExporting] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [requestBusy, setRequestBusy] = useState(false);
   const [status, setStatus] = useState(null);
   const statusRef = useRef(null);
+  const requestErrorRef = useRef(null);
 
   useEffect(() => {
     if (status?.type === "error") statusRef.current?.focus();
   }, [status]);
+
+  useEffect(() => {
+    if (requestError) requestErrorRef.current?.focus();
+  }, [requestError]);
 
   useEffect(
     () =>
@@ -313,7 +330,7 @@ function AccountTools({ profile, user }) {
         type: unavailable > 0 ? "info" : "success",
         message:
           unavailable > 0
-            ? `Your export was created. ${unavailable} section could not be read and is listed inside the file.`
+            ? `Your export was created. ${unavailable} ${unavailable === 1 ? "section" : "sections"} could not be read and are listed inside the file.`
             : "Your personal data export was created successfully.",
       });
     } catch (error) {
@@ -382,17 +399,18 @@ function AccountTools({ profile, user }) {
     >
       <section className="account-tool card">
         <div className="account-tool__heading">
-          <span aria-hidden="true">📦</span>
+          <span aria-hidden="true"><ThemeIcon name="journal" size={24} /></span>
           <div>
             <p className="section-kicker">Personal data export</p>
             <h2>Download an account-readable JSON copy</h2>
           </div>
         </div>
         <p>
-          The export includes your profile, factual entries, memberships,
-          contributions, Pocket records, notifications, suggestions, private
-          preferences and other account-owned records that the signed-in client can
-          read. Shared public documents and administrator-only audits are not copied.
+          The export includes your profile, entries and correction history,
+          season memberships, contributions and evidence, Pocket activity,
+          notifications, leadership votes, suggestions, personal library, private
+          preferences and your deletion request when readable. Shared public
+          documents and administrator-only audits are not copied.
         </p>
         <button
           className="button button--primary"
@@ -406,7 +424,7 @@ function AccountTools({ profile, user }) {
 
       <section className="account-tool account-tool--danger card">
         <div className="account-tool__heading">
-          <span aria-hidden="true">🧹</span>
+          <span aria-hidden="true"><ThemeIcon name="admin" size={24} /></span>
           <div>
             <p className="section-kicker">Account closure</p>
             <h2>Request trusted account deletion</h2>
@@ -416,7 +434,12 @@ function AccountTools({ profile, user }) {
         {!requestLoaded ? (
           <p>Loading your current request status…</p>
         ) : requestError ? (
-          <div className="inline-alert inline-alert--danger" role="alert">
+          <div
+            className="inline-alert inline-alert--danger"
+            ref={requestErrorRef}
+            role="alert"
+            tabIndex="-1"
+          >
             {requestError}
           </div>
         ) : activeRequest ? (
@@ -451,10 +474,12 @@ function AccountTools({ profile, user }) {
         ) : (
           <>
             <p>
-              The browser cannot safely remove Firebase Authentication and private
-              records. This request creates a reviewable task for a Platform Administrator.
-              After acknowledgement, a seven-day cancellation window applies. Trusted
-              processing then removes eligible private records and anonymises shared season history.
+              Account deletion requires trusted processing because the signed-in
+              browser cannot safely remove Firebase Authentication plus every related
+              private and shared record. This request creates a reviewable task for a
+              Platform Administrator. After acknowledgement, a seven-day cancellation
+              window applies; trusted processing then removes eligible private records
+              and anonymises shared season history.
             </p>
 
             <label htmlFor="account-deletion-reason">Reason</label>
@@ -561,7 +586,7 @@ export default function Help() {
         eyebrow="Support and account control"
         title="Help & Privacy"
         description="Understand the challenge, see how your data is handled and use clear account controls without searching through technical documentation."
-        icon="🛟"
+        icon={<ThemeIcon name="help" size={28} strokeWidth={2.2} />}
       />
 
       <WorkspaceTabs

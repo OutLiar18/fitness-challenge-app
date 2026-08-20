@@ -10,7 +10,7 @@
 .help-card,
 .help-callout,
 .account-tool {
-  padding: 24px;
+  padding: 22px;
 }
 
 .help-card {
@@ -33,7 +33,7 @@
 }
 
 .help-card__symbol {
-  font-size: 1.25rem;
+  color: var(--primary);
 }
 
 .help-card h2,
@@ -76,12 +76,12 @@
 
 .help-callout > span {
   display: grid;
-  width: 68px;
-  height: 68px;
+  width: 64px;
+  height: 64px;
   place-items: center;
-  border-radius: 20px;
+  border-radius: 18px;
+  color: var(--primary);
   background: var(--surface);
-  font-size: 2rem;
   box-shadow: var(--shadow-sm);
 }
 
@@ -122,8 +122,8 @@
   flex: 0 0 48px;
   place-items: center;
   border-radius: 15px;
+  color: var(--primary);
   background: var(--surface-strong);
-  font-size: 1.35rem;
 }
 
 .account-request-status {
@@ -206,7 +206,6 @@
     width: 54px;
     height: 54px;
     border-radius: 16px;
-    font-size: 1.55rem;
   }
 
   .account-request-status {

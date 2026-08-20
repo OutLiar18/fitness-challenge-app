@@ -454,7 +454,7 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - detailed scope is recorded in `V028_RULEBOOK_RECONCILIATION.md`;
 - underlying scoring/evidence/House/Power Play services, Firestore Rules and deployment state remain unchanged.
 
-#### Checkpoint 28D10 — Points Guide reconciliation — IMPLEMENTED / OWNER REVIEW PENDING
+#### Checkpoint 28D10 — Points Guide reconciliation — IMPLEMENTED / ACCEPTED
 - Challenge Rulebook is owner-accepted after the comprehensive 28D9 mechanics reconciliation;
 - Points Guide keeps its live activity tables, difficulty multipliers, goal bonuses and URL-backed tab/category state while advancing its public reference to points-v4;
 - ordinary Points Guide chrome now uses ThemeIcon while category identity remains data-driven;
@@ -465,5 +465,18 @@ The competition roadmap has been simplified. Five Fires and Buddy Bonuses are re
 - the Rulebook cross-reference, point tables, formulas, goal values, scoring services, Firestore Rules and deployment state remain unchanged;
 - detailed scope is recorded in `V028_POINTS_GUIDE_RECONCILIATION.md`.
 
+#### Checkpoint 28D11 — Help & Privacy polish — IMPLEMENTED / OWNER REVIEW PENDING
+- Points Guide is owner-accepted after 28D10;
+- Help & Privacy retains its URL-backed four-workspace structure, onboarding replay, personal export and trusted deletion request workflow;
+- ordinary Help/Privacy chrome moves to ThemeIcon while numbered getting-started steps remain semantic sequence numbers;
+- privacy wording avoids legal ownership claims and now explains player, League Administrator and Platform Administrator access boundaries more precisely;
+- the current WhatsApp evidence-delivery boundary is explicit: claim/decision metadata is stored, while the current client does not upload proof images into Cloud Firestore;
+- Firebase Authentication, Cloud Firestore, Firebase Hosting and the current absence of advertising/payment/social-tracking SDKs remain transparent;
+- account export copy is more explicit and partial-export singular/plural grammar is fixed;
+- account-request subscription errors now receive focus, matching the existing action/restart error treatment;
+- the pre-v1.0 privacy disclaimer is reframed as a clear product-status notice;
+- Firestore Rules, export scope, deletion policy, onboarding mechanics and deployment state remain unchanged;
+- detailed scope is recorded in `V028_HELP_PRIVACY_POLISH.md`.
+
 ### Next action
-Perform one fast Points Guide review across Activity scoring, Bonuses & difficulty, Season scoring and Reference formulas, including narrow mobile. If accepted, continue immediately to Help and Privacy.
+Perform one fast Help & Privacy review across Getting started, How data works, Privacy and safety, and Account tools. Confirm evidence/privacy wording, export/deletion clarity and narrow-mobile layout. If accepted, continue immediately to Administration.

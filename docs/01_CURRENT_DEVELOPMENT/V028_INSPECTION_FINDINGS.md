@@ -452,7 +452,7 @@ with Houses.
 - ordinary Rulebook chrome uses ThemeIcon and long-form cards become slightly denser while touch targets remain unchanged;
 - underlying game services, Firestore Rules and deployment state remain unchanged.
 
-### Checkpoint 28D10 - Points Guide reconciliation - IMPLEMENTED / OWNER REVIEW PENDING
+### Checkpoint 28D10 - Points Guide reconciliation - IMPLEMENTED / ACCEPTED
 - Challenge Rulebook is owner-accepted after 28D9;
 - the public Points Guide remains driven by live point tables and now exposes active evidence/season scoring effects that were missing from the reference;
 - evidence policy thresholds, proof deadline, bonus values and Fruit league cap are derived rather than duplicated;
@@ -461,3 +461,13 @@ with Houses.
 - the intro no longer claims one activity always maps to one calculation;
 - ordinary UI chrome moves to ThemeIcon while category identity remains data-driven;
 - scoring engines, values, Firestore Rules and deployment state remain unchanged.
+
+### Checkpoint 28D11 - Help & Privacy polish - IMPLEMENTED / OWNER REVIEW PENDING
+- Points Guide is owner-accepted after 28D10;
+- Help's functional onboarding/export/deletion foundations stay intact;
+- raw ordinary Help/Privacy emoji chrome is replaced with ThemeIcon while sequence numbers remain numbers;
+- privacy wording now distinguishes personal, season-scoped and Platform Administrator access instead of implying blanket privacy or legal ownership;
+- current evidence delivery through WhatsApp and the app's stored metadata boundary are explicitly explained;
+- Firebase service/SDK disclosure remains grounded in the current client;
+- personal export scope is clearer, partial-export grammar is corrected and account-request load errors gain focus;
+- Firestore Rules, deletion policy, export service scope and deployment state remain unchanged.

@@ -166,3 +166,6 @@ Legacy Coach is accepted; defer its minor padding issue to v0.31. Review the Rul
 
 ## 28D10 Points Guide review
 Rulebook is accepted. Review Points Guide for the activity category selector/ladders, Running + Cardio wording, Steps/Running proof holds, Water/Fruit evidence bonuses and Fruit league cap, difficulty and goal bonuses, daily season cap/+5 active-day bonus, Power Play/Pocket/House formulas, approved season bonus explanation, Reference formulas, icon consistency and narrow-mobile stacking. If accepted, move immediately to Help and Privacy.
+
+## 28D11 Help & Privacy review
+Points Guide is accepted. Review Help & Privacy for the four workspace tabs, getting-started path, stored-vs-derived explanation, privacy/access boundaries, evidence delivery/storage explanation, Firebase disclosure, export scope, deletion request/cancellation wording, focused errors and narrow-mobile stacking. If accepted, move immediately to Administration.

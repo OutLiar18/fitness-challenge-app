@@ -53,3 +53,6 @@ Legacy Coach is owner-accepted after 28D8, with minor padding deferred to v0.31.
 
 ## 28D10 Points Guide reconciliation
 Challenge Rulebook is owner-accepted after 28D9. 28D10 aligns the public Points Guide with that accepted Rulebook without changing scoring: evidence-enabled Running/Steps holds, Water/Fruit +3 proof bonuses, the evidence deadline, Fruit league cap and approved season bonus treatment become visible, while all values tied to the season evidence policy are derived from the live ruleset. Ordinary UI chrome moves to ThemeIcon; category identity remains data-driven. After owner review, continue directly to Help and Privacy.
+
+## 28D11 Help & Privacy polish
+Points Guide is owner-accepted after 28D10. 28D11 keeps Help's existing functional workflows but makes privacy/access boundaries substantially clearer: current Firebase services and SDK boundaries are stated, League Administrator versus Platform Administrator access is explained, current WhatsApp evidence delivery is separated from stored claim/decision metadata, export scope is clearer and request-subscription errors become focusable. Ordinary UI chrome moves to ThemeIcon. After owner review, continue directly to Administration.
