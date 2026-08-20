@@ -62,3 +62,7 @@ Help & Privacy is owner-accepted after 28D11. 28D12 keeps the existing trusted o
 
 ## 28D13 Profile & Legacy Identity
 Administration is owner-accepted after 28D12. 28D13 is the final v0.28 page implementation pass and upgrades Profile from a settings-led MBTI surface into a player-identity experience. Official current 16Personalities role titles sit beside the owner-approved mythic identities; 16 locally bundled full-colour SVG emblems replace emoji/four-letter avatar artwork; reflective guidance expands to symbolism, strengths, watch-outs, Challenge approaches, growth advice and at-best framing. The existing optional `mbtiType`, URL state, save validation, focus/busy semantics, scoring, permissions, history and Firestore Rules remain unchanged. After owner review, continue to 28D14 for the separately bounded 16-theme engine and type-aware Champion Transmission.
+
+## 28D14 — MBTI themes + Champion Transmission
+
+The full v0.28 page inspection is owner-accepted through Profile. The next checkpoint extends the accepted Legacy Profile layer into presentation only: 16 global MBTI palettes and genuinely type-specific Champion Transmission copy. `profile.mbtiType` remains the only persisted MBTI field. The default crimson theme remains the no-selection fallback.

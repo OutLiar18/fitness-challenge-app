@@ -504,3 +504,13 @@ Perform one fast Administration review across Overview, Announcements, Suggestio
 - the persisted field remains optional `mbtiType`; Firestore Rules, scoring, progression, competition history and permissions are unchanged;
 - app-wide 16-profile theming and genuinely type-aware Champion Transmission are deferred to 28D14 so the cross-app change can be tested independently;
 - detailed scope is recorded in `V028_PROFILE_LEGACY_IDENTITY.md`.
+
+## v0.28 Checkpoint 28D14 — MBTI themes and Champion Transmission
+
+Profile is owner-accepted after 28D13, completing the page-by-page inspection. 28D14 is a post-inspection enhancement requested by the owner:
+- one global presentation palette per MBTI selection;
+- neutral crimson fallback when no valid MBTI is selected;
+- type-specific Champion Transmission quote and coach voice;
+- existing type-specific Challenge approaches remain the side-quest source;
+- semantic success/warning/danger colours remain stable;
+- no persisted-data, Firestore Rules, scoring, league, House, evidence or authority changes.

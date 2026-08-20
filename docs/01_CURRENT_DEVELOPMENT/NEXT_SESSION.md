@@ -175,3 +175,7 @@ Help & Privacy is accepted. Review Administration for the nine workspace tabs, a
 
 ## 28D13 Profile review
 Administration is accepted. Review Profile as the final v0.28 page: confirm the 16 coloured mythic emblems render without four-letter artwork; the official role titles and mythic names are correct; the hero feels identity-first; core personality, symbolism, strengths, watch-outs, Challenge approaches, growth advice and at-best framing are readable; selector/quick-estimate/external-test flows remain clear; ordinary Profile chrome uses ThemeIcon; and desktop/tablet/narrow-mobile layouts remain clean. If accepted, proceed to 28D14 for app-wide MBTI colour themes and genuinely type-aware Champion Transmission.
+
+## After 28D14
+
+Perform an owner visual smoke across representative MBTI palettes in both light and dark operating-system modes, including Dashboard Champion Transmission, navigation, forms, cards and focus states. If accepted, proceed to the v0.28 closeout/freeze rather than another page inspection.

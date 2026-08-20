@@ -1,4 +1,5 @@
 import { getMbtiProfileByType } from "./mbtiProfiles";
+import { getMbtiTransmissionLibrary } from "./mbtiTransmissions";
 
 const MOTIVATION_LIBRARY = Object.freeze([
   {
@@ -190,8 +191,10 @@ export function getDailyMotivation(
   const profileKey = profile?.type ?? "general";
   const hash = stableHash(`${getLocalDateKey(date)}:${playerSeed}:${profileKey}`);
   const safeOffset = Number.isFinite(Number(offset)) ? Number(offset) : 0;
-  const index = Math.abs(hash + safeOffset) % MOTIVATION_LIBRARY.length;
-  const motivation = MOTIVATION_LIBRARY[index];
+  const tailoredLibrary = profile ? getMbtiTransmissionLibrary(profile.type) : [];
+  const library = tailoredLibrary.length > 0 ? tailoredLibrary : MOTIVATION_LIBRARY;
+  const index = Math.abs(hash + safeOffset) % library.length;
+  const motivation = library[index];
   const profileNudges = profile?.thrive ?? [];
   const nudgeIndex = profileNudges.length > 0
     ? Math.abs(hash + safeOffset) % profileNudges.length
@@ -199,13 +202,22 @@ export function getDailyMotivation(
 
   return {
     ...motivation,
+    attribution: profile
+      ? `Champions Legacy • ${profile.mythicName}`
+      : motivation.attribution,
     sideQuest: nudgeIndex >= 0 ? profileNudges[nudgeIndex] : motivation.sideQuest,
     index,
-    total: MOTIVATION_LIBRARY.length,
+    total: library.length,
     profileType: profile?.type ?? "",
+    profileTitle: profile?.title ?? "",
+    mythicName: profile?.mythicName ?? "",
+    definingQuality: profile?.definingQuality ?? "",
+    motivationStyle: profile?.motivationStyle ?? "",
   };
 }
 
-export function getMotivationCount() {
-  return MOTIVATION_LIBRARY.length;
+export function getMotivationCount(mbtiType = "") {
+  const profile = getMbtiProfileByType(mbtiType);
+  const tailoredLibrary = profile ? getMbtiTransmissionLibrary(profile.type) : [];
+  return tailoredLibrary.length > 0 ? tailoredLibrary.length : MOTIVATION_LIBRARY.length;
 }

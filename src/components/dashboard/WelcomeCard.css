@@ -7,15 +7,22 @@
   gap: 28px;
   padding: clamp(28px, 5vw, 48px);
   overflow: hidden;
-  border: 1px solid rgba(255, 81, 72, 0.46);
+  border: 1px solid color-mix(in srgb, var(--mbti-primary-bright, #ff5148) 54%, transparent);
   border-radius: var(--radius-xl);
   color: #fff;
   background:
-    radial-gradient(circle at 86% 16%, rgba(255, 81, 72, 0.24), transparent 14rem),
-    linear-gradient(112deg, #050505 0%, #050505 43%, #290102 62%, #7b0506 82%, #c20e0d 100%);
+    radial-gradient(circle at 86% 16%, color-mix(in srgb, var(--mbti-primary-bright, #ff5148) 26%, transparent), transparent 14rem),
+    linear-gradient(
+      112deg,
+      #050505 0%,
+      #050505 40%,
+      color-mix(in srgb, var(--primary-control) 24%, #050505) 62%,
+      color-mix(in srgb, var(--primary-control) 72%, #050505) 84%,
+      var(--primary-control) 100%
+    );
   box-shadow:
     0 24px 70px rgba(0, 0, 0, 0.3),
-    0 0 0 1px rgba(194, 14, 13, 0.1);
+    0 0 0 1px color-mix(in srgb, var(--mbti-primary-bright, #ff5148) 16%, transparent);
 }
 
 .welcome-card::before {
@@ -25,7 +32,12 @@
   bottom: -22%;
   left: 61%;
   width: 17%;
-  background: linear-gradient(180deg, rgba(255, 81, 72, 0), rgba(255, 81, 72, 0.42), rgba(255, 81, 72, 0));
+  background: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in srgb, var(--mbti-primary-bright, #ff5148) 48%, transparent),
+    transparent
+  );
   opacity: 0.72;
   transform: skewX(-13deg);
 }
@@ -49,7 +61,7 @@
 
 .welcome-card__eyebrow {
   margin-bottom: 10px;
-  color: #f6cc75;
+  color: var(--mbti-secondary-bright, #f6cc75);
   font-size: 0.76rem;
   font-weight: 850;
   letter-spacing: 0.12em;
@@ -67,10 +79,10 @@
   max-width: 760px;
   margin-top: 18px;
   padding: 18px;
-  border: 1px solid rgba(255, 81, 72, 0.34);
+  border: 1px solid color-mix(in srgb, var(--mbti-primary-bright, #ff5148) 38%, transparent);
   border-radius: 18px;
   background: rgba(2, 2, 3, 0.58);
-  box-shadow: inset 4px 0 0 rgba(194, 14, 13, 0.82);
+  box-shadow: inset 4px 0 0 var(--primary-control);
   backdrop-filter: blur(12px);
 }
 
@@ -87,7 +99,7 @@
 }
 
 .welcome-card__transmission-heading > div > span {
-  color: #f6cc75;
+  color: var(--mbti-secondary-bright, #f6cc75);
   font-size: 0.68rem;
   font-weight: 900;
   letter-spacing: 0.11em;
@@ -109,25 +121,25 @@
   flex: 0 0 44px;
   gap: 0;
   padding: 0;
-  border: 1px solid #f6cc75;
+  border: 1px solid var(--mbti-secondary-bright, #f6cc75);
   border-radius: 12px;
   color: #ffffff;
-  background: #c20e0d;
+  background: var(--primary-control);
   font: inherit;
   font-size: 0.78rem;
   font-weight: 900;
   cursor: pointer;
-  box-shadow: 0 3px 0 #650003;
+  box-shadow: 0 3px 0 var(--primary-depth);
 }
 
 .welcome-card__transmission-button:hover {
-  background: #d51217;
+  background: var(--primary-control-hover);
   transform: translateY(-1px);
 }
 
 .welcome-card__transmission-button:active {
   transform: translateY(1px);
-  box-shadow: 0 1px 0 #650003;
+  box-shadow: 0 1px 0 var(--primary-depth);
 }
 
 .welcome-card__transmission blockquote {

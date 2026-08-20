@@ -1,3 +1,4 @@
+import MbtiThemeBridge from "../components/common/MbtiThemeBridge";
 import AppShell from "../components/layout/AppShell";
 import OnboardingGate from "../components/onboarding/OnboardingGate";
 import { AnnouncementProvider } from "../context/AnnouncementProvider";
@@ -12,6 +13,7 @@ export default function ProtectedApp() {
   return (
     <PrivateRoute>
       <PlayerDataProvider>
+        <MbtiThemeBridge />
         <GlobalLibraryProvider>
           <AnnouncementProvider>
             <LeagueProvider>

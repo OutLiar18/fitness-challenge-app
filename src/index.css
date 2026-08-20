@@ -526,3 +526,56 @@ label {
   color: var(--text);
   background: var(--surface-soft);
 }
+
+/* v0.28 28D14 — MBTI-driven global presentation */
+:root[data-mbti-theme] {
+  --page-bg: color-mix(in srgb, var(--mbti-primary-control) 5%, #f7f4f2);
+  --page-bg-deep: color-mix(in srgb, var(--mbti-primary-control) 8%, #ebe6e4);
+  --surface: color-mix(in srgb, var(--mbti-primary-control) 2%, #fffafa);
+  --surface-raised: #ffffff;
+  --surface-soft: color-mix(in srgb, var(--mbti-primary-control) 4%, #faf8f7);
+  --surface-strong: color-mix(in srgb, var(--mbti-primary-control) 8%, #f2ecea);
+  --border: color-mix(in srgb, var(--mbti-primary-control) 16%, #d8d0d2);
+  --border-strong: color-mix(in srgb, var(--mbti-primary-control) 28%, #bfb5b8);
+  --primary: var(--mbti-primary-control);
+  --primary-hover: color-mix(in srgb, var(--mbti-primary-control) 88%, #000000);
+  --primary-strong: color-mix(in srgb, var(--mbti-primary-control) 76%, #000000);
+  --primary-control: var(--mbti-primary-control);
+  --primary-control-hover: color-mix(in srgb, var(--mbti-primary-control) 90%, #ffffff);
+  --primary-depth: color-mix(in srgb, var(--mbti-primary-control) 62%, #000000);
+  --primary-soft: color-mix(in srgb, var(--mbti-primary-control) 12%, transparent);
+  --primary-glow: color-mix(in srgb, var(--mbti-primary-control) 22%, transparent);
+  --interactive-glow: 0 0 0 1px color-mix(in srgb, var(--primary) 24%, transparent), 0 0 18px var(--primary-glow);
+  --accent: var(--mbti-secondary);
+  --focus-ring: color-mix(in srgb, var(--mbti-primary-control) 34%, transparent);
+  --shadow-sm: 0 1px 2px color-mix(in srgb, var(--mbti-primary-control) 8%, transparent);
+  --shadow-md: 0 10px 30px color-mix(in srgb, var(--mbti-primary-control) 11%, transparent);
+  --shadow-lg: 0 18px 55px color-mix(in srgb, var(--mbti-primary-control) 16%, transparent);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-mbti-theme] {
+    --page-bg: color-mix(in srgb, var(--mbti-primary-bright) 7%, #050505);
+    --page-bg-deep: #000000;
+    --surface: color-mix(in srgb, var(--mbti-primary-bright) 5%, #0b0b0c);
+    --surface-raised: color-mix(in srgb, var(--mbti-primary-bright) 7%, #151517);
+    --surface-soft: color-mix(in srgb, var(--mbti-primary-bright) 4%, #09090a);
+    --surface-strong: color-mix(in srgb, var(--mbti-primary-bright) 13%, #1b1718);
+    --border: color-mix(in srgb, var(--mbti-primary-bright) 18%, #2c2729);
+    --border-strong: color-mix(in srgb, var(--mbti-primary-bright) 28%, #3d3336);
+    --primary: var(--mbti-primary-bright);
+    --primary-hover: color-mix(in srgb, var(--mbti-primary-bright) 88%, #ffffff);
+    --primary-strong: color-mix(in srgb, var(--mbti-primary-bright) 74%, #ffffff);
+    --primary-control: var(--mbti-primary-control);
+    --primary-control-hover: color-mix(in srgb, var(--mbti-primary-control) 90%, #ffffff);
+    --primary-depth: color-mix(in srgb, var(--mbti-primary-control) 62%, #000000);
+    --primary-soft: color-mix(in srgb, var(--mbti-primary-bright) 14%, transparent);
+    --primary-glow: color-mix(in srgb, var(--mbti-primary-bright) 26%, transparent);
+    --interactive-glow: 0 0 0 1px color-mix(in srgb, var(--primary) 28%, transparent), 0 0 20px var(--primary-glow);
+    --accent: var(--mbti-secondary-bright);
+    --focus-ring: color-mix(in srgb, var(--mbti-primary-bright) 42%, transparent);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.28);
+    --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.28);
+    --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.34);
+  }
+}

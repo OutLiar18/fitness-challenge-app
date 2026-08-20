@@ -39,7 +39,8 @@ test("v0.27 uses the Champions Legacy blood-red design tokens", () => {
 
 test("Dashboard Welcome Card uses the crimson-black warrior identity instead of legacy blue", () => {
   const lowerWelcomeCss = welcomeCss.toLowerCase();
-  assert.ok(lowerWelcomeCss.includes("#c20e0d"));
+  assert.ok(lowerWelcomeCss.includes("var(--primary-control)"));
+  assert.ok(lowerWelcomeCss.includes("var(--mbti-primary-bright"));
   assert.ok(lowerWelcomeCss.includes("#050505"));
   for (const retiredBlue of ["#101d42", "#2447c6", "#4169e1", "#16214a"]) {
     assert.ok(!lowerWelcomeCss.includes(retiredBlue));

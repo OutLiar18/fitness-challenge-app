@@ -492,3 +492,7 @@ with Houses.
 - URL-backed tabs, the 12-question estimate, external-test route, profile persistence, focused errors and busy semantics remain intact;
 - `mbtiType` storage, Firestore Rules, scoring, XP, achievements, Houses, seasons, evidence, authority and history remain unchanged;
 - app-wide per-MBTI colour theming and Champion Transmission message/tone personalisation are intentionally isolated to 28D14.
+
+## Post-inspection enhancement — 28D14
+
+Owner accepted Profile after 28D13, so every page in the v0.28 page-by-page inspection is accepted. A final owner-requested enhancement remains before closeout: apply the selected MBTI as a global presentation theme and make Champion Transmission genuinely type-specific. This enhancement must preserve the accepted page structures and all gameplay/security boundaries.

@@ -27,8 +27,8 @@ export default function WelcomeCard({ profile, user, playerSeed = "champion" }) 
         <div className="welcome-card__transmission" aria-live="polite">
           <div className="welcome-card__transmission-heading">
             <div>
-              <span>Champion transmission</span>
-              <strong>A message for today</strong>
+              <span>{motivation.profileTitle ? `${motivation.profileTitle} transmission` : "Champion transmission"}</span>
+              <strong>{motivation.mythicName || "A message for today"}</strong>
             </div>
             <button
               className="welcome-card__transmission-button"
@@ -60,7 +60,7 @@ export default function WelcomeCard({ profile, user, playerSeed = "champion" }) 
           className="welcome-card__badge"
           aria-label={`Role: ${formatRole(profile?.role)}`}
         >
-          <span aria-hidden="true">⚡</span>
+          <ThemeIcon name="power" size={16} />
           <span>{formatRole(profile?.role)}</span>
         </div>
       </div>
