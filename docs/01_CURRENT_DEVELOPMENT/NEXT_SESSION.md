@@ -1,14 +1,17 @@
 # Champions Legacy Challenge — Next Session
 
-Continue on `development/v0.29.0`.
+Continue on `development/v0.30.0`.
 
-## Next work
+## First priorities
 
-- Finish any remaining owner-requested source cleanup or visual polish.
-- Address concrete defects discovered by automated checks or normal use.
-- Keep changes grouped by risk instead of creating micro-checkpoints.
-- When the owner is satisfied with v0.29, perform a concise final hardening/release step toward v1.0.
+1. Capture a clean mobile Lighthouse baseline without changing production.
+2. Audit Performance and Best Practices findings, identify the specific causes, and fix only verified issues.
+3. Address any remaining owner-requested responsive, visual or code-hardening polish.
+4. Re-run the relevant automated checks and production build after each meaningful grouped change.
 
-## No mandatory detours
+## Safety
 
-Do not schedule an external-tester cycle or a full simulated season unless the owner explicitly asks to revive those phases.
+- No Firebase deployment during ordinary v0.30 development.
+- Firestore Rules remain unchanged unless handled as a separate security checkpoint.
+- Do not alter accepted scoring, evidence authority or House-movement rules as collateral cleanup.
+- Production remains v0.29.0 until a later explicit release decision.

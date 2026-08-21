@@ -4,14 +4,13 @@ Champions Legacy Challenge is a gamified personal-development and fitness tracke
 
 ## Current status
 
-- Development line: **v0.29.0**
-- Production: **v0.28.0**
+- Development line: **v0.30.0**
+- Production: **v0.29.0**
 - Production URL: `https://champions-legacy-challenge.web.app`
-- v0.28 deployed/tagged source: `2f01401a980e0e9573c9b70b4beff00ab7191c16`
-- v0.28 documentation finalisation / v0.29 baseline: `2d6bd416fd2e0b9b807bccc2f28be4f6d8301c44`
+- v0.29 deployed/tagged source: `d34065b5352fff6c2e13941fcc2f566ce519c926`
 - Firestore Rules canonical SHA-256: `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e`
 
-The current v0.29 line is a cleanup, visual-polish and hardening pass. External-tester and full-season rehearsal phases are no longer mandatory release gates.
+The current v0.30 line is the final mobile-quality and release-hardening pass before a v1.0 decision, focused on Lighthouse Performance / Best Practices plus any owner-requested polish or fixes.
 
 ## Core product
 

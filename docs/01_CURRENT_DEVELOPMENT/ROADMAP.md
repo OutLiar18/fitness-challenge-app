@@ -2,31 +2,25 @@
 
 ## Production
 
-**v0.28.0 — live and verified**
+**v0.29.0 — live and verified**
 
-The page-by-page inspection, MBTI identity/theme work and production activation are complete.
+The cleanup, visual-polish and hardening pass is complete and release-finalised.
 
 ## Current
 
-### v0.29.0 — cleanup, polish and hardening
+### v0.30.0 — mobile quality + final release hardening
 
 Focus:
 
-- dead-code and repository cleanup;
-- documentation consolidation;
-- responsive/layout polish;
-- stronger theme-aware visual hierarchy;
-- accessibility and interaction regressions discovered during normal development;
-- owner-requested final fixes.
+- investigate mobile Lighthouse Performance and Best Practices findings;
+- implement targeted performance/best-practices fixes backed by measurements;
+- complete any final owner-requested responsive, visual or code-hardening polish;
+- keep essential automated checks and the production build clean;
+- preserve accepted product/security contracts unless explicitly changed;
+- do not require an external tester cycle or full season rehearsal unless the owner explicitly revives either one.
 
-No mandatory external testing phase is attached to this version.
-
-## Next major milestone
+## Stable release
 
 ### v1.0.0 — first stable public release
 
-Proceed when the owner is satisfied with v0.29 and essential automated safety/build checks are clean. A full season rehearsal is not a required gate unless explicitly reinstated.
-
-## Later
-
-Post-v1 work can add new competition mechanics, richer analytics, operational automation or other product improvements only when their design is approved.
+Consider after v0.30 is owner-accepted and the essential automated checks/build are clean. Do not create a v1.0 tag early.

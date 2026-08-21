@@ -1,3 +1,29 @@
+# v0.29.0 — Cleanup, Visual Polish and Hardening
+
+<!-- RELEASE_STATUS: DEPLOYED -->
+Date: 21 August 2026
+Status: Verified production deployment and release finalisation complete
+
+## Summary
+
+v0.29.0 is a focused maintenance release that removes stale/generated source, simplifies release-specific test machinery, improves shared theme presentation and strengthens responsive polish without changing accepted competition or scoring contracts.
+
+## Verification
+
+- 302 / 302 application tests passed.
+- Production build passed.
+- UI Quality verification passed.
+- Release Readiness passed.
+- Exact deployed/tagged source: `d34065b5352fff6c2e13941fcc2f566ce519c926`.
+- Live index SHA-256: `400b029c799d0c323c87589151b53556ec795e5de2ee3594864cc2420d91962d`.
+- Firestore Rules remained at canonical SHA-256 `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e` and were not redeployed.
+
+## Next
+
+v0.30.0 owns the mobile Lighthouse Performance / Best Practices work deliberately deferred from this release, plus any final owner-requested polish and release hardening before a v1.0 decision.
+
+---
+
 # v0.24.0 — House Movement and Weekly Balance
 
 <!-- RELEASE_STATUS: DEPLOYED -->

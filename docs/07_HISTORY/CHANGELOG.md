@@ -1,12 +1,30 @@
-## v0.29.0 — Cleanup and visual hardening (in development)
+# Champions Legacy Challenge — Changelog
+
+## [0.29.0] — 21 August 2026 — Verified production deployment
+
+### Cleanup and hardening
 
 - Removed generated/local-only artifacts from source packaging.
-- Removed proven unreachable components and obsolete checkpoint/release scripts.
+- Removed proven unreachable components and obsolete checkpoint/release machinery.
 - Replaced the v0.27-specific acceptance hook with a version-neutral UI quality check.
 - Reduced current-development documentation to active sources of truth.
-- Strengthened theme-aware shared colour tokens and responsive visual hierarchy.
+- Strengthened theme-aware shared colour tokens, responsive visual hierarchy and small-screen resilience.
 
-# Champions Legacy Challenge — Changelog
+### Verification and production
+
+- 302 / 302 application tests passed.
+- Production build passed.
+- UI Quality verification passed.
+- Release Readiness passed.
+- Firebase Hosting live index and referenced assets matched the exact gated v0.29 build.
+- Live index SHA-256: `400b029c799d0c323c87589151b53556ec795e5de2ee3594864cc2420d91962d`.
+- Firestore Rules were unchanged and were not redeployed.
+- Exact deployed/tagged source: `d34065b5352fff6c2e13941fcc2f566ce519c926`.
+
+### Deferred to v0.30
+
+- Mobile Lighthouse Performance and Best Practices investigation/fixes.
+- Final owner-requested polish and release hardening before a v1.0 decision.
 
 ## [0.24.0] — 9 August 2026 — Verified production deployment
 

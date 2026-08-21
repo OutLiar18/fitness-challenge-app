@@ -6,6 +6,8 @@
 
 | Version | Date | Milestone |
 |---|---|---|
+| 0.29.0 | 21 August 2026 | Cleanup, visual polish and hardening; verified production deployment |
+| 0.28.0 | 21 August 2026 | Owner-led page inspection, MBTI identity/themes and verified production deployment |
 | 0.24.0 | 9 August 2026 | House Movement v4, immutable assignment history, composition privacy and weekly House balance; verified production deployment |
 | 0.23.5 | 7 August 2026 | Stable v0.23 security/runtime checkpoint; verified production deployment |
 | 0.23.0 | 5 August 2026 | Themed no-repeat Power Plays; verified production deployment |

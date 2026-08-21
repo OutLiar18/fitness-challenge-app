@@ -4,17 +4,20 @@ Last updated: 21 August 2026
 
 ## Release state
 
-- Current development branch: `development/v0.29.0`
-- Development baseline: `2d6bd416fd2e0b9b807bccc2f28be4f6d8301c44`
-- Production version: **v0.28.0**
-- Production deployed/tagged source: `2f01401a980e0e9573c9b70b4beff00ab7191c16`
-- Verified live index SHA-256: `f18aef3aa90e2ed5220eb1adf881ae36738ba30da95a351ce348ae4950cd1e83`
+- Current development branch: `development/v0.30.0`
+- Production version: **v0.29.0**
+- Production deployed/tagged source: `d34065b5352fff6c2e13941fcc2f566ce519c926`
+- Verified live index SHA-256: `400b029c799d0c323c87589151b53556ec795e5de2ee3594864cc2420d91962d`
 - Firestore Rules canonical SHA-256: `35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e`
-- v0.28 development branch: deleted locally and remotely after finalisation.
+- v0.29 development branch is retired after release finalisation.
+
+## v0.29.0 verified production release
+
+v0.29 completed the focused source cleanup, visual polish and hardening pass. The final release gate passed 302 / 302 application tests, the production build, UI Quality verification and Release Readiness. Firebase Hosting was verified against the exact gated build. Firestore Rules were unchanged and were not redeployed.
 
 ## Current phase
 
-v0.29 is a focused cleanup and hardening line. The previous mandatory external-tester cycle and full season rehearsal have been removed from the release path. Work should concentrate on maintainability, responsiveness, visual consistency, dead-code removal and owner-requested fixes without reopening accepted gameplay contracts.
+v0.30 is the shortened final hardening line before a v1.0 decision. It owns the mobile Lighthouse Performance / Best Practices investigation plus any owner-requested polish or fixes. External tester rounds and a full season rehearsal are not mandatory. Accepted gameplay, scoring, evidence authority and Firestore security boundaries remain frozen unless explicitly changed.
 
 ## Product foundations currently implemented
 
