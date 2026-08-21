@@ -29,7 +29,7 @@
 @media (max-width: 900px) { .pocket-workspace, .pocket-season { grid-template-columns: 1fr; } .pocket-principles { grid-template-columns: 1fr; } .pocket-card { grid-template-columns: auto minmax(0, 1fr); } .pocket-card__controls, .pocket-card__empty { grid-column: 1 / -1; } }
 @media (max-width: 620px) { .pocket-season, .pocket-wallet { padding: 18px; } .pocket-season__window { grid-template-columns: 1fr; } .pocket-phase { grid-column: 1; grid-row: auto; justify-self: start; } .pocket-card { padding: 14px; } .pocket-card__controls { grid-template-columns: 1fr; } .pocket-card__controls .button { grid-column: 1; } }
 
-/* v0.27 27F — Pocket Week workspace readability */
+/* Pocket Week workspace readability */
 .pocket-season select,
 .pocket-date input,
 .pocket-card__controls input,

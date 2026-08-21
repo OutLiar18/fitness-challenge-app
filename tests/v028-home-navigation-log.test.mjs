@@ -21,8 +21,8 @@ const themeIcon = read("src/components/common/ThemeIcon.jsx");
 const indexCss = read("src/index.css");
 const packageJson = JSON.parse(read("package.json"));
 
-test("28D1 activates application package version 0.28.0", () => {
-  assert.equal(packageJson.version, "0.28.0");
+test("application package identifies the current v0.29 development line", () => {
+  assert.equal(packageJson.version, "0.29.0");
 });
 
 test("Dashboard Champion Transmission is the sole hero motivation and uses the MBTI-aware avatar", () => {

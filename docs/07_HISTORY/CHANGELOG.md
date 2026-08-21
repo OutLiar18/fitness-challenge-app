@@ -1,3 +1,11 @@
+## v0.29.0 — Cleanup and visual hardening (in development)
+
+- Removed generated/local-only artifacts from source packaging.
+- Removed proven unreachable components and obsolete checkpoint/release scripts.
+- Replaced the v0.27-specific acceptance hook with a version-neutral UI quality check.
+- Reduced current-development documentation to active sources of truth.
+- Strengthened theme-aware shared colour tokens and responsive visual hierarchy.
+
 # Champions Legacy Challenge — Changelog
 
 ## [0.24.0] — 9 August 2026 — Verified production deployment

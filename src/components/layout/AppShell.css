@@ -4,6 +4,7 @@
   overflow-x: clip;
   background:
     radial-gradient(circle at 94% -8%, var(--primary-glow), transparent 34rem),
+    radial-gradient(circle at -8% 108%, var(--accent-soft), transparent 28rem),
     linear-gradient(180deg, var(--page-bg), var(--page-bg-deep));
 }
 
@@ -15,8 +16,10 @@
   width: var(--desktop-rail);
   flex-direction: column;
   padding: 24px 16px 16px;
-  border-right: 2px solid var(--border);
-  background: var(--surface);
+  border-right: 1px solid color-mix(in srgb, var(--primary) 20%, var(--border));
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--primary) 3%, var(--surface)), var(--surface));
+  box-shadow: 12px 0 40px color-mix(in srgb, var(--primary) 7%, transparent);
 }
 
 .app-brand {
@@ -218,6 +221,7 @@
   flex: 0 0 34px;
   place-items: center;
   border-radius: 11px;
+  color: var(--nav-tone);
   background: var(--nav-soft);
   font-size: 1.1rem;
   line-height: 1;
@@ -729,7 +733,7 @@
   }
 }
 
-/* v0.8 profile identity and announcement status */
+/* Profile identity and announcement status */
 .app-player .legacy-avatar,
 .app-more-panel__header .legacy-avatar {
   flex-shrink: 0;
@@ -783,7 +787,7 @@
   outline: none;
 }
 
-/* v0.25.0 25B — Legacy Profile prompt */
+/* Legacy Profile prompt */
 .app-profile-prompt {
   display: flex;
   align-items: center;
@@ -814,7 +818,7 @@
   .app-profile-prompt .button { width: 100%; }
 }
 
-/* v0.27 27B — application shell visual polish */
+/* application shell visual polish */
 .app-sidebar {
   border-right: 1px solid var(--border);
   background:
@@ -880,7 +884,7 @@
     box-shadow: inset 0 2px 0 var(--mobile-tone);
   }
 }
-/* v0.28 28D2B — shared small-screen pressure relief */
+/* shared small-screen pressure relief */
 @media (max-width: 760px) {
   .app-content {
     min-width: 0;

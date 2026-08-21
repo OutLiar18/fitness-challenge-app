@@ -234,7 +234,7 @@
   background: var(--success-soft);
 }
 
-/* v0.27 27F — help/account readability and focused feedback */
+/* help/account readability and focused feedback */
 .help-page .section-kicker {
   font-size: 0.78rem;
 }

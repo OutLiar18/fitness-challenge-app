@@ -21,6 +21,12 @@
   --interactive-glow: 0 0 0 1px color-mix(in srgb, var(--primary) 24%, transparent), 0 0 18px var(--primary-glow);
   --on-primary: #ffffff;
   --accent: #b88735;
+  --accent-bright: #d7a84f;
+  --accent-soft: rgba(184, 135, 53, 0.13);
+  --link: #a90b0d;
+  --link-hover: #730609;
+  --heading-accent: var(--primary-strong);
+  --surface-glass: rgba(255, 255, 255, 0.78);
   --success: #187751;
   --success-soft: #e9f6ef;
   --success-border: #9dd5bd;
@@ -83,6 +89,12 @@
     --interactive-glow: 0 0 0 1px color-mix(in srgb, var(--primary) 28%, transparent), 0 0 20px var(--primary-glow);
     --on-primary: #ffffff;
     --accent: #e4b85f;
+    --accent-bright: #f3cb78;
+    --accent-soft: rgba(228, 184, 95, 0.15);
+    --link: #ff7b74;
+    --link-hover: #ffaaa5;
+    --heading-accent: var(--primary);
+    --surface-glass: rgba(18, 18, 20, 0.82);
     --success: #72d1a6;
     --success-soft: rgba(67, 170, 124, 0.14);
     --success-border: rgba(114, 209, 166, 0.34);
@@ -125,6 +137,7 @@ body {
   color: var(--text);
   background:
     radial-gradient(circle at 92% -12%, var(--primary-glow), transparent 34rem),
+    radial-gradient(circle at -8% 110%, var(--accent-soft), transparent 30rem),
     linear-gradient(180deg, var(--page-bg), var(--page-bg-deep));
   background-attachment: fixed;
 }
@@ -184,6 +197,7 @@ h5 {
   font-weight: 850;
   line-height: 1.12;
   letter-spacing: -0.035em;
+  text-wrap: balance;
 }
 
 h1 {
@@ -289,7 +303,8 @@ label {
 .card {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  background: var(--surface-raised);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--primary) 2.5%, var(--surface-raised)), var(--surface-raised));
   box-shadow: var(--shadow-md);
 }
 
@@ -343,10 +358,6 @@ label {
   box-shadow: 0 3px 0 var(--primary-depth), var(--interactive-glow);
 }
 
-.button--secondary {
-  border-color: var(--border);
-  background: var(--surface);
-}
 
 .button--danger {
   color: var(--danger-text);
@@ -379,7 +390,8 @@ label {
   display: block;
   margin-top: 6px;
   color: var(--text-muted);
-  font-size: 0.82rem;
+  font-size: 0.86rem;
+  line-height: 1.45;
 }
 
 .form-required {
@@ -463,6 +475,57 @@ label {
 }
 
 
+
+.section-kicker {
+  margin-bottom: 6px;
+  color: var(--heading-accent);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.105em;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0;
+  border: 0;
+  color: var(--link);
+  background: transparent;
+  font: inherit;
+  font-weight: 850;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+  transition: color var(--transition), text-decoration-color var(--transition);
+}
+
+.text-link:hover:not(:disabled) {
+  color: var(--link-hover);
+  text-decoration-color: currentColor;
+}
+
+.theme-accent {
+  color: var(--heading-accent);
+}
+
+.theme-secondary {
+  color: var(--accent);
+}
+
+@media (max-width: 640px) {
+  .page-stack {
+    gap: 14px;
+  }
+
+  .card {
+    border-radius: 16px;
+  }
+}
+
 .loading-spinner {
   width: 34px;
   height: 34px;
@@ -501,16 +564,12 @@ label {
   background: var(--primary-soft);
 }
 
-/* v0.27 27B — Champions Legacy shared visual foundation */
+/* Champions Legacy shared visual foundation */
 ::selection {
   color: var(--on-primary);
   background: var(--primary-control);
 }
 
-.form-help {
-  font-size: 0.86rem;
-  line-height: 1.45;
-}
 
 .inline-alert,
 .empty-state {
@@ -527,7 +586,7 @@ label {
   background: var(--surface-soft);
 }
 
-/* v0.28 28D14 — MBTI-driven global presentation */
+/* MBTI-driven global presentation */
 :root[data-mbti-theme] {
   --page-bg: color-mix(in srgb, var(--mbti-primary-control) 5%, #f7f4f2);
   --page-bg-deep: color-mix(in srgb, var(--mbti-primary-control) 8%, #ebe6e4);
@@ -547,6 +606,11 @@ label {
   --primary-glow: color-mix(in srgb, var(--mbti-primary-control) 22%, transparent);
   --interactive-glow: 0 0 0 1px color-mix(in srgb, var(--primary) 24%, transparent), 0 0 18px var(--primary-glow);
   --accent: var(--mbti-secondary);
+  --accent-bright: var(--mbti-secondary-bright);
+  --accent-soft: color-mix(in srgb, var(--mbti-secondary) 12%, transparent);
+  --link: color-mix(in srgb, var(--mbti-primary-control) 86%, #000000);
+  --link-hover: color-mix(in srgb, var(--mbti-secondary) 82%, #000000);
+  --heading-accent: color-mix(in srgb, var(--mbti-primary-control) 84%, #000000);
   --focus-ring: color-mix(in srgb, var(--mbti-primary-control) 34%, transparent);
   --shadow-sm: 0 1px 2px color-mix(in srgb, var(--mbti-primary-control) 8%, transparent);
   --shadow-md: 0 10px 30px color-mix(in srgb, var(--mbti-primary-control) 11%, transparent);
@@ -573,6 +637,11 @@ label {
     --primary-glow: color-mix(in srgb, var(--mbti-primary-bright) 26%, transparent);
     --interactive-glow: 0 0 0 1px color-mix(in srgb, var(--primary) 28%, transparent), 0 0 20px var(--primary-glow);
     --accent: var(--mbti-secondary-bright);
+    --accent-bright: var(--mbti-secondary-bright);
+    --accent-soft: color-mix(in srgb, var(--mbti-secondary-bright) 14%, transparent);
+    --link: var(--mbti-primary-bright);
+    --link-hover: var(--mbti-secondary-bright);
+    --heading-accent: var(--mbti-primary-bright);
     --focus-ring: color-mix(in srgb, var(--mbti-primary-bright) 42%, transparent);
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.28);
     --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.28);

@@ -230,33 +230,10 @@
   }
 }
 
+/* compact mobile welcome hierarchy */
 @media (max-width: 620px) {
   .welcome-card {
     min-height: 0;
-    padding: 24px 20px;
-  }
-
-  .welcome-card__transmission-heading,
-  .welcome-card__transmission-extras {
-    grid-template-columns: 1fr;
-  }
-
-  .welcome-card__transmission-heading {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .welcome-card__transmission-button {
-    align-self: flex-start;
-  }
-
-  .welcome-card__transmission-extras {
-    display: grid;
-  }
-}
-/* v0.28 28D3 — compact mobile welcome hierarchy */
-@media (max-width: 620px) {
-  .welcome-card {
     gap: 20px;
     padding: 21px 18px;
   }

@@ -182,7 +182,7 @@
   }
 }
 
-/* v0.27 27E — season task-focused workspace */
+/* season task-focused workspace */
 .league-browser__item,
 .league-hero__actions .button,
 .league-detail .button {
@@ -235,7 +235,7 @@
   }
 }
 
-/* v0.28 28D3 — season arena hierarchy and responsive state cards */
+/* season arena hierarchy and responsive state cards */
 .league-browser__item {
   min-height: 164px;
 }
@@ -318,7 +318,7 @@
     grid-template-columns: 1fr;
   }
 }
-/* v0.28 28D3A — focused Seasons workspace cleanup */
+/* focused Seasons workspace cleanup */
 .season-detail-back {
   display: inline-flex;
   align-items: center;

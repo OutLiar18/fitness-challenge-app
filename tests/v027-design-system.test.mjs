@@ -28,7 +28,7 @@ const dailyProgressCss = fs.readFileSync(
   "utf8",
 );
 
-test("v0.27 uses the Champions Legacy blood-red design tokens", () => {
+test("the default Champions Legacy theme retains its crimson identity", () => {
   assert.match(indexCss, /--primary:\s*#c20e0d;/);
   assert.match(indexCss, /--primary-control:\s*#c20e0d;/);
   assert.match(indexCss, /--primary:\s*#ff5148;/);
@@ -59,7 +59,8 @@ test("Auth and Daily Progress no longer leak legacy blue branding", () => {
   assert.ok(auth.includes("#c20e0d"));
   assert.ok(!progress.includes("#5f86ff"));
   assert.ok(progress.includes("var(--primary-control)"));
-  assert.ok(progress.includes("#ff5148"));
+  assert.ok(progress.includes("var(--primary-depth)"));
+  assert.ok(progress.includes("var(--primary)"));
 });
 
 test("shared controls use readable focus and touch foundations", () => {
@@ -80,11 +81,10 @@ test("application shell has a readable microcopy floor for primary navigation", 
   assert.match(shellCss, /--nav-tone:\s*var\(--tone-cyan\)/);
 });
 
-test("page headers and workspace tabs share the v0.27 brand treatment", () => {
-  assert.match(pageHeaderCss, /v0\.27 27B — shared page-header identity/);
+test("page headers and workspace tabs share the theme-aware visual foundation", () => {
   assert.match(pageHeaderCss, /\.page-header::before/);
+  assert.match(pageHeaderCss, /var\(--accent-bright\)/);
   assert.match(pageHeaderCss, /font-size:\s*0\.78rem;/);
-  assert.match(workspaceTabsCss, /v0\.27 27B — workspace navigation visual foundation/);
   assert.match(workspaceTabsCss, /\.workspace-tab--active[\s\S]*?inset 3px 0 0 var\(--primary\)/);
   assert.match(workspaceTabsCss, /font-size:\s*0\.75rem;/);
 });

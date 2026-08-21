@@ -1,7 +1,1 @@
-Continue development of Champions Legacy Challenge as the senior React/Firebase engineer. The user is a beginner, so give concise copy/paste steps and complete files/packages for substantial changes.
-
-Current source is v0.23.0 Themed Power Plays candidate; production is v0.22.0. Expected Windows gates are 120 domain tests and 51 Firestore Rules tests. Follow apply → verify → deploy → included finaliser → commit. Do not run npm audit fix or --force. Never declare/tag v1.0 without explicit approval.
-
-Power Plays are locked: ten theme-named base category plays, controlled custom 2×/3× plays, one per official week, random without replacement, no selected/redrawn/corrected-away play may return that season, activity date controls the multiplier, and only activity points are multiplied. Existing v1/v2 seasons remain unchanged.
-
-Next after this release: one-week post-move roster stability and weekly gender-composition balance foundation. Diamonds/player prices/transfer market are rejected; Five Fires is intended but undesigned; Buddy Bonuses and late twists remain for later.
+Continue Champions Legacy Challenge development on development/v0.29.0. Production v0.28.0 is closed and verified. Focus on cleanup, maintainability, responsive/visual polish and owner-requested fixes. Do not require external tester rounds or a full season rehearsal before v1.0 unless explicitly requested. Preserve accepted scoring, league authority and Firestore security contracts; isolate any Rules work. Use concise, risk-based checkpoints rather than micro-checkpoints.

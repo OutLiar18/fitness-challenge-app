@@ -222,7 +222,7 @@
   .mbti-quick-test__progress > span { transition: none; }
 }
 
-/* 28D13 legacy identity cards */
+/* legacy identity cards */
 .mbti-type-card {
   align-items: flex-start;
 }

@@ -251,7 +251,7 @@
   }
 }
 
-/* v0.25.0 25B — MBTI Legacy Profiles */
+/* MBTI Legacy Profiles */
 .profile-identity__choose {
   margin-top: 18px;
 }
@@ -348,7 +348,7 @@
   .profile-personality__wide { grid-column: auto; }
 }
 
-/* v0.27 27D — profile readability and status recovery */
+/* profile readability and status recovery */
 .profile-identity__copy > p:first-child,
 .profile-editor__header p:first-child,
 .profile-card__header p,
@@ -380,7 +380,7 @@
   }
 }
 
-/* 28D13 Profile legacy identity */
+/* Profile legacy identity */
 .profile-identity {
   position: relative;
   border-color: color-mix(in srgb, var(--legacy-secondary, var(--primary)) 34%, var(--border));

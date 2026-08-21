@@ -47,7 +47,7 @@ test("28D2B keeps Progress responsive while restoring desktop tab titles", () =>
   assert.match(progress, /Every honest entry adds iron to your record/);
   assert.doesNotMatch(progress, /View analytics/);
   assert.doesNotMatch(progress, /badge:/);
-  assert.match(progressCss, /28D2B — responsive Progress polish/);
+  assert.match(progressCss, /@media \(max-width: 760px\)/);
   assert.match(progressCss, /\.progress-hero__level-wrap \{[\s\S]*aspect-ratio: 1/);
   assert.match(progressCss, /width: clamp\(136px, 42vw, 160px\)/);
   assert.match(progressCss, /\.progress-page \.workspace-tab__copy \{[\s\S]*position: static/);

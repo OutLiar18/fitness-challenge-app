@@ -46,15 +46,6 @@
   min-width: 0;
 }
 
-.section-kicker {
-  margin-bottom: 5px;
-  color: var(--primary);
-  font-size: 0.7rem;
-  font-weight: 900;
-  letter-spacing: 0.11em;
-  text-transform: uppercase;
-}
-
 .admin-overview__hero {
   display: flex;
   align-items: center;
@@ -992,7 +983,7 @@
   background: var(--success-soft);
 }
 
-/* v0.27 27F — admin density and touch/readability */
+/* admin density and touch/readability */
 .admin-page .section-kicker {
   font-size: 0.78rem;
 }

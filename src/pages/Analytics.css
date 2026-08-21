@@ -117,7 +117,7 @@
   .analytics-day { min-width: 0; }
 }
 
-/* v0.27 27D — analytics semantic/readable data */
+/* analytics semantic/readable data */
 .analytics-toolbar select {
   min-height: 46px;
 }

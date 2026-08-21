@@ -6,6 +6,7 @@
   padding: 24px;
   overflow: hidden;
   background:
+    radial-gradient(circle at 92% 0%, var(--accent-soft), transparent 16rem),
     linear-gradient(135deg, var(--surface), var(--surface-soft));
 }
 
@@ -40,6 +41,7 @@
 
 .page-header h1 {
   margin-bottom: 7px;
+  color: color-mix(in srgb, var(--text) 88%, var(--heading-accent));
   font-size: clamp(1.55rem, 3.2vw, 2.35rem);
 }
 
@@ -96,12 +98,13 @@
   }
 }
 
-/* v0.27 27B — shared page-header identity */
+/* shared page-header identity */
 .page-header {
   position: relative;
   border-color: color-mix(in srgb, var(--primary) 18%, var(--border));
   background:
-    linear-gradient(135deg, var(--surface-raised), var(--surface-soft));
+    radial-gradient(circle at 92% 0%, var(--accent-soft), transparent 18rem),
+    linear-gradient(135deg, color-mix(in srgb, var(--primary) 3%, var(--surface-raised)), var(--surface-soft));
   box-shadow: var(--shadow-md);
 }
 
@@ -110,7 +113,7 @@
   inset: 0 auto 0 0;
   width: 4px;
   border-radius: var(--radius-lg) 0 0 var(--radius-lg);
-  background: linear-gradient(180deg, var(--primary), var(--primary-control));
+  background: linear-gradient(180deg, var(--accent-bright), var(--primary), var(--primary-control));
   content: "";
 }
 

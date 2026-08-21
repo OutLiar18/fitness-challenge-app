@@ -17,16 +17,6 @@
     var(--surface);
 }
 
-.section-kicker,
-.rulebook-section-heading > .section-kicker {
-  margin-bottom: 6px;
-  color: var(--primary);
-  font-size: 0.7rem;
-  font-weight: 900;
-  letter-spacing: 0.11em;
-  text-transform: uppercase;
-}
-
 .rulebook-intro h2,
 .rulebook-section-heading h2 {
   margin-bottom: 10px;
@@ -599,7 +589,7 @@
   }
 }
 
-/* v0.27 27F — reference reading and filter accessibility */
+/* reference reading and filter accessibility */
 .rulebook-page .section-kicker,
 .rulebook-section-heading > .section-kicker {
   font-size: 0.78rem;

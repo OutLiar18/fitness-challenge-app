@@ -194,7 +194,7 @@
   .inbox-private-item__copy > div:first-child { flex-direction: column; gap: 3px; }
 }
 
-/* v0.27 27D — inbox scanning and touch targets */
+/* inbox scanning and touch targets */
 .inbox-filter {
   min-height: 44px;
   border-width: 1px;

@@ -1,15 +1,12 @@
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 
-const EXPECTED_VERSION = "0.27.0";
+const EXPECTED_VERSION = "0.29.0";
 const EXPECTED_PROJECT = "fitnesschallengeapp-9e87f";
 const EXPECTED_HOSTING_TARGET = "app";
 const EXPECTED_HOSTING_SITE = "champions-legacy-challenge";
-const EXPECTED_APP_TEST_COUNT = 188;
-const EXPECTED_RULES_TEST_COUNT = 98;
-const RELEASE_SOURCE_BASELINE = "ad92777cfa86481002639297ce8c7dce69b0e269";
 const EXPECTED_RULES_SHA =
   "35d12a285436b420a13ec3cfaac0b9cd93a9c4a2a2d38735e92a7c0b950cef6e";
 
@@ -53,11 +50,6 @@ function requireText(relativePath, markers) {
   }
 }
 
-function countTests(relativePath) {
-  const text = readText(relativePath);
-  return (text.match(/^\s*test\(/gm) ?? []).length;
-}
-
 function git(args) {
   try {
     return execFileSync("git", args, {
@@ -72,45 +64,6 @@ function git(args) {
   }
 }
 
-function verifyFrozenSourceBoundary() {
-  const head = git(["rev-parse", "HEAD"]);
-  if (!head) return;
-
-  try {
-    execFileSync("git", ["merge-base", "--is-ancestor", RELEASE_SOURCE_BASELINE, "HEAD"], {
-      cwd: root,
-      stdio: "ignore",
-    });
-  } catch {
-    failures.push(
-      `HEAD ${head} does not descend from accepted 27G source ${RELEASE_SOURCE_BASELINE}.`,
-    );
-    return;
-  }
-
-  const changed = git(["diff", "--name-only", RELEASE_SOURCE_BASELINE, "--"])
-    .split(/\r?\n/)
-    .map((item) => item.trim())
-    .filter(Boolean);
-
-  const allowed = new Set([
-    "package.json",
-    "scripts/release-readiness.mjs",
-    "scripts/block-development-deploy.mjs",
-    "tests/v027-acceptance.test.mjs",
-  ]);
-
-  const unexpected = changed.filter(
-    (relativePath) => !relativePath.startsWith("docs/") && !allowed.has(relativePath),
-  );
-
-  if (unexpected.length > 0) {
-    failures.push(
-      `Runtime/application source changed after accepted 27G baseline: ${unexpected.join(", ")}.`,
-    );
-  }
-}
-
 const packageData = readJson("package.json");
 const lockData = readJson("package-lock.json");
 const firebaseConfig = readJson("firebase.json");
@@ -121,57 +74,24 @@ if (packageData) {
     failures.push(`Expected package version ${EXPECTED_VERSION}, found ${packageData.version}.`);
   }
 
-  if (
-    packageData.scripts?.["check:release"]
-    !== "npm run check && node scripts/release-readiness.mjs"
-  ) {
-    failures.push(
-      "check:release must run the full v0.27 application gate followed by the 27R verifier.",
-    );
+  if (packageData.scripts?.check !== "npm run lint && npm test && npm run build && npm run quality:ui") {
+    failures.push("npm run check must retain lint, tests, build and the UI quality gate.");
+  }
+
+  if (packageData.scripts?.["quality:ui"] !== "node scripts/ui-quality-check.mjs --verify") {
+    failures.push("quality:ui must run the version-neutral UI quality verifier.");
   }
 
   const blockedScript = "node scripts/block-development-deploy.mjs";
-  for (const name of [
-    "finalise:release",
-    "deploy:rules",
-    "deploy:hosting",
-    "deploy:production",
-  ]) {
+  for (const name of ["finalise:release", "deploy:rules", "deploy:hosting", "deploy:production"]) {
     if (packageData.scripts?.[name] !== blockedScript) {
-      failures.push(`${name} must remain blocked during the v0.27 release freeze.`);
+      failures.push(`${name} must remain blocked from normal development commands.`);
     }
   }
-
-  if (packageData.scripts?.check !== "npm run lint && npm test && npm run build && npm run accept:v027") {
-    failures.push("The normal v0.27 application check must retain lint, tests, build and accept:v027.");
-  }
-
-  const testFiles = [
-    ...new Set(
-      [...String(packageData.scripts?.test ?? "").matchAll(/tests\/[A-Za-z0-9_.-]+\.test\.mjs/g)]
-        .map((match) => match[0]),
-    ),
-  ];
-
-  const appTestCount = testFiles.reduce(
-    (total, relativePath) => total + countTests(relativePath),
-    0,
-  );
-
-  if (appTestCount !== EXPECTED_APP_TEST_COUNT) {
-    failures.push(
-      `Expected exactly ${EXPECTED_APP_TEST_COUNT} application tests in the frozen npm test surface; found ${appTestCount}.`,
-    );
-  }
-
-  globalThis.__releaseAppTestCount = appTestCount;
 }
 
 if (lockData) {
-  if (
-    lockData.version !== EXPECTED_VERSION
-    || lockData.packages?.[""]?.version !== EXPECTED_VERSION
-  ) {
+  if (lockData.version !== EXPECTED_VERSION || lockData.packages?.[""]?.version !== EXPECTED_VERSION) {
     failures.push(`package-lock.json must identify v${EXPECTED_VERSION} at the root.`);
   }
 }
@@ -196,80 +116,48 @@ if (firebaseAliases) {
   if (defaultProject !== EXPECTED_PROJECT) {
     failures.push(`Default Firebase project must be ${EXPECTED_PROJECT}.`);
   }
-
   if (!hostingSites.includes(EXPECTED_HOSTING_SITE)) {
-    failures.push(
-      `Hosting target ${EXPECTED_HOSTING_TARGET} must map to ${EXPECTED_HOSTING_SITE}.`,
-    );
+    failures.push(`Hosting target ${EXPECTED_HOSTING_TARGET} must map to ${EXPECTED_HOSTING_SITE}.`);
   }
-}
-
-const rulesTestCount = countTests("tests/firestore.rules.test.mjs");
-if (rulesTestCount !== EXPECTED_RULES_TEST_COUNT) {
-  failures.push(
-    `Expected ${EXPECTED_RULES_TEST_COUNT} Firestore Rules tests to remain available; found ${rulesTestCount}.`,
-  );
 }
 
 const rulesSha = canonicalSha256("firestore.rules");
 if (rulesSha !== EXPECTED_RULES_SHA) {
   failures.push(
-    `Firestore Rules changed unexpectedly. Expected SHA-256 ${EXPECTED_RULES_SHA}, found ${rulesSha}. `
-    + "Stop 27R and run an isolated Rules regression before proceeding.",
+    `Firestore Rules changed. Expected canonical SHA-256 ${EXPECTED_RULES_SHA}, found ${rulesSha}. `
+    + "Treat Rules changes as a separate security review.",
   );
 }
 
-requireText("docs/01_CURRENT_DEVELOPMENT/V027_ACCEPTANCE_AUTOMATED.md", [
-  "Automated status: **PASS**",
-  "Browser-native confirm/prompt usages in pages/components: 0",
-]);
+for (const forbidden of [".env", ".firebase", "firebase-debug.log", "firestore-debug.log"]) {
+  const tracked = git(["ls-files", "--", forbidden]);
+  if (tracked) {
+    failures.push(`Local/generated artifact must not be tracked in release source: ${forbidden}`);
+  }
+}
 
-requireText("docs/01_CURRENT_DEVELOPMENT/V027_PERFORMANCE_ACCEPTANCE.md", [
-  "Manual acceptance status: **PASS**",
-  "27G accepted on 11 August 2026",
-  "five bounded 27G defects",
-]);
-
+requireText("README.md", ["Development line: **v0.29.0**", "Production: **v0.28.0**"]);
 requireText("docs/01_CURRENT_DEVELOPMENT/CURRENT_STATE.md", [
-  "27R release freeze",
-  "27G manual authenticated visual acceptance: PASSED",
-  "Production version: 0.26.0",
+  "Current development branch: `development/v0.29.0`",
+  "Production version: **v0.28.0**",
 ]);
+requireText("docs/01_CURRENT_DEVELOPMENT/NEXT_SESSION.md", ["development/v0.29.0"]);
+requireText("scripts/block-development-deploy.mjs", ["Production deployment is intentionally blocked"]);
 
-requireText("docs/01_CURRENT_DEVELOPMENT/V027_RELEASE_CANDIDATE.md", [
-  RELEASE_SOURCE_BASELINE,
-  EXPECTED_RULES_SHA,
-  "188/188 application tests",
-  "27G manual authenticated visual acceptance: PASS",
-  "NO FIREBASE DEPLOYMENT",
-  "separate reviewed production activation runner",
-]);
-
-requireText("scripts/block-development-deploy.mjs", [
-  "v0.27.0 release freeze",
-  "v0.26.0 remains the verified production baseline",
-]);
-
-verifyFrozenSourceBoundary();
+const branch = git(["branch", "--show-current"]);
+if (branch && branch !== "development/v0.29.0") {
+  failures.push(`Release-readiness should run from development/v0.29.0; current branch is ${branch}.`);
+}
 
 if (failures.length > 0) {
-  console.error("v0.27.0 release-readiness verification failed:");
-  for (const failure of failures) console.error(`- ${failure}`);
+  console.error("Release-readiness verification failed:");
+  failures.forEach((failure) => console.error(`- ${failure}`));
   process.exitCode = 1;
 } else {
-  console.log("27R RELEASE-READINESS: PASS");
-  console.log(`Accepted 27G runtime baseline: ${RELEASE_SOURCE_BASELINE}.`);
-  console.log(`Application tests in frozen npm test surface: ${globalThis.__releaseAppTestCount}.`);
-  console.log(`Firestore Rules tests retained: ${EXPECTED_RULES_TEST_COUNT}.`);
-  console.log(`Canonical unchanged Firestore Rules SHA-256: ${rulesSha}.`);
-  console.log(
-    "Rules emulator regression was not rerun because firestore.rules remains byte-for-byte "
-    + "identical to the verified v0.26 production Rules source.",
-  );
-  console.log(
-    "Firebase production mapping verified: fitnesschallengeapp-9e87f -> "
-    + "Hosting target app -> champions-legacy-challenge.",
-  );
-  console.log("Development production/finalisation scripts remain blocked.");
-  console.log("NO FIREBASE DEPLOYMENT is performed by 27R.");
+  console.log("RELEASE READINESS: PASS");
+  console.log(`- Package version: ${EXPECTED_VERSION}`);
+  console.log(`- Firebase project: ${EXPECTED_PROJECT}`);
+  console.log(`- Hosting target/site: ${EXPECTED_HOSTING_TARGET} / ${EXPECTED_HOSTING_SITE}`);
+  console.log(`- Firestore Rules SHA-256: ${EXPECTED_RULES_SHA}`);
+  console.log("- Normal production deploy commands remain blocked.");
 }

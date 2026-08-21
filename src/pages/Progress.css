@@ -509,7 +509,7 @@
   }
 }
 
-/* v0.27 27D — progress readability and recovery */
+/* progress readability and recovery */
 .progress-eyebrow {
   font-size: 0.78rem;
 }
@@ -558,7 +558,7 @@
   }
 }
 
-/* v0.28 28D2 — Progress hierarchy, achievement ladders and long-term levels */
+/* Progress hierarchy, achievement ladders and long-term levels */
 .progress-page,
 .progress-page .workspace-panel,
 .progress-page .progress-section,
@@ -860,7 +860,7 @@
     flex-direction: column;
   }
 }
-/* v0.28 28D2B — responsive Progress polish and owner tab clarification */
+/* responsive Progress polish and owner tab clarification */
 .progress-hero__level-wrap {
   width: clamp(144px, 15vw, 170px);
   min-width: 0;

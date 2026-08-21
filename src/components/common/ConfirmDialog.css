@@ -96,7 +96,7 @@
   }
 }
 
-/* v0.27 27E — typed destructive confirmation */
+/* typed destructive confirmation */
 .confirm-dialog__phrase {
   grid-column: 1 / -1;
   display: grid;

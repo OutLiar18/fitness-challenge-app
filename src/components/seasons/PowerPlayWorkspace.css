@@ -283,7 +283,7 @@
     width: 100%;
   }
 }
-/* v0.28 28D3A — compact Power Play setup */
+/* compact Power Play setup */
 .power-play-editor-list {
   display: grid;
   gap: 10px;

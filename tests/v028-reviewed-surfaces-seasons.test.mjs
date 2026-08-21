@@ -29,7 +29,7 @@ test("28D3 keeps the Dashboard progression preview focused", () => {
 });
 
 test("28D3 reduces Welcome Card pressure without collapsing useful content too early", () => {
-  assert.match(welcomeCss, /28D3 — compact mobile welcome hierarchy/);
+  assert.match(welcomeCss, /@media \(max-width: 620px\)/);
   assert.match(welcomeCss, /@media \(max-width: 620px\)[\s\S]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
   assert.match(welcomeCss, /@media \(max-width: 460px\)[\s\S]*grid-template-columns: 1fr/);
 });

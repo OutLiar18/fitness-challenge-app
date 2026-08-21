@@ -452,7 +452,7 @@
   }
 }
 
-/* v0.27 27E — House task-focused workspace */
+/* House task-focused workspace */
 .season-selector select {
   min-height: 46px;
 }
@@ -506,7 +506,7 @@
     width: 100%;
   }
 }
-/* v0.28 28D4 — House identity and local palette system */
+/* House identity and local palette system */
 .season-houses-page {
   width: 100%;
 }
@@ -936,7 +936,7 @@
     align-items: start;
   }
 }
-/* v0.28 28D4A — portable vector House emblems */
+/* portable vector House emblems */
 .house-emblem > span,
 .season-house-card__emblem,
 .house-theme-preview__emblem,
@@ -973,7 +973,7 @@
   width: 58px;
   height: 58px;
 }
-/* v0.28 28D4B — professional House emblem pack */
+/* professional House emblem pack */
 .house-emblem > span svg,
 .season-house-card__emblem svg,
 .house-theme-preview__emblem svg,
@@ -1001,7 +1001,7 @@
     inset 0 0 22px color-mix(in srgb, var(--house-accent) 10%, transparent),
     0 12px 28px color-mix(in srgb, var(--house-accent) 12%, transparent);
 }
-/* v0.28 28D4C — full-colour raster House emblems */
+/* full-colour raster House emblems */
 .house-emblem > span,
 .season-house-card__emblem,
 .house-theme-preview__emblem,

@@ -95,7 +95,7 @@
   }
 }
 
-/* v0.28 28D1 — compact Action Centre guide */
+/* compact Action Centre guide */
 .activity-page__guide {
   display: grid;
   grid-template-columns: repeat(3, auto);

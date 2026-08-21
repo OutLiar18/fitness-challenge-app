@@ -331,7 +331,7 @@
     grid-template-columns: 1fr;
   }
 }
-/* v0.28 28D3A — Command Centre progressive disclosure */
+/* Command Centre progressive disclosure */
 .season-ops-disclosure {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);

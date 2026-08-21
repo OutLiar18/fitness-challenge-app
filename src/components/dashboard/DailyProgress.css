@@ -48,7 +48,7 @@
 .daily-progress__fill {
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #7f0608 0%, var(--primary-control) 54%, #ff5148 100%);
+  background: linear-gradient(90deg, var(--primary-depth) 0%, var(--primary-control) 54%, var(--primary) 100%);
   box-shadow: 0 0 16px var(--primary-glow);
   transition: width 320ms ease;
 }

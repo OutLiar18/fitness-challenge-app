@@ -151,7 +151,7 @@ test("28D14 mounts one global MBTI theme bridge and keeps semantic status colour
   const protectedApp = read("src/routes/ProtectedApp.jsx");
   const bridge = read("src/components/common/MbtiThemeBridge.jsx");
   const styles = read("src/index.css");
-  const marker = styles.indexOf("28D14 — MBTI-driven global presentation");
+  const marker = styles.indexOf(":root[data-mbti-theme]");
 
   assert.match(protectedApp, /<PlayerDataProvider>[\s\S]*<MbtiThemeBridge \/>[\s\S]*<GlobalLibraryProvider>/);
   assert.match(bridge, /document\.documentElement/);
